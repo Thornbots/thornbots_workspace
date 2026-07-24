@@ -405,3 +405,45 @@ is still in progress unless explicitly asked.
   `sim`'s world yet if a precise arena map is needed; Referee System
   UART/data-interface spec not yet sourced (needed before real firing-timing
   work starts).
+- **rf2o's `/scan_odom` still needs real covariance to match `/odom`'s fix
+  (2026-07-24)** — investigated why `ekf_node`'s fusion showed zero
+  measurable improvement over raw wheel odometry (live diagnostic:
+  compared both `/odom` and ekf-fused `odom->root` against sim ground
+  truth `/sim/raw_odom` while driving `drift_correction`'s hard-cornering
+  loop). Root cause: both `/odom` (`sentry_pkg/pose_translator.py`) and
+  `/scan_odom` (rf2o) published all-zero covariance on their `Odometry`
+  messages — `robot_localization`'s EKF uses each source's covariance to
+  weight how much to trust it, so with both claiming "zero uncertainty"
+  it had no signal to ever prefer rf2o's scan-matched estimate over raw
+  dead-reckoning (or vice versa). Fixed the `/odom` side only so far
+  (`sentry_pkg` commit `b899388`, 1cm stddev position/velocity — verified
+  zero effect on `slam`/`amcl`, whose only other `/odom` consumers,
+  `passthrough_odom_publisher.py`/`odom_tf_broadcaster.py`, never read
+  covariance). **That one-sided fix alone made EKF fusion measurably
+  worse** (mean error vs ground truth: 0.013m → 0.032m, -15.2% vs the
+  original -0.3%) — confirmed via the same live diagnostic rerun after
+  rebuilding `sentry_pkg`. Makes sense in hindsight: a covariance of
+  exactly zero reads as "infinitely certain" to a Kalman filter, so once
+  `/odom` started reporting honest uncertainty while `/scan_odom` still
+  claimed perfect certainty, the EKF swung to over-trusting rf2o's
+  noisier scan-matching completely. **Next step**: add matching
+  covariance to rf2o's `publish()` in `CLaserOdometry2DNode.cpp` (the
+  separate Thornbots/rf2o_laser_odometry fork, cloned from GitHub during
+  the Docker build — not part of this repo checkout, so this needs a
+  commit/PR to that repo, not just an edit here) — something like x/y
+  variance `0.02**2`, yaw variance `0.05**2` (scan-matching is noisier
+  than wheel encoders) was sketched but not applied/tested yet. Rerun the
+  same ground-truth comparison after, to confirm fusion actually beats
+  raw `/odom` once both sources report real, differentiated covariance.
+  Also unresolved from earlier the same session: `drift_correction`/
+  `drift_correction_obstacle` were enabled for `--backend ekf` in
+  `sim/test/localization/run_localization_drift_tests.py` (previously
+  skipped), but their `MAX_DELTA_THRESHOLD=0.30m` ("delta from pre-loop
+  pose") is calibrated for `map->odom`'s residual-correction semantics
+  (slam/amcl) — for `odom->root`, that delta is mostly the robot's own
+  real motion around the ~2m loop, not drift/error, so both scenarios
+  reliably FAIL for `ekf` right now (confirmed: ~2.2m, matching the
+  loop's real size) without indicating an actual problem. Needs its own
+  ekf-appropriate metric (e.g. error vs ground truth / vs raw `/odom`,
+  once the covariance fix above lands) rather than the current
+  delta-from-start threshold.
