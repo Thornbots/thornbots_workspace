@@ -93,9 +93,6 @@ is still in progress unless explicitly asked.
   gravity disabled) driven by a single `VelocityControl` plugin off
   `/cmd_vel`; earlier kinematic joint-chain approach (`world -> planar_x ->
   planar_y -> yaw_base -> suspension_z -> root`) was removed entirely.
-- Added a gz-sim contact sensor (`/body_contact`,
-  `ros_gz_interfaces/msg/Contacts`) so `auto_explore.py` reacts to actual
-  physical touch immediately, not just map-inferred walls.
 - Lidar tuned to match a real RPLIDAR A2M8 (min range 0.15m, max 12m, bumped
   noise stddev).
 - Spawn height settled at `z = 0.03` (the chassis floats with no ground
@@ -181,6 +178,29 @@ is still in progress unless explicitly asked.
 
 ## Currently open / next up
 
+- **Found (2026-07-24): the robot drives straight through obstacles in sim,
+  by design, not a bug** — investigated after the user noticed the "test
+  bench" (`sim/test/localization/run_localization_drift_tests.py`'s
+  `drift_correction_obstacle` scenario, via `spawn_box_obstacle()`) letting
+  the robot pass through its spawned `unmapped_test_obstacle` box.
+  `sim/urdf/sentry.urdf.xacro`'s `root` link comment (~line 112) explains
+  why: **no link in the model carries any `<collision>` geometry at all**,
+  deliberately — an earlier kinematic joint-chain design that gave `root` a
+  hard rotation lock broke `set_pose` teleporting (gz-physics only honors
+  direct pose writes, needed by `auto_explore.py`'s grid sweep, on a link
+  its FreeGroup API sees as genuinely free-floating; a jointed link doesn't
+  qualify). The fix made `root` free-floating *and* stripped all collision
+  geometry, specifically so no contact torque could ever reach it and
+  defeat the soft (inertia-based) rotation lock. That solved tipping/
+  teleporting, but as a side effect the chassis has zero physical presence
+  in gz-physics — it can't collide with anything, mapped wall or
+  `drift_correction_obstacle`'s spawned box alike. The box itself does have
+  real `<collision>` geometry, so lidar/SLAM see it as expected; only the
+  robot's own body passes through it. Not yet decided whether/how to fix
+  (e.g. a collision-only proxy shape that doesn't feed torque back into
+  `root`) — revisit if obstacle-avoidance behavior (not just
+  obstacle-*mapping*) becomes something `auto_explore.py` needs to
+  demonstrate.
 - **Add an EKF fusing `/odom` + `/scan` for `odom->root`** — replace
   `pose_translator`'s plain republish (see the pose-ownership refactor
   above) with real fusion. Planned out in detail 2026-07-20 (see
