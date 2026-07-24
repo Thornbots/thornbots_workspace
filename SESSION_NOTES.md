@@ -4,6 +4,12 @@ Goals, what's done, and what's still open for the `sim` (gz-sim) and
 `sentry_pkg` (SLAM) packages. Written for future-me (or a future Claude
 session) picking this back up — read this before continuing that work.
 
+This file itself (along with `CLAUDE.md`, `DOCKER.md`,
+`ARCC_2026_SENTRY_CONTEXT.md`, and `.claude/`) lives in its own repo,
+[`Thornbots/sentry_workspace`](https://github.com/Thornbots/sentry_workspace)
+(2026-07-24) — separate from `sim`/`sentry_pkg`/`sentry_localization`, which
+each remain their own repos.
+
 ## Overall goal
 
 Get a gz-sim simulation of the "sentry" robot running, driveable, and mapping
