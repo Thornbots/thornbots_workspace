@@ -82,8 +82,10 @@ measurements before it was noticed — the tell was the filter output
 matching an input to 3 decimal places, which is not something real fusion
 does.
 
-**To test an edit against the shadowing copy**, push it into `ros2_ws`'s
-source tree (root-owned, hence `-r`). Layers build with
+**To test an edit against the shadowing copy** — needed when the launch
+will come from the user's terminal, which resolves to `ros2_ws`; not needed
+for `dexec.sh` launches, which already pick up your `src/` edit — push it
+into `ros2_ws`'s source tree (root-owned, hence `-r`). Layers build with
 `--symlink-install`, so for config/launch/xacro files this takes effect
 immediately with no rebuild:
 ```bash
