@@ -11,7 +11,9 @@
       "Bash(sed -i 's|model://sentry_pkg/|model://sim/|g' /home/blaise/workspaces/isaac_ros-dev/src/sim/world/ARCC_Field_2026.sdf)",
       "Bash(getent group *)",
       "Bash(./run_dev.sh -b *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(diff *)",
+      "Bash(grep *)"
     ]
   }
 }
