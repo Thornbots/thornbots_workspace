@@ -137,6 +137,23 @@ is still in progress unless explicitly asked.
   and the earlier `libEGL warning: failed to open /dev/dri/card0` /
   `failed to create dri2 screen` log spam is gone.
 
+- **Code comment cleanup (2026-07-26)**: trimmed every in-code comment/
+  docstring over 10 lines across `sentry_pkg`, `sentry_localization`,
+  `sim`, `realsense-yolov8-nitros-bridge`, and `ros2_dji_serial_bridge`
+  down to interface facts only; moved the removed tuning
+  history/postmortems/design rationale (including the 260-line module
+  docstring and 89-line `CORRECTION_FRACTION` postmortem in
+  `run_localization_drift_tests.py`, and the `amcl.yaml`/`ekf.yaml` tuning
+  histories) into each package's own `README.md` under a `## Notes`
+  section, with `# see README.md` pointers left in code where that
+  history still matters for future tuning. `ros2_dji_serial_bridge/
+  README.md` was previously empty and now has real content (message
+  table, wire-format diagram, diagnostic decision table). Committed and
+  pushed per-package (`sentry_pkg@d2a45a8`, `sentry_localization@8ab0de1`,
+  `sim@f08740f`, `realsense-yolov8-nitros-bridge@3605d5f`,
+  `ros2_dji_serial_bridge@34c7901`) — purely comment/doc changes, no logic
+  touched.
+
 ### Bugs found and fixed (for context, not still open)
 
 - TF tree had two nodes both broadcasting `root`'s parent transform
@@ -507,3 +524,33 @@ is still in progress unless explicitly asked.
   `|displacement|` and scored rf2o as healthy at ~1% error while it was
   pointing exactly backwards. Comparing displacement *vectors* (the angle
   between them) is what found it — worth doing for any odometry source.
+
+## 2026-07-26 — decoupled EKF from `localization_mode`
+
+`localization_mode:=ekf` no longer exists as a value. It was a 4-way
+choice conflating two decisions: who owns `map->odom` (slam_toolbox/amcl)
+and who owns `odom->root` (raw `/odom` passthrough, or EKF fusion of
+`/odom` + `/scan_odom`). Split into two independent launch args:
+- `localization_mode`: `slam` (default) / `mapping` / `amcl` / `none` —
+  map->odom owner (or nobody, for `none`).
+- `use_ekf` (new bool, default `false`) — whether `odom->root` is
+  EKF-fused instead of passed through raw.
+
+The old map-free EKF-only configuration (the one that produced the
+89%-over-wheel-odometry result above, and what
+`run_localization_drift_tests.py --backend ekf` exercises) is unchanged in
+behavior, just reached as `localization_mode:=none use_ekf:=true` now
+instead of `localization_mode:=ekf`.
+
+New, previously unlaunchable combination: `slam`/`amcl` + `use_ekf:=true`
+— a map backend with EKF-fused odometry underneath it. Not exercised by
+any automated test yet (flagged as a coverage gap in
+`sim/README.md`/this refactor's plan, not a bug). Worth noting for future
+testing: `mcb_relay`'s `relocalize` path compares `/localization/odom`
+against `/odom`; today `slam`/`amcl`/`mapping` all pass `/odom` through
+unchanged, so that drift check is structurally near-zero and the
+relocalize path is dormant in map-backend runs. Once `slam`/`amcl` +
+`use_ekf:=true` is actually run, `/localization/odom` diverges from
+`/odom` for the first time in a map-backend config, making that
+relocalize path live rather than dormant — no code change needed, just
+something to watch for if testing that combination on real hardware.
