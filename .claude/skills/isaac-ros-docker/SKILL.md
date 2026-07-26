@@ -14,7 +14,11 @@ if you need details beyond this summary.
   `isaac_ros_common/scripts/`.
 - Host `isaac_ros-dev/src` is bind-mounted to
   `/workspaces/isaac_ros-dev/src` in the container — source edits don't need
-  a rebuild, only dependency/package changes do. **Not** directly at
+  a rebuild, only dependency/package changes do. **But only for packages
+  that actually resolve to this workspace** — several are ALSO cloned into
+  `/workspaces/ros2_ws` by `Dockerfile.thornbots`, and that copy wins. See
+  "Two workspaces" below before trusting any edit you make under `src/`.
+  **Not** directly at
   `/workspaces/isaac_ros-dev` — that path is the colcon workspace root
   (`build/`, `install/`, `log/`, plus `src/`), one level up from the bind
   mount. Easy to get wrong when building a path by hand (e.g.
@@ -30,6 +34,59 @@ if you need details beyond this summary.
   `docker/Dockerfile.ros2_humble` → `docker/Dockerfile.realsense` →
   `docker/Dockerfile.thornbots` (custom top layer with this org's apt
   packages and git-cloned/colcon-built packages).
+
+## Two workspaces: `/workspaces/ros2_ws` silently shadows your `src/` edits
+
+**Read this before concluding that a config or source change "had no
+effect", and before trusting any measurement taken after editing one.**
+
+There are two colcon workspaces in the container, and they overlap:
+
+| workspace | what's in it | origin |
+|---|---|---|
+| `/workspaces/ros2_ws` | `sentry_pkg`, `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
+| `/workspaces/isaac_ros-dev` | `sim`, `sentry_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
+
+`dexec.sh` sources `ros2_ws` first, then `isaac_ros-dev` — but sourcing
+second does **not** win here: `ros2_ws`'s entries come first in
+`AMENT_PREFIX_PATH`, so for any package present in both, **the image-baked
+GitHub clone is what launches**, not your edit.
+
+This fails silently and looks like a real result, not a mistake. Editing
+`src/sentry_localization/config/ekf.yaml` and relaunching produces a stack
+running the *old* config with no warning of any kind. On 2026-07-25 this
+invalidated an entire round of EKF measurements before it was noticed —
+the tell was the filter output matching an input to 3 decimal places,
+which is not something real fusion does.
+
+**Always confirm which copy is live before measuring:**
+```bash
+dexec.sh -- bash -lc 'ros2 pkg prefix sentry_localization'
+# /workspaces/ros2_ws/install/...      -> your src/ edit is NOT live
+# /workspaces/isaac_ros-dev/install/... -> your src/ edit IS live
+
+# and to see the actual file a node will load (follows symlink-install):
+dexec.sh -- bash -lc 'readlink -f $(ros2 pkg prefix sentry_localization)/share/sentry_localization/config/ekf.yaml'
+```
+
+**To test an edit against the shadowing copy**, push it into `ros2_ws`'s
+source tree (root-owned, hence `-r`). Layers build with
+`--symlink-install`, so for config/launch/xacro files this takes effect
+immediately with no rebuild:
+```bash
+dexec.sh -r -- bash -lc 'cp /workspaces/isaac_ros-dev/src/sentry_localization/config/ekf.yaml \
+    /workspaces/ros2_ws/src/sentry_localization/config/ekf.yaml'
+```
+This is a **test-only** shim — it lives inside the container and dies with
+it. The edit still has to be committed and pushed to the package's own
+GitHub repo to survive, since that's where the build clones from.
+
+Packages that exist *only* in `isaac_ros-dev` (notably `sim`, which
+`Dockerfile.thornbots` deliberately does not clone — see LAYER 2b and
+`install-sim.sh`) have no shadow copy, so `src/` edits to them are live
+immediately. That asymmetry is itself confusing: `sim/urdf/*.xacro` edits
+apply instantly while `sentry_localization/config/*.yaml` edits appear to
+do nothing.
 
 ## Common commands
 
