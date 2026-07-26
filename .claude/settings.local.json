@@ -13,7 +13,10 @@
       "Bash(./run_dev.sh -b *)",
       "Bash(python3 *)",
       "Bash(diff *)",
-      "Bash(grep *)"
+      "Bash(grep *)",
+      "Bash(isaac_ros_common/scripts/dexec.sh -- ln -sfn /tmp/dexec_ln_target_test /tmp/dexec_ln_test_link)",
+      "Bash(isaac_ros_common/scripts/dexec.sh -- readlink /tmp/dexec_ln_test_link)",
+      "Bash(isaac_ros_common/scripts/dexec.sh -- rm /tmp/dexec_ln_test_link)"
     ]
   }
 }
