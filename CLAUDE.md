@@ -21,6 +21,20 @@ SLAM/navigation for the Sentry robot first; timing-based firing logic comes
 after SLAM works. Don't front-run firing/targeting features while nav is
 still in progress unless explicitly asked.
 
+## Coding conventions
+
+- **Keep in-code comments/docstrings under 10 lines.** Trim to just the
+  interface facts a reader needs right now (topics, params, key
+  invariants, current tuned value). Move anything longer — design
+  rationale, tuning history, bug postmortems, long usage examples — into
+  a `## Notes` section in that package's own `README.md`, under a
+  subheading naming the file/topic. Leave a one-line pointer comment
+  (e.g. `# see README.md for design rationale`) only when the trimmed
+  comment would otherwise lose context a future reader needs to know
+  exists (tuning war-stories, incident postmortems, reference tables);
+  skip the pointer for plain interface docstrings with no historical
+  baggage.
+
 ## Packages
 
 - `isaac_ros_common/` — NVIDIA upstream repo, Docker scripts/Dockerfiles
