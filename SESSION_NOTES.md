@@ -405,45 +405,105 @@ is still in progress unless explicitly asked.
   `sim`'s world yet if a precise arena map is needed; Referee System
   UART/data-interface spec not yet sourced (needed before real firing-timing
   work starts).
-- **rf2o's `/scan_odom` still needs real covariance to match `/odom`'s fix
-  (2026-07-24)** — investigated why `ekf_node`'s fusion showed zero
-  measurable improvement over raw wheel odometry (live diagnostic:
-  compared both `/odom` and ekf-fused `odom->root` against sim ground
-  truth `/sim/raw_odom` while driving `drift_correction`'s hard-cornering
-  loop). Root cause: both `/odom` (`sentry_pkg/pose_translator.py`) and
-  `/scan_odom` (rf2o) published all-zero covariance on their `Odometry`
-  messages — `robot_localization`'s EKF uses each source's covariance to
-  weight how much to trust it, so with both claiming "zero uncertainty"
-  it had no signal to ever prefer rf2o's scan-matched estimate over raw
-  dead-reckoning (or vice versa). Fixed the `/odom` side only so far
-  (`sentry_pkg` commit `b899388`, 1cm stddev position/velocity — verified
-  zero effect on `slam`/`amcl`, whose only other `/odom` consumers,
-  `passthrough_odom_publisher.py`/`odom_tf_broadcaster.py`, never read
-  covariance). **That one-sided fix alone made EKF fusion measurably
-  worse** (mean error vs ground truth: 0.013m → 0.032m, -15.2% vs the
-  original -0.3%) — confirmed via the same live diagnostic rerun after
-  rebuilding `sentry_pkg`. Makes sense in hindsight: a covariance of
-  exactly zero reads as "infinitely certain" to a Kalman filter, so once
-  `/odom` started reporting honest uncertainty while `/scan_odom` still
-  claimed perfect certainty, the EKF swung to over-trusting rf2o's
-  noisier scan-matching completely. **Next step**: add matching
-  covariance to rf2o's `publish()` in `CLaserOdometry2DNode.cpp` (the
-  separate Thornbots/rf2o_laser_odometry fork, cloned from GitHub during
-  the Docker build — not part of this repo checkout, so this needs a
-  commit/PR to that repo, not just an edit here) — something like x/y
-  variance `0.02**2`, yaw variance `0.05**2` (scan-matching is noisier
-  than wheel encoders) was sketched but not applied/tested yet. Rerun the
-  same ground-truth comparison after, to confirm fusion actually beats
-  raw `/odom` once both sources report real, differentiated covariance.
-  Also unresolved from earlier the same session: `drift_correction`/
-  `drift_correction_obstacle` were enabled for `--backend ekf` in
-  `sim/test/localization/run_localization_drift_tests.py` (previously
-  skipped), but their `MAX_DELTA_THRESHOLD=0.30m` ("delta from pre-loop
-  pose") is calibrated for `map->odom`'s residual-correction semantics
-  (slam/amcl) — for `odom->root`, that delta is mostly the robot's own
-  real motion around the ~2m loop, not drift/error, so both scenarios
-  reliably FAIL for `ekf` right now (confirmed: ~2.2m, matching the
-  loop's real size) without indicating an actual problem. Needs its own
-  ekf-appropriate metric (e.g. error vs ground truth / vs raw `/odom`,
-  once the covariance fix above lands) rather than the current
-  delta-from-start threshold.
+- **RESOLVED (2026-07-25): `ekf` mode now beats raw wheel odometry by 89%**
+  — supersedes the 2026-07-24 entry that used to live here (which
+  concluded rf2o's missing covariance was why fusion showed no
+  improvement). Covariance was a real bug but **not** the cause; the
+  actual root cause was a lidar scan-convention mismatch. Full chain of
+  findings, in the order they were peeled back:
+  - **`ekf_node` was not running at all.** It exited immediately with
+    code 127, `error while loading shared libraries:
+    libdiagnostic_updater.so`. Same recurring 4.0.6-is-header-only
+    footgun documented in step 1 of the EKF section above, back again
+    after a container recreation. Now pinned in
+    `Dockerfile.thornbots` LAYER 8 as `ros-humble-diagnostic-updater
+    (>= 4.0.7)` (`isaac_ros_common` commit `3986f9b`) so it stops
+    recurring. Note it silently takes out `ekf` *and* `amcl` while
+    `slam` keeps working, which reads like a localization regression
+    rather than a packaging problem.
+  - **Root cause: `sim`'s gpu_lidar published `angle_min=0.0,
+    angle_max=6.28`.** rf2o ignores `angle_min` outright and assumes the
+    scan is symmetric about the sensor's forward axis — see
+    `CLaserOdometry2D.cpp`, which derives each beam's bearing as
+    `fovh = |angle_max - angle_min|; tita = -0.5*fovh + u*fovh/(cols-1)`.
+    So beam 0 was assigned `-pi` when its true bearing was `0`, i.e.
+    every beam off by exactly pi. rf2o therefore perceived the world
+    rotated 180 degrees and published `/scan_odom` displacement with the
+    correct *magnitude* in precisely the wrong *direction* (measured:
+    179.81 deg mean rotation from ground-truth displacement, over all
+    four drive axes). Since `/scan_odom` is the EKF's only absolute
+    position source, fusion was far worse than doing nothing. Fixed in
+    `sim/urdf/sentry.urdf.xacro` to `-3.14..3.14` (`sim` commit
+    `8609d04`), which also matches what real RPLIDAR ROS drivers
+    publish — sim and hardware had silently disagreed on the scan
+    convention. `sentry_pkg`'s `lidar_self_filter` derives bearings as
+    `angle_min + i*angle_increment`, so it was unaffected either way.
+  - **`ekf.yaml` fusion assignment was also wrong** (`sentry_localization`
+    commit `0289165`). `/odom` was fused as absolute x/y, but wheel
+    odometry's dominant error here is *slip* — an error in integrated
+    distance that accumulates monotonically — so its absolute position
+    baked slip permanently into the filter and no covariance tuning let
+    `/scan_odom` pull it back. Measured: driving ~42m straight with
+    `odom_slip_ratio=0.05`, ekf tracked `/odom` to within 0.001m while
+    both sat 2.02m (= 5% of 42m) behind ground truth. Now `/odom`
+    supplies **velocity + yaw** and `/scan_odom` supplies **absolute
+    x/y**. Yaw is pinned from `/odom` deliberately: its orientation is
+    always identity, but that is the *true* heading (holonomic chassis,
+    never rotates), and `robot_localization` rotates odom0's body-frame
+    velocity into the world using the filter's yaw — a wrong yaw
+    integrates velocity backwards. rf2o's yaw is no longer fused at all.
+  - **Result**, vs `/sim/raw_odom` with `odom_slip_ratio=0.05` driving
+    the cornering loop: raw `/odom` mean error 0.171m, ekf-fused 0.019m
+    (**+89%**). Before the fixes: 2.97m.
+  - Drift suite with `--backend ekf`: `baseline` and `noise_correction`
+    PASS, `jerk_with_motion` SKIPs by design, `drift_correction`/
+    `drift_correction_obstacle` FAIL — still the known-bogus metric (see
+    the open item below), not a regression.
+
+## Open after the 2026-07-25 EKF work
+
+- **rf2o's covariance fix is still container-local.** rf2o publishes
+  all-zero covariance upstream, which reads as "infinitely certain" to
+  the EKF. Patched in-container (x/y variance `0.02**2`, yaw `0.05**2`,
+  unobserved axes `1e6`) via `~/workspaces/isaac_ros-dev/rf2o_cov_patch.py`,
+  which must be re-run **and rf2o rebuilt** after every container
+  recreation — already lost once this way. Needs a real commit to
+  `Thornbots/rf2o_laser_odometry` to stop recurring. Worth knowing: on
+  its own this fix changed measured accuracy by essentially nothing; the
+  scan convention was doing all the damage.
+- **`/workspaces/ros2_ws` overrides the bind-mounted `src/` in
+  `AMENT_PREFIX_PATH`.** Editing `src/sentry_localization/config/*.yaml`
+  has NO effect on a running stack — the image-baked GitHub clone from
+  LAYER 8 is what actually loads. This silently invalidated a full round
+  of measurements before it was spotted (the ekf output kept matching
+  `/odom` to 3 decimals, which was the tell). Check with
+  `ros2 pkg prefix sentry_localization`; to test a config change, copy it
+  into `/workspaces/ros2_ws/src/...` as root. Worth deciding whether the
+  isaac_ros-dev overlay should take precedence instead.
+- **`drift_correction`/`drift_correction_obstacle` still need an
+  ekf-appropriate metric.** Their `MAX_DELTA_THRESHOLD=0.30m` ("delta
+  from pre-loop pose") is calibrated for `map->odom`'s
+  residual-correction semantics; for `odom->root` that delta is mostly
+  the robot's own real motion around the ~2m loop (measured 1.82m), so
+  both reliably FAIL without indicating a problem.
+  `sim/test/localization/ekf_ground_truth_diag.py` is the right metric
+  (scores against `/sim/raw_odom` with slip actually enabled) and should
+  probably become these scenarios' assertion for `--backend ekf`.
+- **rf2o degrades at the speed the drift suite drives.** Speed sweep:
+  tracks to within ~1% up to 2.0 m/s, but reports 12% short at 4.0 m/s
+  (`ratio 0.879`), which is what the suite's legs use. rf2o is a
+  range-flow method that linearizes on small inter-scan motion, so this
+  is a suitability ceiling rather than a bug. Options if it matters:
+  raise the sim lidar's 10Hz update rate, cap speed, or swap the scan
+  matcher. It also drifts ~2cm over 20s while completely stationary.
+- **Sim's slip model corrupts position but NOT velocity**
+  (`pose_emulator.py` applies `odom_slip_ratio` to `_slipped_x/y` only;
+  `vel_x`/`vel_y` pass through as true twist). The new velocity-only
+  wheel fusion therefore looks better in sim than it will on real
+  hardware, where encoder *velocity* is wrong during a slip too. Worth
+  making the slip model corrupt velocity before trusting the +89% number
+  as a hardware prediction.
+- **Beware magnitude-only validation.** An early speed sweep compared
+  `|displacement|` and scored rf2o as healthy at ~1% error while it was
+  pointing exactly backwards. Comparing displacement *vectors* (the angle
+  between them) is what found it — worth doing for any odometry source.
