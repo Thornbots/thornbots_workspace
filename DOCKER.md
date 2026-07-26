@@ -87,13 +87,24 @@ isaac_ros_common/scripts/dexec.sh -r -- apt-get install -y ros-humble-foo
 # Launch something and leave it running in the background (setsid'd so
 # kill_launch.sh can clean up the whole tree later):
 isaac_ros_common/scripts/dexec.sh -d -- ros2 launch sim sim.launch.py
-# -> prints the launch PID's log path; find the actual ros2-launch PID via
-#    dexec.sh -- ps aux | grep "ros2 launch" | grep -v grep
+# -> prints the log path and the follow-up commands
+
+# List running launch trees with their PIDs. Use this rather than
+# `ps aux | grep "ros2 launch"`, which also matches dexec.sh's own bash
+# wrapper -- killing that PID's group leaves the real tree running:
+isaac_ros_common/scripts/kill_launch.sh -l
 
 # Cleanly stop that launch tree (all its child nodes too, not just the
 # launch process itself):
 isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>
 ```
+
+`dexec.sh` is the intended way to run anything in the container — it is the
+only form that gets the FastDDS profile, `ROS_DOMAIN_ID`, both workspace
+installs, `-u admin` (X11/GUI), stdin passthrough, and exit-code
+propagation right at once. Prefer it over hand-rolled `docker exec`.
+One caveat worth knowing: it resolves packages differently from the user's
+terminal — see "Two workspaces" in the `isaac-ros-docker` skill.
 
 Set `ISAAC_ROS_CONTAINER` to override the container name if it's not
 `isaac_ros_dev-x86_64-container` (e.g. on aarch64). See each script's own
@@ -190,10 +201,14 @@ line are expanded via `envsubst`).
   ```bash
   isaac_ros_common/scripts/dexec.sh -- ros2 topic list
   ```
-  Manual equivalent, if you need to see/tweak the exact pattern:
+  Manual equivalent, if you need to see/tweak the exact pattern — note the
+  `>/dev/null` on the sourcing: Ubuntu's `/etc/bash.bashrc` prints a
+  two-line `sudo` hint on **stdout** every time the interactive guard
+  passes, which otherwise gets glued onto the front of any captured output
+  (`X=$(docker exec …)` comes back with banner text in it):
   ```bash
-  docker exec -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_dev-x86_64-container \
-    bash -lc "export PS1='\$ ' && source /etc/bash.bashrc && ros2 topic list"
+  docker exec -i -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_dev-x86_64-container \
+    bash -lc "{ export PS1='\$ ' && source /etc/bash.bashrc ; } >/dev/null && ros2 topic list"
   ```
   **Also source the main workspace install** when running anything from
   `sim` or `sentry_pkg` — `/etc/bash.bashrc` only sources
