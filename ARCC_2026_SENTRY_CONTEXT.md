@@ -91,10 +91,14 @@ where those still matter — see `SESSION_NOTES.md` for the full log)
 - **CV target detection now has a working sim path** (2026-07-27, see
   `SESSION_NOTES.md`): `sim`'s `target_driver.py` + `cv_target_emulator.py`
   feed `sentry_pkg/point_to_cv_target.py` (unmodified) end-to-end,
-  launchable standalone via `spawn_target:=true`. Still undecided: what
-  should own launching the whole stack together (sim/SLAM/CV) — not
-  blocking, since CV can be exercised on its own in the meantime.
-- Once launch ownership is decided, build that top-level launch integration.
+  launchable standalone via `spawn_target:=true`.
+- **Decided (2026-07-27): `sentry_pkg` owns launching the whole stack**
+  (sim/SLAM/CV together) — matches its existing role owning pose/TF and
+  `auto.launch.py`'s `real_hardware`/`localization_mode` args, which
+  already toggle between sim and real drivers from one place. Not yet
+  built — `auto.launch.py` needs a new arg to also bring up `sim`'s
+  `spawn_target`/CV nodes (and, for real hardware, whatever the real
+  `realsense-yolov8-nitros-bridge` chain needs) alongside SLAM.
 - **Set up Nav2** on top of `slam_toolbox`'s localization/map output, once
   it's reliably corrected (see EKF work above) — path planning/costmaps for
   autonomous navigation around the arena. Not started. Since the chassis is

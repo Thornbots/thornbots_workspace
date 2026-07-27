@@ -407,14 +407,19 @@ progress unless explicitly asked.
   thresholds (e.g. `CORRECTION_FRACTION`, `DRIFT_THRESHOLD`) hold up
   against amcl's different particle-filter noise characteristics, or
   need their own backend-specific constants.
-- **Still undecided: what should be responsible for launching the whole
-  stack** (sim/SLAM/CV together) — no single package/launch file owns this
-  yet. No longer blocks CV work, though: `sim.launch.py spawn_target:=true`
-  plus `point_to_cv_target` (run by hand) now exercises the full CV
-  detection path standalone, independent of `auto.launch.py`'s SLAM/AMCL/EKF
-  stack — see the 2026-07-27 section below.
-- **Then build that top-level launch integration**, once the above is
-  decided.
+- **Decided (2026-07-27, user direction): `sentry_pkg` owns launching the
+  whole stack** (sim/SLAM/CV together), via `auto.launch.py` — it already
+  owns pose/TF ownership and the `real_hardware`/`localization_mode`
+  sim-vs-real toggle, so this is a natural extension rather than a new
+  role. **Not yet built**: `auto.launch.py` needs a new arg to also bring
+  up `sim`'s `spawn_target`/`target_driver`/`cv_target_emulator` nodes (sim
+  path) or the real `realsense-yolov8-nitros-bridge` chain (real-hardware
+  path) alongside SLAM, mirroring how `real_hardware` already switches
+  between `sim`'s `pose_emulator` and the real Type-C driver. Until this
+  lands, `sim.launch.py spawn_target:=true` plus `point_to_cv_target` (run
+  by hand) still works standalone, independent of `auto.launch.py`'s
+  SLAM/AMCL/EKF stack — see the 2026-07-27 section below for what that
+  path already verifies.
 - **Rotation lock on the free-floating chassis is soft (inertia-based
   only)** — under a real wall collision during exploration it can tumble to
   extreme angles (observed ~86° roll / 31° pitch / 15° yaw). User explicitly
