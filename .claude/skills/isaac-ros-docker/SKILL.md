@@ -159,11 +159,38 @@ isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>
 
 Set `ISAAC_ROS_CONTAINER` to override the container name if needed.
 
-Before backgrounding a new launch, check for and clean up stale processes
-(`dexec.sh -- ps aux | grep -E 'ros2|gz|ign|parameter_bridge'`) — a dead
-`gz sim` server leaves orphaned bridges that appear in `ros2 topic list`
-but never publish, and relaunching on top of a live session gives duplicate
-sim instances.
+## Before/after running any test or one-off sim launch
+
+**Before** launching anything (a background launch, `run_localization_drift_tests.py`,
+`ekf_ground_truth_diag.py`, or an ad hoc probe script) — check for a live
+session first:
+```bash
+dexec.sh -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
+```
+A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
+list` but never publish; a *live* session (the user's own manual sim/CV
+work, or a previous test that didn't clean up) collides on the same
+topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
+silently corrupts whatever you're about to measure — no error, just wrong
+numbers or empty samples. `run_localization_drift_tests.py`'s own
+`check_no_orphans()` does this exact check and only *warns*, it doesn't
+block, so don't skip it just because the script ran.
+
+If something is already running, **don't kill it yourself** — it may be
+the user's own in-progress work (e.g. a manual CV/rviz session). Ask before
+stopping anything you didn't start.
+
+**After** your own test/probe finishes (including when it errors out or
+you interrupt it), clean up what *you* started rather than leaving it for
+the next run to collide with:
+- The official suites (`run_localization_drift_tests.py`,
+  `ekf_ground_truth_diag.py`) already do this via `teardown_stack()` in a
+  `finally` block — that's why they're safe to Ctrl-C.
+- Any ad hoc script you write that calls `run_stack()`/launches its own
+  processes must do the same: wrap the body in `try`/`finally` and call
+  `teardown_stack(sim_tree, sentry_tree, helper)` (or `kill_launch.sh
+  <pid>` for anything launched outside that helper) unconditionally, and
+  re-run the `ps aux` check above afterward to confirm nothing's left.
 
 `sim` launches with GUI by default (standing rule in `SESSION_NOTES.md`);
 that includes `run_localization_drift_tests.py`, which takes `--headless`
