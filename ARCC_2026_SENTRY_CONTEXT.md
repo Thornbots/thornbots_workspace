@@ -247,6 +247,99 @@ general form has stayed consistent across RoboMaster years):
   that tolerates frequent brief occlusion/foreshortening, not a single
   fixed-facing detection.
 
+### Mounting angle (S122, from the 2024 RoboMaster University Series Robot
+Building Specifications V2.0 — structure unchanged from 2018 baseline;
+confirmed no separate elevated-rail Sentry mount exists in the 2024 spec,
+so this general ground-robot rule is what applies — matches our Sentry
+being ground/mecanum-based like the others, not the legacy 2018 rail-Sentry
+design that used a different, floor-facing angle)
+
+- Robot body coordinate system: **Z-axis points straight down** (toward
+  the center of the earth), X-axis is the robot's highest-efficiency
+  firing direction, Y-axis completes the right-handed frame at the
+  center of mass.
+- **Panel tilt**: the armor panel's Armor Support Frame bottom surface is
+  parallel to the ground (XY plane), and the panel is mounted so the
+  **acute angle between the panel's outward-facing normal vector and
+  straight-up (negative Z-axis) is 75°**. Since 90° would mean a perfectly
+  vertical panel facing purely horizontally, 75° means each panel is
+  **canted about 15° off vertical**, angled slightly upward/outward
+  rather than dead flat — not a subtle detail, panels are deliberately not
+  flush-vertical.
+- **Yaw alignment**: projecting each panel's normal onto the ground plane
+  gives its "direction vector" — the four panels' direction vectors must
+  each align with +X, −X, +Y, −Y respectively, within **±5° angular
+  error**. So the four panels are roughly a symmetric cross around the
+  robot, not just "somewhere on each side."
+- **Placement tolerance**: the geometric center of an X-mounted panel and
+  a Y-mounted panel form perpendicular lines through the robot's center of
+  mass; each panel may be offset up to **50 mm** from center along its axis.
+- **Vertical stagger (S126)**: the difference in height between the lower
+  edges of any two Armor Modules on the same Ground Robot must not exceed
+  **100 mm** — panels can sit at somewhat different heights (e.g. front/back
+  vs. side panels) but not wildly so; useful as a prior for where to expect
+  a robot's other panels vertically once one is located in-frame. (S127:
+  lower-edge height itself must be 60mm–400mm off the ground, except while
+  climbing/overcoming obstacles.)
+- **Rigidity requirement (S124)**: a 60 N upward force at the midpoint of
+  a panel's lower edge must not change its mounting angle by more than
+  **2.5°** — i.e. panels must be rigidly fixed, not spring-mounted or
+  loose, reinforcing why the 4×N-per-500ms disconnection HP drain (above)
+  is a real design risk, not just a wiring edge case.
+- **Practical CV takeaway**: opponent armor panels present at a
+  consistent, predictable ~15°-off-vertical cant on all 4 sides — useful
+  as a geometric prior (e.g. for pose/orientation estimation from a single
+  panel's apparent aspect ratio) rather than assuming panels are flush
+  vertical rectangles.
+
+### Armor Module rules (from the 2026 RoboMaster University Championship
+Rule Manual V1.2.0 — governs ARCC via the Building Specifications diff
+above; fetched from
+`bbs-web-static.robomaster.com/.../RoboMaster 2026 University Championship
+Rule Manual V1.2.0 (20260107).pdf`)
+
+- **Detection speed thresholds confirmed**: Large/Small Armor Module needs
+  >12 m/s normal-component impact speed for a 17mm projectile to register
+  (matches the Combat mechanics section above); minimum detection interval
+  is 50ms for 17mm projectiles (so back-to-back hits within 50ms may not
+  both register).
+- **Damage values (Table 5-2, no buffs)**: 17mm hit on a Ground Robot's
+  Armor Module = 20 HP (confirmed); collision-detected-as-damage = 2 HP
+  (collisions/ramming aren't allowed as a deliberate damage method, but the
+  Referee System can still register accidental collisions as small damage
+  — relevant if our Sentry's own motion planning brushes an obstacle/robot).
+- **Physical armor stickers required (R37)**: every robot must have a
+  Referee-provided **Armor Sticker** physically affixed per the Building
+  Specifications Manual before the match's 15-Second Referee System
+  Initialization Period — this is separate from and in addition to the
+  LED indicator lights. A CV pipeline could in principle use sticker
+  graphics as an additional visual cue, not just the LEDs.
+  Continuation rule: **damage to an Armor Module Sticker, or any anomaly in
+  a robot's armor light effects/light indicator effects, does not stop the
+  match** — meaning a dead/broken LED or damaged sticker is not reliable
+  evidence a robot is disconnected/eliminated; don't gate "is this robot
+  alive" purely on LED state being lit.
+- **Self-obstruction is against the rules (R45)**: no alive robot may block
+  any of its own Armor Modules with its own body, and can't block more than
+  one Armor Module on another allied robot. **Sentry specifically is never
+  allowed to obstruct its own Armor Modules** (unlike Engineer, which gets
+  a narrow exception while carrying a Mobile Component). Practical
+  implication: on a rules-compliant opponent, all 4 side panels should
+  stay geometrically unobstructed by the robot's own structure — any panel
+  that looks occluded in-frame is more likely a viewing-angle/lighting
+  effect than actual physical blocking, *unless* that panel has disconnected
+  (see below), which is itself a valid non-violation reason for it to read
+  as blocked/dark.
+- **Disconnection penalty is quantified and continuous, not one-shot**:
+  every 500ms, the Referee System counts N = number of currently
+  disconnected Armor Modules + Supercapacitor Management Modules on a
+  robot, and applies **HP loss = 4 × N** for that tick. This runs
+  continuously while any module stays disconnected — reinforcing why our
+  own armor/panel mounting reliability (screws not just friction-fit, wiring
+  strain relief) matters as much as the A11 chassis-power-cutoff exception
+  already noted below: a loose panel bleeds HP passively for as long as it
+  stays loose, independent of getting shot.
+
 ## ARCC 2026 Robot Building Specifications (V1.3.1, 05/04/2026)
 
 Fetched from: https://www.arc-robotics.org/_files/ugd/df0c37_85f8332e4e464f12ad4f5f4cb74a758d.pdf
