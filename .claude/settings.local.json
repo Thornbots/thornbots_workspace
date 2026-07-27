@@ -16,7 +16,9 @@
       "Bash(grep *)",
       "Bash(isaac_ros_common/scripts/dexec.sh -- ln -sfn /tmp/dexec_ln_target_test /tmp/dexec_ln_test_link)",
       "Bash(isaac_ros_common/scripts/dexec.sh -- readlink /tmp/dexec_ln_test_link)",
-      "Bash(isaac_ros_common/scripts/dexec.sh -- rm /tmp/dexec_ln_test_link)"
+      "Bash(isaac_ros_common/scripts/dexec.sh -- rm /tmp/dexec_ln_test_link)",
+      "Bash(curl -sL -o /home/tmp/claude-1000/-home-blaise-workspaces-isaac-ros-dev-src/09a8a736-94b1-4d92-8fd2-e433fcb820b9/scratchpad/doc.pdf \"https://e0398dbe-f5cb-43f1-8df9-3f2f243ba559.filesusr.com/ugd/df0c37_85f8332e4e464f12ad4f5f4cb74a758d.pdf\")",
+      "Bash(pdfinfo /home/tmp/claude-1000/-home-blaise-workspaces-isaac-ros-dev-src/09a8a736-94b1-4d92-8fd2-e433fcb820b9/scratchpad/doc.pdf)"
     ]
   }
 }
