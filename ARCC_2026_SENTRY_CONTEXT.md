@@ -194,14 +194,120 @@ where those still matter — see `SESSION_NOTES.md` for the full log)
   offline, launcher/gimbal/chassis power off and HP drains 5%/sec — so the
   autonomy stack's reliability directly costs HP, independent of combat.
 
+## Opponent robot characteristics — relevant to CV (current priority)
+
+- **Most ARCC robots are near full-size** (RoboMaster Standard-class scale,
+  not the smaller reference/toy-scale robots) — targets are large in frame
+  at typical engagement ranges, not tiny/distant.
+- **Chassis can translate up to 4 m/s** — on top of the spin below, CV
+  needs to track targets that are both rotating in place and translating
+  quickly across the frame/arena; tracking/prediction can't assume a
+  roughly stationary opponent.
+- **Chassis spin at roughly 1–2 Hz** (this is the common "wiggle"/spinning
+  defense tactic many teams use to make armor panels harder to hit — panel
+  facing keeps rotating rather than staying fixed toward the shooter). CV
+  target detection/tracking needs to handle a **continuously rotating
+  target**, not a mostly-static one:
+  - Armor panel orientation relative to the camera changes on the order of
+    every ~0.5–1s (360°/1-2Hz), so a detector/tracker can't assume "last
+    known facing" stays valid for long.
+  - At 1-2 Hz, panel-to-panel occlusion/foreshortening cycles fast — the
+    detection pipeline should expect a given armor panel to swing in/out of
+    a good detection angle repeatedly within a second, not just once.
+  - This also interacts with the >12 m/s normal-impact-speed detection
+    requirement above (Combat mechanics) — firing-timing logic (later) will
+    need to predict *when* a spinning target's panel will next present
+    near-normal to the shot, not just track current position.
+
+### What an armor panel actually looks like (target signature for CV)
+
+From DJI's Referee System install spec (2018 baseline dimensions/behavior —
+general form has stayed consistent across RoboMaster years):
+
+- **Shape**: flat rectangular plastic module, screwed onto a bracket bolted
+  to a flat chassis face — always **side-mounted** (front/back/left/right),
+  never top-mounted. Two sizes: **Large Armor Module** (Hero, Sentry) and
+  **Small Armor Module** (Standard, Engineer) — most ARCC opponents will be
+  Standard-class, so expect mostly Small Armor Modules.
+- **Visual signature**: each panel has **two separate indicator lights**,
+  one on each side of the panel body (not a single glowing panel) —
+  **steady red or blue** = team color / alive, **steady yellow** = that
+  module offline/critical. This two-light-segment pattern per rectangular
+  panel is the practical thing to detect.
+- **Exposure cone**: the front **145° of the panel's exposure surface must
+  stay unblocked** — so the two-light pattern is visible/detectable across
+  most viewing angles within that cone, not just head-on.
+- **Mounting height clusters by robot class** — e.g. Standard-class panels'
+  lower edge sits ~60–150mm above the ground, Hero-class ~400mm+ — so
+  expected panel height in frame isn't arbitrary, it's a signal tied to
+  robot type.
+- Combined with the spin/translation notes above: the two-light rectangular
+  signature will be **rotating past the camera repeatedly** (1–2Hz) while
+  the whole robot **translates up to 4 m/s** — CV needs per-panel tracking
+  that tolerates frequent brief occlusion/foreshortening, not a single
+  fixed-facing detection.
+
+## ARCC 2026 Robot Building Specifications (V1.3.1, 05/04/2026)
+
+Fetched from: https://www.arc-robotics.org/_files/ugd/df0c37_85f8332e4e464f12ad4f5f4cb74a758d.pdf
+
+This is a short (5-page) diff on top of the base
+**"2026 RoboMaster University Series Robot Building Specifications V1.3.0"**
+(hosted behind RoboMaster's JS-rendered community hub at
+`bbs.robomaster.com/wiki/20204847` — no static PDF link found; open in a
+real browser and follow Rulebooks if the base spec's actual construction
+limits (size/weight/materials) are needed). ARCC applies all RMUS rules
+except where noted here, and interprets RMUC-only rules (e.g. Custom
+Clients, Dart/Aerial-specific rules) as not applicable since ARCC is
+treated like an RMUL event.
+
+**Sentry-relevant:**
+- **A7**: RMUL normally exempts robots from installing the fluorescent
+  energy charging device, but ARCC overrides this — **any 17mm-launcher
+  robot (including Sentry) must install one**. The installed device doesn't
+  need to match the reference part; custom/alternate parts are allowed.
+- **A11**: elaborating on S145 — when the Power Management Module's chassis
+  port is disabled, all chassis motor controllers must **immediately lose
+  power**; stored energy in the supercapacitor bank may not backfeed the
+  chassis. Software-only motor disable is explicitly not sufficient — needs
+  a hardware cutoff.
+- **A2**: no visible lasers allowed on any robot type at ARCC (RMUS allows
+  some non-scanning laser types).
+- **A1**: any wireless comms hardware that can't be physically removed
+  (e.g. an SoC's built-in WiFi antenna) must be disabled so it does not
+  transmit — max penalty for illegal wireless comms during competition is
+  disqualification. Relevant since Sentry already can't use inter-robot
+  comms per the base rules (§3.1.3 above); this closes the "can't remove
+  the antenna" loophole.
+- **A12**: COTS devices (e.g. action cameras) fully disconnected from
+  chassis/ammo-booster/mini-PC/gimbal may use their own internal battery,
+  but must still comply with size, light-emission, and wireless-comms
+  rules.
+
+**Other exceptions (not Sentry-specific, kept for completeness):**
+- **A3–A6**: advertising-space placement/sizing rules relaxed vs. stock
+  RoboMaster (don't need both sides of the robot; no size/count
+  restriction, though the Head Inspector can reject designs that obscure
+  armor-module visual indicators or are inappropriate).
+- **A8**: computational platforms don't need to run open-source OSes
+  (RMUS requires this).
+- **A9**: robot photographs must be included in the Final Assessment.
+- **A10**: "Maximum Storage Size" (§2.4 of the base spec) must be measured
+  powered-on; also called "Maximum Initial Size"/"Initial Size."
+- The ARC Organizing Group is the ARCC equivalent of RMOC (RoboMaster's
+  organizing committee) for rule-interpretation purposes.
+
 ## Not yet extracted / worth pulling in later
 
 - Exact Battlefield zone coordinates/drawings (Figures 3-1–3-9 are diagrams,
   not extracted as text — need the actual PDF pages if building a precise
   arena map for `sim`).
-- Full Referee System data interface / UART protocol spec (likely in the
-  companion "Robot Building Specification" doc referenced throughout, not in
-  this rulebook).
+- Base RMUS "Robot Building Specifications V1.3.0" itself (size/weight
+  limits, materials, chassis/armor construction, manufacturing process
+  rules) — ARCC's building-spec doc above is only a diff against it; the
+  base doc's actual numeric limits aren't extracted yet since it isn't
+  reachable as a static PDF (see note above).
+- Full Referee System data interface / UART protocol spec.
 - Round timing/countdown details (§7.5–7.9) if precise match-phase state
   machine timing is needed later.
 
