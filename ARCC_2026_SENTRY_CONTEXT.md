@@ -9,9 +9,10 @@ what's relevant to building an autonomous Sentry, not the full rulebook (pit
 crew procedures, other robot types, appeals process, etc. are omitted). Read
 the source PDF directly if you need something not covered here.
 
-Current dev priority: **SLAM/navigation first, timing-based firing second**
-(see `SESSION_NOTES.md` for the full goals/status/open-issues log this
-section summarizes).
+Current dev priority: **CV (target detection/tracking) first, timing-based
+firing second** — localization is considered good enough for now (see
+`SESSION_NOTES.md` for the full goals/status/open-issues log this section
+summarizes).
 
 ## Dev status (as of 2026-07-20)
 
