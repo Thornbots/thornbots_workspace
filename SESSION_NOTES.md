@@ -16,10 +16,11 @@ Get a gz-sim simulation of the "sentry" robot running, driveable, and mapping
 a room autonomously via `slam_toolbox`, inside the `isaac_ros_dev-x86_64-container`
 Docker container (attach via `isaac_ros_common/scripts/run_dev.sh`).
 
-Current dev priority: **SLAM/navigation first, timing-based firing logic
-second** (see `ARCC_2026_SENTRY_CONTEXT.md` for why firing logic needs a heat/ammo
-budget model once it starts). Don't front-run firing/targeting work while nav
-is still in progress unless explicitly asked.
+Current dev priority: **CV (target detection/tracking) first, timing-based
+firing logic second** — localization is considered good enough for now (see
+`ARCC_2026_SENTRY_CONTEXT.md` for why firing logic needs a heat/ammo budget
+model once it starts). Don't front-run firing logic while CV is still in
+progress unless explicitly asked.
 
 ## Standing procedural rules
 
@@ -406,9 +407,12 @@ is still in progress unless explicitly asked.
   thresholds (e.g. `CORRECTION_FRACTION`, `DRIFT_THRESHOLD`) hold up
   against amcl's different particle-filter noise characteristics, or
   need their own backend-specific constants.
-- **Read through the CV (computer vision) code to figure out what should be
-  responsible for launching the whole stack** (sim/SLAM/CV together) — not
-  yet decided which package/launch file should own this.
+- **Still undecided: what should be responsible for launching the whole
+  stack** (sim/SLAM/CV together) — no single package/launch file owns this
+  yet. No longer blocks CV work, though: `sim.launch.py spawn_target:=true`
+  plus `point_to_cv_target` (run by hand) now exercises the full CV
+  detection path standalone, independent of `auto.launch.py`'s SLAM/AMCL/EKF
+  stack — see the 2026-07-27 section below.
 - **Then build that top-level launch integration**, once the above is
   decided.
 - **Rotation lock on the free-floating chassis is soft (inertia-based
@@ -554,3 +558,86 @@ relocalize path is dormant in map-backend runs. Once `slam`/`amcl` +
 `/odom` for the first time in a map-backend config, making that
 relocalize path live rather than dormant — no code change needed, just
 something to watch for if testing that combination on real hardware.
+
+## 2026-07-27 — CV target simulation (ground truth + noise, no gz entity)
+
+Per user reprioritization (see `## Overall goal`'s flipped priority line),
+built the pieces to exercise `sentry_pkg/point_to_cv_target.py` (unmodified)
+end-to-end in sim: a fast-moving target's ground truth → simulated noisy
+detection → `/cv/target`.
+
+**Built:**
+- `sim/sim/target_driver.py` — publishes `nav_msgs/Odometry` on
+  `/target/ground_truth_odom` directly; no gz entity/model/plugin at all,
+  same "plain ROS node doing its own kinematics" approach `pose_emulator.py`
+  uses for robot pose. Bounces along a fixed-distance lateral traverse
+  (default: x=3.0m, y∈[-2,2], z=0.3m) sized against the camera's static
+  1.5184 rad FOV so dwell time stays well above the ~10-sample EMA warm-up
+  floor even at high sweep speeds (measured: min 47 consecutive in-frustum
+  samples at 8 m/s, the top of the default sweep). Advances state from
+  `self.get_clock().now()` deltas, not timer period, so RTF≠1.0 doesn't
+  mislabel `target_speed`.
+- `sim/sim/cv_target_emulator.py` — FK chain (root→body→head→head_pitch→
+  camera, matching sentry.urdf.xacro's fixed joint offsets, no TF) computes
+  the target's REP-103 position relative to the camera, gates on FOV/range,
+  injects configurable Gaussian noise + dropout + latency, publishes
+  `roi_point`/`roi` — exactly what `point_to_cv_target.py` subscribes to.
+  Stamps `roi_point` from its own clock, never forwarded from ground truth.
+- `sim/setup.py`, `sim/launch/sim.launch.py` — new `spawn_target` (default
+  `false`)/`target_speed`/`cv_noise_*` args and `Node` actions, independent
+  of `auto.launch.py`'s SLAM/AMCL/EKF stack in both directions (confirmed:
+  `spawn_target:=true` runs standalone against bare `sim.launch.py`).
+- `sim/test/cv/run_cv_detection_tests.py` — speed-sweep test script
+  (`LaunchTree` pattern borrowed from `run_localization_drift_tests.py`),
+  reports tracking error vs. speed, and hard-fails if any speed's
+  consecutive-in-frustum dwell count drops below `--min-dwell` (default 10)
+  — the guard the plan called out as required, not optional. Default sweep
+  (1/2/4/6/8 m/s) passes; `vel_err` mean grows from 0.71 m/s at 1 m/s to
+  1.34 m/s at 8 m/s, the expected EMA-lag-vs-speed tracking-degradation
+  trend.
+
+**Verified:** `/target/ground_truth_odom` publishes and moves;
+`/cv/target` reports sane nonzero velocity/acceleration while in-frame and
+a zero-confidence watchdog message once the target leaves the frustum;
+vector/bearing check (comparing `/cv/target`'s direction against true
+bearing from `/target/ground_truth_odom`, not magnitude-only — see the
+rf2o note above for why that check matters) passed 20/20 samples with no
+180°-class sign flip.
+
+**Environment footguns hit and fixed, both real (not the already-documented
+`AMENT_PREFIX_PATH` one below — a different failure mode each):**
+- `sim`'s `gz-sim`/`ros_gz` deps aren't installed by default in this
+  container (`DOCKER.md`'s "Which image gets built" section already
+  documents this — `sudo isaac_ros_common/docker/scripts/install-sim.sh`
+  fixes it once per container).
+- `sentry_pkg`'s build under `/workspaces/isaac_ros-dev/install` was a
+  **stale colcon symlink-install pointing at a deleted git worktree**
+  (`.../sentry_pkg/.claude/worktrees/cv-target-publisher/...`, left over
+  from an earlier session) — broken symlinks, so both `ros2 run
+  sentry_pkg point_to_cv_target` and a plain Python import of
+  `sentry_pkg.point_to_cv_target` failed outright. Fixed by `rm -rf
+  build/sentry_pkg install/sentry_pkg && colcon build --packages-select
+  sentry_pkg --symlink-install`, which relinks against the real
+  bind-mounted `src/sentry_pkg`. After that rebuild, `ros2 pkg prefix
+  sentry_pkg` and `ros2 run sentry_pkg point_to_cv_target` both correctly
+  resolve to `/workspaces/isaac_ros-dev/install/sentry_pkg` via
+  `dexec.sh` (re-verified 2026-07-27, after the section below's rviz
+  addition) — the stale-symlink issue above was the whole story, not a
+  deeper `AMENT_PREFIX_PATH`-resolution-order problem; no absolute-path
+  workaround needed once the reinstall is clean.
+
+**rviz visualization added (2026-07-27, later in the same day):**
+`cv_target_emulator.py` now also publishes a `MarkerArray` on
+`target_markers` (world frame: green sphere = ground truth, yellow sphere
+= noisy detection, yellow absent when out of frustum/dropped), and a new
+`sim/rviz/cv_target.rviz` config (Fixed Frame `odom`, since this is CV-only
+testing with no SLAM map running) adds that display plus `/sim/raw_odom`
+and `/target/ground_truth_odom` arrows. Launch with
+`ros2 launch sim sim.launch.py spawn_target:=true rviz_config:=$(ros2 pkg
+prefix sim)/share/sim/rviz/cv_target.rviz`. Verified live: `target_markers`
+publishes at ~58Hz, the yellow detection sphere visibly tracks the green
+ground-truth trail in rviz, and Gazebo's entity tree correctly shows no
+target entity (confirms the "no gz entity" design held).
+
+**Open:** no aim/lead controller or fire logic yet (explicitly deferred,
+see the plan this section implements).

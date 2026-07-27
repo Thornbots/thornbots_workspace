@@ -17,9 +17,10 @@ Isaac ROS Docker dev container) for the "Thornbots" sentry robot project.
 
 ## Current priority
 
-SLAM/navigation for the Sentry robot first; timing-based firing logic comes
-after SLAM works. Don't front-run firing/targeting features while nav is
-still in progress unless explicitly asked.
+CV (computer-vision target detection/tracking) first; localization is
+considered good enough for now. Timing-based firing logic still comes after
+CV works. Don't front-run firing logic while CV is still in progress unless
+explicitly asked.
 
 ## Coding conventions
 

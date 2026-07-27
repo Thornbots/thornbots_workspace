@@ -14,7 +14,8 @@ firing second** — localization is considered good enough for now (see
 `SESSION_NOTES.md` for the full goals/status/open-issues log this section
 summarizes).
 
-## Dev status (as of 2026-07-20)
+## Dev status (as of 2026-07-27; individual bullets keep their own dates
+where those still matter — see `SESSION_NOTES.md` for the full log)
 
 **Working:**
 - Full sim pipeline end-to-end: `ros2 launch sim sim.launch.py` spawns the
@@ -82,12 +83,18 @@ summarizes).
      Verified live: `/scan_gated` correctly stops/resumes as the head
      leaves/returns to home. A real per-scan-TF fix would require forking
      `rf2o`; deferred (see `SESSION_NOTES.md` option (c)).
-  4. **Next**: `sentry_pkg/config/ekf.yaml` + `ekf_node` fusing `/odom` +
-     `/scan_odom` into `odom->root`.
-- Read through the CV (computer vision) code to figure out what should be
-  responsible for launching the whole stack (sim/SLAM/CV together) — not
-  yet decided.
-- Once that's figured out, build that top-level launch integration.
+  4. **Done (2026-07-25)**: `sentry_pkg/config/ekf.yaml` + `ekf_node` fuse
+     `/odom` (velocity+yaw) and gated `/scan_odom` (absolute x/y) into
+     `odom->root` — measured +89% over raw wheel odometry under slip; full
+     writeup and remaining caveats in `SESSION_NOTES.md`'s 2026-07-25 and
+     "Open after the 2026-07-25 EKF work" sections.
+- **CV target detection now has a working sim path** (2026-07-27, see
+  `SESSION_NOTES.md`): `sim`'s `target_driver.py` + `cv_target_emulator.py`
+  feed `sentry_pkg/point_to_cv_target.py` (unmodified) end-to-end,
+  launchable standalone via `spawn_target:=true`. Still undecided: what
+  should own launching the whole stack together (sim/SLAM/CV) — not
+  blocking, since CV can be exercised on its own in the meantime.
+- Once launch ownership is decided, build that top-level launch integration.
 - **Set up Nav2** on top of `slam_toolbox`'s localization/map output, once
   it's reliably corrected (see EKF work above) — path planning/costmaps for
   autonomous navigation around the arena. Not started. Since the chassis is
