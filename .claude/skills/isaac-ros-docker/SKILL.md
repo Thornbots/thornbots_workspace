@@ -1,6 +1,6 @@
 ---
 name: isaac-ros-docker
-description: Use when the user wants to launch, attach to, rebuild, or troubleshoot the Isaac ROS dev Docker container for this workspace (isaac_ros-dev) — e.g. "start the container", "rebuild the image", "attach a shell", "docker won't build", "add a package to the image".
+description: Use when the user wants to launch, attach to, rebuild, or troubleshoot the Isaac ROS dev Docker container for this workspace (isaac_ros-dev) — e.g. "start the container", "rebuild the image", "attach a shell", "docker won't build", "add a package to the image". Also load this BEFORE the first time in a session you yourself are about to run anything inside the container — `docker exec`, `colcon build`, `ros2 launch`/`ros2 run`/`ros2 topic` — even if the user never says "docker": a hand-rolled `docker exec` skips `dexec.sh`'s env parity (ROS_DOMAIN_ID, FastDDS profile, both workspace installs, `-u admin` for GUI/X11) and silently produces wrong results (nodes on the wrong DDS domain, permission errors, X11 failures) instead of an error.
 ---
 
 # Isaac ROS Docker dev container
