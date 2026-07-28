@@ -157,12 +157,6 @@ progress unless explicitly asked.
 
 ### Bugs found and fixed (for context, not still open)
 
-- TF tree had two nodes both broadcasting `root`'s parent transform
-  (`robot_state_publisher` via the old joint chain, `odom_to_tf` via
-  `/odom`) — caused `slam_toolbox` "queue is full" / stale-transform spam.
-  Fixed by having sim skip `odom_to_tf` and point `slam_toolbox` at `world`
-  directly (later moot once the joint chain was removed and `odom_to_tf`
-  became the sole `root`-parent source again).
 - gz-sim's `OdometryPublisher` plugin hardcoded `/odom`'s Y field to 0 for
   the old joint-constrained base, breaking `auto_explore.py`'s position
   tracking — confirmed gone on the free-floating body; fixed generally by
@@ -173,9 +167,6 @@ progress unless explicitly asked.
   Kept the mass/inertia/damping bump anyway since it's harmless.
 - `ros_gz_sim create -topic` hung waiting for `/robot_description`; switched
   spawning to `-string` (raw URDF text in process args).
-- `headlink` joint's WASD slider moved the whole robot instead of just the
-  head — needed a real `<limit>` (was `continuous`, giving gz's GUI slider a
-  ±1e16 sentinel range).
 - `head_sweep.py` (slow head sweep to reduce lidar blind spot) corrupted the
   map via TF timing slack during fast rotation — code/bridge kept, removed
   from the default launch.
@@ -592,18 +583,10 @@ detection → `/cv/target`.
   `false`)/`target_speed`/`cv_noise_*` args and `Node` actions, independent
   of `auto.launch.py`'s SLAM/AMCL/EKF stack in both directions (confirmed:
   `spawn_target:=true` runs standalone against bare `sim.launch.py`).
-- `sim/test/cv/run_cv_detection_tests.py` — speed-sweep test script
-  (`LaunchTree` pattern borrowed from `run_localization_drift_tests.py`),
-  reports tracking error vs. speed, and hard-fails if any speed's
-  consecutive-in-frustum dwell count drops below `--min-dwell` (default 10)
-  — the guard the plan called out as required, not optional. Default sweep
-  (1/2/4/6/8 m/s) passes; `vel_err` mean grows from 0.71 m/s at 1 m/s to
-  1.34 m/s at 8 m/s, the expected EMA-lag-vs-speed tracking-degradation
-  trend.
 
 **Verified:** `/target/ground_truth_odom` publishes and moves;
-`/cv/target` reports sane nonzero velocity/acceleration while in-frame and
-a zero-confidence watchdog message once the target leaves the frustum;
+`/cv/target` publishes while in-frame and a zero-confidence watchdog
+message once the target leaves the frustum;
 vector/bearing check (comparing `/cv/target`'s direction against true
 bearing from `/target/ground_truth_odom`, not magnitude-only — see the
 rf2o note above for why that check matters) passed 20/20 samples with no
@@ -637,12 +620,11 @@ rf2o note above for why that check matters) passed 20/20 samples with no
 = noisy detection, yellow absent when out of frustum/dropped — was green
 for ground truth until the 2026-07-28 recolor below), and a new
 `sim/rviz/cv_target.rviz` config adds that display plus `/sim/raw_odom`
-and `/target/ground_truth_odom` arrows. Fixed Frame is `map` and it
-includes a Map display on `/map` (off by default, left as an option) —
-`run_shot_hit_tests.py`'s `robot_tf` launch runs `localization_mode:=amcl`
-(2026-07-28) so `map->odom` and `/map` are actually published; run this
-rviz config standalone against a launch with `localization_mode:=none`
-and the Map display will just stay empty. Launch with
+and `/target/ground_truth_odom` arrows. Fixed Frame is `odom` — no map
+display, and `run_shot_hit_tests.py`'s `robot_tf` launch runs
+`localization_mode:=none` (dropped `amcl` 2026-07-28 for a lighter/faster
+process tree; nothing here needed `map->odom`, it's all published
+directly in `odom`). Launch with
 `ros2 launch sim sim.launch.py spawn_target:=true rviz_config:=$(ros2 pkg
 prefix sim)/share/sim/rviz/cv_target.rviz`. Verified live: `target_markers`
 publishes at ~58Hz, the yellow detection sphere visibly tracks the

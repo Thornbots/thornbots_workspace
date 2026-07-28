@@ -37,6 +37,14 @@ if you need details beyond this summary.
   `docker/Dockerfile.ros2_humble` → `docker/Dockerfile.realsense` →
   `docker/Dockerfile.thornbots` (custom top layer with this org's apt
   packages and git-cloned/colcon-built packages).
+- **On a fresh/recreated container, run `install-sim.sh` before any `sim`
+  launch.** `Dockerfile.thornbots` deliberately does not install `ros-humble-
+  ros-gz` or build `sim` (real hardware never needs gz-sim) — see "Two
+  workspaces" below. Symptom if skipped: `ros2 launch sim ...` fails to find
+  gz-sim plugins/executables, or `sim`'s install dir is missing/stale. Fix:
+  `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh` (needs
+  root for the apt install; fast, ~5s once apt is done — safe to always run
+  once per container before the first sim test).
 
 ## Two workspaces: `/workspaces/ros2_ws` silently shadows your `src/` edits
 
