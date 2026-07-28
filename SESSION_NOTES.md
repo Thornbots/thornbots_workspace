@@ -633,16 +633,42 @@ rf2o note above for why that check matters) passed 20/20 samples with no
 
 **rviz visualization added (2026-07-27, later in the same day):**
 `cv_target_emulator.py` now also publishes a `MarkerArray` on
-`target_markers` (world frame: green sphere = ground truth, yellow sphere
-= noisy detection, yellow absent when out of frustum/dropped), and a new
-`sim/rviz/cv_target.rviz` config (Fixed Frame `odom`, since this is CV-only
-testing with no SLAM map running) adds that display plus `/sim/raw_odom`
-and `/target/ground_truth_odom` arrows. Launch with
+`target_markers` (world frame: blue sphere = ground truth, yellow sphere
+= noisy detection, yellow absent when out of frustum/dropped — was green
+for ground truth until the 2026-07-28 recolor below), and a new
+`sim/rviz/cv_target.rviz` config adds that display plus `/sim/raw_odom`
+and `/target/ground_truth_odom` arrows. Fixed Frame is `map` and it
+includes a Map display on `/map` (off by default, left as an option) —
+`run_shot_hit_tests.py`'s `robot_tf` launch runs `localization_mode:=amcl`
+(2026-07-28) so `map->odom` and `/map` are actually published; run this
+rviz config standalone against a launch with `localization_mode:=none`
+and the Map display will just stay empty. Launch with
 `ros2 launch sim sim.launch.py spawn_target:=true rviz_config:=$(ros2 pkg
 prefix sim)/share/sim/rviz/cv_target.rviz`. Verified live: `target_markers`
-publishes at ~58Hz, the yellow detection sphere visibly tracks the green
+publishes at ~58Hz, the yellow detection sphere visibly tracks the
 ground-truth trail in rviz, and Gazebo's entity tree correctly shows no
 target entity (confirms the "no gz entity" design held).
+
+**Shot-outcome markers + recolor (2026-07-28):** `run_shot_hit_tests.py`
+now publishes a `/shot_markers` MarkerArray (a dot at each shot's
+estimated impact point, green=hit/red=miss), with a matching
+`ShotMarkers` display added to `cv_target.rviz`. Robot URDF material
+(both `sim/urdf/sentry.urdf.xacro` and `sentry_pkg/urdf/sentry.urdf.xacro`)
+recolored red; target ground-truth marker/arrow recolored blue (see
+above); `run_localization_drift_tests.py`'s spawned test obstacle box
+recolored blue. Verified live via screenshot.
+
+**Gotcha found while chasing why color/marker edits weren't showing up:**
+`install/sim`'s entire tree (rviz configs, both URDF copies, every Python
+module) had silently lost its `--symlink-install` linkage — plain stale
+copies instead of symlinks back to `src/sim`, so edits to anything
+launched via `ros2 run`/`ros2 launch` (not `run_shot_hit_tests.py` itself,
+which is always run as a raw script directly against `src/`) were
+silently ignored. Fixed with the same remedy as the `sentry_pkg` fix
+earlier in this section: `rm -rf build/sim install/sim && colcon build
+--packages-select sim --symlink-install`. If a future edit under `sim/`
+doesn't seem to take effect for a `ros2 run`/`ros2 launch`-invoked node,
+suspect this again before assuming the edit itself is wrong.
 
 **Open:** no aim/lead controller or fire logic yet (explicitly deferred,
 see the plan this section implements).
