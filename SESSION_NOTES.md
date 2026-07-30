@@ -568,17 +568,21 @@ detection → `/cv/target`.
   same "plain ROS node doing its own kinematics" approach `pose_emulator.py`
   uses for robot pose. Bounces along a fixed-distance lateral traverse
   (default: x=3.0m, y∈[-2,2], z=0.3m) sized against the camera's static
-  1.5184 rad FOV so dwell time stays well above the ~10-sample EMA warm-up
-  floor even at high sweep speeds (measured: min 47 consecutive in-frustum
-  samples at 8 m/s, the top of the default sweep). Advances state from
+  1.5184 rad FOV so dwell time stays well above the ~10-sample convergence
+  floor `point_to_cv_target`'s velocity filter needed at the time (that
+  filter is gone as of 2026-07-28; the 47-sample measurement itself still
+  holds, see `sim/README.md`'s path-geometry notes) even at high sweep
+  speeds (measured: min 47 consecutive in-frustum samples at 8 m/s, the
+  top of the default sweep). Advances state from
   `self.get_clock().now()` deltas, not timer period, so RTF≠1.0 doesn't
   mislabel `target_speed`.
 - `sim/sim/cv_target_emulator.py` — FK chain (root→body→head→head_pitch→
   camera, matching sentry.urdf.xacro's fixed joint offsets, no TF) computes
   the target's REP-103 position relative to the camera, gates on FOV/range,
   injects configurable Gaussian noise + dropout + latency, publishes
-  `roi_point`/`roi` — exactly what `point_to_cv_target.py` subscribes to.
-  Stamps `roi_point` from its own clock, never forwarded from ground truth.
+  `cv/panel_detection` (`dji_serial_bridge/msg/PanelDetection`) — exactly
+  what `point_to_cv_target.py` subscribes to. Stamps it from its own
+  clock, never forwarded from ground truth.
 - `sim/setup.py`, `sim/launch/sim.launch.py` — new `spawn_target` (default
   `false`)/`target_speed`/`cv_noise_*` args and `Node` actions, independent
   of `auto.launch.py`'s SLAM/AMCL/EKF stack in both directions (confirmed:
@@ -652,5 +656,8 @@ earlier in this section: `rm -rf build/sim install/sim && colcon build
 doesn't seem to take effect for a `ros2 run`/`ros2 launch`-invoked node,
 suspect this again before assuming the edit itself is wrong.
 
-**Open:** no aim/lead controller or fire logic yet (explicitly deferred,
-see the plan this section implements).
+**Open:** real firing logic (HP/heat/power gating, timing) still not
+built — out of scope per `CLAUDE.md`'s CV-first priority. An aim/lead
+controller now exists (`sentry_pkg`'s `target_tracker.py` +
+`point_to_cv_target.py`'s `lead_enabled` intercept solve, plan Phases 2-3)
+behind `point_to_cv_target`'s existing placeholder fire trigger.
