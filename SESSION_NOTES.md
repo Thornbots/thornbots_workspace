@@ -4,7 +4,7 @@ Goals, what's done, and what's still open for the `sim` (gz-sim) and
 `sentry_pkg` (SLAM) packages. Written for future-me (or a future Claude
 session) picking this back up — read this before continuing that work.
 
-This file itself (along with `CLAUDE.md`, `DOCKER.md`,
+This file itself (along with `CLAUDE.md`,
 `ARCC_2026_SENTRY_CONTEXT.md`, and `.claude/`) lives in its own repo,
 [`Thornbots/sentry_workspace`](https://github.com/Thornbots/sentry_workspace)
 (2026-07-24) — separate from `sim`/`sentry_pkg`/`sentry_localization`, which
@@ -39,8 +39,7 @@ progress unless explicitly asked.
   apps" section.
 - `docker exec` sessions need `ROS_DOMAIN_ID=42` exported explicitly (login
   shells get it from `/etc/bash.bashrc`, non-interactive `docker exec -lc`
-  invocations don't reliably) — see `DOCKER.md` / the `isaac-ros-docker`
-  skill.
+  invocations don't reliably) — see the `isaac-ros-docker` skill.
 
 ## What's done
 
@@ -86,7 +85,8 @@ progress unless explicitly asked.
 - `sentry_pkg`'s SLAM (`auto.launch.py`) depends only on `/pose` (via
   `pose_translator`) + `/scan`, no direct real-hardware dependency — works
   against `sim` or a real driver.
-- `sentry_pkg/config/slam.yaml` tuned from scratch.
+- `sentry_localization/config/slam.yaml` tuned from scratch (was
+  `sentry_pkg/config/` before the localization split).
 - `sim/auto_explore.py`: frontier-biased autonomous exploration with
   stuck-detection/escape logic, now reads its own pose from TF (`map ->
   root`) instead of `/odom` (see fixed bugs below for why).
@@ -100,7 +100,7 @@ progress unless explicitly asked.
   contact, so this is effectively its permanent resting height).
 - `docker/fastdds_cable.xml`'s `useBuiltinTransports` fixed to `true` (was
   `false`, which silently killed all local multicast discovery/transport —
-  see `DOCKER.md`/`isaac-ros-docker` skill for the full symptom writeup).
+  see the `isaac-ros-docker` skill for the full symptom writeup).
 - **rviz/TF now confirmed working end-to-end** (2026-07-20): scan renders in
   rviz, and the SLAM map loads correctly when starting `sentry_pkg`. Root
   cause was `fastdds_cable.xml`'s `<initialPeersList>` (hardcoded real-robot
@@ -112,8 +112,7 @@ progress unless explicitly asked.
   double-checking that wasn't accidental if `sentry_pkg` ever fails to be
   found in the container). Full root-cause writeup, including the
   `PS1`/`bash.bashrc`-sourcing gap that hid this bug for a long debugging
-  session, is in `DOCKER.md`'s Troubleshooting section and the
-  `isaac-ros-docker` skill — worth reading in full if anything like this
+  session, is in the `isaac-ros-docker` skill's `reference.md` — worth reading in full if anything like this
   ("topics/nodes look matched but no data" or "rviz TF empty") recurs.
 - The container's `/dev/dri/card0`/`card1` (two GPUs — NVIDIA is `card0`,
   Intel iGPU is `card1`) had a host/container `video` group GID mismatch
@@ -293,7 +292,8 @@ progress unless explicitly asked.
       slip event is exactly the signal the EKF should trust, not discard.
       The gate should only catch `rf2o`'s own failure modes, not arbitrate
       normal disagreement between the two sources.
-  - Step 4: `sentry_pkg/config/ekf.yaml` + `ekf_node` fusing `/odom` (x, y,
+  - Step 4: `ekf.yaml` (written into `sentry_pkg/config/` at the time, now
+    `sentry_localization/config/ekf.yaml`) + `ekf_node` fusing `/odom` (x, y,
     vx, vy) and gated `/scan_odom` (x, y, yaw), publishing `odom->root`.
     Chassis heading is fixed (holonomic, never rotates) so yaw process noise
     can stay low/tightly trusted. Given (a) above, `/scan_odom` updates will
@@ -319,7 +319,8 @@ progress unless explicitly asked.
   consolidated into `localization_mode`, see below) — `amcl` mode
   launches `nav2_map_server` (serving
   `map_file`'s `.yaml`, same basename as the existing posegraph files) +
-  `nav2_amcl` (new `sentry_pkg/config/amcl.yaml`, `robot_model_type:
+  `nav2_amcl` (new `amcl.yaml`, then in `sentry_pkg/config/`, now
+  `sentry_localization/config/amcl.yaml`; `robot_model_type:
   nav2_amcl::OmniMotionModel` since the chassis is holonomic) + a
   `nav2_lifecycle_manager` node to autostart both; `slam_toolbox` isn't
   launched at all in this mode (AMCL only localizes against a map, never
@@ -479,24 +480,25 @@ progress unless explicitly asked.
 
 ## Open after the 2026-07-25 EKF work
 
-- **rf2o's covariance fix is still container-local.** rf2o publishes
-  all-zero covariance upstream, which reads as "infinitely certain" to
-  the EKF. Patched in-container (x/y variance `0.02**2`, yaw `0.05**2`,
-  unobserved axes `1e6`) via `~/workspaces/isaac_ros-dev/rf2o_cov_patch.py`,
-  which must be re-run **and rf2o rebuilt** after every container
-  recreation — already lost once this way. Needs a real commit to
-  `Thornbots/rf2o_laser_odometry` to stop recurring. Worth knowing: on
-  its own this fix changed measured accuracy by essentially nothing; the
-  scan convention was doing all the damage.
-- **`/workspaces/ros2_ws` overrides the bind-mounted `src/` in
-  `AMENT_PREFIX_PATH`.** Editing `src/sentry_localization/config/*.yaml`
-  has NO effect on a running stack — the image-baked GitHub clone from
-  LAYER 8 is what actually loads. This silently invalidated a full round
-  of measurements before it was spotted (the ekf output kept matching
-  `/odom` to 3 decimals, which was the tell). Check with
-  `ros2 pkg prefix sentry_localization`; to test a config change, copy it
-  into `/workspaces/ros2_ws/src/...` as root. Worth deciding whether the
-  isaac_ros-dev overlay should take precedence instead.
+- **rf2o publishes all-zero covariance**, which reads as "infinitely
+  certain" to the EKF. Needs a real commit to
+  `Thornbots/rf2o_laser_odometry`. The container-local patch that used to
+  be documented here (x/y variance `0.02**2`, yaw `0.05**2`, unobserved
+  axes `1e6`, applied via a `rf2o_cov_patch.py` at the workspace root) is
+  **gone** — that script no longer exists on disk, so assume the fix is
+  not applied anywhere and redo it from scratch when this is picked up.
+  Worth knowing: on its own it changed measured accuracy by essentially
+  nothing; the scan convention was doing all the damage.
+- **`src/` edits to this package can silently not take effect**, because
+  `Dockerfile.thornbots` bakes a GitHub clone of it into
+  `/workspaces/ros2_ws`. This invalidated a full round of measurements
+  before it was spotted (the ekf output kept matching `/odom` to 3
+  decimals, which was the tell). Which copy wins depends on the entry
+  point, *not* on `AMENT_PREFIX_PATH` ordering — that explanation was
+  re-measured and corrected 2026-07-26; see "Two workspaces" in the
+  `isaac-ros-docker` skill for the current, verified account and the
+  `ros2 pkg prefix` check. Still worth deciding whether the
+  `isaac_ros-dev` overlay should just take precedence outright.
 - **`drift_correction`/`drift_correction_obstacle` still need an
   ekf-appropriate metric.** Their `MAX_DELTA_THRESHOLD=0.30m` ("delta
   from pre-loop pose") is calibrated for `map->odom`'s
@@ -597,11 +599,11 @@ rf2o note above for why that check matters) passed 20/20 samples with no
 180°-class sign flip.
 
 **Environment footguns hit and fixed, both real (not the already-documented
-`AMENT_PREFIX_PATH` one below — a different failure mode each):**
+`ros2_ws` shadowing one above — a different failure mode each):**
 - `sim`'s `gz-sim`/`ros_gz` deps aren't installed by default in this
-  container (`DOCKER.md`'s "Which image gets built" section already
-  documents this — `sudo isaac_ros_common/docker/scripts/install-sim.sh`
-  fixes it once per container).
+  container (the `isaac-ros-docker` skill documents this — `dexec.sh -r --
+  src/isaac_ros_common/docker/scripts/install-sim.sh` fixes it once per
+  container).
 - `sentry_pkg`'s build under `/workspaces/isaac_ros-dev/install` was a
   **stale colcon symlink-install pointing at a deleted git worktree**
   (`.../sentry_pkg/.claude/worktrees/cv-target-publisher/...`, left over

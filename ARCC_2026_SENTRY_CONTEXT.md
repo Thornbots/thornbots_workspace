@@ -49,7 +49,7 @@ where those still matter — see `SESSION_NOTES.md` for the full log)
   falling back to the Intel iGPU), FastDDS local discovery (was broken by a
   stale robot-IP peer in the profile baked into every shell), and
   container-local device permissions all fixed. Full writeup in
-  `DOCKER.md`'s Troubleshooting section and the `isaac-ros-docker` skill.
+  the `isaac-ros-docker` skill's `reference.md`.
 
 **Next up:**
 - **Publish `slam_toolbox`'s corrections back onto a real odometry topic**,
@@ -83,7 +83,7 @@ where those still matter — see `SESSION_NOTES.md` for the full log)
      Verified live: `/scan_gated` correctly stops/resumes as the head
      leaves/returns to home. A real per-scan-TF fix would require forking
      `rf2o`; deferred (see `SESSION_NOTES.md` option (c)).
-  4. **Done (2026-07-25)**: `sentry_pkg/config/ekf.yaml` + `ekf_node` fuse
+  4. **Done (2026-07-25)**: `sentry_localization/config/ekf.yaml` + `ekf_node` fuse
      `/odom` (velocity+yaw) and gated `/scan_odom` (absolute x/y) into
      `odom->root` — measured +89% over raw wheel odometry under slip; full
      writeup and remaining caveats in `SESSION_NOTES.md`'s 2026-07-25 and

@@ -5,8 +5,10 @@ description: Use when the user wants to launch, attach to, rebuild, or troublesh
 
 # Isaac ROS Docker dev container
 
-Full reference: `../../../DOCKER.md` (repo-relative: `src/DOCKER.md`). Read it
-if you need details beyond this summary.
+Full reference: `reference.md`, next to this file — `run_dev.sh`'s flag
+catalogue, what's wired up inside the container, the manual equivalents of
+`dexec.sh`/`kill_launch.sh`, the complete `/workspaces/ros2_ws` clone list,
+and the dated postmortems. Read it if you need details beyond this summary.
 
 > **Never build the image yourself.** No `docker build`, no
 > `build_image_layers.sh`/`build_base_image.sh`, and no `run_dev.sh`
@@ -257,7 +259,7 @@ needed), then test normally.
   `/etc/fastdds/profile.xml` (source: `isaac_ros_common/docker/fastdds_cable.xml`).
   Two causes were found and fixed 2026-07-20: `<useBuiltinTransports>` must
   stay `true`, and no `<initialPeersList>` (an unreachable explicit peer
-  breaks local multicast discovery even so). Full writeup in DOCKER.md's
+  breaks local multicast discovery even so). Full writeup in `reference.md`'s
   Troubleshooting section; don't re-blame
   `RMW_FASTRTPS_PUBLICATION_MODE=ASYNCHRONOUS`, which was a red herring.
   Any profile change needs a full rebuild (`./run_dev.sh`, not `-b`) **and**

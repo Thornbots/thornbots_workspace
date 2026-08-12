@@ -5,9 +5,12 @@ Isaac ROS Docker dev container) for the "Thornbots" sentry robot project.
 
 ## Read these before doing related work
 
-- **`DOCKER.md`** — how to build/launch/attach to the dev container
+- **the `isaac-ros-docker` skill** (`.claude/skills/isaac-ros-docker/`) — how
+  to build/launch/attach to the dev container
   (`isaac_ros_common/scripts/run_dev.sh`), the layered `Dockerfile.thornbots`
-  image, and troubleshooting. Read before any docker/build-related task.
+  image, and troubleshooting. Load it before any docker/build-related task,
+  and before running anything inside the container. Its `reference.md` holds
+  the long-form detail that used to live in `DOCKER.md`.
 - **`ARCC_2026_SENTRY_CONTEXT.md`** — distilled competition rules for the
   autonomous Sentry robot (arena geometry, HP/heat/power limits, firing
   constraints). Read before SLAM/nav or firing-logic work in `sentry_pkg`/`sim`.
@@ -37,6 +40,16 @@ explicitly asked.
   baggage.
 
 ## Packages
+
+**Every package dir below is its own git repo** (all under the `Thornbots`
+GitHub org) — `src/` itself only tracks the top-level docs and `.claude/`.
+Commit and push inside the package dir, not from `src/`.
+
+**Per-package agent notes live in that package's own `AGENTS.md`** — build/
+test/launch invocation for that package, whether it's shadowed by
+`/workspaces/ros2_ws`, and its scope boundaries. Read it before working in a
+package; its `README.md` remains the reference doc (topics, nodes, design
+rationale). Conventions here are inherited, not restated there.
 
 - `isaac_ros_common/` — NVIDIA upstream repo, Docker scripts/Dockerfiles
 - `sentry_pkg/` — SLAM/autonomy for the Sentry robot

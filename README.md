@@ -7,7 +7,6 @@ This repo tracks only the files that live at the `src/` root and don't belong to
 ## Contents
 
 - **`CLAUDE.md`** — workspace overview and pointers for AI-assisted work
-- **`DOCKER.md`** — building/launching/attaching to the dev container
 - **`ARCC_2026_SENTRY_CONTEXT.md`** — distilled ARCC 2026 competition rules
 - **`SESSION_NOTES.md`** — running log of SLAM/nav goals, progress, and open issues
 - **`.claude/`** — Claude Code settings and skills for this workspace
