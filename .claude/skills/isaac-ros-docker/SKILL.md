@@ -1,18 +1,18 @@
 ---
 name: isaac-ros-docker
-description: Use to launch, attach to, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container. Also load before you yourself run anything in it — `docker exec`, `colcon build`, `ros2 launch`/`run`/`topic` — even if the user never says "docker": a hand-rolled `docker exec` skips `dexec.sh`'s env parity (ROS_DOMAIN_ID, FastDDS profile, both workspace installs, `-u admin` for X11) and silently returns wrong results instead of erroring.
+description: Load to launch, attach to, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker".
 ---
 
 # Isaac ROS Docker dev container
 
-Full reference: `reference.md`, next to this file — `run_dev.sh`'s flag
-catalogue, what's wired up inside the container, the manual equivalents of
-`dexec.sh`/`kill_launch.sh`, the complete `/workspaces/ros2_ws` clone list,
-and the dated postmortems. Read it if you need details beyond this summary.
+`reference.md`, next to this file, holds the full reference: `run_dev.sh`'s
+flag catalogue, what's wired up inside the container, the manual equivalents
+of `dexec.sh`/`kill_launch.sh`, the complete `/workspaces/ros2_ws` clone
+list, and the dated postmortems. Read it for details beyond this summary.
 
 > **Never build the image yourself.** No `docker build`, no
 > `build_image_layers.sh`/`build_base_image.sh`, and no `run_dev.sh`
-> invocation that would trigger a build — the user runs every rebuild.
+> invocation that would trigger a build. The user runs every rebuild.
 > When a change needs one, make the edit, then hand them the command and
 > stop. Running commands *inside* an already-running container (`dexec.sh`)
 > is fine.
@@ -22,14 +22,14 @@ and the dated postmortems. Read it if you need details beyond this summary.
 - Entry point script: `isaac_ros_common/scripts/run_dev.sh`. Run it from
   `isaac_ros_common/scripts/`.
 - Host `isaac_ros-dev/src` is bind-mounted to
-  `/workspaces/isaac_ros-dev/src` — source edits don't need a rebuild, only
-  dependency/package changes do. **But only for packages that actually
+  `/workspaces/isaac_ros-dev/src`, so source edits don't need a rebuild,
+  only dependency/package changes do. **But only for packages that actually
   resolve to this workspace**; see "Two workspaces" below before trusting
   any edit under `src/`.
-- The bind mount is **not** at `/workspaces/isaac_ros-dev` — that's the
+- The bind mount is **not** at `/workspaces/isaac_ros-dev`: that's the
   colcon workspace root (`build/`, `install/`, `log/`, `src/`), one level
   up. A hand-built path like `/workspaces/isaac_ros-dev/isaac_ros_common/…`
-  silently resolves to nothing instead of erroring; `ls
+  silently resolves to nothing instead of erroring; run `ls
   /workspaces/isaac_ros-dev/src` if in doubt.
 - Container name: `isaac_ros_dev-<uname -m>-container` (e.g.
   `isaac_ros_dev-x86_64-container`).
@@ -40,13 +40,14 @@ and the dated postmortems. Read it if you need details beyond this summary.
   `docker/Dockerfile.thornbots` (custom top layer with this org's apt
   packages and git-cloned/colcon-built packages).
 - **On a fresh/recreated container, run `install-sim.sh` before any `sim`
-  launch.** `Dockerfile.thornbots` deliberately does not install `ros-humble-
-  ros-gz` or build `sim` (real hardware never needs gz-sim) — see "Two
-  workspaces" below. Symptom if skipped: `ros2 launch sim ...` fails to find
-  gz-sim plugins/executables, or `sim`'s install dir is missing/stale. Fix:
+  launch.** `Dockerfile.thornbots` deliberately skips installing
+  `ros-humble-ros-gz` and building `sim`, since real hardware never needs
+  gz-sim (see "Two workspaces" below). If skipped, `ros2 launch sim ...`
+  fails to find gz-sim plugins/executables, or `sim`'s install dir is
+  missing or stale. Fix by running
   `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh` (needs
-  root for the apt install; fast, ~5s once apt is done — safe to always run
-  once per container before the first sim test).
+  root for the apt install; fast, ~5s once apt is done, so it's safe to run
+  once per container before the first sim test regardless).
 
 ## Two workspaces: `/workspaces/ros2_ws` silently shadows your `src/` edits
 
@@ -60,7 +61,7 @@ There are two colcon workspaces in the container, and they overlap:
 | `/workspaces/ros2_ws` | `sentry_pkg`, `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
 | `/workspaces/isaac_ros-dev` | `sim`, `sentry_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
 
-**Which copy wins depends on the entry point** (re-measured 2026-07-26 —
+**Which copy wins depends on the entry point** (re-measured 2026-07-26;
 earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong):
 
 | entry point | what it sources | resolves to |
@@ -88,26 +89,25 @@ This fails silently and looks like a real result, not a mistake. Editing
 `src/sentry_localization/config/ekf.yaml` and relaunching from a shell that
 resolves to `ros2_ws` produces a stack running the *old* config with no
 warning of any kind. On 2026-07-25 this invalidated an entire round of EKF
-measurements before it was noticed — the tell was the filter output
-matching an input to 3 decimal places, which is not something real fusion
-does.
+measurements before anyone noticed: the tell was the filter output matching
+an input to 3 decimal places, which real fusion doesn't do.
 
-**To test an edit against the shadowing copy** — needed when the launch
-will come from the user's terminal, which resolves to `ros2_ws`; not needed
-for `dexec.sh` launches, which already pick up your `src/` edit — push it
-into `ros2_ws`'s source tree (root-owned, hence `-r`). Layers build with
+**To test an edit against the shadowing copy**, push it into `ros2_ws`'s
+source tree (root-owned, hence `-r`). This matters when the launch will
+come from the user's terminal, which resolves to `ros2_ws`; `dexec.sh`
+launches already pick up your `src/` edit and don't need it. Layers build with
 `--symlink-install`, so for config/launch/xacro files this takes effect
 immediately with no rebuild:
 ```bash
 dexec.sh -r -- bash -lc 'cp /workspaces/isaac_ros-dev/src/sentry_localization/config/ekf.yaml \
     /workspaces/ros2_ws/src/sentry_localization/config/ekf.yaml'
 ```
-This is a **test-only** shim — it lives inside the container and dies with
+This is a **test-only** shim: it lives inside the container and dies with
 it. The edit still has to be committed and pushed to the package's own
 GitHub repo to survive, since that's where the build clones from.
 
 Packages that exist *only* in `isaac_ros-dev` (notably `sim`, which
-`Dockerfile.thornbots` deliberately does not clone — see LAYER 2b and
+`Dockerfile.thornbots` deliberately does not clone; see LAYER 2b and
 `install-sim.sh`) have no shadow copy, so `src/` edits to them are live
 immediately. That asymmetry is itself confusing: `sim/urdf/*.xacro` edits
 apply instantly while `sentry_localization/config/*.yaml` edits appear to
@@ -115,8 +115,8 @@ do nothing.
 
 ## Common commands
 
-These are commands **for the user to run** — anything that can rebuild is
-theirs, not yours:
+These are commands **for the user to run**: anything that can rebuild is
+theirs, not yours.
 ```bash
 cd isaac_ros_common/scripts
 ./run_dev.sh        # start (rebuilds if needed), or attach another shell
@@ -125,8 +125,8 @@ cd isaac_ros_common/scripts
 docker stop isaac_ros_dev-x86_64-container   # needed before it will rebuild
 ```
 
-Rebuild after editing `docker/Dockerfile.thornbots` — the user re-runs
-`run_dev.sh` (after stopping any running container). To bust the cache for
+After editing `docker/Dockerfile.thornbots`, the user re-runs `run_dev.sh`
+(after stopping any running container) to rebuild. To bust the cache for
 one cloned package only, bump its `ARG RECLONE_*` (see the file's header
 comment for the full list, e.g. `RECLONE_BRIDGE` for
 `realsense-yolov8-nitros-bridge`).
@@ -134,7 +134,7 @@ comment for the full list, e.g. `RECLONE_BRIDGE` for
 ## When editing `Dockerfile.thornbots`
 
 - Preserve the layer ordering documented in its header comment (slowest/most
-  stable first, most volatile last) — that's what keeps rebuilds fast.
+  stable first, most volatile last): that's what keeps rebuilds fast.
 - New apt packages this project depends on go in LAYER 2 (Isaac ROS apt
   packages) unless they're sim-specific (LAYER 2b) or belong to one of the
   per-package clone/build layers.
@@ -148,7 +148,7 @@ comment for the full list, e.g. `RECLONE_BRIDGE` for
 `isaac_ros_common/scripts/dexec.sh` and `kill_launch.sh` already get the
 error-prone parts right: full env parity (both workspace installs, plus
 `PS1` set *before* sourcing `/etc/bash.bashrc`, which is
-interactive-shell-only and silently no-ops without it — that gap hid a real
+interactive-shell-only and silently no-ops without it: that gap hid a real
 FastDDS bug for a whole session), `-u admin` so X11/GUI apps work, and
 killing a backgrounded launch's whole process group rather than just the
 launch PID.
@@ -172,7 +172,7 @@ Set `ISAAC_ROS_CONTAINER` to override the container name if needed.
 ## Before/after running any test or one-off sim launch
 
 **Before** launching anything (a background launch, `run_localization_drift_tests.py`,
-`ekf_ground_truth_diag.py`, or an ad hoc probe script) — check for a live
+`ekf_ground_truth_diag.py`, or an ad hoc probe script), check for a live
 session first:
 ```bash
 dexec.sh -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
@@ -181,12 +181,12 @@ A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
 list` but never publish; a *live* session (the user's own manual sim/CV
 work, or a previous test that didn't clean up) collides on the same
 topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
-silently corrupts whatever you're about to measure — no error, just wrong
+silently corrupts whatever you're about to measure. No error, just wrong
 numbers or empty samples. `run_localization_drift_tests.py`'s own
 `check_no_orphans()` does this exact check and only *warns*, it doesn't
 block, so don't skip it just because the script ran.
 
-If something is already running, **don't kill it yourself** — it may be
+If something is already running, **don't kill it yourself**: it may be
 the user's own in-progress work (e.g. a manual CV/rviz session). Ask before
 stopping anything you didn't start.
 
@@ -195,7 +195,7 @@ you interrupt it), clean up what *you* started rather than leaving it for
 the next run to collide with:
 - The official suites (`run_localization_drift_tests.py`,
   `ekf_ground_truth_diag.py`) already do this via `teardown_stack()` in a
-  `finally` block — that's why they're safe to Ctrl-C.
+  `finally` block, which is why they're safe to Ctrl-C.
 - Any ad hoc script you write that calls `run_stack()`/launches its own
   processes must do the same: wrap the body in `try`/`finally` and call
   `teardown_stack(sim_tree, sentry_tree, helper)` (or `kill_launch.sh
@@ -214,7 +214,7 @@ isaac_ros_common/scripts/dexec.sh -d -- \
 
 Worktrees created by `EnterWorktree` live *inside* the package directory
 (e.g. `sim/.claude/worktrees/<name>/`), which is inside the bind-mounted
-tree — so their files are already readable in the container at
+tree, so their files are already readable in the container at
 `/workspaces/isaac_ros-dev/src/<pkg>/.claude/worktrees/<name>/...` with no
 merge. That covers one-off checks (`xacro`, `ign sdf -p`, reading a value).
 
@@ -239,7 +239,7 @@ dexec.sh -- ln -sfn \
 Works for any `--symlink-install`ed file (urdf/xacro, world/sdf, rviz
 config, `launch/*.py`). It does **not** work for compiled (C++) packages or
 `ros2 run`-launched Python nodes (their installed executable is a generated
-wrapper) — for those, merge into the main branch locally first (no push
+wrapper). For those, merge into the main branch locally first (no push
 needed), then test normally.
 
 ## Troubleshooting quick hits
@@ -270,5 +270,5 @@ needed), then test normally.
   never picks up the profile the real shell uses. Use `dexec.sh`, which
   sources the full env.
 
-Don't guess at flags — run `./run_dev.sh --help` or read the script directly
+Don't guess at flags. Run `./run_dev.sh --help` or read the script directly
 if something here doesn't match observed behavior (it may have changed).
