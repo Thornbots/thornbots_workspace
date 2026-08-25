@@ -143,7 +143,7 @@ comment for the full list, e.g. `RECLONE_BRIDGE` for
   any packages they depend on (each layer sources the workspace install
   before building).
 
-## Helper scripts — use these, never hand-rolled `docker exec`
+## Helper scripts: use these, never hand-rolled `docker exec`
 
 `isaac_ros_common/scripts/dexec.sh` and `kill_launch.sh` already get the
 error-prone parts right: full env parity (both workspace installs, plus

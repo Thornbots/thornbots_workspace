@@ -1,4 +1,4 @@
-# Docker dev container — full reference
+# Docker dev container: full reference
 
 Tier-two detail behind `SKILL.md`. Read `SKILL.md` first; come here for the
 flag catalogue, the manual equivalents of what the helper scripts do, and the
@@ -213,7 +213,7 @@ Day-to-day development doesn't need it.
   `CONFIG_IMAGE_KEY` in `.isaac_ros_common-config` matches actual files under
   `isaac_ros_common/docker/`.
 
-### FastDDS discovery — the 2026-07-20 postmortem
+### FastDDS discovery: the 2026-07-20 postmortem
 
 Symptoms: topics show matched publishers/subscribers (`ros2 topic info
 --verbose`) but `ros2 topic hz`/`echo` never receive anything; OR `ros2 topic

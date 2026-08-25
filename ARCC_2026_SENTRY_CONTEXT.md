@@ -1,4 +1,4 @@
-# ARCC 2026 rules — Sentry-relevant context
+# ARCC 2026 rules: Sentry-relevant context
 
 Distilled from the ARCC 2026 rulebook (76 pages, RoboMaster-style 3v3 combat
 competition), fetched from:
@@ -126,7 +126,7 @@ where those still matter; see `SESSION_NOTES.md` for the full log)
 - Can occupy the Capture Point and the Resupply Zone (25% max-HP/sec
   recovery while inside).
 
-## Our Sentry's drivetrain (not from the rulebook — our hardware choice)
+## Our Sentry's drivetrain (not from the rulebook, our hardware choice)
 
 - **Holonomic chassis** (e.g. mecanum/omni wheels): can translate in any
   direction without changing heading.
@@ -145,7 +145,7 @@ where those still matter; see `SESSION_NOTES.md` for the full log)
   coordinate "stop translating before firing" the way a differential-drive
   robot might need to stop turning to stabilize aim.
 
-## Battlefield geometry (§3.2) — relevant to SLAM/nav
+## Battlefield geometry (§3.2): relevant to SLAM/nav
 
 - Battlefield: **12m × 8m**, mirrored layout about the centerline (Red/Blue
   symmetric).
@@ -168,7 +168,7 @@ where those still matter; see `SESSION_NOTES.md` for the full log)
 - An extra flooring layer sits over the RFID zones (minor height change to
   model if doing precise wheel/lidar odometry calibration).
 
-## Combat mechanics — relevant to firing-timing phase (later)
+## Combat mechanics: relevant to firing-timing phase (later)
 
 - **Barrel heat**: each 17mm shot fired adds +10 heat; cools at rate/10 per
   100ms tick (30/s cooling rate → -3 per 100ms). Exceeding the limit (260)
@@ -191,7 +191,7 @@ where those still matter; see `SESSION_NOTES.md` for the full log)
   offline, launcher/gimbal/chassis power off and HP drains 5%/sec, so the
   autonomy stack's reliability directly costs HP, independent of combat.
 
-## Opponent robot characteristics — relevant to CV (current priority)
+## Opponent robot characteristics: relevant to CV (current priority)
 
 - **Most ARCC robots are near full-size** (RoboMaster Standard-class scale,
   not the smaller reference/toy-scale robots), so targets are large in frame

@@ -527,7 +527,7 @@ progress unless explicitly asked.
   pointing exactly backwards. Comparing displacement *vectors* (the angle
   between them) is what found it, worth doing for any odometry source.
 
-## 2026-07-26 — decoupled EKF from `localization_mode`
+## 2026-07-26: decoupled EKF from `localization_mode`
 
 `localization_mode:=ekf` no longer exists as a value. It was a 4-way
 choice conflating two decisions: who owns `map->odom` (slam_toolbox/amcl)
@@ -557,7 +557,7 @@ relocalize path is dormant in map-backend runs. Once `slam`/`amcl` +
 relocalize path live rather than dormant. No code change needed, just
 something to watch for if testing that combination on real hardware.
 
-## 2026-07-27 — CV target simulation (ground truth + noise, no gz entity)
+## 2026-07-27: CV target simulation (ground truth + noise, no gz entity)
 
 Per user reprioritization (see `## Overall goal`'s flipped priority line),
 built the pieces to exercise `sentry_pkg/point_to_cv_target.py` (unmodified)
