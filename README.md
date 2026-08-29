@@ -8,5 +8,4 @@ This repo tracks only the files that live at the `src/` root and don't belong to
 
 - **`CLAUDE.md`**: workspace overview and pointers for AI-assisted work
 - **`ARCC_2026_SENTRY_CONTEXT.md`**: distilled ARCC 2026 competition rules
-- **`SESSION_NOTES.md`**: running log of SLAM/nav goals, progress, and open issues
 - **`.claude/`**: Claude Code settings and skills for this workspace

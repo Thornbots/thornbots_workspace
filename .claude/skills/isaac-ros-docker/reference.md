@@ -251,5 +251,4 @@ symptoms above. Don't re-blame it.
 
 Both changes need a full image rebuild (`./run_dev.sh`, not `-b`) to take
 effect, and any already-running daemon needs `ros2 daemon stop && ros2 daemon
-start` afterward, since it caches its old, broken participant otherwise. Full
-blow-by-blow in `SESSION_NOTES.md`.
+start` afterward, since it caches its old, broken participant otherwise.

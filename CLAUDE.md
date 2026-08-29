@@ -14,9 +14,8 @@ Isaac ROS Docker dev container) for the "Thornbots" sentry robot project.
   autonomous Sentry robot (arena geometry, HP/heat/power limits, firing
   constraints). Read before SLAM/nav or firing-logic work in
   `sentry_pkg`/`sim`.
-- `SESSION_NOTES.md`: goals, what's done, and open issues/TODOs for
-  `sim`/`sentry_pkg`/`sentry_localization` (SLAM) work. Read before
-  continuing that work.
+- Each package's `AGENTS.md` carries its own `## Open` section — the live
+  TODO list for that package. Read it before continuing work there.
 
 ## Current priority
 

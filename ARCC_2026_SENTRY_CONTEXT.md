@@ -10,12 +10,12 @@ crew procedures, other robot types, appeals process, etc. are omitted). Read
 the source PDF directly if you need something not covered here.
 
 Current dev priority: **CV (target detection/tracking) first, timing-based
-firing second**. Localization is considered good enough for now (see
-`SESSION_NOTES.md` for the full goals/status/open-issues log this section
-summarizes).
+firing second**. Localization is considered good enough for now (each
+package's `AGENTS.md` has an `## Open` section with its live TODO list).
 
 ## Dev status (as of 2026-07-27; individual bullets keep their own dates
-where those still matter; see `SESSION_NOTES.md` for the full log)
+where those still matter; per-package `AGENTS.md` `## Open` sections hold
+what is still outstanding)
 
 **Working:**
 - Full sim pipeline end-to-end: `ros2 launch sim sim.launch.py` spawns the
@@ -62,7 +62,7 @@ where those still matter; see `SESSION_NOTES.md` for the full log)
   directly.
 - **Fuse `/odom` + `/scan` into localization via an EKF**, replacing
   `pose_translator`'s current plain republish of `/pose` onto `odom->root`.
-  Plan (full detail/rationale in `SESSION_NOTES.md`):
+  Plan:
   1. **Done (2026-07-20)**: `ekf_node` runs. The cause was a stale apt index +
      old `diagnostic_updater` 4.0.6 build missing its `.so`, not a real ABI
      mismatch; fixed with `apt-get update` + `robot_localization` install +
@@ -82,14 +82,14 @@ where those still matter; see `SESSION_NOTES.md` for the full log)
      near its home yaw (`home_yaw_tolerance` launch arg, default 0.05 rad).
      Verified live: `/scan_gated` correctly stops/resumes as the head
      leaves/returns to home. A real per-scan-TF fix would require forking
-     `rf2o`; deferred (see `SESSION_NOTES.md` option (c)).
+     `rf2o`; deferred (see `sentry_localization/AGENTS.md`'s `## Open`).
   4. **Done (2026-07-25)**: `sentry_localization/config/ekf.yaml` + `ekf_node` fuse
      `/odom` (velocity+yaw) and gated `/scan_odom` (absolute x/y) into
      `odom->root`, measured +89% over raw wheel odometry under slip. Full
-     writeup and remaining caveats in `SESSION_NOTES.md`'s 2026-07-25 and
-     "Open after the 2026-07-25 EKF work" sections.
-- **CV target detection now has a working sim path** (2026-07-27, see
-  `SESSION_NOTES.md`): `sim`'s `target_driver.py` + `cv_target_emulator.py`
+     writeup in `sentry_localization/README.md`; remaining caveats in that
+     package's and `sim`'s `AGENTS.md` `## Open` sections.
+- **CV target detection now has a working sim path** (2026-07-27):
+  `sim`'s `target_driver.py` + `cv_target_emulator.py`
   feed `sentry_pkg/point_to_cv_target.py` (unmodified) end-to-end,
   launchable standalone via `spawn_target:=true`.
 - **Decided (2026-07-27): `sentry_pkg` owns launching the whole stack**
@@ -393,6 +393,13 @@ treated like an RMUL event.
   base doc's actual numeric limits aren't extracted yet since it isn't
   reachable as a static PDF (see note above).
 - Full Referee System data interface / UART protocol spec.
+- **Armor panel face dimensions.** `sim/cv_target_emulator.py`'s
+  `PANEL_SIZE = 0.1` (a 0.1m x 0.1m face) is an assumption, explicitly not
+  sourced from this document. `sim/test/cv/run_shot_hit_tests.py` derives
+  `DEFAULT_HIT_RADIUS` from it, so the shot-hit suite's entire pass/fail line
+  rests on that number — treat any hit-rate figure as calibrated on an
+  approximation until the real dimension is pulled from the rulebook. The
+  145-degree front exposure cone used alongside it *is* sourced from here.
 - Round timing/countdown details (§7.5–7.9) if precise match-phase state
   machine timing is needed later.
 

@@ -202,7 +202,7 @@ the next run to collide with:
   <pid>` for anything launched outside that helper) unconditionally, and
   re-run the `ps aux` check above afterward to confirm nothing's left.
 
-`sim` launches with GUI by default (standing rule in `SESSION_NOTES.md`);
+`sim` launches with GUI by default (standing rule in `sim/AGENTS.md`);
 that includes `run_localization_drift_tests.py`, which takes `--headless`
 to opt out:
 ```bash
