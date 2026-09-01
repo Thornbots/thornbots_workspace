@@ -9,101 +9,9 @@ what's relevant to building an autonomous Sentry, not the full rulebook (pit
 crew procedures, other robot types, appeals process, etc. are omitted). Read
 the source PDF directly if you need something not covered here.
 
-Current dev priority: **CV (target detection/tracking) first, timing-based
-firing second**. Localization is considered good enough for now (each
-package's `AGENTS.md` has an `## Open` section with its live TODO list).
-
-## Dev status (as of 2026-07-27; individual bullets keep their own dates
-where those still matter; per-package `AGENTS.md` `## Open` sections hold
-what is still outstanding)
-
-**Working:**
-- Full sim pipeline end-to-end: `ros2 launch sim sim.launch.py` spawns the
-  robot in the `ARCC_Field_2026` gz-sim world, bridges raw `/scan`,
-  `/sim/raw_odom`, `/sim/raw_joint_states`, `/cmd_vel`, `/clock`, head-pan
-  control.
-- rviz visualization confirmed working end-to-end: laser scan renders, and
-  the SLAM map loads correctly when starting `sentry_pkg`.
-- **`sentry_pkg` owns pose and TF end-to-end now (2026-07-20)**: sim's
-  `pose_emulator` repackages its raw ground truth into the same
-  `dji_serial_bridge/msg/RobotPose` `/pose` interface real hardware's
-  Type-C board speaks; `sentry_pkg`'s `pose_translator` is the single
-  consumer of that, for sim or real hardware alike, and `sentry_pkg` runs
-  its own `robot_state_publisher` off its own URDF. `sentry_pkg`'s SLAM
-  (`auto.launch.py`) runs off `/pose` + `/scan` only, with no direct
-  real-hardware dependency, so it works against sim or a real driver
-  interchangeably. (The real `dji_serial_bridge_node` itself still needs a
-  one-line update to publish flat `/pose` instead of `~/pose` to match,
-  tracked as a TODO in its source, not yet done.) `auto.launch.py` launches
-  the real drivers (`dji_serial_bridge_node` + `sllidar_ros2`, RPLIDAR
-  A2M8 on `/dev/ttyUSB0` @ 115200 by default) directly now, on by default
-  (`real_hardware:=true`); pass `real_hardware:=false` when running
-  against sim instead.
-- Autonomous frontier-biased exploration (`sim/auto_explore.py`) with
-  stuck-detection/escape logic and immediate reaction to a physical contact
-  sensor (`/body_contact`), not just map-inferred walls.
-- Free-floating 6DOF chassis (no joint chain) driven by `/cmd_vel`, matching
-  the real holonomic, non-rotating-heading drivetrain design (see "Our
-  Sentry's drivetrain" below).
-- Docker dev environment is stable: NVIDIA GPU rendering (was silently
-  falling back to the Intel iGPU), FastDDS local discovery (was broken by a
-  stale robot-IP peer in the profile baked into every shell), and
-  container-local device permissions all fixed. Full writeup in
-  the `isaac-ros-docker` skill's `reference.md`.
-
-**Next up:**
-- **Publish `slam_toolbox`'s corrections back onto a real odometry topic**,
-  not just `map->odom` TF. Right now a correction only exists as that
-  transform, so anything wanting the robot's best current pose has to do its
-  own `map->root` TF lookup rather than just subscribing to a topic. Not
-  started; worth doing once the EKF/correction pipeline below is settled,
-  since it's a natural place to also publish a single best-estimate
-  `Odometry` message downstream consumers (e.g. Nav2, once set up) can use
-  directly.
-- **Fuse `/odom` + `/scan` into localization via an EKF**, replacing
-  `pose_translator`'s current plain republish of `/pose` onto `odom->root`.
-  Plan:
-  1. **Done (2026-07-20)**: `ekf_node` runs. The cause was a stale apt index +
-     old `diagnostic_updater` 4.0.6 build missing its `.so`, not a real ABI
-     mismatch; fixed with `apt-get update` + `robot_localization` install +
-     `diagnostic_updater` upgrade to 4.0.7. Container-local fix, not yet
-     baked into the image.
-  2. **Done (2026-07-20)**: vendored `rf2o_laser_odometry` (upstream
-     `MAPIRlab/rf2o_laser_odometry`, `ros2` branch) as a new Dockerfile
-     layer, wired into `auto.launch.py` publishing `/scan_odom`
-     (`publish_tf: false`, EKF will own `odom->root`).
-  3. **Done (2026-07-20)**: since the lidar is head-mounted and the head
-     moves independently under firmware control, `rf2o` turned out to
-     sample the `lidar->root` TF only *once* at startup, not per scan, so
-     the originally-planned "drop scans if `head->lidar` TF isn't fresh"
-     gate wasn't actually possible without patching `rf2o` itself. Instead
-     added `sentry_pkg/sentry_pkg/head_home_scan_gate.py`, which only
-     forwards `/scan` onto `/scan_gated` (rf2o's input) while the head is
-     near its home yaw (`home_yaw_tolerance` launch arg, default 0.05 rad).
-     Verified live: `/scan_gated` correctly stops/resumes as the head
-     leaves/returns to home. A real per-scan-TF fix would require forking
-     `rf2o`; deferred (see `sentry_localization/AGENTS.md`'s `## Open`).
-  4. **Done (2026-07-25)**: `sentry_localization/config/ekf.yaml` + `ekf_node` fuse
-     `/odom` (velocity+yaw) and gated `/scan_odom` (absolute x/y) into
-     `odom->root`, measured +89% over raw wheel odometry under slip. Full
-     writeup in `sentry_localization/README.md`; remaining caveats in that
-     package's and `sim`'s `AGENTS.md` `## Open` sections.
-- **CV target detection now has a working sim path** (2026-07-27):
-  `sim`'s `target_driver.py` + `cv_target_emulator.py`
-  feed `sentry_pkg/point_to_cv_target.py` (unmodified) end-to-end,
-  launchable standalone via `spawn_target:=true`.
-- **Decided (2026-07-27): `sentry_pkg` owns launching the whole stack**
-  (sim/SLAM/CV together). This matches its existing role owning pose/TF and
-  `auto.launch.py`'s `real_hardware`/`localization_mode` args, which
-  already toggle between sim and real drivers from one place. Not yet
-  built. `auto.launch.py` needs a new arg to also bring up `sim`'s
-  `spawn_target`/CV nodes (and, for real hardware, whatever the real
-  `realsense-yolov8-nitros-bridge` chain needs) alongside SLAM.
-- **Set up Nav2** on top of `slam_toolbox`'s localization/map output, once
-  it's reliably corrected (see EKF work above): path planning/costmaps for
-  autonomous navigation around the arena. Not started. The holonomic,
-  never-rotating chassis simplifies planning; see "Our Sentry's drivetrain"
-  below for what that means for orientation and costmaps.
+Dev status, priorities, and open work are not tracked here: each package's
+`AGENTS.md` has an `## Open` section with its live TODO list, and its
+`README.md` has the detail. This doc holds only the rules and opponent facts.
 
 ## Sentry robot spec (§3.1.3)
 
@@ -191,7 +99,7 @@ what is still outstanding)
   offline, launcher/gimbal/chassis power off and HP drains 5%/sec, so the
   autonomy stack's reliability directly costs HP, independent of combat.
 
-## Opponent robot characteristics: relevant to CV (current priority)
+## Opponent robot characteristics: relevant to CV
 
 - **Most ARCC robots are near full-size** (RoboMaster Standard-class scale,
   not the smaller reference/toy-scale robots), so targets are large in frame
@@ -276,7 +184,7 @@ design that used a different, floor-facing angle)
 - **Rigidity requirement (S124)**: a 60 N upward force at the midpoint of
   a panel's lower edge must not change its mounting angle by more than
   **2.5°**, i.e. panels must be rigidly fixed, not spring-mounted or
-  loose. That reinforces why the 4×N-per-500ms disconnection HP drain (above)
+  loose. That reinforces why the 4×N-per-500ms disconnection HP drain (below)
   is a real design risk, not just a wiring edge case.
 - **Practical CV takeaway**: opponent armor panels present at a
   consistent, predictable ~15°-off-vertical cant on all 4 sides, useful
@@ -393,7 +301,7 @@ treated like an RMUL event.
   base doc's actual numeric limits aren't extracted yet since it isn't
   reachable as a static PDF (see note above).
 - Full Referee System data interface / UART protocol spec.
-- **Armor panel face dimensions.** `sim/cv_target_emulator.py`'s
+- **Armor panel face dimensions.** `sim/sim/cv_target_emulator.py`'s
   `PANEL_SIZE = 0.1` (a 0.1m x 0.1m face) is an assumption, explicitly not
   sourced from this document. `sim/test/cv/run_shot_hit_tests.py` derives
   `DEFAULT_HIT_RADIUS` from it, so the shot-hit suite's entire pass/fail line
@@ -403,7 +311,5 @@ treated like an RMUL event.
 - Round timing/countdown details (§7.5–7.9) if precise match-phase state
   machine timing is needed later.
 
-Full extracted plaintext of the rulebook (`pdftotext -layout`) was produced
-2026-07-19 but only saved to a session-scratchpad path that does not persist
-across sessions. Re-fetch the PDF and re-run `pdftotext -layout` if deeper
-detail is needed later.
+Re-fetch the PDF and run `pdftotext -layout` on it if deeper detail is needed
+later; no extracted plaintext is kept in the repo.
