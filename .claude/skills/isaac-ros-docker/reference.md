@@ -213,6 +213,42 @@ Day-to-day development doesn't need it.
   `CONFIG_IMAGE_KEY` in `.isaac_ros_common-config` matches actual files under
   `isaac_ros_common/docker/`.
 
+### Cross-machine ROS 2 over Tailscale (2026-09-02)
+
+tailscale0 carries no usable multicast, so SIMPLE discovery never finds a peer
+on another machine, however healthy the link is (plain UDP to the peer's 100.x
+address works fine; that is not the problem). Cross-machine topics go through a
+Fast DDS **discovery server**, started by hand on the publisher:
+
+```bash
+isaac_ros_common/scripts/dds_server.sh    # on the robot; -l to check, -s to stop
+```
+
+Clients need no env vars: `docker/fastdds_cable.xml` (installed at
+`/etc/fastdds/profile.xml`) points at the robots' tailscale addresses. Four
+things that each look like something else when they are wrong:
+
+1. **`profile_name` must be `participant_profile`.** rmw_fastrtps looks the
+   participant profile up by that exact name; `is_default_profile="true"` is not
+   enough. Until 2026-09-02 this file was named `unicast_robot_link`, so the
+   whole profile had never applied to anything.
+2. **The server needs the same `ROS_DOMAIN_ID` as its clients.** A server in
+   domain 0 is invisible to clients in domain 42, and vice versa.
+3. **Tools need the whole graph.** A plain `CLIENT` only learns the endpoints it
+   matches, so `ros2 topic list`/`hz` and rviz show nothing and it reads exactly
+   like broken discovery. The profile uses `SUPER_CLIENT`; a shell overriding it
+   with `ROS_DISCOVERY_SERVER` also wants `ROS_SUPER_CLIENT=TRUE`.
+4. **Do not add `<useBuiltinTransports>false</useBuiltinTransports>` or an
+   `<interfaceWhiteList>`.** Measured 2026-09-02: with those, a participant
+   stops registering with the server entirely. The realsense node came up clean,
+   opened its stream, and never appeared in the graph even on the server's own
+   machine. Same `useBuiltinTransports` trap as the postmortem below, in a
+   discovery-server disguise.
+
+If the server is not running, nothing discovers anything, including two nodes on
+the same machine. That is the trade for making the remote case work by default;
+`dds_server.sh -l` says so in one line.
+
 ### FastDDS discovery: the 2026-07-20 postmortem
 
 Symptoms: topics show matched publishers/subscribers (`ros2 topic info

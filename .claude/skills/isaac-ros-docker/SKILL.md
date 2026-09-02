@@ -251,6 +251,10 @@ needed), then test normally.
 - GUI app fails with X11/Qt/xcb "could not connect to display" → it ran as
   root, whose `$HOME=/root` has no `.Xauthority`; the cookie is at
   `/home/admin/.Xauthority`. Use `dexec.sh` (already `-u admin`).
+- Topics from another machine (over tailscale) never show up, though
+  `tailscale ping` is fine → cross-machine discovery needs the Fast DDS
+  discovery server started on the *publisher*: `scripts/dds_server.sh` (`-l` to
+  check). See reference.md's "Cross-machine ROS 2 over Tailscale".
 - An edit to a config/source file "had no effect" → see "Two workspaces"
   above; check `ros2 pkg prefix <pkg>`.
 - `ros2 topic list` shows almost nothing, `echo`/`hz` hang or say "does not
