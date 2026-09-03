@@ -1,5 +1,8 @@
 # isaac_ros-dev workspace
 
+Use standard practices and callout when the current practicies in the code don't
+match the standard.
+
 ## Skills
 
 - [`isaac-ros-docker`](.claude/skills/isaac-ros-docker/): every docker command,
