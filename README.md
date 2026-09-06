@@ -1,4 +1,4 @@
-# sentry_workspace
+# thornbots_workspace
 
 Workspace-level docs and config for the Thornbots Sentry robot's `isaac_ros-dev/src` directory (mounted into the Isaac ROS Docker dev container).
 
