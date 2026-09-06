@@ -58,8 +58,8 @@ There are two colcon workspaces in the container, and they overlap:
 
 | workspace | what's in it | origin |
 |---|---|---|
-| `/workspaces/ros2_ws` | `sentry_pkg`, `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
-| `/workspaces/isaac_ros-dev` | `sim`, `sentry_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
+| `/workspaces/ros2_ws` | `thornbots_pkg`, `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
+| `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
 
 **Which copy wins depends on the entry point** (re-measured 2026-07-26;
 earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong):

@@ -4,7 +4,7 @@ Distilled from the ARCC 2026 rulebook (76 pages, RoboMaster-style 3v3 combat
 competition), fetched from:
 https://e0398dbe-f5cb-43f1-8df9-3f2f243ba559.filesusr.com/ugd/df0c37_304dcbb3e08c422b987a1b627110d767.pdf
 
-This is a starting-context doc for `sentry_pkg` / `sim` work. It pulls out only
+This is a starting-context doc for `thornbots_pkg` / `sim` work. It pulls out only
 what's relevant to building an autonomous Sentry, not the full rulebook (pit
 crew procedures, other robot types, appeals process, etc. are omitted). Read
 the source PDF directly if you need something not covered here.
