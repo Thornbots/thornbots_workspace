@@ -68,7 +68,7 @@ truth behind the shadowing warnings in each package's `AGENTS.md`
 | `Realsense_ROI_Depth_Rectifier` | `roi_depth_query` | `RECLONE_DEPTH` |
 | `rf2o_laser_odometry` | `rf2o_laser_odometry` | `RECLONE_RF2O` |
 | `sentry_localization` | `sentry_localization` | `RECLONE_LOCALIZATION` |
-| `sentry_pkg` | `sentry_pkg` | `RECLONE_SENTRY` |
+| `thornbots_pkg` | `thornbots_pkg` | `RECLONE_SENTRY` |
 | `realsense-yolov8-nitros-bridge` | `realsense_yolov8_nitros_bridge` | `RECLONE_BRIDGE` |
 
 `sim` is **not** in that list. It is deliberately never cloned or built into
