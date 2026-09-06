@@ -19,8 +19,8 @@ and field geometry.
 ## Packages
 
 Each package dir is its own git repo. Commit and push to `main` from inside the
-package dir. Pushing from `src/` hits a different repo, the one holding the
-top-level docs and `.claude/`.
+package dir. Pushing from `src/` hits a different repo, `thornbots_workspace`,
+which holds the top-level docs and `.claude/`.
 
 Every package has an `AGENTS.md`. Read it before working there.
 
