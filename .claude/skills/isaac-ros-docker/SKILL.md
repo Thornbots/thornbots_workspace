@@ -1,315 +1,213 @@
 ---
 name: isaac-ros-docker
-description: Load to launch, attach to, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker".
+description: Load to run, launch, attach to, drive, screenshot, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker". Covers the attach-only rule, `smoke.sh`, `dexec.sh`/`kill_launch.sh`, the two-workspace shadowing trap, and the discovery-server trap.
 ---
 
 # Isaac ROS Docker dev container
 
-`reference.md`, next to this file, holds the full reference: `run_dev.sh`'s
-flag catalogue, what's wired up inside the container, the manual equivalents
-of `dexec.sh`/`kill_launch.sh`, the complete `/workspaces/ros2_ws` clone
-list, and the dated postmortems. Read it for details beyond this summary.
+Drive it with `smoke.sh` and `dexec.sh`. Paths here are relative to
+`isaac_ros-dev/src/`. `reference.md`, next to this file, has the long
+version of every section below: `run_dev.sh`'s flag catalogue, the manual
+equivalents of the helper scripts, and the dated postmortems.
 
-> **Never build the image yourself.** No `docker build`, no
-> `build_image_layers.sh`/`build_base_image.sh`, and no `run_dev.sh`
-> invocation that would trigger a build. The user runs every rebuild.
-> When a change needs one, make the edit, then hand them the command and
-> stop. Running commands *inside* an already-running container (`dexec.sh`)
-> is fine.
+> **Never create a container, and never build the image. Attach only.**
+> Run commands *inside* a container the user already started (`smoke.sh`,
+> `dexec.sh`, `kill_launch.sh`), and nothing else.
+>
+> Forbidden, though each looks harmless: `docker build`,
+> `build_image_layers.sh`, `build_base_image.sh`, a hand-rolled `docker run`,
+> and `run_dev.sh` in **any** form. That includes `-b`/`SKIP_DOCKER_BUILD=1`
+> (skips the build, still does the `docker run`) and wrapping it in
+> `tmux`/`script` to get past its TTY requirement.
+>
+> **If no container is running, stop and ask the user to start one.** Not
+> even "just to check something": a container you create runs with `--rm`,
+> dies with your shell, and makes the user's next `run_dev.sh` silently
+> attach to yours instead of starting the fresh one they wanted. When a
+> rebuild is needed, make the edit, hand them the command, stop.
+
+## Is a container running?
+
+```bash
+docker ps --format '{{.Names}}\t{{.Status}}'
+# isaac_ros_dev-x86_64-container    Up 13 seconds
+```
+
+Nothing listed means you stop and ask the user to run
+`cd src/isaac_ros_common/scripts && ./run_dev.sh` (`-b` skips the image
+rebuild). `smoke.sh` and `dexec.sh` both preflight this.
+
+## Driving it: `smoke.sh`
+
+```bash
+.claude/skills/isaac-ros-docker/smoke.sh          # container? mount? env? pkg resolution? graph?
+.claude/skills/isaac-ros-docker/smoke.sh --sim    # + headless sim launch, topic check, teardown
+```
+
+Run it before trusting any measurement in this container. It never creates
+one. Step 4 prints the package-resolution table through both entry points,
+the fastest way to see whether your edit is the code that will run; step 6
+refuses to launch on top of a session someone else started; `--sim` unsets
+the DDS profile on both the launch and the probes (see below) and tears down
+with `kill_launch.sh`.
+
+`--sim` passes `gui:=false`, which still starts **rviz** (`sim.launch.py`
+starts rviz regardless), so a window opens on the user's display. Verified
+2026-09-06: 31 fps, sim time advancing, depth panel live.
 
 ## Key facts
 
-- Entry point script: `isaac_ros_common/scripts/run_dev.sh`. Run it from
-  `isaac_ros_common/scripts/`.
-- Host `isaac_ros-dev/src` is bind-mounted to
-  `/workspaces/isaac_ros-dev/src`, so source edits don't need a rebuild,
-  only dependency/package changes do. **But only for packages that actually
-  resolve to this workspace**; see "Two workspaces" below before trusting
-  any edit under `src/`.
-- The bind mount is **not** at `/workspaces/isaac_ros-dev`: that's the
-  colcon workspace root (`build/`, `install/`, `log/`, `src/`), one level
-  up. A hand-built path like `/workspaces/isaac_ros-dev/isaac_ros_common/…`
-  silently resolves to nothing instead of erroring; run `ls
-  /workspaces/isaac_ros-dev/src` if in doubt.
-- Container name: `isaac_ros_dev-<uname -m>-container` (e.g.
-  `isaac_ros_dev-x86_64-container`).
-- Image key is pinned in `isaac_ros_common/scripts/.isaac_ros_common-config`:
-  `CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots`. This resolves to a
-  layered build across `docker/Dockerfile.x86_64` →
-  `docker/Dockerfile.ros2_humble` → `docker/Dockerfile.realsense` →
-  `docker/Dockerfile.thornbots` (custom top layer with this org's apt
-  packages and git-cloned/colcon-built packages).
-- **On a fresh/recreated container, run `install-sim.sh` before any `sim`
-  launch.** `Dockerfile.thornbots` deliberately skips installing
-  `ros-humble-ros-gz` and building `sim`, since real hardware never needs
-  gz-sim (see "Two workspaces" below). If skipped, `ros2 launch sim ...`
-  fails to find gz-sim plugins/executables, or `sim`'s install dir is
-  missing or stale. Fix by running
-  `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh` (needs
-  root for the apt install; fast, ~5s once apt is done, so it's safe to run
-  once per container before the first sim test regardless).
+- The user's entry point is `isaac_ros_common/scripts/run_dev.sh`. Yours is
+  `dexec.sh` against the container they started.
+- Container name: `isaac_ros_dev-<uname -m>-container`. Override with
+  `ISAAC_ROS_CONTAINER`.
+- The **whole** host workspace root is bind-mounted, not just `src/`:
+  `~/workspaces/isaac_ros-dev` to `/workspaces/isaac_ros-dev`, so `build/`,
+  `install/`, `log/` and `src/` are shared and colcon artifacts outlive the
+  container. Packages are at `/workspaces/isaac_ros-dev/src/<pkg>`; a path
+  missing that `src/` resolves to nothing instead of erroring.
+- Image key is pinned in `scripts/.isaac_ros_common-config`:
+  `CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots`, layered across
+  `docker/Dockerfile.{x86_64,ros2_humble,realsense,thornbots}`.
+- **A fresh container has no gz-sim.** Before any `sim` launch, run once:
+  `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh`.
+  Background it and budget minutes: 2026-09-06 it pulled 225 apt packages
+  (the `colcon build` of `sim` at the end is 3.7s). A foreground call that
+  times out gets SIGKILLed and leaves `ign` installed but `sim` unbuilt,
+  which then fails in a way that looks unrelated. Re-running is safe.
 
-## Two workspaces: `/workspaces/ros2_ws` silently shadows your `src/` edits
+## Two workspaces: `ros2_ws` silently shadows your `src/` edits
 
-**Read this before concluding that a config or source change "had no
-effect", and before trusting any measurement taken after editing one.**
+Read this before concluding an edit "had no effect", and before trusting a
+measurement taken after one. Two overlapping colcon workspaces exist, and
+which one wins depends on the entry point:
 
-There are two colcon workspaces in the container, and they overlap:
-
-| workspace | what's in it | origin |
+| entry point | sources | resolves to |
 |---|---|---|
-| `/workspaces/ros2_ws` | `thornbots_pkg`, `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
-| `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
+| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `ros2_ws/install` | the image-baked GitHub clone |
+| `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, wins) | your `src/` edit, if built locally |
 
-**Which copy wins depends on the entry point** (re-measured 2026-07-26;
-earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong):
+Measured 2026-09-06 (`smoke.sh` step 4 reprints this for the live container):
 
-| entry point | what it sources | resolves to |
+| package | `dexec.sh` | user's terminal |
 |---|---|---|
-| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `/workspaces/ros2_ws/install` | the **image-baked GitHub clone** |
-| `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, so it wins) | **your `src/` edit**, if that package is built locally |
+| `sim` | `isaac_ros-dev` | **Package not found** |
+| `thornbots_pkg` | `isaac_ros-dev` | **Package not found** |
+| `sentry_localization` | `isaac_ros-dev` | `ros2_ws` (shadowed) |
+| `sllidar_ros2` | `ros2_ws` | `ros2_ws` |
 
-Packages not built into `/workspaces/isaac_ros-dev/install` (e.g.
-`sllidar_ros2`) fall through to `ros2_ws` under either entry point.
+So the same `ros2 launch` runs different code depending on where it's typed,
+and a package built only into `isaac_ros-dev` is invisible from the user's
+terminal. Nothing warns you. **Always check through the entry point you will
+launch from:**
 
-So the same `ros2 launch` can run *different code* depending on where it's
-launched from, and a `dexec.sh` check followed by a launch in the user's
-terminal gives a confidently wrong answer. **Always run `ros2 pkg prefix`
-through the same entry point you'll launch from:**
 ```bash
 dexec.sh -- ros2 pkg prefix sentry_localization
-# /workspaces/ros2_ws/install/...      -> your src/ edit is NOT live
+# /workspaces/ros2_ws/install/...       -> your src/ edit is NOT live
 # /workspaces/isaac_ros-dev/install/... -> your src/ edit IS live
-
-# the actual file a node will load (follows symlink-install):
-dexec.sh -- bash -lc 'readlink -f $(ros2 pkg prefix sentry_localization)/share/sentry_localization/config/ekf.yaml'
 ```
 
-This fails silently and looks like a real result, not a mistake. Editing
-`src/sentry_localization/config/ekf.yaml` and relaunching from a shell that
-resolves to `ros2_ws` produces a stack running the *old* config with no
-warning of any kind. On 2026-07-25 this invalidated an entire round of EKF
-measurements before anyone noticed: the tell was the filter output matching
-an input to 3 decimal places, which real fusion doesn't do.
+Also: the running image can lag `Dockerfile.thornbots`, so
+`dexec.sh -- ls /workspaces/ros2_ws/src` is the only ground truth for what's
+baked in. reference.md has the EKF postmortem this cost, the recipe for
+testing an edit against the shadowing copy, and why `sim` has no shadow.
 
-**To test an edit against the shadowing copy**, push it into `ros2_ws`'s
-source tree (root-owned, hence `-r`). This matters when the launch will
-come from the user's terminal, which resolves to `ros2_ws`; `dexec.sh`
-launches already pick up your `src/` edit and don't need it. Layers build with
-`--symlink-install`, so for config/launch/xacro files this takes effect
-immediately with no rebuild:
+## Nothing you launch is visible: the discovery-server profile
+
+A full sim stack can be running (gz, 13 bridges, rviz, logging happily) while
+`ros2 topic list` returns 2 topics and `ros2 node list` returns nothing.
+Measured 2026-09-06: with `/etc/fastdds/profile.xml`, 2 topics; with it
+unset, 24.
+
+The profile makes every node a `SUPER_CLIENT` of three **remote** Fast DDS
+discovery servers on the robots' tailscale IPs, which is right for
+cross-machine work and means nothing discovers anything until one is up.
+`dds_server.sh` only runs on a machine listed in the profile, and this dev
+laptop is not one of them (`ERROR: 100.91.183.24 is not a known publisher`).
+
+For local-only work, drop the profile on **both** sides:
+
 ```bash
-dexec.sh -r -- bash -lc 'cp /workspaces/isaac_ros-dev/src/sentry_localization/config/ekf.yaml \
-    /workspaces/ros2_ws/src/sentry_localization/config/ekf.yaml'
-```
-This is a **test-only** shim: it lives inside the container and dies with
-it. The edit still has to be committed and pushed to the package's own
-GitHub repo to survive, since that's where the build clones from.
-
-Packages that exist *only* in `isaac_ros-dev` (notably `sim`, which
-`Dockerfile.thornbots` deliberately does not clone; see LAYER 2b and
-`install-sim.sh`) have no shadow copy, so `src/` edits to them are live
-immediately. That asymmetry is itself confusing: `sim/urdf/*.xacro` edits
-apply instantly while `sentry_localization/config/*.yaml` edits appear to
-do nothing.
-
-## Common commands
-
-These are commands **for the user to run**: anything that can rebuild is
-theirs, not yours.
-```bash
-cd isaac_ros_common/scripts
-./run_dev.sh        # start (rebuilds if needed), or attach another shell
-                    # to the already-running container
-./run_dev.sh -b     # launch without rebuilding the image
-docker stop isaac_ros_dev-x86_64-container   # needed before it will rebuild
+dexec.sh -d -- bash -c 'unset FASTRTPS_DEFAULT_PROFILES_FILE; exec ros2 launch sim sim.launch.py gui:=false'
+dexec.sh -- bash -c 'unset FASTRTPS_DEFAULT_PROFILES_FILE; ros2 daemon stop >/dev/null; sleep 2; ros2 topic list'
 ```
 
-After editing `docker/Dockerfile.thornbots`, the user re-runs `run_dev.sh`
-(after stopping any running container) to rebuild. To bust the cache for
-one cloned package only, bump its `ARG RECLONE_*` (see the file's header
-comment for the full list, e.g. `RECLONE_BRIDGE` for
-`realsense-yolov8-nitros-bridge`).
+Unsetting on one side only is the trap: the two halves cannot see each other
+and neither errors. The `ros2` daemon caches the discovery mode of whoever
+started it, so stop it after switching.
 
-## When editing `Dockerfile.thornbots`
+## Helper scripts, never hand-rolled `docker exec`
 
-- Preserve the layer ordering documented in its header comment (slowest/most
-  stable first, most volatile last): that's what keeps rebuilds fast.
-- New apt packages this project depends on go in LAYER 2 (Isaac ROS apt
-  packages) unless they're sim-specific (LAYER 2b) or belong to one of the
-  per-package clone/build layers.
-- New cloned-and-built org packages get their own `ARG RECLONE_<NAME>` +
-  `git clone` + `colcon build --packages-select <pkg>` block, placed after
-  any packages they depend on (each layer sources the workspace install
-  before building).
-
-## Helper scripts: use these, never hand-rolled `docker exec`
-
-`isaac_ros_common/scripts/dexec.sh` and `kill_launch.sh` already get the
-error-prone parts right: full env parity (both workspace installs, plus
-`PS1` set *before* sourcing `/etc/bash.bashrc`, which is
-interactive-shell-only and silently no-ops without it: that gap hid a real
-FastDDS bug for a whole session), `-u admin` so X11/GUI apps work, and
-killing a backgrounded launch's whole process group rather than just the
-launch PID.
+`dexec.sh` and `kill_launch.sh` get the error-prone parts right: full env
+parity (both workspace installs, and `PS1` set *before* sourcing
+`/etc/bash.bashrc`, which is interactive-only and silently no-ops without
+it), `-u admin` so X11 apps work, and killing a launch's whole process group.
 
 ```bash
-# One-off command with correct env:
 isaac_ros_common/scripts/dexec.sh -- ros2 topic list
 isaac_ros_common/scripts/dexec.sh -r -- apt-get install -y ros-humble-foo
-
-# Backgrounded launch (setsid'd, runs as admin so GUIs open; prints the
-# log path and the follow-up commands):
-isaac_ros_common/scripts/dexec.sh -d -- ros2 launch sim sim.launch.py
-# list running launch trees and their PIDs:
-isaac_ros_common/scripts/kill_launch.sh -l
-# clean shutdown of the whole tree (not pkill/killall, not bare kill -SIGINT):
-isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>
+isaac_ros_common/scripts/dexec.sh -d -- ros2 launch sim sim.launch.py   # detached; prints log path
+isaac_ros_common/scripts/kill_launch.sh -l                              # running launch trees
+isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>               # clean shutdown, not pkill
 ```
 
-Set `ISAAC_ROS_CONTAINER` to override the container name if needed.
+Two traps with their own reference.md sections: **never interpolate a file
+list into `dexec.sh -- bash -c "…"`** (every path after the first executes as
+a command; this once started a four-minute sim stack nobody launched), and
+**run source-rewriting scripts inside the container** (host python 3.14 vs
+container 3.10 tokenize f-strings differently). Host `/tmp` is not the
+container's `/tmp`, and `TaskStop` kills only the host-side job.
 
-### Never interpolate a file list into `dexec.sh -- bash -c "…"`
+## Before and after any test or sim launch
 
-zsh does not word-split inside double quotes, so a newline-separated `find`
-result arrives at `bash -c` as one string, and bash reads those newlines as
-command separators. Only the first line runs as the command you intended;
-**every remaining path is executed as its own command**. On 2026-09-02 this
-started a full sim stack that ran for four minutes with nobody typing a launch,
-because `sim`'s test wrappers are mode 755 with shebangs, so the stray paths
-launched `sim.launch.py` per scenario and collided with another session's
-measurements:
+Check for a live session first, since a collision corrupts measurements
+silently rather than erroring:
 
-```zsh
-# WRONG: every path after the first one gets executed
-FILES=$(find … | sort)
-dexec.sh -- bash -c "cd /workspaces/isaac_ros-dev/src && python3 script.py $FILES"
-
-# use a NUL-delimited pipeline instead
-find … -print0 | xargs -0 dexec.sh -- python3 script.py
-```
-
-Two things compound it:
-
-- **Host `/tmp` is not the container's `/tmp`.** A script written to the host's
-  `/tmp` is simply absent inside the container, so the `python3` call fails
-  instantly and bash moves straight on to executing the rest of the list. Put
-  helper scripts under the mounted workspace (`src/.lintwork/`, say), never host
-  `/tmp`.
-- **`TaskStop` kills the host-side job only.** Container descendants survive it
-  and have to be killed from inside the container, via `kill_launch.sh`.
-
-### Run source-rewriting scripts inside the container
-
-Host python is 3.14, container python is 3.10. PEP 701 changed f-string
-tokenization between them, so `tokenize`/`ast` tooling run on the host silently
-emits output that is invalid under 3.10. Anything that rewrites source goes
-through `dexec.sh`.
-
-## Before/after running any test or one-off sim launch
-
-**Before** launching anything (a background launch, `run_localization_drift_tests.py`,
-`ekf_ground_truth_diag.py`, or an ad hoc probe script), check for a live
-session first:
 ```bash
 dexec.sh -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
 ```
-A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
-list` but never publish; a *live* session (the user's own manual sim/CV
-work, or a previous test that didn't clean up) collides on the same
-topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
-silently corrupts whatever you're about to measure. No error, just wrong
-numbers or empty samples. `run_localization_drift_tests.py`'s own
-`check_no_orphans()` does this exact check and only *warns*, it doesn't
-block, so don't skip it just because the script ran.
 
-If something is already running, **don't kill it yourself**: it may be
-the user's own in-progress work (e.g. a manual CV/rviz session). Ask before
-stopping anything you didn't start.
-
-**After** your own test/probe finishes (including when it errors out or
-you interrupt it), clean up what *you* started rather than leaving it for
-the next run to collide with:
-- The official suites (`run_localization_drift_tests.py`,
-  `ekf_ground_truth_diag.py`) already do this via `teardown_stack()` in a
-  `finally` block, which is why they're safe to Ctrl-C.
-- Any ad hoc script you write that calls `run_stack()`/launches its own
-  processes must do the same: wrap the body in `try`/`finally` and call
-  `teardown_stack(sim_tree, sentry_tree, helper)` (or `kill_launch.sh
-  <pid>` for anything launched outside that helper) unconditionally, and
-  re-run the `ps aux` check above afterward to confirm nothing's left.
-
-`sim` launches with GUI by default (standing rule in `sim/AGENTS.md`);
-that includes `run_localization_drift_tests.py`, which takes `--headless`
-to opt out:
-```bash
-isaac_ros_common/scripts/dexec.sh -d -- \
-  python3 src/sim/test/localization/run_localization_drift_tests.py
-```
-
-## Testing a git worktree's changes in docker without merging first
-
-Worktrees created by `EnterWorktree` live *inside* the package directory
-(e.g. `sim/.claude/worktrees/<name>/`), which is inside the bind-mounted
-tree, so their files are already readable in the container at
-`/workspaces/isaac_ros-dev/src/<pkg>/.claude/worktrees/<name>/...` with no
-merge. That covers one-off checks (`xacro`, `ign sdf -p`, reading a value).
-
-It does **not** cover `ros2 launch`/`colcon build`, because
-`--symlink-install` resolves back to the *main checkout*:
-`install/<pkg>/share/.../file` → `build/<pkg>/.../file` →
-`src/<pkg>/.../file`.
-
-To launch-test a worktree's version of one file, repoint the middle
-(`build/`) symlink, test, then put it back:
-```bash
-# swap
-dexec.sh -- ln -sfn \
-  /workspaces/isaac_ros-dev/src/sim/.claude/worktrees/<name>/urdf/sentry.urdf.xacro \
-  /workspaces/isaac_ros-dev/build/sim/urdf/sentry.urdf.xacro
-# ...launch/test as normal...
-# restore (always, merged or not — the worktree may be removed later)
-dexec.sh -- ln -sfn \
-  /workspaces/isaac_ros-dev/src/sim/urdf/sentry.urdf.xacro \
-  /workspaces/isaac_ros-dev/build/sim/urdf/sentry.urdf.xacro
-```
-Works for any `--symlink-install`ed file (urdf/xacro, world/sdf, rviz
-config, `launch/*.py`). It does **not** work for compiled (C++) packages or
-`ros2 run`-launched Python nodes (their installed executable is a generated
-wrapper). For those, merge into the main branch locally first (no push
-needed), then test normally.
+If something is running, **ask before touching it**; it may be the user's own
+work. Afterwards, tear down what you started (`kill_launch.sh <pid>`, or
+`teardown_stack()` in a `finally` block for ad hoc scripts) and re-run the
+check. reference.md covers the official suites and the `--headless` flag.
 
 ## Troubleshooting quick hits
 
-- "not a member of docker group" → `sudo usermod -aG docker $USER && newgrp docker`
-- LFS errors → install `git-lfs`, re-clone
-- Build succeeds but "no built image found" → `CONFIG_IMAGE_KEY` doesn't
-  resolve to real `Dockerfile.<suffix>` files under `isaac_ros_common/docker/`
+- `ros2 topic list` nearly empty, `hz`/`echo` hang, `tf2_echo` says the frame
+  doesn't exist, rviz Fixed Frame empty → the discovery profile, above. Check
+  that before anything else; on this box it's expected, not a bug.
+- An edit "had no effect" → two workspaces, above. `ros2 pkg prefix <pkg>`.
+- `ros2 launch sim ...` can't find gz plugins, or `command -v ign` is empty →
+  `install-sim.sh` hasn't run in this container.
+- rviz shows `No tf data. Frame [map] does not exist` after a bare
+  `ros2 launch sim sim.launch.py` → by design. `sim` no longer runs
+  `robot_state_publisher`; `thornbots_pkg`'s `auto.launch.py` owns TF.
+- Screenshotting a container GUI → the container has no `import`, `scrot`,
+  `convert`, or `Xvfb`, only `/usr/bin/ffmpeg`:
+  `dexec.sh -- ffmpeg -y -f x11grab -video_size 1920x1080 -i $DISPLAY -frames:v 1 /workspaces/isaac_ros-dev/shot.png`
+  grabs the whole desktop, so ask first. Prefer the host's window-scoped
+  `~/.config/sway/screenshot-app.sh app <tag> RViz <out.png>`, and take it
+  twice: GL windows come back solid black on the first capture.
+- Container came up with no `src/` in `/workspaces/isaac_ros-dev` →
+  `run_dev.sh` ran without `ISAAC_ROS_WS`, which lives in `~/.zshrc` and so is
+  absent from non-interactive shells. It then mounts `src/` itself at the
+  workspace root.
 - GUI app fails with X11/Qt/xcb "could not connect to display" → it ran as
-  root, whose `$HOME=/root` has no `.Xauthority`; the cookie is at
-  `/home/admin/.Xauthority`. Use `dexec.sh` (already `-u admin`).
-- Topics from another machine (over tailscale) never show up, though
-  `tailscale ping` is fine → cross-machine discovery needs the Fast DDS
-  discovery server started on the *publisher*: `scripts/dds_server.sh` (`-l` to
-  check). See reference.md's "Cross-machine ROS 2 over Tailscale".
-- An edit to a config/source file "had no effect" → see "Two workspaces"
-  above; check `ros2 pkg prefix <pkg>`.
-- `ros2 topic list` shows almost nothing, `echo`/`hz` hang or say "does not
-  appear to be published yet", `tf2_echo` says "frame does not exist", or
-  rviz's Fixed Frame dropdown is empty → FastDDS discovery via
-  `/etc/fastdds/profile.xml` (source: `isaac_ros_common/docker/fastdds_cable.xml`).
-  Two causes were found and fixed 2026-07-20: `<useBuiltinTransports>` must
-  stay `true`, and no `<initialPeersList>` (an unreachable explicit peer
-  breaks local multicast discovery even so). Full writeup in `reference.md`'s
-  Troubleshooting section; don't re-blame
-  `RMW_FASTRTPS_PUBLICATION_MODE=ASYNCHRONOUS`, which was a red herring.
-  Any profile change needs a full rebuild (`./run_dev.sh`, not `-b`) **and**
-  `ros2 daemon stop && ros2 daemon start`.
-- A topic/TF/rviz problem that looks **unreproducible from a `docker exec`
-  session** but always happens in the user's terminal → the session isn't
-  loading `FASTRTPS_DEFAULT_PROFILES_FILE` (only `ROS_DOMAIN_ID`), so it
-  never picks up the profile the real shell uses. Use `dexec.sh`, which
-  sources the full env.
+  root, whose `$HOME=/root` has no `.Xauthority`. Use `dexec.sh` (`-u admin`).
+- A TF/topic problem unreproducible from `docker exec` but real in the user's
+  terminal → that session never loaded `FASTRTPS_DEFAULT_PROFILES_FILE`. Use
+  `dexec.sh`.
+- Topics from another machine over tailscale never arrive → the *publisher*
+  must run `scripts/dds_server.sh` (`-l` to check).
+- "not a member of docker group" → `sudo usermod -aG docker $USER && newgrp docker`
+- LFS errors → install `git-lfs`, re-clone.
+- "no built image found" → `CONFIG_IMAGE_KEY` doesn't resolve to real
+  `Dockerfile.<suffix>` files under `isaac_ros_common/docker/`.
 
-Don't guess at flags. Run `./run_dev.sh --help` or read the script directly
-if something here doesn't match observed behavior (it may have changed).
+Profile changes need a full rebuild (`run_dev.sh`, not `-b`) plus
+`ros2 daemon stop && ros2 daemon start`; don't re-blame
+`RMW_FASTRTPS_PUBLICATION_MODE`, a settled red herring (reference.md).
+
+Don't guess at flags. Read the script if something here doesn't match what
+you observe.

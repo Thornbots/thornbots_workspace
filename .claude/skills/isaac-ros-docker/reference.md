@@ -57,9 +57,12 @@ git-clones + colcon-builds this org's packages straight into the image at
 `/workspaces/ros2_ws`. See the comment header in that file for the full layer
 list and cache-busting `ARG RECLONE_*` args.
 
-**Complete list of packages baked into `/workspaces/ros2_ws`**, the ground
-truth behind the shadowing warnings in each package's `AGENTS.md`
-(directory name → ROS package name → cache-bust arg):
+**Packages `Dockerfile.thornbots` clones into `/workspaces/ros2_ws`**, the
+list behind the shadowing warnings in each package's `AGENTS.md` (directory
+name → ROS package name → cache-bust arg). This is what the *Dockerfile*
+says; a running container built before the last edit can hold something else
+(on 2026-09-06 a 4-day-old image still had the repo under its old name
+`sentry_pkg`). `dexec.sh -- ls /workspaces/ros2_ws/src` is the ground truth:
 
 | cloned repo | ROS package | `RECLONE_*` |
 |---|---|---|
@@ -288,3 +291,225 @@ symptoms above. Don't re-blame it.
 Both changes need a full image rebuild (`./run_dev.sh`, not `-b`) to take
 effect, and any already-running daemon needs `ros2 daemon stop && ros2 daemon
 start` afterward, since it caches its old, broken participant otherwise.
+
+---
+
+# Detail moved out of SKILL.md (2026-09-06)
+
+`SKILL.md` keeps the rules and the short form of each of these. Everything
+below is the long version: the postmortems, the exact recipes, and the
+reasoning. `SKILL.md` links here by section title.
+
+## Two workspaces: `/workspaces/ros2_ws` silently shadows your `src/` edits
+
+**Read this before concluding that a config or source change "had no
+effect", and before trusting any measurement taken after editing one.**
+
+There are two colcon workspaces in the container, and they overlap:
+
+| workspace | what's in it | origin |
+|---|---|---|
+| `/workspaces/ros2_ws` | `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
+| `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
+
+**Which copy wins depends on the entry point** (re-measured 2026-07-26;
+earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong):
+
+| entry point | what it sources | resolves to |
+|---|---|---|
+| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `/workspaces/ros2_ws/install` | the **image-baked GitHub clone** |
+| `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, so it wins) | **your `src/` edit**, if that package is built locally |
+
+Packages not built into `/workspaces/isaac_ros-dev/install` (e.g.
+`sllidar_ros2`) fall through to `ros2_ws` under either entry point.
+
+Don't take the clone list in `reference.md` (or `Dockerfile.thornbots`) as
+the container's contents. **The running image can lag the Dockerfile.**
+Measured 2026-09-06 against an image built 4 days earlier: the Dockerfile's
+LAYER 9 clones `thornbots_pkg`, but that image's `ros2_ws/src` still held the
+repo under its old name `sentry_pkg`, so `thornbots_pkg` had *no* shadow copy
+at all while a stale `sentry_pkg` did. `ls /workspaces/ros2_ws/src` through
+`dexec.sh` is the only ground truth.
+
+Measured through `dexec.sh` on that image, for calibration:
+
+| package | `dexec.sh` resolves to | bashrc-only (user's terminal) |
+|---|---|---|
+| `sim` | `isaac_ros-dev` | **Package not found** |
+| `thornbots_pkg` | `isaac_ros-dev` | **Package not found** |
+| `sentry_localization` | `isaac_ros-dev` | `ros2_ws` (shadowed) |
+| `rf2o_laser_odometry` | `isaac_ros-dev` | (cloned in both) |
+| `sllidar_ros2` | `ros2_ws` | `ros2_ws` |
+
+Shadowing has a second failure mode. A package built *only* into
+`isaac_ros-dev` is **invisible** from the user's terminal, so `ros2 launch
+sim …` there fails with "package not found" while the same command through
+`dexec.sh` works.
+
+So the same `ros2 launch` can run *different code* depending on where it's
+launched from, and a `dexec.sh` check followed by a launch in the user's
+terminal gives a confidently wrong answer. **Always run `ros2 pkg prefix`
+through the same entry point you'll launch from:**
+```bash
+dexec.sh -- ros2 pkg prefix sentry_localization
+# /workspaces/ros2_ws/install/...      -> your src/ edit is NOT live
+# /workspaces/isaac_ros-dev/install/... -> your src/ edit IS live
+
+# the actual file a node will load (follows symlink-install):
+dexec.sh -- bash -lc 'readlink -f $(ros2 pkg prefix sentry_localization)/share/sentry_localization/config/ekf.yaml'
+```
+
+This fails silently and looks like a real result, not a mistake. Editing
+`src/sentry_localization/config/ekf.yaml` and relaunching from a shell that
+resolves to `ros2_ws` produces a stack running the *old* config with no
+warning of any kind. On 2026-07-25 this invalidated an entire round of EKF
+measurements before anyone noticed: the tell was the filter output matching
+an input to 3 decimal places, which real fusion doesn't do.
+
+**To test an edit against the shadowing copy**, push it into `ros2_ws`'s
+source tree (root-owned, hence `-r`). This matters when the launch will
+come from the user's terminal, which resolves to `ros2_ws`; `dexec.sh`
+launches already pick up your `src/` edit and don't need it. Layers build with
+`--symlink-install`, so for config/launch/xacro files this takes effect
+immediately with no rebuild:
+```bash
+dexec.sh -r -- bash -lc 'cp /workspaces/isaac_ros-dev/src/sentry_localization/config/ekf.yaml \
+    /workspaces/ros2_ws/src/sentry_localization/config/ekf.yaml'
+```
+This is a **test-only** shim: it lives inside the container and dies with
+it. The edit still has to be committed and pushed to the package's own
+GitHub repo to survive, since that's where the build clones from.
+
+Packages that exist *only* in `isaac_ros-dev` (notably `sim`, which
+`Dockerfile.thornbots` deliberately does not clone; see LAYER 2b and
+`install-sim.sh`) have no shadow copy, so `src/` edits to them are live
+immediately. That asymmetry is itself confusing: `sim/urdf/*.xacro` edits
+apply instantly while `sentry_localization/config/*.yaml` edits appear to
+do nothing.
+
+
+## When editing `Dockerfile.thornbots`
+
+- Preserve the layer ordering documented in its header comment (slowest/most
+  stable first, most volatile last): that's what keeps rebuilds fast.
+- New apt packages this project depends on go in LAYER 2 (Isaac ROS apt
+  packages) unless they're sim-specific (LAYER 2b) or belong to one of the
+  per-package clone/build layers.
+- New cloned-and-built org packages get their own `ARG RECLONE_<NAME>` +
+  `git clone` + `colcon build --packages-select <pkg>` block, placed after
+  any packages they depend on (each layer sources the workspace install
+  before building).
+
+
+### Never interpolate a file list into `dexec.sh -- bash -c "…"`
+
+zsh does not word-split inside double quotes, so a newline-separated `find`
+result arrives at `bash -c` as one string, and bash reads those newlines as
+command separators. Only the first line runs as the command you intended;
+**every remaining path is executed as its own command**. On 2026-09-02 this
+started a full sim stack that ran for four minutes with nobody typing a launch,
+because `sim`'s test wrappers are mode 755 with shebangs, so the stray paths
+launched `sim.launch.py` per scenario and collided with another session's
+measurements:
+
+```zsh
+# WRONG: every path after the first one gets executed
+FILES=$(find … | sort)
+dexec.sh -- bash -c "cd /workspaces/isaac_ros-dev/src && python3 script.py $FILES"
+
+# use a NUL-delimited pipeline instead
+find … -print0 | xargs -0 dexec.sh -- python3 script.py
+```
+
+Two things compound it:
+
+- **Host `/tmp` is not the container's `/tmp`.** A script written to the host's
+  `/tmp` is simply absent inside the container, so the `python3` call fails
+  instantly and bash moves straight on to executing the rest of the list. Put
+  helper scripts under the mounted workspace (`src/.lintwork/`, say), never host
+  `/tmp`.
+- **`TaskStop` kills the host-side job only.** Container descendants survive it
+  and have to be killed from inside the container, via `kill_launch.sh`.
+
+### Run source-rewriting scripts inside the container
+
+Host python is 3.14, container python is 3.10. PEP 701 changed f-string
+tokenization between them, so `tokenize`/`ast` tooling run on the host silently
+emits output that is invalid under 3.10. Anything that rewrites source goes
+through `dexec.sh`.
+
+
+## Before/after running any test or one-off sim launch
+
+**Before** launching anything (a background launch, `run_localization_drift_tests.py`,
+`ekf_ground_truth_diag.py`, or an ad hoc probe script), check for a live
+session first:
+```bash
+dexec.sh -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
+```
+A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
+list` but never publish; a *live* session (the user's own manual sim/CV
+work, or a previous test that didn't clean up) collides on the same
+topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
+silently corrupts whatever you're about to measure. No error, just wrong
+numbers or empty samples. `run_localization_drift_tests.py`'s own
+`check_no_orphans()` does this exact check and only *warns*, it doesn't
+block, so don't skip it just because the script ran.
+
+If something is already running, **don't kill it yourself**: it may be
+the user's own in-progress work (e.g. a manual CV/rviz session). Ask before
+stopping anything you didn't start.
+
+**After** your own test/probe finishes (including when it errors out or
+you interrupt it), clean up what *you* started rather than leaving it for
+the next run to collide with:
+- The official suites (`run_localization_drift_tests.py`,
+  `ekf_ground_truth_diag.py`) already do this via `teardown_stack()` in a
+  `finally` block, which is why they're safe to Ctrl-C.
+- Any ad hoc script you write that calls `run_stack()`/launches its own
+  processes must do the same: wrap the body in `try`/`finally` and call
+  `teardown_stack(sim_tree, sentry_tree, helper)` (or `kill_launch.sh
+  <pid>` for anything launched outside that helper) unconditionally, and
+  re-run the `ps aux` check above afterward to confirm nothing's left.
+
+`sim` launches with GUI by default (standing rule in `sim/AGENTS.md`);
+that includes `run_localization_drift_tests.py`, which takes `--headless`
+to opt out:
+```bash
+isaac_ros_common/scripts/dexec.sh -d -- \
+  python3 src/sim/test/localization/run_localization_drift_tests.py
+```
+
+
+## Testing a git worktree's changes in docker without merging first
+
+Worktrees created by `EnterWorktree` live *inside* the package directory
+(e.g. `sim/.claude/worktrees/<name>/`), which is inside the bind-mounted
+tree, so their files are already readable in the container at
+`/workspaces/isaac_ros-dev/src/<pkg>/.claude/worktrees/<name>/...` with no
+merge. That covers one-off checks (`xacro`, `ign sdf -p`, reading a value).
+
+It does **not** cover `ros2 launch`/`colcon build`, because
+`--symlink-install` resolves back to the *main checkout*:
+`install/<pkg>/share/.../file` → `build/<pkg>/.../file` →
+`src/<pkg>/.../file`.
+
+To launch-test a worktree's version of one file, repoint the middle
+(`build/`) symlink, test, then put it back:
+```bash
+# swap
+dexec.sh -- ln -sfn \
+  /workspaces/isaac_ros-dev/src/sim/.claude/worktrees/<name>/urdf/sentry.urdf.xacro \
+  /workspaces/isaac_ros-dev/build/sim/urdf/sentry.urdf.xacro
+# ...launch/test as normal...
+# restore (always, merged or not — the worktree may be removed later)
+dexec.sh -- ln -sfn \
+  /workspaces/isaac_ros-dev/src/sim/urdf/sentry.urdf.xacro \
+  /workspaces/isaac_ros-dev/build/sim/urdf/sentry.urdf.xacro
+```
+Works for any `--symlink-install`ed file (urdf/xacro, world/sdf, rviz
+config, `launch/*.py`). It does **not** work for compiled (C++) packages or
+`ros2 run`-launched Python nodes (their installed executable is a generated
+wrapper). For those, merge into the main branch locally first (no push
+needed), then test normally.
+
