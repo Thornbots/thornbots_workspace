@@ -169,6 +169,43 @@ isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>
 
 Set `ISAAC_ROS_CONTAINER` to override the container name if needed.
 
+### Never interpolate a file list into `dexec.sh -- bash -c "…"`
+
+zsh does not word-split inside double quotes, so a newline-separated `find`
+result arrives at `bash -c` as one string, and bash reads those newlines as
+command separators. Only the first line runs as the command you intended;
+**every remaining path is executed as its own command**. On 2026-09-02 this
+started a full sim stack that ran for four minutes with nobody typing a launch,
+because `sim`'s test wrappers are mode 755 with shebangs, so the stray paths
+launched `sim.launch.py` per scenario and collided with another session's
+measurements:
+
+```zsh
+# WRONG: every path after the first one gets executed
+FILES=$(find … | sort)
+dexec.sh -- bash -c "cd /workspaces/isaac_ros-dev/src && python3 script.py $FILES"
+
+# use a NUL-delimited pipeline instead
+find … -print0 | xargs -0 dexec.sh -- python3 script.py
+```
+
+Two things compound it:
+
+- **Host `/tmp` is not the container's `/tmp`.** A script written to the host's
+  `/tmp` is simply absent inside the container, so the `python3` call fails
+  instantly and bash moves straight on to executing the rest of the list. Put
+  helper scripts under the mounted workspace (`src/.lintwork/`, say), never host
+  `/tmp`.
+- **`TaskStop` kills the host-side job only.** Container descendants survive it
+  and have to be killed from inside the container, via `kill_launch.sh`.
+
+### Run source-rewriting scripts inside the container
+
+Host python is 3.14, container python is 3.10. PEP 701 changed f-string
+tokenization between them, so `tokenize`/`ast` tooling run on the host silently
+emits output that is invalid under 3.10. Anything that rewrites source goes
+through `dexec.sh`.
+
 ## Before/after running any test or one-off sim launch
 
 **Before** launching anything (a background launch, `run_localization_drift_tests.py`,
