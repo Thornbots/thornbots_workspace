@@ -8,8 +8,9 @@ The workspace runs inside a Docker dev container built from
 `isaac_ros_common`'s scripts and layered Dockerfiles. Host source (`src/` and
 its parent `isaac_ros-dev/`) is bind-mounted at `/workspaces/isaac_ros-dev`,
 so edits outside the container are immediately visible inside it and vice
-versa. Rebuild the image only when dependencies change (apt packages, cloned
-repos in `Dockerfile.thornbots`), not for ordinary source edits.
+versa. Rebuild the image only when dependencies change (apt packages, or the
+package sources `Dockerfile.thornbots` copies in), not for ordinary source
+edits -- the bind mount already carries those.
 
 ## Container lifecycle
 
@@ -53,28 +54,40 @@ CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots
 `Dockerfile.thornbots` is the custom top layer. It installs the Isaac ROS
 apt packages this project needs (yolov8, dnn_image_encoder, tensor_rt,
 realsense, ros-gz for sim), patches the RealSense config YAMLs, and
-git-clones + colcon-builds this org's packages straight into the image at
-`/workspaces/ros2_ws`. See the comment header in that file for the full layer
-list and cache-busting `ARG RECLONE_*` args.
+`COPY`s + colcon-builds this org's packages straight into the image at
+`/workspaces/ros2_ws`. **`isaac_ros_common/docker/README.md` is the reference
+for it** -- layer rationale, the `diagnostic-updater` version floor, why `sim`
+is excluded. The short version:
 
-**Packages `Dockerfile.thornbots` clones into `/workspaces/ros2_ws`**, the
+- Sources come from the **checked-out submodules in `src/`**, not a `git clone`
+  during the build (changed 2026-09-08). The baked copy tracks your working
+  tree, uncommitted edits included.
+- The build context is `src/`, not `docker/`: `run_dev.sh` passes
+  `--context_dir "$ROOT/../.."`, applied to the last layer only. `COPY` paths
+  are relative to `src/`; `src/.dockerignore` holds the context to ~35 MB.
+- No `RECLONE_*` args and no per-package layers. All seven build in one
+  `colcon build` (LAYER 5), so touching any one rebuilds all seven. LAYER 4
+  copies just the `package.xml` manifests and lets `rosdep install` derive the
+  dep set, so it survives source edits.
+
+**Packages `Dockerfile.thornbots` bakes into `/workspaces/ros2_ws`**, the
 list behind the shadowing warnings in each package's `AGENTS.md` (directory
-name → ROS package name → cache-bust arg). This is what the *Dockerfile*
-says; a running container built before the last edit can hold something else
-(on 2026-09-06 a 4-day-old image still had the repo under its old name
-`sentry_pkg`). `dexec.sh -- ls /workspaces/ros2_ws/src` is the ground truth:
+name → ROS package name). This is what the *Dockerfile* says; a running
+container built before the last edit can hold something else (on 2026-09-06 a
+4-day-old image still had the repo under its old name `sentry_pkg`).
+`dexec.sh -- ls /workspaces/ros2_ws/src` is the ground truth:
 
-| cloned repo | ROS package | `RECLONE_*` |
-|---|---|---|
-| `sllidar_ros2` | `sllidar_ros2` | `RECLONE_SLLIDAR` |
-| `ros2_dji_serial_bridge` | `dji_serial_bridge` | `RECLONE_SERIAL` |
-| `Realsense_ROI_Depth_Rectifier` | `roi_depth_query` | `RECLONE_DEPTH` |
-| `rf2o_laser_odometry` | `rf2o_laser_odometry` | `RECLONE_RF2O` |
-| `sentry_localization` | `sentry_localization` | `RECLONE_LOCALIZATION` |
-| `thornbots_pkg` | `thornbots_pkg` | `RECLONE_THORNBOTS` |
-| `realsense-yolov8-nitros-bridge` | `realsense_yolov8_nitros_bridge` | `RECLONE_BRIDGE` |
+| source dir in `src/` | ROS package |
+|---|---|
+| `sllidar_ros2` | `sllidar_ros2` |
+| `ros2_dji_serial_bridge` | `dji_serial_bridge` |
+| `Realsense_ROI_Depth_Rectifier` | `roi_depth_query` |
+| `rf2o_laser_odometry` | `rf2o_laser_odometry` |
+| `sentry_localization` | `sentry_localization` |
+| `thornbots_pkg` | `thornbots_pkg` |
+| `realsense-yolov8-nitros-bridge` | `realsense_yolov8_nitros_bridge` |
 
-`sim` is **not** in that list. It is deliberately never cloned or built into
+`sim` is **not** in that list. It is deliberately never copied or built into
 the image (real hardware never launches gz-sim), which is why it is the one
 package with no shadow copy and why a fresh container needs `install-sim.sh`
 before the first sim launch. See `SKILL.md`.
@@ -99,11 +112,10 @@ docker exec -it -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_dev-x86_6
 `./run_dev.sh` rebuilds by default unless a container is already running; if
 one is, stop it first with `docker stop isaac_ros_dev-x86_64-container`.
 
-**Rebuild without busting earlier layers' cache** by bumping the relevant
-`RECLONE_*` build arg, so only that package and later layers re-clone. There's
-no `run_dev.sh`/`build_image_layers.sh` flag for this; when iterating on one
-cloned package it's usually faster to `git pull` + `colcon build` inside the
-running container instead.
+**Rebuilding one package** needs no flag: touching its files in `src/`
+invalidates its `COPY` layer and everything after it, and nothing before it.
+When iterating on a single package it's still usually faster to
+`colcon build` inside the running container instead of rebuilding the image.
 
 **Other flags:**
 
@@ -309,7 +321,7 @@ There are two colcon workspaces in the container, and they overlap:
 
 | workspace | what's in it | origin |
 |---|---|---|
-| `/workspaces/ros2_ws` | `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **git-cloned from GitHub during the Docker build** (`Dockerfile.thornbots` layers 4–10) |
+| `/workspaces/ros2_ws` | `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **copied from `src/` and built during the Docker build** (`Dockerfile.thornbots` LAYER 5) -- a snapshot, frozen at build time |
 | `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
 
 **Which copy wins depends on the entry point** (re-measured 2026-07-26;
@@ -317,16 +329,16 @@ earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong):
 
 | entry point | what it sources | resolves to |
 |---|---|---|
-| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `/workspaces/ros2_ws/install` | the **image-baked GitHub clone** |
+| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `/workspaces/ros2_ws/install` | the **image-baked snapshot** |
 | `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, so it wins) | **your `src/` edit**, if that package is built locally |
 
 Packages not built into `/workspaces/isaac_ros-dev/install` (e.g.
 `sllidar_ros2`) fall through to `ros2_ws` under either entry point.
 
-Don't take the clone list in `reference.md` (or `Dockerfile.thornbots`) as
+Don't take the package list in `reference.md` (or `Dockerfile.thornbots`) as
 the container's contents. **The running image can lag the Dockerfile.**
-Measured 2026-09-06 against an image built 4 days earlier: the Dockerfile's
-LAYER 9 clones `thornbots_pkg`, but that image's `ros2_ws/src` still held the
+Measured 2026-09-06 against an image built 4 days earlier: the Dockerfile
+baked `thornbots_pkg`, but that image's `ros2_ws/src` still held the
 repo under its old name `sentry_pkg`, so `thornbots_pkg` had *no* shadow copy
 at all while a stale `sentry_pkg` did. `ls /workspaces/ros2_ws/src` through
 `dexec.sh` is the only ground truth.

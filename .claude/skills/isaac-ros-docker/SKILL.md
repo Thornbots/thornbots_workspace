@@ -84,7 +84,7 @@ which one wins depends on the entry point:
 
 | entry point | sources | resolves to |
 |---|---|---|
-| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `ros2_ws/install` | the image-baked GitHub clone |
+| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `ros2_ws/install` | the image-baked snapshot of `src/` |
 | `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, wins) | your `src/` edit, if built locally |
 
 Measured 2026-09-06 (`smoke.sh` step 4 reprints this for the live container):
