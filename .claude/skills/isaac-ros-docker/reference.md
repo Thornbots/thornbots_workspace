@@ -426,8 +426,7 @@ Two things compound it:
 - **Host `/tmp` is not the container's `/tmp`.** A script written to the host's
   `/tmp` is simply absent inside the container, so the `python3` call fails
   instantly and bash moves straight on to executing the rest of the list. Put
-  helper scripts under the mounted workspace (`src/.lintwork/`, say), never host
-  `/tmp`.
+  helper scripts somewhere under the mounted workspace, never host `/tmp`.
 - **`TaskStop` kills the host-side job only.** Container descendants survive it
   and have to be killed from inside the container, via `kill_launch.sh`.
 
