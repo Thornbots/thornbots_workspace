@@ -1,0 +1,24 @@
+[submodule "thornbots_pkg"]
+	path = thornbots_pkg
+	url = https://github.com/Thornbots/thornbots_pkg.git
+[submodule "sim"]
+	path = sim
+	url = https://github.com/Thornbots/sim.git
+[submodule "sentry_localization"]
+	path = sentry_localization
+	url = https://github.com/Thornbots/sentry_localization.git
+[submodule "rf2o_laser_odometry"]
+	path = rf2o_laser_odometry
+	url = https://github.com/Thornbots/rf2o_laser_odometry.git
+[submodule "ros2_dji_serial_bridge"]
+	path = ros2_dji_serial_bridge
+	url = https://github.com/Thornbots/ros2_dji_serial_bridge.git
+[submodule "isaac_ros_common"]
+	path = isaac_ros_common
+	url = https://github.com/Thornbots/isaac_ros_common.git
+[submodule "Realsense_ROI_Depth_Rectifier"]
+	path = Realsense_ROI_Depth_Rectifier
+	url = https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier.git
+[submodule "realsense-yolov8-nitros-bridge"]
+	path = realsense-yolov8-nitros-bridge
+	url = https://github.com/Thornbots/realsense-yolov8-nitros-bridge.git
