@@ -1,0 +1,19 @@
+# Build context for Dockerfile.thornbots is this directory (src/), so every
+# package's whole working tree is sent to the daemon. Keep out what the image
+# never needs -- .git alone is ~120 MB across the submodules.
+**/.git
+**/.github
+**/.gitignore
+**/.gitmodules
+.claude/
+.worktrees/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/build/
+**/install/
+**/log/
+
+# isaac_ros_common ships the Dockerfiles and configs; only docker/ is COPYed.
+isaac_ros_common/*
+!isaac_ros_common/docker/
