@@ -22,3 +22,6 @@
 [submodule "realsense-yolov8-nitros-bridge"]
 	path = realsense-yolov8-nitros-bridge
 	url = https://github.com/Thornbots/realsense-yolov8-nitros-bridge.git
+[submodule "sllidar_ros2"]
+	path = sllidar_ros2
+	url = https://github.com/Thornbots/sllidar_ros2.git
