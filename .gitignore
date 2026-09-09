@@ -1,0 +1,9 @@
+# colcon output, if anyone builds with src/ as the workspace root rather than
+# /workspaces/ros2_ws. Each submodule ignores its own artifacts separately.
+build/
+install/
+log/
+
+__pycache__/
+*.pyc
+.pytest_cache/

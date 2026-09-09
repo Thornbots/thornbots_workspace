@@ -14,6 +14,10 @@
 **/install/
 **/log/
 
+# `sim` is never COPYed into the image (Gazebo goes in via install-sim.sh, see
+# Dockerfile.thornbots LAYER 2b), so it has no business in the context either.
+sim/
+
 # isaac_ros_common ships the Dockerfiles and configs; only docker/ is COPYed.
 isaac_ros_common/*
 !isaac_ros_common/docker/

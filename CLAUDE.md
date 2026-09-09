@@ -18,9 +18,16 @@ and field geometry.
 
 ## Packages
 
-Each package dir is its own git repo. Commit and push to `main` from inside the
-package dir. Pushing from `src/` hits a different repo, `thornbots_workspace`,
-which holds the top-level docs and `.claude/`.
+`src/` is the `thornbots_workspace` repo; every package dir under it is a
+submodule. So a package change takes two commits: one in the package dir, one
+here to bump the gitlink. Your own image builds fine either way (the Docker
+context is the working tree), but skip the gitlink bump and everyone else builds
+the old code, and a later `git submodule update` rewinds your work out of the
+working tree.
+
+Branches differ per package and `.gitmodules` records them. After a clone,
+`README.md` has the one-liner that puts each submodule back on its branch —
+without it you are on a detached HEAD and commits land on no branch.
 
 Every package has an `AGENTS.md`. Read it before working there.
 
