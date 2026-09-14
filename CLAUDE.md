@@ -31,6 +31,10 @@ without it you are on a detached HEAD and commits land on no branch.
 
 Every package has an `AGENTS.md`. Read it before working there.
 
+Write each `README.md` for a human in a container terminal: plain `colcon`
+and `ros2` commands, no `dexec.sh`, `kill_launch.sh` or skill references.
+The host-side equivalents go in that package's `AGENTS.md`.
+
 ## Comments
 
 Keep in-code comments and docstrings under 10 lines, holding the interface facts
