@@ -1,6 +1,6 @@
 ---
 name: isaac-ros-docker
-description: Load to run, launch, attach to, drive, screenshot, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker". Covers the attach-only rule, `smoke.sh`, `dexec.sh`/`kill_launch.sh`, the two-workspace shadowing trap, and the discovery-server trap.
+description: Load to run, launch, attach to, drive, screenshot, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker". Covers the attach-only rule, `smoke.sh`, `dexec.sh`/`kill_launch.sh`, the two-workspace shadowing trap, and the DDS discovery profile.
 ---
 
 # Isaac ROS Docker dev container
@@ -47,9 +47,8 @@ rebuild). `smoke.sh` and `dexec.sh` both preflight this.
 Run it before trusting any measurement in this container. It never creates
 one. Step 4 prints the package-resolution table through both entry points,
 the fastest way to see whether your edit is the code that will run; step 6
-refuses to launch on top of a session someone else started; `--sim` unsets
-the DDS profile on both the launch and the probes (see below) and tears down
-with `kill_launch.sh`.
+refuses to launch on top of a session someone else started; `--sim` tears
+down with `kill_launch.sh`.
 
 `--sim` passes `gui:=false`, which still starts **rviz** (`sim.launch.py`
 starts rviz regardless), so a window opens on the user's display. Verified
@@ -112,29 +111,24 @@ Also: the running image can lag `Dockerfile.thornbots`, so
 baked in. reference.md has the EKF postmortem this cost, the recipe for
 testing an edit against the shadowing copy, and why `sim` has no shadow.
 
-## Nothing you launch is visible: the discovery-server profile
+## DDS discovery: the default profile
 
-A full sim stack can be running (gz, 13 bridges, rviz, logging happily) while
-`ros2 topic list` returns 2 topics and `ros2 node list` returns nothing.
-Measured 2026-09-06: with `/etc/fastdds/profile.xml`, 2 topics; with it
-unset, 24.
+`/etc/fastdds/profile.xml` (source `isaac_ros_common/docker/fastdds_cable.xml`)
+uses SIMPLE discovery, so nodes on one machine find each other with no env
+changes, and lists the robots' tailscale IPs as unicast initial peers for
+cross-machine work. Don't unset it. Measured 2026-09-14: with it, the
+`odom_stuck` drift scenario passed and a peer with participant ID 12 was
+discovered over unicast only.
 
-The profile makes every node a `SUPER_CLIENT` of three **remote** Fast DDS
-discovery servers on the robots' tailscale IPs, which is right for
-cross-machine work and means nothing discovers anything until one is up.
-`dds_server.sh` only runs on a machine listed in the profile, and this dev
-laptop is not one of them (`ERROR: 100.91.183.24 is not a known publisher`).
+Two things in that file look removable and aren't: the `239.255.0.1` peer
+(without it local discovery breaks, the 2026-07-20 postmortem) and
+`maxInitialPeersRange` 32 (at the default 4, remote nodes past participant ID
+3 are never found). A new robot needs its tailscale IP added there.
 
-For local-only work, drop the profile on **both** sides:
-
-```bash
-dexec.sh -d -- bash -c 'unset FASTRTPS_DEFAULT_PROFILES_FILE; exec ros2 launch sim sim.launch.py gui:=false'
-dexec.sh -- bash -c 'unset FASTRTPS_DEFAULT_PROFILES_FILE; ros2 daemon stop >/dev/null; sleep 2; ros2 topic list'
-```
-
-Unsetting on one side only is the trap: the two halves cannot see each other
-and neither errors. The `ros2` daemon caches the discovery mode of whoever
-started it, so stop it after switching.
+Containers built before 2026-09-14 bake the old discovery-server profile, where
+nothing is visible until a server runs. If `ros2 topic list` shows ~2 topics,
+check `grep discoveryProtocol /etc/fastdds/profile.xml`; `SUPER_CLIENT` means
+the image predates the change and needs a full rebuild.
 
 ## Helper scripts, never hand-rolled `docker exec`
 
@@ -175,8 +169,8 @@ check. reference.md covers the official suites and the `--headless` flag.
 ## Troubleshooting quick hits
 
 - `ros2 topic list` nearly empty, `hz`/`echo` hang, `tf2_echo` says the frame
-  doesn't exist, rviz Fixed Frame empty → the discovery profile, above. Check
-  that before anything else; on this box it's expected, not a bug.
+  doesn't exist, rviz Fixed Frame empty → the DDS profile, above. Check for
+  an old `SUPER_CLIENT` image first.
 - An edit "had no effect" → two workspaces, above. `ros2 pkg prefix <pkg>`.
 - `ros2 launch sim ...` can't find gz plugins, or `command -v ign` is empty →
   `install-sim.sh` hasn't run in this container.
@@ -198,8 +192,9 @@ check. reference.md covers the official suites and the `--headless` flag.
 - A TF/topic problem unreproducible from `docker exec` but real in the user's
   terminal → that session never loaded `FASTRTPS_DEFAULT_PROFILES_FILE`. Use
   `dexec.sh`.
-- Topics from another machine over tailscale never arrive → the *publisher*
-  must run `scripts/dds_server.sh` (`-l` to check).
+- Topics from another machine over tailscale never arrive → one side's
+  `fastdds_cable.xml` must list the other's tailscale IP, and both need
+  the same `ROS_DOMAIN_ID`.
 - "not a member of docker group" → `sudo usermod -aG docker $USER && newgrp docker`
 - LFS errors → install `git-lfs`, re-clone.
 - "no built image found" → `CONFIG_IMAGE_KEY` doesn't resolve to real
