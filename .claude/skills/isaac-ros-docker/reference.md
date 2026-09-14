@@ -144,9 +144,8 @@ Extra `docker run` args can also go one-per-line in
   device access (the DJI bridge's UART link)
 - FastDDS profile (`FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds/profile.xml`,
   source `isaac_ros_common/docker/fastdds_cable.xml`) set as every interactive
-  shell's default RTPS participant profile. As of 2026-07-20 it no longer
-  hardcodes an explicit unicast peer at the real robot's tethered-link IP.
-  See the Troubleshooting postmortem below.
+  shell's default RTPS participant profile. SIMPLE discovery plus the robots' tailscale IPs
+  as unicast peers; see "Cross-machine ROS 2 over Tailscale" below.
 
 ## Manual equivalents of what `dexec.sh` does
 
@@ -228,41 +227,37 @@ Day-to-day development doesn't need it.
   `CONFIG_IMAGE_KEY` in `.isaac_ros_common-config` matches actual files under
   `isaac_ros_common/docker/`.
 
-### Cross-machine ROS 2 over Tailscale (2026-09-02)
+### Cross-machine ROS 2 over Tailscale
 
-tailscale0 carries no usable multicast, so SIMPLE discovery never finds a peer
-on another machine, however healthy the link is (plain UDP to the peer's 100.x
-address works fine; that is not the problem). Cross-machine topics go through a
-Fast DDS **discovery server**, started by hand on the publisher:
+tailscale0 carries no usable multicast, so SIMPLE discovery alone never finds a
+peer on another machine, though plain UDP to its 100.x address works.
 
-```bash
-isaac_ros_common/scripts/dds_server.sh    # on the robot; -l to check, -s to stop
-```
+**2026-09-14 (current):** `docker/fastdds_cable.xml` keeps SIMPLE discovery and
+adds the robots' tailscale IPs to `<initialPeersList>`. A participant announces
+to every listed peer and the peer answers, so only one side needs the other's
+address; the laptop lists the robots and needs no entry of its own. Measured in
+the dev container:
 
-Clients need no env vars: `docker/fastdds_cable.xml` (installed at
-`/etc/fastdds/profile.xml`) points at the robots' tailscale addresses. Four
-things that each look like something else when they are wrong:
+- A "remote" group of 12 filler participants plus a talker, sending no
+  multicast, was discovered by a listener whose only peer was `127.0.0.1` at
+  `maxInitialPeersRange` 32, and not at the default 4. The range is per
+  transport, which is why the profile redeclares SHM + UDPv4 as user transports
+  with `useBuiltinTransports` false.
+- With the full profile (multicast + three unreachable robot IPs), the
+  `odom_stuck` drift scenario passed in 46s, the same as with no profile.
+- Not yet verified between two real machines over tailscale.
 
-1. **`profile_name` must be `participant_profile`.** rmw_fastrtps looks the
-   participant profile up by that exact name; `is_default_profile="true"` is not
-   enough. Until 2026-09-02 this file was named `unicast_robot_link`, so the
-   whole profile had never applied to anything.
-2. **The server needs the same `ROS_DOMAIN_ID` as its clients.** A server in
-   domain 0 is invisible to clients in domain 42, and vice versa.
-3. **Tools need the whole graph.** A plain `CLIENT` only learns the endpoints it
-   matches, so `ros2 topic list`/`hz` and rviz show nothing and it reads exactly
-   like broken discovery. The profile uses `SUPER_CLIENT`; a shell overriding it
-   with `ROS_DISCOVERY_SERVER` also wants `ROS_SUPER_CLIENT=TRUE`.
-4. **Do not add `<useBuiltinTransports>false</useBuiltinTransports>` or an
-   `<interfaceWhiteList>`.** Measured 2026-09-02: with those, a participant
-   stops registering with the server entirely. The realsense node came up clean,
-   opened its stream, and never appeared in the graph even on the server's own
-   machine. Same `useBuiltinTransports` trap as the postmortem below, in a
-   discovery-server disguise.
+Keep `239.255.0.1` in the list: an explicit `<initialPeersList>` replaces the
+default multicast peer, the likely cause of the 2026-07-20 postmortem below.
 
-If the server is not running, nothing discovers anything, including two nodes on
-the same machine. That is the trade for making the remote case work by default;
-`dds_server.sh -l` says so in one line.
+**2026-09-02 to 2026-09-14 (replaced):** the profile made every node a
+`SUPER_CLIENT` of Fast DDS discovery servers on the robots, started by hand with
+`scripts/dds_server.sh` (now deleted). Nothing discovered anything, even on one
+machine, until a server was reachable, so local sim runs needed
+`unset FASTRTPS_DEFAULT_PROFILES_FILE`. Lessons that still apply: `profile_name`
+must be `participant_profile` (until 2026-09-02 it was `unicast_robot_link` and
+never applied), and every machine needs the same `ROS_DOMAIN_ID`. A robot still
+running the old `dds-server` container can drop it with `docker rm -f dds-server`.
 
 ### FastDDS discovery: the 2026-07-20 postmortem
 

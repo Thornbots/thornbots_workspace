@@ -80,13 +80,9 @@ fi
 ok "gz-sim present"
 
 echo "== 8. launch sim headless, detached"
-# FASTRTPS_DEFAULT_PROFILES_FILE is unset on BOTH the launch and every probe
-# below. The baked profile makes each node a SUPER_CLIENT of three remote
-# discovery servers on the robots' tailscale IPs; with none reachable, the
-# whole stack runs but `ros2 topic list` returns 2 topics and rviz is empty.
-# Unset on one side only is worse than not unsetting at all: the two halves
-# then cannot see each other, with no error. See SKILL.md.
-NOPROFILE='unset FASTRTPS_DEFAULT_PROFILES_FILE;'
+# Runs under the baked DDS profile on purpose: local discovery must work with
+# it. ~2 topics here means an old SUPER_CLIENT image; see SKILL.md.
+NOPROFILE=''
 "$DEXEC" -- bash -c "$NOPROFILE ros2 daemon stop" >/dev/null 2>&1
 "$DEXEC" -d -- bash -c "$NOPROFILE exec ros2 launch sim sim.launch.py gui:=false"
 echo "   waiting for the graph to come up (rviz opens on the user's display)..."
