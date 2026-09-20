@@ -25,6 +25,16 @@ context is the working tree), but skip the gitlink bump and everyone else builds
 the old code, and a later `git submodule update` rewinds your work out of the
 working tree.
 
+One logical change, one bump. Group by what changed, not by how much: a bump may
+move several gitlinks when they are one change, and a one-line submodule commit
+still earns its own. Batching a week of unrelated commits into a single bump
+leaves a gitlink diff that `git bisect` can't read.
+
+Push the submodule before the superproject. A gitlink pointing at a commit that
+exists only on your machine breaks `git submodule update --init` for everyone
+with `fatal: reference is not a tree`, which is worse than a stale gitlink
+because a stale one still clones.
+
 Branches differ per package and `.gitmodules` records them. After a clone,
 `README.md` has the one-liner that puts each submodule back on its branch —
 without it you are on a detached HEAD and commits land on no branch.
