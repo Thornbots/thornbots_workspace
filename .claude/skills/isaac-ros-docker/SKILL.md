@@ -125,6 +125,20 @@ Two things in that file look removable and aren't: the `239.255.0.1` peer
 `maxInitialPeersRange` 32 (at the default 4, remote nodes past participant ID
 3 are never found). A new robot needs its tailscale IP added there.
 
+**UDP only, no shared memory, since 2026-09-20.** With the SHM transport in
+the profile, a `ros2 node list` run in a robot shell saw 1 of 15 running
+nodes while another machine saw all 15 over tailscale; same profile minus the
+`shm` descriptor, 13. So a robot terminal that sees almost nothing while your
+laptop sees everything is an image baked before that date. Intra-host traffic
+now goes over UDP loopback, so if image topics start dropping, raise the
+socket buffers in the profile *and* `net.core.rmem_max`/`wmem_max` -- the
+kernel clamps silently otherwise.
+
+`thornbots_pkg`'s `config/fastdds_no_shm.xml`, applied to three nodes via
+`additional_env` in `auto.launch.py`, predates this and is now redundant:
+it does the same thing for those nodes, minus the tailscale peers. Harmless,
+but remove it only once every machine has rebuilt.
+
 Containers built before 2026-09-14 bake the old discovery-server profile, where
 nothing is visible until a server runs. If `ros2 topic list` shows ~2 topics,
 check `grep discoveryProtocol /etc/fastdds/profile.xml`; `SUPER_CLIENT` means
@@ -171,6 +185,11 @@ check. reference.md covers the official suites and the `--headless` flag.
 - `ros2 topic list` nearly empty, `hz`/`echo` hang, `tf2_echo` says the frame
   doesn't exist, rviz Fixed Frame empty → the DDS profile, above. Check for
   an old `SUPER_CLIENT` image first.
+- Topics/nodes visible from another machine but not from a shell on the robot
+  → an image baked with the SHM transport still in the profile. Confirm with
+  `grep -c shm /etc/fastdds/profile.xml` (0 on a current image); until it is
+  rebuilt, prefix CLI calls with
+  `FASTRTPS_DEFAULT_PROFILES_FILE=$(ros2 pkg prefix thornbots_pkg)/share/thornbots_pkg/config/fastdds_no_shm.xml`.
 - An edit "had no effect" → two workspaces, above. `ros2 pkg prefix <pkg>`.
 - `ros2 launch sim ...` can't find gz plugins, or `command -v ign` is empty →
   `install-sim.sh` hasn't run in this container.
