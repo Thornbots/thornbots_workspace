@@ -15,6 +15,11 @@ git submodule foreach --recursive \
 
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
+One logical change, one bump: a bump may move several gitlinks when they belong
+to the same change, and a one-line package commit still earns its own. Push the
+package before you push here — a gitlink pointing at an unpushed commit fails
+everyone else's `git submodule update --init`.
+
 | Path | Branch | Role |
 | --- | --- | --- |
 | `thornbots_pkg` | `main` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
