@@ -18,7 +18,7 @@ SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS="$(cd "$SKILL_DIR/../../../isaac_ros_common/scripts" && pwd)"
 DEXEC="$SCRIPTS/dexec.sh"
 KILL_LAUNCH="$SCRIPTS/kill_launch.sh"
-CONTAINER="${ISAAC_ROS_CONTAINER:-isaac_ros_dev-x86_64-container}"
+CONTAINER="${ISAAC_ROS_CONTAINER:-isaac_ros_dev-$(uname -m)-container}"
 RUN_SIM=0
 [ "${1:-}" = "--sim" ] && RUN_SIM=1
 
