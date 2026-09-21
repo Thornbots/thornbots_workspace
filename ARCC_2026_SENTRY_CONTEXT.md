@@ -303,7 +303,7 @@ treated like an RMUL event.
 - Full Referee System data interface / UART protocol spec.
 - **Armor panel face dimensions.** `sim/sim/cv_target_emulator.py`'s
   `PANEL_SIZE = 0.1` (a 0.1m x 0.1m face) is an assumption, explicitly not
-  sourced from this document. `sim/test/cv/run_shot_hit_tests.py` derives
+  sourced from this document. `sim/test/cv/shot_hit_harness.py` derives
   `DEFAULT_HIT_RADIUS` from it, so the shot-hit suite's entire pass/fail line
   rests on that number — treat any hit-rate figure as calibrated on an
   approximation until the real dimension is pulled from the rulebook. The
