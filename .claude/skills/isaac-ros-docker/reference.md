@@ -447,9 +447,8 @@ through `dexec.sh`.
 
 ## Before/after running any test or one-off sim launch
 
-**Before** launching anything (a background launch, `run_localization_drift_tests.py`,
-`ekf_ground_truth_diag.py`, or an ad hoc probe script), check for a live
-session first:
+**Before** launching anything (a background launch, either test launch
+file, or an ad hoc probe script), check for a live session first:
 ```bash
 dexec.sh -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
 ```
@@ -458,7 +457,7 @@ list` but never publish; a *live* session (the user's own manual sim/CV
 work, or a previous test that didn't clean up) collides on the same
 topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
 silently corrupts whatever you're about to measure. No error, just wrong
-numbers or empty samples. `run_localization_drift_tests.py`'s own
+numbers or empty samples. The drift suite's own
 `check_no_orphans()` does this exact check and only *warns*, it doesn't
 block, so don't skip it just because the script ran.
 
@@ -469,21 +468,20 @@ stopping anything you didn't start.
 **After** your own test/probe finishes (including when it errors out or
 you interrupt it), clean up what *you* started rather than leaving it for
 the next run to collide with:
-- The official suites (`run_localization_drift_tests.py`,
-  `ekf_ground_truth_diag.py`) already do this via `teardown_stack()` in a
-  `finally` block, which is why they're safe to Ctrl-C.
+- The official suites (`localization_tests.launch.py`,
+  `shot_hit.launch.py`) already do this, and are safe to `kill_launch.sh`:
+  `teardown_stack()` runs in a `finally` block, and a per-scenario stack
+  also gets SIGINT if pytest dies.
 - Any ad hoc script you write that calls `run_stack()`/launches its own
   processes must do the same: wrap the body in `try`/`finally` and call
-  `teardown_stack(sim_tree, sentry_tree, helper)` (or `kill_launch.sh
+  `teardown_stack(stack, helper)` (or `kill_launch.sh
   <pid>` for anything launched outside that helper) unconditionally, and
   re-run the `ps aux` check above afterward to confirm nothing's left.
 
 `sim` launches with GUI by default (standing rule in `sim/AGENTS.md`);
-that includes `run_localization_drift_tests.py`, which takes `--headless`
-to opt out:
+that includes both test launches, which take `headless:=true` to opt out:
 ```bash
-isaac_ros_common/scripts/dexec.sh -d -- \
-  python3 src/sim/test/localization/run_localization_drift_tests.py
+isaac_ros_common/scripts/dexec.sh -d -- ros2 launch sim localization_tests.launch.py
 ```
 
 
