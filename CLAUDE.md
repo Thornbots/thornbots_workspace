@@ -40,6 +40,8 @@ Branches differ per package and `.gitmodules` records them. After a clone,
 without it you are on a detached HEAD and commits land on no branch.
 
 Every package has an `AGENTS.md`. Read it before working there.
+Keep it short: the current state, open questions and rules. Don't log test
+runs or measurement history there; that goes in the commit message.
 
 Write each `README.md` for a human in a container terminal: plain `colcon`
 and `ros2` commands, no `dexec.sh`, `kill_launch.sh` or skill references.
