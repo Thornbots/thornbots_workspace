@@ -47,6 +47,16 @@ Write each `README.md` for a human in a container terminal: plain `colcon`
 and `ros2` commands, no `dexec.sh`, `kill_launch.sh` or skill references.
 The host-side equivalents go in that package's `AGENTS.md`.
 
+## Timestamps
+
+Every internal ROS message carries a `std_msgs/Header`, stamped as well as the
+publishing node can: when the data was true (sensor capture, or the input's
+stamp carried through), not when the node got round to publishing it. `now()`
+is right only for data the node creates at that moment, like a fire decision.
+Say what the stamp means in the `.msg` comment. Unstamped types (`Point`,
+`Twist`) get their `*Stamped` form unless a standard interface requires the
+bare one.
+
 ## Comments
 
 Keep in-code comments and docstrings under 10 lines, holding the interface facts
