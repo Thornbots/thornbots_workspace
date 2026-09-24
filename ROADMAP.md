@@ -14,13 +14,13 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | On `sentry_v2`: stationary 99% (flat and staggered, run alone), flat 0.5/1.0 m/s 52%/43%, 4 m/s 9%. A case's score depends on the one before it |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
-| CV seam | `TargetState` msg already carries centre, velocity, yaw, yaw_rate, both radii |
+| CV seam | `TargetState` msg already carries center, velocity, yaw, yaw_rate, both radii |
 
 The two suites fail for different reasons and only one of them is a real
 defect. `drift_correction`'s threshold measures `map->odom` residual semantics,
 so under `--backend none` it reads the robot's own motion around the loop and
 fails without indicating anything. The shot-hit cells are red because aiming at
-a spinning chassis centre with no shot timing genuinely misses.
+a spinning chassis center with no shot timing genuinely misses.
 
 ## Done: a sim that stays up
 
@@ -177,23 +177,31 @@ still to do.
 > in, one `TargetState` out: where the robot is, how fast it moves, how fast it
 > spins, where its four panels sit.
 
-Both stay nodes in `thornbots_pkg`. The work is making the seam *hard*.
+Both stay nodes in `thornbots_pkg`. The work is making the seam *hard*. The
+step-by-step plan is [`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md).
 
 **Part 1 goes first.** It is the half that misses today, it is the half that can
 be tested against perfect knowledge, and it tells us how much of the
 moving-target miss is even estimation's fault before we touch estimation.
 
-- Part 1 grows the two things it's missing: pick *which panel* to aim at rather
-  than the chassis centre, and time the shot against the spin phase. That is the
-  whole of the moving-target miss, and it's testable in isolation once C1
-  exists.
+- **Corrected 2026-09-24:** this used to say Part 1 still had to pick a panel
+  and time the shot against the spin. `plan_shot` already does both: above
+  3 rad/s it aims on the center-to-shooter line and times the fire to the next
+  quarter-turn, and every moving shot-hit cell spins faster than that. What it
+  lacks is the arriving pair's own radius and `z_offset` (it aims at the mean
+  radius and `center.z`), a latency budget that keeps up at 4 m/s, and a trace
+  of the 2 to 4 cm sideways miss seen even on stationary targets.
 - Part 1 stops consuming raw panels. `TargetState.panel`'s raw fallback moves
   behind the tracker, which emits a low-confidence `TargetState` instead of
   part 1 reaching around it.
-- *Then* part 2: `TargetState` grows a per-pair z. `ArmorEKF` puts all four
-  panels at one height today, which is why staggering them 9 cm drops the
-  stationary case from 98% to 30%. Per-pair z is the mirror of the per-pair
-  radius already there.
+- *Then* part 2: `ArmorEKF` estimates a per-pair z. It puts all four panels at
+  one height today, which is why staggering them 9 cm drops the stationary case
+  from 98% to 30%. `TargetState` already has the fields (`z_offset`,
+  `other_z_offset`).
+- Part 2 owns all hardware latency. `TargetState` describes the target now:
+  the tracker works out capture time, predicts forward to its publish time and
+  stamps that. Part 1 only extrapolates into the future, over fire-to-impact
+  time. Today Part 1 adds the state's age instead, covering Part 2's delay.
 
 ## Track C: Two benches, one per half
 
@@ -201,7 +209,7 @@ moving-target miss is even estimation's fault before we touch estimation.
 
 The current shot-hit bench with its input replaced. A new emulator mode
 publishes ground-truth `TargetState` straight from `/target/ground_truth_odom`:
-all four panels, exact centre, velocity, yaw, yaw_rate, both radii, both
+all four panels, exact center, velocity, yaw, yaw_rate, both radii, both
 heights. The tracker is not launched. Scoring geometry stays as it is.
 
 With perfect knowledge, a miss is an aiming defect and nothing else. That makes
@@ -218,16 +226,23 @@ runs for liveness. `TargetState` grew `z_offset`/`other_z_offset`
 doesn't read yet, so staggered cases still aim at one height. No run yet, so the
 floors are still the placeholder.
 
+**Next (`CV_SPLIT_PLAN.md` 1.0):** Part 1 is tested only on perfect models from
+the sim. `target_state_truth` drops its dependence on detections and publishes
+the current true state on its own 60 Hz timer from `/target/ground_truth_odom`,
+with no added latency. C1 then runs without `cv_target_emulator` or
+`target_selector`, once Part 1 stops reading raw panels.
+
 ### C2: Estimation bench, real target, fake detections
 
 A real entity in the world, spawned from the sentry URDF as the opponent, driven
 by `actor_driver`. Detections are still synthesized rather than rendered (no
 YOLO in the loop), but they come off the entity's true pose instead of a phantom
-integrator. Nothing fires. The score is `TargetState` against truth:
+integrator. Nothing fires. Part 2 is benchmarked only on how close its
+`TargetState` gets to truth, compared at its own stamp (`CV_SPLIT_PLAN.md` 2.0):
 
-- centre and velocity error, yaw_rate error, radius error
-- time to converge from acquisition
-- track continuity through panel handoffs and dropouts
+- panel error, the four implied panel positions against the true four
+- center, velocity, yaw, yaw_rate, radius and z_offset error
+- time from first detection until panel error settles
 
 > **The old snag, answered by S2.** The old sentry URDF had no collision
 > geometry, so a lidar couldn't see it and the opponent needed a proxy.
@@ -258,16 +273,19 @@ C2 as well.
 ## Order of work
 
 1. **A sim that stays up.** Done 2026-09-24.
-2. **C1 aim bench.** Ground-truth `TargetState` in, tracker not launched. Needs
-   no new sim entity, so nothing blocks it.
-3. **B part 1: panel pick and shot timing,** measured on C1. This is where the
-   moving cells turn.
+2. **C1 aim bench.** The sim publishes the perfect `TargetState`; no tracker,
+   selector or detection emulator. Needs no new sim entity, so nothing blocks
+   it.
+3. **B part 1: pair-aware aim, lead at speed, the sideways offset,** measured
+   on C1 after the bench's case-to-case leak is fixed. This is where the moving
+   cells turn.
 4. **C3's moving-shooter and depth cases on C1,** while the bench is still the
    only thing in the loop.
 5. **S2, move to `sentry_v2`** (wired in 2026-09-24), then
    `actor_driver`. Together they unblock C2 and A4.
-6. **C2 estimation bench,** then B part 2's per-pair z fix scored on it, then
-   C3's cases again against the estimate.
+6. **C2 estimation bench,** with camera latency in the emulator, then B part
+   2's latency correction and per-pair z scored on it, then C3's cases again
+   against the estimate.
 7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles,
    and why `odom_stuck` loses the robot while passing (`sim/AGENTS.md`).
    rf2o's yaw drift was fixed in A1.

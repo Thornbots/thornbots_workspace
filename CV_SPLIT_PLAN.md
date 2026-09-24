@@ -1,0 +1,252 @@
+# Plan: split CV at `TargetState`
+
+ROADMAP.md Track B and C, 2026-09-24. Part 1 (`point_to_cv_target`) aims and
+fires from a `TargetState`. Part 2 (`target_selector` + `target_tracker`) builds
+that `TargetState` from detections. **We start with Part 1, the hitting side.**
+It is the half that misses today. **The sim tests it on perfect models:**
+`target_state_truth` publishes the target's true `TargetState`, the tracker is
+not launched, and every miss left is Part 1's own. Part 2 waits until Part 1's
+floors are measured.
+
+## Where Part 1 actually stands
+
+The roadmap used to say Part 1 still had to pick a panel and time the shot
+against the spin. `plan_shot` (`thornbots_pkg/point_to_cv_target_core.py`)
+already does both. Above `spin_enter_rad_s` (3 rad/s) it aims at a point on the
+center-to-shooter line and sets `delay_ms` to land on the next quarter-turn
+alignment, firing only when that delay fits inside one publish tick. Below it,
+it leads the tracked panel and fires at once. Every moving shot-hit cell spins
+at 1 to 2 Hz (6 to 12.6 rad/s), so every moving cell already runs in spin mode.
+
+What Part 1 lacks:
+
+1. Spin mode aims at the mean radius `(r + other_r)/2` and at `center.z`. It
+   never works out which pair arrives at the next alignment, so it uses neither
+   that pair's radius nor its `z_offset`. Non-spin mode ignores `z_offset` too.
+   That is the aim side of the staggered collapse (98% to 30%), and it can be
+   fixed now: `TargetState` already carries per-pair heights.
+2. At 4 m/s shots trail the panel by about 0.23 m. That number came from the
+   tracker. On a perfect model the velocity is exact, so any trail left there
+   is Part 1's own horizon: fire decision to muzzle exit (`firmware_latency_s`,
+   0.05 s) plus flight time.
+3. Every case, stationary included, lands 2 to 4 cm to one side. A stationary
+   run on a perfect model pins it to TF/muzzle geometry.
+4. It still subscribes to raw `/cv/panel_detection` for liveness, confidence and
+   track id, and aims at `state.panel` while the tracker is unconverged. That
+   path fires with `delay 0`.
+
+## Phase 1: hitting (Part 1, on C1)
+
+Every Phase 1 run is `shot_hit.launch.py target_state:=truth`. No tracker, no
+tracker comparison: those belong to Phase 2, once C2 exists.
+
+### 1.0 Harden the seam; the sim publishes the perfect model
+
+Today `target_state_truth` publishes only when a `/cv/robot_panels` message
+arrives, so C1 still runs `cv_target_emulator` and `target_selector`, and Part 1
+still reads raw panels for liveness. The perfect model should stand alone, which
+needs Part 1 to stop reading panels first. This goes first because every later
+step is measured on it, and because 1.3's pair logic should be written against
+the new fields once rather than twice.
+
+One logical change across three submodules, pushed in this order, then one
+gitlink bump:
+
+| Package | Change |
+|---|---|
+| `ros2_dji_serial_bridge` | `TargetState`'s header comment says the stamp is the time the state describes (its publish time), and it gains `float32 confidence`, renames `centre` to `center`, and replaces `radius`/`other_radius` and `z_offset`/`other_z_offset` with `float32[2] radius` and `float32[2] z_offset`, indexed by panel pair `k % 2` (`[0]` is the tracked panel's pair). Every user in `thornbots_pkg` and `sim` follows, including `ArmorEKF`'s `other_r` and `plan_shot`'s `other_r` argument |
+| `thornbots_pkg` tracker | Publishes on every `/cv/robot_panels` message, before convergence too, with `valid=false`, `confidence` from the selector's winning panel, and center/yaw seeded from the raw panel |
+| `thornbots_pkg` Part 1 | Drops the `panel_topic` subscription. Liveness is `TargetState` age, track id and confidence come off the message. `!valid` aims at the tracked panel with no lead. `/cv/panel_polygon` moves to `target_selector` |
+| `sim` | `target_state_truth` publishes on its own timer at `publish_rate_hz` (60, the emulator's camera rate) from `/target/ground_truth_odom` alone: the target's current state, stamped with its own sample time and published at once, with no added latency. `valid=true`, `confidence=1`, one fixed track id, no field of view or occlusion. `shot_hit.launch.py target_state:=truth` stops launching `target_selector` and `cv_target_emulator` |
+
+A test in `test_point_to_cv_target.py` pins the contract: the node subscribes to
+`TargetState` and `RobotPose` only. Done when a truth run fires with nothing
+upstream of `/cv/target_state` but `target_driver` and `target_state_truth`.
+
+### 1.1 Make the bench trustworthy
+
+Shot-hit scores depend on the case before them: staggered stationary read 0.3%
+right after flat 4 m/s and 99% twice alone. Until that is fixed, a before/after
+comparison means nothing.
+
+- Candidates, cheapest first: `point_to_cv_target`'s `spinning` hysteresis and
+  `last_fire_time`; `target_state_truth`'s 2 s `history_s` (gone if 1.0 drops
+  the history); `target_driver`'s pose at the switch; the head still slewing
+  when `SETTLE_S` ends.
+- Fix: `run_case` resets whatever carries over, through a `~/reset` service like
+  `pose_emulator`'s, and settles until the head is on target rather than for a
+  fixed time.
+- Done when a cell scores the same run alone and run after flat 4 m/s.
+
+Then take the first C1 baseline, both layouts. Nobody has run C1 yet, and every change
+below is measured against it. Each run needs the user's go-ahead
+(`sim/AGENTS.md`).
+
+### 1.2 Fixed lateral offset (stationary)
+
+Read `panel_right_of_shot_m` from `shots.jsonl`. If the 2 to 4 cm survives on
+the perfect model, it is geometry: `muzzle` against `root`, the `headlink` yaw
+offset, or the harness's duplicated FK chain disagreeing with the URDF since the
+`sentry_v2` move. Fix it at the source, not with an aim trim.
+
+### 1.3 Pair-aware aim: radius and height
+
+In `plan_shot`, spin mode picks the pair that lines up at the next quarter-turn
+(parity of the step count from the tracked panel) and aims at `radius[k % 2]`
+and `center.z + z_offset[k % 2]`. Non-spin mode adds `z_offset[0]`. Unit-test
+both against the armor model in `TargetState.msg`. Done when staggered
+stationary matches flat (about 99%) and staggered moving cells come within a few
+points of flat.
+
+### 1.4 Lead at speed
+
+If 4 m/s still trails, the velocity is exact, so the missing time is latency.
+Measure fire decision to muzzle exit in sim (the harness logs `fire` and
+`t_fire`) and set `firmware_latency_s` from it. Whatever trail the tracker adds
+on top is Part 2's velocity error, in 2.3.
+
+### 1.5 Path-end braking
+
+Bin 1 to 2 m/s misses by the target's position on its path. If they cluster at
+the 6 m/s² braking ends, constant-velocity extrapolation is the limit. Record
+it and move on: fixing it needs acceleration in `TargetState`.
+
+### 1.6 Spin fire window
+
+The delay must fit inside one tick (25 ms at 40 Hz), and a quarter-turn at
+12.6 rad/s takes 125 ms, so the node fires on about one tick in five. Check with
+`panel_hits.jsonl` that shots land on the aligned panel inside its 145° cone. If
+they arrive late, fire on the alignment after next when that one fits.
+
+### 1.7 Floors
+
+Replace `MOVING_MIN_HIT_RATE = 0.25` with per-cell floors from the final truth
+run: lowest of three runs minus 10 points. Part 2 never gets hit-rate floors;
+it gets error thresholds on C2.
+
+### 1.8 C3 cases on C1
+
+`shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
+with `shooter_speed` points at `shooter_vel`'s sign or frame
+(`sim/CV_TEST_GAPS.md` gap 2); a drop on radial points at the lead solve along
+the ray. Each gets its own floor.
+
+## Phase 2: model building (Part 2, on C2)
+
+Part 2 is benchmarked only on how close its `TargetState` gets to the truth.
+Nothing fires on C2, and shot-hit rates are not how Part 2 is judged: a miss
+there mixes both halves, and Phase 1 already owns the aim.
+
+### All hardware latency belongs to Part 2
+
+`TargetState` describes the target now. Part 2 owns every delay between the
+target being somewhere and the state reaching Part 1: exposure, readout, USB,
+YOLO, `roi_depth_node`, the tracker itself and delivery. It works out when the
+image was captured, predicts the model forward to the moment it publishes, and
+stamps the message with that moment. Part 1 does no latency correction. It
+extrapolates from the stamp into the future: the part of a frame since the
+state arrived, `firmware_latency_s`, and flight time.
+
+Today the tracker stamps its output with the detection stamp and Part 1 adds
+the state's age, so Part 1 ends up covering Part 2's delay. The RealSense
+stamp's relation to capture time is unmeasured, `pose_latency_s` (0.01) only
+shifts the camera TF lookup, and `cv_target_emulator` stamps each detection with
+its exact sample time and delays only delivery (`publish_latency_s`, 0.06).
+
+- `target_tracker` gains a `camera_latency_s` param: capture time = detection
+  stamp - `camera_latency_s`, used for the EKF update time and the camera TF
+  lookup. It then predicts to its publish time and stamps that.
+- `cv_target_emulator` gains a stamp offset on top of its delivery delay: the
+  detection stamp is later than the sample time by a configurable camera
+  latency, so C2 has both kinds of hardware latency to undo.
+- Measure the real camera's latency on hardware (RealSense metadata timestamps,
+  or a blinking LED against the stamp) before trusting a field number.
+- C1 carries none of this: `target_state_truth` publishes the current true
+  state, which is the contract Part 2 has to meet.
+
+### 2.0 C2 estimation bench
+
+- Spawn one opponent from `sentry_v2`, driven by `actor_driver`, which gains yaw
+  (spin) and `target_driver`'s path profiles so C2 runs the same cells as C1.
+- `cv_target_emulator` takes panel poses from the entity's true pose (gz pose
+  bridge) instead of `target_driver`'s integrator. `target_driver` stays for C1
+  until C2 is proven.
+- `test/cv/test_estimation.py` over `estimation_harness.py`. Each published
+  `TargetState` is compared with the truth at its own `header.stamp`, so a
+  wrong stamp shows up as error. Per cell, mean and p95 of:
+  - panel error: the four panel positions the state implies against the true
+    four, the one number that says what Part 1 would be handed;
+  - center and velocity error;
+  - yaw error (mod a quarter-turn, matching pairs) and `yaw_rate` error;
+  - `radius` and `z_offset` error per pair;
+  - time from first detection until panel error stays under a threshold.
+- Thresholds per metric come from the first working run, lowest of three plus
+  a margin, like Phase 1's floors.
+- Dropout and handoff cases by masking detections in the emulator.
+- Done when C2 runs every C1 cell in one gz session and scores the same run
+  alone and in sequence.
+
+### 2.1 Camera latency on C2
+
+Turn on the emulator's camera-latency offset alongside its delivery delay.
+Done when the tracker, with `camera_latency_s` set to match, publishes states
+whose error at their own stamp matches the zero-latency numbers.
+
+### 2.2 Per-pair z
+
+Per-pair z in `ArmorEKF`, mirroring the per-pair radius, published into the
+`z_offset` array. Done when staggered cells' `z_offset` and panel error match
+flat cells'.
+
+### 2.3 Velocity lag
+
+The 0.23 m trail at 4 m/s, minus whatever 1.4 found in Part 1's horizon, is
+Part 2's: velocity error, or latency it didn't predict across. Tune `process_noise_accel` against C2's velocity-error trace,
+path ends included.
+
+### 2.4 C3 cases
+
+C3's shooter-moving and radial cases on C2, scored the same way. Radial is the
+case `ray_covariance` exists for: depth error grows with range squared, so
+center error along the ray should grow and error across it should not.
+
+## Stamps
+
+Workspace rule (`CLAUDE.md` § Timestamps): every internal message is stamped as
+well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
+`roi_depth_node` and `target_selector` carry the detection stamp through,
+`cv_target_emulator` stamps sample time, `CVTarget` stamps decision time,
+`lidar_self_filter` and `pose_translator` pass the input's stamp on. The gaps:
+
+| Where | Today | Best the node can do | When |
+|---|---|---|---|
+| `target_tracker` → `TargetState` | Detection stamp, not the time the state describes | Publish time, after predicting forward (Phase 2) | 1.0 comment, Phase 2 code |
+| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | `now()` after the frame is parsed | Stamp when the frame's first byte is read, minus its wire time at the baud rate. Later, an MCB millisecond clock on the wire, the mirror of `CV_MSG`'s `stamp_ms`, mapped to ROS time by offset | Before any field test of Part 1 while we move (1.8): `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
+| Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency (Phase 2) | Phase 2 |
+| `mcb_relay` → relocalize | Bare `geometry_msgs/Point` | `PointStamped` with the stamp of the localization pose it came from; the bridge's subscriber follows | Own change, not CV-blocking |
+| `dji_serial_bridge` `~/nav_goal` | Bare `geometry_msgs/Point` | `PointStamped`, stamped when the goal was chosen | Same change as relocalize |
+
+`/cmd_vel` stays a bare `Twist`: gz's diff-drive plugin and the harnesses expect
+it, which is the standard-interface exception in the rule.
+
+## Decisions for the user
+
+| Question | Recommendation |
+|---|---|
+| Fire before the tracker converges? Today it fires at the raw panel, unled | Aim, don't fire until `valid` |
+| `confidence` as a `TargetState` field, or keep Part 1's panel subscription? | New field; the subscription keeps the seam soft |
+| Floor margin under the measured truth score | Lowest of three runs minus 10 points |
+
+## Commits
+
+1.0 is `ros2_dji_serial_bridge`, `thornbots_pkg`, `sim`, pushed in that order,
+then one bump. 1.1 is `sim` (plus `thornbots_pkg` if the leak is in a node) and
+one bump. 1.2 to 1.6 each get their own commit and bump, with C1 before/after
+numbers in the message. Update this file and ROADMAP.md in the bump for the
+step they describe.
+`thornbots_pkg` is shadowed in `/workspaces/ros2_ws`: rebuild it in
+`isaac_ros-dev` and check `ros2 pkg prefix` before any run.
+
+Sim detection noise is 0.005 m and C1 has no estimation noise at all, so C1's
+floors describe the aim solve alone. Neither bench predicts field hit rates;
+they rank changes.
