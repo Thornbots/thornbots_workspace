@@ -10,7 +10,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Thing | State |
 |---|---|
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
-| Localization drift suite (6 scenarios) | **6 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24): drift_correction 0.17 m, with obstacle 0.17 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
+| Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | On `sentry_v2`: stationary 99% (flat and staggered, run alone), flat 0.5/1.0 m/s 52%/43%, 4 m/s 9%. A case's score depends on the one before it |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
@@ -158,6 +158,14 @@ Two pass conditions, because a moving obstacle can hurt localization two ways:
 
 This node is the shared piece: Track C's opponent robot is the same mechanism
 with one entity and a different path.
+
+**Built and passing (sim `main`, 2026-09-24):** `actor_driver` walks three
+boxes across the south, west and north edges at 0.5–2 m/s, through a
+`set_pose` bridge, and keeps them clear of the robot's next second of route.
+The boxes have no collision, since `gpu_lidar` renders visuals and contact
+with the field mesh cost ~3× sim speed. `moving_obstacles` scores like
+`drift_correction`: 0.18 m against 0.40 m. The SLAM occupancy-grid check is
+still to do.
 
 ## Track B: Split CV at `TargetState`
 
