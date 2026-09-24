@@ -65,7 +65,7 @@ collision shapes on all ten bodies, which answers the collision-proxy question
 C2 and A4 were waiting on from the other direction. Pitch limits, suspension
 travel and spring rate are still placeholders.
 
-**Wired in (working tree, 2026-09-24):** `sentry_v2` is sim's default spawn,
+**Wired in (sim `main`, 2026-09-24):** `sentry_v2` is sim's default spawn,
 and `thornbots_pkg`'s TF and the CV chain (head IK, emulator, shot-hit scoring)
 moved to it. The drift suite passes on it. The chassis picks up ~1° of yaw
 in hard corners (noted, not acted on).
@@ -81,9 +81,12 @@ actually make.
 ### S4: Unthrottled has to score the same as real time
 
 The suites time themselves in sim seconds, so `real_time_factor:=0` should only
-save wall clock. It doesn't: `drift_correction` reads 4.02 m unthrottled and
-0.42 m at 1×. rf2o's wall-clock loop is one known cause. Audit every node for
-wall-clock timers, rates and timeouts.
+save wall clock. It didn't: `drift_correction` read 4.02 m unthrottled and
+0.42 m at 1×. rf2o's wall-clock loop was one known cause, and it now matches
+every scan in its callback (`thornbots_workspace#11`). **Done when:** the drift
+suite and `suite:=ekf` give the same verdicts at `real_time_factor:=0` and
+`:=1`, a comparison that hasn't been run since the rf2o change. If they still
+differ, audit every node for wall-clock timers, rates and timeouts.
 
 ## Track A: Localization (paused)
 
@@ -104,7 +107,8 @@ Paused on 2026-09-23 so the sim can be made reliable first. Where it stopped:
 The "backwards" reading was a test artifact. rf2o's loop runs at 20 Hz on the
 wall clock and keeps only the newest scan, so a sim running 2–3× real time makes
 it skip scans and match pairs up to a metre apart. `73744a3` is reverted.
-Unthrottled EKF numbers can't be trusted until rf2o processes by scan stamp.
+rf2o has matched every scan in its callback since `thornbots_workspace#11`;
+until S4 confirms it, compare unthrottled EKF numbers against a real-time run.
 
 **Left:** rf2o's yaw drift, on a chassis that never rotates, corrupts its x/y,
 and the EKF trusts them at 0.02². Either stop rf2o's heading from drifting or
@@ -215,12 +219,11 @@ integrator. Nothing fires. The score is `TargetState` against truth:
 - time to converge from acquisition
 - track continuity through panel handoffs and dropouts
 
-> **The known snag.** The sentry URDF carries no collision geometry on any link.
-> That's deliberate: it's what made `root` free-floating so `set_pose` teleports
-> work. A lidar can't see it. The opponent needs a collision-only proxy that
-> doesn't feed torque back into `root`, which is the proxy question
-> `sim/AGENTS.md` has been holding open. This decides it. The same proxy is what
-> makes A4's actors visible to SLAM.
+> **The old snag, answered by S2.** The old sentry URDF had no collision
+> geometry, so a lidar couldn't see it and the opponent needed a proxy.
+> `sentry_v2` has collision on all ten bodies and `root` still has no parent
+> joint, so `set_pose` teleports work and an opponent spawned from it is
+> visible. The same goes for A4's actors.
 
 ### C3: The two cases neither bench has (built, not run)
 
@@ -244,21 +247,19 @@ C2 as well.
 
 ## Order of work
 
-1. **A sim that stays up.** One gz session per test run, with a real
-   per-scenario reset. Nothing else is measured until the stack comes up the
-   same way every time.
+1. **A sim that stays up.** Done 2026-09-24.
 2. **C1 aim bench.** Ground-truth `TargetState` in, tracker not launched. Needs
    no new sim entity, so nothing blocks it.
 3. **B part 1: panel pick and shot timing,** measured on C1. This is where the
    moving cells turn.
 4. **C3's moving-shooter and depth cases on C1,** while the bench is still the
    only thing in the loop.
-5. **S2, move to `sentry_v2`,** which brings collision shapes, then
+5. **S2, move to `sentry_v2`** (wired in 2026-09-24), then
    `actor_driver`. Together they unblock C2 and A4.
 6. **C2 estimation bench,** then B part 2's per-pair z fix scored on it, then
    C3's cases again against the estimate.
-7. **Back to Track A:** rf2o's yaw drift, A3's per-backend metric, then A4
-   moving obstacles.
+7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles.
+   rf2o's yaw drift was fixed in A1.
 
 ## Caveats
 
@@ -268,10 +269,11 @@ C2 as well.
 - Rendered detections stay out of scope for both benches. A third bench,
   someday, with YOLO in the loop.
 - Both benches are gz-only. sapien is no longer supported (2026-09-23).
-- Our chassis has no collision geometry, so actors and opponents pass through
-  us. Fine for lidar and SLAM. Wrong the day obstacle *avoidance* becomes
-  something to demonstrate.
-- Run anything with `use_ekf` at `real_time_factor:=1`. Unthrottled, rf2o skips
-  scans and its numbers mean nothing.
+- `sentry_v2` collides, but what it does when driven into a wall hasn't been
+  checked. That matters the day obstacle *avoidance* becomes something to
+  demonstrate.
+- Every localization number above predates the A2M8 lidar (800 beams, 0.01 m
+  noise; was 3000 beams, 0.03 m) and rf2o's per-scan matching. Re-run before
+  quoting them.
 - Shot-hit results were bimodal on 2026-09-21: two runs swapped 98%/1% and
   2%/84%. Worth understanding before trusting a single-run comparison on C1.
