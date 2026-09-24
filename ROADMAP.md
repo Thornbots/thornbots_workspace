@@ -10,7 +10,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Thing | State |
 |---|---|
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
-| Localization drift suite (6 scenarios) | **6 pass** at `--backend amcl --use-ekf`, real time: drift_correction 0.23–0.26 m, with obstacle 0.24–0.28 m, against 0.40 m |
+| Localization drift suite (6 scenarios) | **6 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24): drift_correction 0.17 m, with obstacle 0.17 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | On `sentry_v2`: stationary 99% (flat and staggered, run alone), flat 0.5/1.0 m/s 52%/43%, 4 m/s 9%. A case's score depends on the one before it |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
@@ -85,8 +85,10 @@ save wall clock. It didn't: `drift_correction` read 4.02 m unthrottled and
 0.42 m at 1×. rf2o's wall-clock loop was one known cause, and it now matches
 every scan in its callback (`thornbots_workspace#11`). **Done when:** the drift
 suite and `suite:=ekf` give the same verdicts at `real_time_factor:=0` and
-`:=1`, a comparison that hasn't been run since the rf2o change. If they still
-differ, audit every node for wall-clock timers, rates and timeouts.
+`:=1`. **Drift suite met 2026-09-24:** 6/6 unthrottled, drift_correction
+0.17 m against 0.23–0.26 m at real time before the lidar change. `suite:=ekf`
+hasn't been re-run. If it differs, audit every node for wall-clock timers,
+rates and timeouts.
 
 ## Track A: Localization (paused)
 
@@ -258,7 +260,8 @@ C2 as well.
    `actor_driver`. Together they unblock C2 and A4.
 6. **C2 estimation bench,** then B part 2's per-pair z fix scored on it, then
    C3's cases again against the estimate.
-7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles.
+7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles,
+   and why `odom_stuck` loses the robot while passing (`sim/AGENTS.md`).
    rf2o's yaw drift was fixed in A1.
 
 ## Caveats
@@ -268,12 +271,13 @@ C2 as well.
   field.
 - Rendered detections stay out of scope for both benches. A third bench,
   someday, with YOLO in the loop.
-- Both benches are gz-only. sapien is no longer supported (2026-09-23).
+- Both benches are gz-only. SAPIEN was tested against gz, came out worse, and
+  is out for good (removed 2026-09-24).
 - `sentry_v2` collides, but what it does when driven into a wall hasn't been
   checked. That matters the day obstacle *avoidance* becomes something to
   demonstrate.
-- Every localization number above predates the A2M8 lidar (800 beams, 0.01 m
-  noise; was 3000 beams, 0.03 m) and rf2o's per-scan matching. Re-run before
-  quoting them.
+- The EKF and shot-hit numbers above predate the A2M8 lidar (800 beams,
+  0.01 m noise; was 3000 beams, 0.03 m) and rf2o's per-scan matching. Re-run
+  before quoting them. The drift suite was re-run 2026-09-24.
 - Shot-hit results were bimodal on 2026-09-21: two runs swapped 98%/1% and
   2%/84%. Worth understanding before trusting a single-run comparison on C1.
