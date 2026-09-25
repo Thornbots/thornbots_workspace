@@ -10,7 +10,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Thing | State |
 |---|---|
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
-| Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
+| Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | **C1 aim bench (no gz) passes 10/10**, 96-99% every cell, chase mode (2026-09-24), still shooter. The gz shot-hit bench is gone; Part 2 gets C2 |
 | Estimation bench (10 cells) | **C2 built on gz (2026-09-25), not run as a suite.** Scores `TargetState` against truth at its stamp; no limits yet. The tracker gained acceleration, a single-panel yaw measurement and a still-target hypothesis; see `CV_SPLIT_PLAN.md` "Where this stopped" |
@@ -138,6 +138,15 @@ becomes that assertion rather than a side experiment.
 
 **Done when:** six scenarios green at the target config, and every failure
 elsewhere points at a real defect.
+
+**Built (sim `main`, 2026-09-25), not yet run:** under `none`,
+`noise_correction` and the three cornering-loop scenarios score `odom->root`
+against `/sim/raw_odom` (`_truth_error`). `test_ekf_ground_truth.py` stays as
+it is: it asks a different question, whether the EKF beats raw `/odom`.
+`odom_stuck` stays a liveness check (the user's call): with `/odom` frozen,
+rf2o's seed freezes too, and 0.4 m between 10 Hz scans at 4 m/s is too far to
+match unseeded, so the robot is lost. Matching from rf2o's own last motion as
+well was tried and didn't help. `sim/README.md` has the details.
 
 ### A4: New scenario: moving obstacles
 
@@ -320,26 +329,17 @@ Humble, and `thornbots_pkg`'s CV tests (`point_to_cv_target`,
 
 ## Order of work
 
-1. **A sim that stays up.** Done 2026-09-24.
-2. **C1 aim bench.** The sim publishes the perfect `TargetState`; no tracker,
-   selector or detection emulator. Needs no new sim entity, so nothing blocks
-   it.
-3. **B part 1: pair-aware aim, lead at speed, the sideways offset,** measured
-   on C1 after the bench's case-to-case leak is fixed. This is where the moving
-   cells turn.
-4. **C3's moving-shooter and depth cases on C1,** while the bench is still the
-   only thing in the loop.
-5. **S2, move to `sentry_v2`** (wired in 2026-09-24), then
-   `actor_driver`. Together they unblock C2 and A4.
-6. **C2 estimation bench,** with camera latency in the emulator, then B part
+Finished items come off this list; the next one is always 1.
+
+1. **C2 estimation bench,** with camera latency in the emulator, then B part
    2's latency correction and per-pair z scored on it, then C3's cases again
-   against the estimate.
-7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles,
-   and why `odom_stuck` loses the robot while passing (`sim/AGENTS.md`).
-   rf2o's yaw drift was fixed in A1.
-8. **Hit while we move:** our pose and the aim command in the world frame
+   against the estimate. Built on gz; trace the moving-cell error first
+   (`CV_SPLIT_PLAN.md` Next).
+2. **Back to Track A:** run A3's metric under `--backend none`, then A4's
+   `slam` occupancy-grid check. `odom_stuck` is settled (A3).
+3. **Hit while we move:** our pose and the aim command in the world frame
    (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
-9. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
+4. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
    Track D and `JAZZY_PLAN.md`; its steps 0 to 5 don't touch the robots and
    can run earlier.
 
