@@ -210,6 +210,19 @@ moving-target miss is even estimation's fault before we touch estimation.
 `CV_SPLIT_PLAN.md` names the two phases: **Aiming** (Part 1 on C1) and
 **Estimation** (Part 2 on C2).
 
+- **Wanted: the CV nodes move out of `thornbots_pkg` into their own
+  package** (added 2026-09-25), say `thornbots_cv`. `thornbots_pkg` keeps
+  the hardware interface, URDF, TF and `mcb_relay`; the new package takes
+  `target_selector`, `target_tracker` and `point_to_cv_target`, their
+  `*_core.py` and their three tests. It is a new submodule, so a new
+  `Thornbots/` repo, a `.gitmodules` entry and a `Dockerfile.thornbots`
+  COPY and build line beside `thornbots_pkg`'s. Everything that names
+  `package='thornbots_pkg'` for those nodes follows: `auto.launch.py` (and
+  its UDP-only DDS pinning for `target_tracker` and `point_to_cv_target`),
+  `sim`'s `sim.launch.py`, `shot_hit.launch.py` and `estimation.launch.py`,
+  and `sim/tools/estimation_offline.py`'s import path. README.md and
+  AGENTS.md split the same way. Do it between bench runs, not during one,
+  and re-run both benches after to show nothing moved.
 - **Next: hit while we move** (added 2026-09-25). The target and the aim
   solve are already in `odom`; the aim still leaves as a `root`-frame point
   the MCB holds while the chassis moves, and `RobotPose` has no chassis yaw.
