@@ -159,8 +159,11 @@ it gets error thresholds on C2.
 
 ### 1.8 C3 cases on C1
 
-**Open.** The point bench has a fixed shooter, so `shooter_speed` needs a
-moving `root` there first.
+**Built 2026-09-25, not run.** `point_shooter` moves `root` on the point
+bench and each shot carries its velocity. Working it through found Part 1
+aiming as if still: the gun pointed at the intercept from where root is now,
+so our motion to impact (~0.15 m at 1 m/s) went into the miss. `plan_shot`
+now returns the gun point, unit-tested by flying the shot.
 
 `shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
 with `shooter_speed` points at `shooter_vel`'s sign or frame
