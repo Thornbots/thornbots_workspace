@@ -210,8 +210,7 @@ it gets error thresholds on C2.
 moving `root` there first.
 
 `shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
-with `shooter_speed` points at `shooter_vel`'s sign or frame
-(`sim/CV_TEST_GAPS.md` gap 2); a drop on radial points at the lead solve along
+with `shooter_speed` points at `shooter_vel`'s sign or frame; a drop on radial points at the lead solve along
 the ray. Each gets its own floor.
 
 ## Estimation: Part 2 on C2
