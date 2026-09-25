@@ -200,6 +200,20 @@ relation to capture time is still unmeasured.
 
 ### 2.0 C2 estimation bench
 
+**Built 2026-09-25, not run as a suite** (`sim/launch/estimation.launch.py`,
+`test_estimation.py`). One change from below: the target stays
+`target_driver`'s phantom, and the emulator and scorer read its exact truth.
+An entity moved by `set_pose` steps at the call rate and its gz pose lags the
+integrator, so it would give worse truth, not better; spawn a visual one
+once YOLO sees rendered frames. Our robot, head and camera are real gz. Each
+case restarts the track by switching detections off for 1 s. The facing
+panel's error (the one Part 1 aims at) was added: on a still target only
+that panel is observable, so convergence is measured on it. `LIMITS` is
+empty; `sim/tools/estimation_limits.py` fills it from three runs. A headless
+probe (8 s cases, not a baseline): staggered stationary 1.2 cm facing p95;
+2 m/s with blackout, and 1 m/s with our chassis moving, ~35 cm p95 and
+~10 s to converge.
+
 - Spawn one opponent from `sentry_v2`, driven by `actor_driver`, which gains yaw
   (spin) and `target_driver`'s path profiles so C2 runs the same cells as C1.
 - `cv_target_emulator` takes panel poses from the entity's true pose (gz pose
@@ -222,6 +236,9 @@ relation to capture time is still unmeasured.
 
 ### 2.1 Camera latency on C2
 
+**Ready to run:** `estimation.launch.py camera_latency_s:=0.03` against the
+default 0; `tracker_camera_latency_s:=0` shows the error left undone.
+
 Turn on the emulator's camera-latency offset alongside its delivery delay.
 Done when the tracker, with `camera_latency_s` set to match, publishes states
 whose error at their own stamp matches the zero-latency numbers.
@@ -239,11 +256,18 @@ flat cells'.
 
 ### 2.3 Velocity lag
 
+**Ready to run:** `process_noise_accel:=` sweeps the tracker on C2; the
+velocity error is in `estimation.jsonl` per case and per state.
+
 The 0.23 m trail at 4 m/s, minus whatever 1.4 found in Part 1's horizon, is
 Part 2's: velocity error, or latency it didn't predict across. Tune `process_noise_accel` against C2's velocity-error trace,
 path ends included.
 
 ### 2.4 C3 cases
+
+**Ready to run:** `shooter_speed:=1.0` drives our gz chassis, `target_path:=`
+radial or diagonal; `center_along_m` and `center_across_m` split the center
+error on the ray from us.
 
 C3's shooter-moving and radial cases on C2, scored the same way. Radial is the
 case `ray_covariance` exists for: depth error grows with range squared, so
