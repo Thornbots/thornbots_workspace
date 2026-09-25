@@ -8,6 +8,53 @@ It is the half that misses today. **The sim tests it on perfect models:**
 not launched, and every miss left is Part 1's own. Part 2 waits until Part 1's
 floors are measured.
 
+## Where this stopped (2026-09-25, handoff)
+
+Paused at the user's request. Everything below is committed and pushed;
+nothing is running in the container.
+
+Done, not yet run on gz:
+
+- **Part 2 model** (`thornbots_pkg`, 2.3): `ArmorEKF` state is now
+  `[pos, vel, acc, yaw, w, r, dz]` with named slices (`POS`, `VEL`, `ACC`,
+  `YAW`, `W`, `R`, `DZ`). Acceleration is a Singer model
+  (`process_noise_jerk` 3, `accel_time_constant_s` 1) and is published. A
+  frame with one panel also measures yaw (`single_panel_yaw_std` 0.3). Unit
+  tests pass (76).
+- **Offline C2** (`sim/tools/estimation_offline.py`): target_driver, the
+  emulator and the tracker without ROS, scored with `estimation_metrics`,
+  seconds per sweep. Facing-panel p95, old tracker to new, D435 noise:
+  still 0.39 to 0.03 m, 1 m/s 0.15 to 0.08, 2 m/s 0.29 to 0.12, 4 m/s 0.65
+  to 0.12. 2.1 checked offline: matched `camera_latency_s` 0.03 gives the
+  zero-latency numbers exactly; left at 0, 0.5 m/s facing p95 triples.
+- **Emulator noise**: a D435-shaped ray model on top of the 5 mm
+  (`noise_depth_range_coeff` 0.0036, `noise_lateral_rad` 0.003). Estimates.
+- **rviz**: the aim bench's lag was one marker pair per scored shot
+  (thousands alive per case); `shot_hit_harness` now sends one MarkerArray
+  of lists at 30 Hz wall. `cv_target.rviz` matches the gz-free bench.
+  `estimation.rviz` and `target_state_markers` draw the tracker's model
+  (panels, velocity and acceleration arrows) against the truth. Neither
+  config has been looked at in a live run.
+
+Next, in order:
+
+1. `ros2 launch sim estimation.launch.py log_dir:=...` (GUI on; ask the
+   user first). The one attempt was spoiled by orphaned aim-bench nodes
+   (`sim/AGENTS.md`), so C2 has never scored the new tracker. If gz and
+   offline disagree, trust gz and look at the head slewing the camera.
+2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
+   (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
+   `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
+3. 1.7: aim-bench still-shooter runs 1 and 2 passed 10/10, scores in
+   `../log/cv_runs/aim_still_{1,2}/scores.jsonl`; one more, then
+   `sim/tools/shot_floors.py`. 1.8's cells (`shooter_speed:=1.0`, radial,
+   diagonal) have never run.
+4. Open for the user: `valid` goes true after 2 updates, but a fresh track
+   on a spinning target takes 0.3-3 s to lock (facing-panel error up to
+   0.4 m in the first second, offline). Spin-rate variance doesn't separate
+   locked from not, so no threshold was added. And chase mode, which the aim
+   bench's 10/10 depends on, is still off by default (1.6).
+
 ## Where Part 1 actually stands
 
 The roadmap used to say Part 1 still had to pick a panel and time the shot
@@ -255,6 +302,12 @@ Per-pair z in `ArmorEKF`, mirroring the per-pair radius, published into the
 flat cells'.
 
 ### 2.3 Velocity lag
+
+**Built 2026-09-25, offline only** (handoff section above). Tuning
+`process_noise_accel` alone couldn't fix it: the lag is at the path ends,
+and a filter fed only panel positions can't tell the centre accelerating
+from the panel spinning over less than a spin period. A slow Singer
+acceleration tracks the 6 m/s^2 braking without that confusion.
 
 **Ready to run:** `process_noise_accel:=` sweeps the tracker on C2; the
 velocity error is in `estimation.jsonl` per case and per state.
