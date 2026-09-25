@@ -52,8 +52,8 @@ Next, in order:
 4. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to
    0.4 m in the first second, offline). Spin-rate variance doesn't separate
-   locked from not, so no threshold was added. And chase mode, which the aim
-   bench's 10/10 depends on, is still off by default (1.6).
+   locked from not, so no threshold was added. Chase mode is the default
+   now (1.6); its `chase_settle_s` waits on a hardware gimbal measurement.
 
 ## Where Part 1 actually stands
 
@@ -188,8 +188,9 @@ it and move on: fixing it needs acceleration in `TargetState`.
 **Superseded 2026-09-24 by chase mode** (`chase_settle_s >= 0`): lead the
 facing panel and fire every tick, leaving mid-hold of the aim current at exit.
 Point bench, every tick: 96-99% of shots hit, against shotgating's one tick
-in five. Chase needs the gimbal to jump ~7 deg per quarter turn, so the node
-default stays shotgating until that is measured on hardware.
+in five. Chase is the node default since 2026-09-25. It needs the gimbal to
+jump ~7 deg per quarter turn and settle; measure that on hardware and set
+`chase_settle_s` to the settle time.
 
 The delay must fit inside one tick (25 ms at 40 Hz), and a quarter-turn at
 12.6 rad/s takes 125 ms, so the node fires on about one tick in five. Check with
