@@ -20,35 +20,30 @@ container.
   (`process_noise_jerk` 3, `accel_time_constant_s` 1), single-panel yaw
   (`single_panel_yaw_std` 0.3), and now a **still hypothesis** for a parked,
   non-spinning target (v, a, w pinned at 0; the bank scores likelihood, not
-  NIS). Offline, D435 noise, facing-panel p95: still 0.008 m (velocity
-  exactly 0), 1 m/s 0.08, 2 m/s 0.12, 4 m/s 0.12. Drive-off from parked
-  hands over in 0.23 s at up to 9 cm. `thornbots_pkg/README.md` has the
-  design.
-- **Offline C2** (`sim/tools/estimation_offline.py`) had defaulted to the
-  old model (no jerk, no single-panel yaw); its defaults now match the
-  node's.
-- **First gz C2 run** (`../log/cv_runs/est_c2_1`, before the still
-  hypothesis): 9 of 10 cells passed on liveness. Facing-panel p95 on gz
-  against offline: still 0.04 vs 0.03, 0.5 m/s 0.22 vs 0.06, 1 m/s 0.18 vs
-  0.08, 2 m/s 0.20 vs 0.12, 4 m/s 0.31 vs 0.12; velocity p95 1.4-2.2 m/s
-  on gz vs 0.3-1.0 offline. staggered-stationary scored no state at all:
+  NIS). `thornbots_pkg/README.md` has the design.
+- **gz C2, three runs** (`../log/cv_runs/est_c2_1`, `est_rtf0_gui`,
+  `est_rtf05_flat`). The first scored no state on staggered stationary:
   4 m/s had left the head at its path end, `cv_head_aim` holds with no
   target, and the still target sat outside the view. The harness now aims
-  the head at the truth during each case's 1 s reset.
+  the head at the truth during each case's 1 s reset, and the second run
+  passed 10/10. Stationary cells now read velocity and spin exactly 0,
+  facing p95 1.3 cm flat. Moving cells read 0.12-0.51 m facing p95 and
+  swing up to 2x between runs. Half speed scored within that spread, so
+  load isn't the cause; unthrottled only reaches ~1x anyway.
+- **Every CV test runs with ROS** (the user's rule): the offline estimator
+  copy is gone (`sim/AGENTS.md`).
 - **rviz** panels carry the 15 deg S122 cant in both views.
 
 Next, in order:
 
-1. One gz C2 run to check the head reset and the still hypothesis (ask
-   the user first; GUI on). Then chase the gz/offline gap on moving
-   cells: offline leaves out the head slewing, so start with the camera
-   TF at capture time while the head moves.
+1. Trace the moving-cell error and its run-to-run swing on C2. Start with
+   the camera TF at capture time while the head slews.
 2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
    (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
    `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
 3. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to
-   0.4 m in the first second, offline). Spin-rate variance doesn't separate
+   0.4 m in the first second). Spin-rate variance doesn't separate
    locked from not, so no threshold was added. Chase mode is the default
    now (1.6); its `chase_settle_s` waits on a hardware gimbal measurement.
 
@@ -303,7 +298,8 @@ flat cells'.
 
 ### 2.3 Velocity lag
 
-**Built 2026-09-25, offline only** (handoff section above). Tuning
+**Built 2026-09-25**, unit-tested; C2 hasn't passed it yet (handoff
+section above). Tuning
 `process_noise_accel` alone couldn't fix it: the lag is at the path ends,
 and a filter fed only panel positions can't tell the centre accelerating
 from the panel spinning over less than a spin period. A slow Singer

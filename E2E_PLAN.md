@@ -15,23 +15,22 @@ depth unit between two stages shows up.
 
 Two gz C2 runs at 1x and one at 0.5x (2026-09-25, `../log/cv_runs/est_*`):
 
-| Flat cell | 1x run A | 1x run B | 0.5x | offline |
-|---|---|---|---|---|
-| stationary | 0.041 | 0.013 | 0.013 | 0.008 |
-| 0.5 m/s | 0.224 | 0.123 | 0.139 | 0.057 |
-| 1 m/s | 0.180 | 0.179 | 0.125 | 0.080 |
-| 2 m/s | 0.195 | 0.189 | 0.510 | 0.118 |
-| 4 m/s | 0.306 | 0.432 | 0.250 | 0.116 |
+| Flat cell | 1x run A | 1x run B | 0.5x |
+|---|---|---|---|
+| stationary | 0.041 | 0.013 | 0.013 |
+| 0.5 m/s | 0.224 | 0.123 | 0.139 |
+| 1 m/s | 0.180 | 0.179 | 0.125 |
+| 2 m/s | 0.195 | 0.189 | 0.510 |
+| 4 m/s | 0.306 | 0.432 | 0.250 |
 
 Facing-panel p95 in metres. Run A predates the still hypothesis.
 
 Unthrottled C2 reaches only 0.95-1.0x (the gz server is the ceiling; the box
 sits 40% idle), and halving the speed changed nothing beyond run-to-run
-spread. So speed doesn't cost accuracy. The gz moving cells are 2-4x worse
-than offline and vary by 2x between runs. E would inherit that error, so
-trace it first (`CV_SPLIT_PLAN.md` Next, step 1): the offline copy leaves out
-the head slewing the camera, so the camera TF at capture time is the first
-suspect.
+spread. So speed doesn't cost accuracy. The moving cells are poor and vary
+by 2x between runs. E would inherit that error, so trace it first
+(`CV_SPLIT_PLAN.md` Next, step 1), starting with the camera TF at capture
+time while the head slews.
 
 ## E: the whole CV stack, our robot parked
 
