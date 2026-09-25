@@ -262,6 +262,18 @@ y (±1 m) through every case. `target_path:=radial`/`diagonal` turns
 panel past ~1.2 m. Both work with either `target_state:=`, so they're ready for
 C2 as well.
 
+## Track D: ROS 2 Jazzy (last)
+
+The image is built on Humble: `nvcr.io/nvidia/isaac/ros:humble-3.2`,
+`Dockerfile.ros2_humble`, `CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots`,
+and `--rosdistro humble` in rosdep. Moving to Jazzy means an Isaac ROS release
+built on it and Ubuntu 24.04, a new gz pairing for `sim` (Jazzy pairs with
+Harmonic), and a pass over every package for API changes.
+
+It waits until every other track is done, so no suite result gets mixed up
+with a distro change. **Done when:** the drift suite, `suite:=ekf` and both
+benches give the same verdicts on Jazzy as on Humble.
+
 ## Order of work
 
 1. **A sim that stays up.** Done 2026-09-24.
@@ -281,6 +293,8 @@ C2 as well.
 7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles,
    and why `odom_stuck` loses the robot while passing (`sim/AGENTS.md`).
    rf2o's yaw drift was fixed in A1.
+8. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
+   Track D.
 
 ## Caveats
 
