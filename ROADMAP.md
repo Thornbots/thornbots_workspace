@@ -210,6 +210,14 @@ moving-target miss is even estimation's fault before we touch estimation.
 `CV_SPLIT_PLAN.md` names the two phases: **Aiming** (Part 1 on C1) and
 **Estimation** (Part 2 on C2).
 
+- **Next: hit while we move** (added 2026-09-25). The target and the aim
+  solve are already in `odom`; the aim still leaves as a `root`-frame point
+  the MCB holds while the chassis moves, and `RobotPose` has no chassis yaw.
+  The fix puts our pose (with yaw, stamped at capture) and the aim command
+  in the world frame, and lets the MCB hold it; `CV_SPLIT_PLAN.md`
+  "Hitting while we move" has the steps. Wire and firmware changes, so
+  agree them with the firmware side.
+
 ## Track C: Two benches, one per half
 
 ### C1: Aim bench, perfect knowledge (standalone, not run)
@@ -306,7 +314,9 @@ tests (`point_to_cv_target`, `target_selector`, `target_tracker`) pass.
 7. **Back to Track A:** A3's per-backend metric, then A4 moving obstacles,
    and why `odom_stuck` loses the robot while passing (`sim/AGENTS.md`).
    rf2o's yaw drift was fixed in A1.
-8. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
+8. **Hit while we move:** our pose and the aim command in the world frame
+   (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
+9. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
    Track D.
 
 ## Caveats

@@ -273,6 +273,44 @@ C3's shooter-moving and radial cases on C2, scored the same way. Radial is the
 case `ray_covariance` exists for: depth error grows with range squared, so
 center error along the ray should grow and error across it should not.
 
+## Hitting while we move: target and aim in the world
+
+Added 2026-09-25 at the user's request: we have to hit while our own chassis
+drives and turns, so the target and our aim both live in a world frame and
+only the last step turns the aim into gimbal angles.
+
+The world frame for aiming is `odom`, not `map`. REP-105 keeps `odom`
+continuous; `map` jumps each time localization corrects, and a jump
+mid-shot moves the aim. `map` is for strategy (zones, where the enemy is
+on the field). Where it stands:
+
+- **Target: already in the world.** `TargetState` is in `odom`, and Part 2
+  places each detection with the camera's TF at capture time.
+- **Aim solve: already in the world.** `plan_shot` solves the intercept in
+  `odom`, including our velocity (1.8).
+- **Aim output: not in the world.** `CVTarget` is a `root`-frame point,
+  converted with the newest TF (`point_to_cv_target.py`, `Time()` lookups).
+  The MCB holds that point while the chassis moves on, so the aim drifts in
+  the world by our motion over the command's age.
+- **Our pose: incomplete.** `RobotPose` has no chassis yaw (`head_yaw` is the
+  gimbal's), the stack assumes a fixed heading (`sim/AGENTS.md`: the
+  chassis already picks up ~1 deg in sim), and the stamp is Jetson arrival.
+
+What it needs, in order:
+
+| Step | Package | Change |
+|---|---|---|
+| W.1 | `ros2_dji_serial_bridge`, firmware | `RobotPose` gains chassis yaw and yaw rate, and a capture stamp (Stamps table below: first-byte time less wire time, later an MCB clock). `odom->root` carries the yaw |
+| W.2 | `thornbots_pkg` | Every TF lookup at the time the data was true: the camera at capture (Part 2 does this), our pose at the fire horizon in Part 1, not `Time()` |
+| W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CVData` to follow (`thornbots_pkg/AGENTS.md`) |
+| W.4 | `sim` | C1: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. C2: our gz chassis turns while tracking |
+| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like 1.7 and 2.0 |
+
+W.1 and W.3 change the wire protocol and the MCB firmware, which live
+outside this workspace; agree them with the firmware side first. W.2 and
+W.4 can start now. Until W.3 lands, sim can score the gap by holding the
+last root-frame aim while our chassis moves.
+
 ## Stamps
 
 Workspace rule (`CLAUDE.md` § Timestamps): every internal message is stamped as
