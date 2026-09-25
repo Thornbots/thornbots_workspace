@@ -42,6 +42,8 @@ tracker comparison: those belong to Phase 2, once C2 exists.
 
 ### 1.0 Harden the seam; the sim publishes the perfect model
 
+**Code done 2026-09-24**, unit tests green. Not yet confirmed by a truth run.
+
 Today `target_state_truth` publishes only when a `/cv/robot_panels` message
 arrives, so C1 still runs `cv_target_emulator` and `target_selector`, and Part 1
 still reads raw panels for liveness. The perfect model should stand alone, which
