@@ -42,7 +42,9 @@ tracker comparison: those belong to Phase 2, once C2 exists.
 
 ### 1.0 Harden the seam; the sim publishes the perfect model
 
-**Code done 2026-09-24**, unit tests green. Not yet confirmed by a truth run.
+**Done 2026-09-24.** Later the same day C1 dropped gz altogether: a point
+shooter with a perfect gimbal (`sim/README.md`), and `target_state_truth`
+publishes each sample as it arrives, not on a timer that sent it ~17 ms late.
 
 Today `target_state_truth` publishes only when a `/cv/robot_panels` message
 arrives, so C1 still runs `cv_target_emulator` and `target_selector`, and Part 1
@@ -67,6 +69,10 @@ upstream of `/cv/target_state` but `target_driver` and `target_state_truth`.
 
 ### 1.1 Make the bench trustworthy
 
+**Resolved 2026-09-24.** The leak was Part 1: stationary aim went to panel 0,
+whichever way the previous case left the target facing. It now aims at the
+facing panel, and the gz-free bench has no head or chassis state to carry.
+
 Shot-hit scores depend on the case before them: staggered stationary read 0.3%
 right after flat 4 m/s and 99% twice alone. Until that is fixed, a before/after
 comparison means nothing.
@@ -86,12 +92,19 @@ below is measured against it. Each run needs the user's go-ahead
 
 ### 1.2 Fixed lateral offset (stationary)
 
+**Not Part 1's.** On the perfect model stationary shots miss by 2 mm (gz) and
+0 mm (point bench). The 2 to 4 cm came with the tracker; it moves to Phase 2.
+
 Read `panel_right_of_shot_m` from `shots.jsonl`. If the 2 to 4 cm survives on
 the perfect model, it is geometry: `muzzle` against `root`, the `headlink` yaw
 offset, or the harness's duplicated FK chain disagreeing with the URDF since the
 `sentry_v2` move. Fix it at the source, not with an aim trim.
 
 ### 1.3 Pair-aware aim: radius and height
+
+**Done 2026-09-24.** Staggered matches flat. In spin mode the pair also has to
+hold until its last shot has left the muzzle: switching it on the aim horizon
+moved gz's gun under that shot (staggered 0.5 m/s 58% to 97%).
 
 In `plan_shot`, spin mode picks the pair that lines up at the next quarter-turn
 (parity of the step count from the tracked panel) and aims at `radius[k % 2]`
@@ -102,6 +115,11 @@ points of flat.
 
 ### 1.4 Lead at speed
 
+**Done 2026-09-24, not as planned.** The overshoot at speed was the gimbal,
+not the firmware: gz's head reaches a moving setpoint in 35 ms, and the aim
+led by 62 ms. Part 1 now leads by `gimbal_lag_s` plus half the publish tick,
+and times the fire over `firmware_latency_s`.
+
 If 4 m/s still trails, the velocity is exact, so the missing time is latency.
 Measure fire decision to muzzle exit in sim (the harness logs `fire` and
 `t_fire`) and set `firmware_latency_s` from it. Whatever trail the tracker adds
@@ -109,11 +127,22 @@ on top is Part 2's velocity error, in 2.3.
 
 ### 1.5 Path-end braking
 
+**Done 2026-09-24.** `TargetState` gained `acceleration`; the truth node fills
+it, Part 1 solves the intercept on the curved path, and flat 4 m/s went from
+17% to 46% on gz. The tracker publishes 0 until Phase 2 estimates it. The
+misses left cluster where the acceleration switches, which nothing predicts.
+
 Bin 1 to 2 m/s misses by the target's position on its path. If they cluster at
 the 6 m/s² braking ends, constant-velocity extrapolation is the limit. Record
 it and move on: fixing it needs acceleration in `TargetState`.
 
 ### 1.6 Spin fire window
+
+**Superseded 2026-09-24 by chase mode** (`chase_settle_s >= 0`): lead the
+facing panel and fire every tick, leaving mid-hold of the aim current at exit.
+Point bench, every tick: 96-99% of shots hit, against center aim's one tick
+in five. Chase needs the gimbal to jump ~7 deg per quarter turn, so the node
+default stays center aim until that is measured on hardware.
 
 The delay must fit inside one tick (25 ms at 40 Hz), and a quarter-turn at
 12.6 rad/s takes 125 ms, so the node fires on about one tick in five. Check with
@@ -122,11 +151,16 @@ they arrive late, fire on the alignment after next when that one fits.
 
 ### 1.7 Floors
 
+**Open.** The point bench passes 10/10 at 96-99% (2026-09-24, one run).
+
 Replace `MOVING_MIN_HIT_RATE = 0.25` with per-cell floors from the final truth
 run: lowest of three runs minus 10 points. Part 2 never gets hit-rate floors;
 it gets error thresholds on C2.
 
 ### 1.8 C3 cases on C1
+
+**Open.** The point bench has a fixed shooter, so `shooter_speed` needs a
+moving `root` there first.
 
 `shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
 with `shooter_speed` points at `shooter_vel`'s sign or frame
