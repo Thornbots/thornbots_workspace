@@ -29,7 +29,9 @@ container.
   passed 10/10. Stationary cells now read velocity and spin exactly 0,
   facing p95 1.3 cm flat. Moving cells read 0.12-0.51 m facing p95 and
   swing up to 2x between runs. Half speed scored within that spread, so
-  load isn't the cause; unthrottled only reaches ~1x anyway.
+  load isn't the cause; unthrottled only reaches ~1x anyway. All three
+  ran at 10% detection dropout; the default is 3% since, so later runs
+  aren't directly comparable.
 - **Every CV test runs with ROS** (the user's rule): the offline estimator
   copy is gone (`sim/AGENTS.md`).
 - **rviz** panels carry the 15 deg S122 cant in both views.
