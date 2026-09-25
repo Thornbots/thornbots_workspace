@@ -13,6 +13,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | **C1 aim bench (no gz) passes 10/10**, 96-99% every cell, chase mode (2026-09-24), still shooter. The gz shot-hit bench is gone; Part 2 gets C2 |
+| Estimation bench (10 cells) | **C2 built on gz (2026-09-25), not run as a suite.** Scores `TargetState` against truth at its stamp; no limits yet |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 
@@ -240,6 +241,11 @@ integrator. Nothing fires. Part 2 is benchmarked only on how close its
 - panel error, the four implied panel positions against the true four
 - center, velocity, yaw, yaw_rate, radius and z_offset error
 - time from first detection until panel error settles
+
+**Built (sim `main`, 2026-09-25), not run as a suite:** `estimation.launch.py`
+on gz, the target still `target_driver`'s phantom (its truth is exact; a
+`set_pose` entity's would lag). Metrics as above, plus the facing panel's
+error, which is what Part 1 aims at. `LIMITS` fills from three runs.
 
 > **The old snag, answered by S2.** The old sentry URDF had no collision
 > geometry, so a lidar couldn't see it and the opponent needed a proxy.
