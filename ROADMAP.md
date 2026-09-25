@@ -334,6 +334,14 @@ tests (`point_to_cv_target`, `target_selector`, `target_tracker`) pass.
 
 ## Caveats
 
+- **Armor panels are canted 15 degrees in the game (S122: normal 75 degrees
+  from up), and parts of the sim have lost that.** The emulator, the aim
+  bench's facing test and the offline tool keep it. Lost: both rviz views
+  draw the panels vertical (`shot_hit_harness`'s markers and
+  `target_state_markers` orient by yaw only), and a hit is scored as the
+  ray passing within 0.05 m of the panel centre, not as crossing the
+  canted 0.1 m square. Noted 2026-09-25, not fixed.
+
 - Detection noise in sim is 0.005 m against a D435's centimetres, so every CV
   rate here runs optimistic. The benches rank changes; they don't predict the
   field.
