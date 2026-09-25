@@ -248,8 +248,8 @@ been measured against a working stack.
 **Passing (2026-09-24):** `shot_hit.launch.py` runs no gz:
 a `/clock`, our shooter point, `target_driver`'s phantom target and
 `target_state_truth`, with each shot leaving toward the newest aim (a perfect
-gimbal). 10/10 at 96-99% in chase mode, every tick firing. Floors are still
-the placeholder (`CV_SPLIT_PLAN.md` 1.7).
+gimbal). 10/10 at 96-99% in chase mode, every tick firing. Floors are per
+cell from three runs, 2026-09-25 (`CV_SPLIT_PLAN.md` 1.7).
 
 ### C2: Estimation bench, real target, fake detections
 
@@ -274,7 +274,7 @@ error, which is what Part 1 aims at. `LIMITS` fills from three runs.
 > joint, so `set_pose` teleports work and an opponent spawned from it is
 > visible. The same goes for A4's actors.
 
-### C3: The two cases neither bench has (built, not run)
+### C3: The two cases neither bench had (passing on C1, not run on C2)
 
 - **We are moving.** Drive a scripted leg while engaging. Closes the
   `shooter_vel` hole (today only its wiring is pinned, its magnitude is
@@ -288,12 +288,13 @@ error, which is what Part 1 aims at. `LIMITS` fills from three runs.
 Both run on both benches. On C1 they test the aim solve; on C2 they test the
 estimate.
 
-**Built on C1 (2026-09-25), not run:** `shooter_speed:=` bounces the aim
+**Passing on C1 (2026-09-25), three runs each:** `shooter_speed:=` bounces the aim
 bench's `root` along y (±1 m) through every case, and each shot carries its
 velocity. Part 1 aimed as if still, ~0.15 m off at 1 m/s; it now aims for our
 own motion (`CV_SPLIT_PLAN.md` 1.8). `target_path:=radial`/`diagonal` turns
 `target_driver`'s path by `path_angle_deg`, with presets that keep the near
-panel past ~1.2 m.
+panel past ~1.2 m. Moving shooter 95-99%; radial and diagonal 99%, above
+lateral, since the target barely crosses the view.
 
 ## Track D: ROS 2 Jazzy (last)
 
