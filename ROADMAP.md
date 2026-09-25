@@ -12,7 +12,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
-| Shot-hit bench (10 cells) | On `sentry_v2`: stationary 99% (flat and staggered, run alone), flat 0.5/1.0 m/s 52%/43%, 4 m/s 9%. A case's score depends on the one before it |
+| Shot-hit bench (10 cells) | **C1 aim bench (no gz) passes 10/10**, 96-99% every cell, chase mode (2026-09-24). The gz tracker bench hasn't run since Part 1's rewrite |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 
@@ -218,22 +218,11 @@ the floors real numbers instead of the placeholder
 `MOVING_MIN_HIT_RATE = 0.25`, which was written to state an intent and has never
 been measured against a working stack.
 
-**Standalone (2026-09-24, `CV_SPLIT_PLAN.md` 1.0):** under
-`shot_hit.launch.py target_state:=truth`, `target_state_truth` publishes the
-current true state on its own 60 Hz timer from `/target/ground_truth_odom`,
-stamped with its sample time, with no added latency. Nothing else runs upstream
-of `/cv/target_state` but `target_driver`: no `cv_target_emulator`,
-`target_selector` or tracker. `point_to_cv_target` doesn't read `z_offset` yet,
-so staggered cases still aim at one height.
-
-First full C1 run (2026-09-24, one run, before the 1.1 leak fix, so not yet a
-baseline): flat stationary 99%, 0.5/1/2/4 m/s 58/53/6/8%; staggered
-stationary 0% (miss mean 6 cm, the unread `z_offset`), 0.5/1/2/4 m/s
-29/23/3/2%. Moving cells fire on ~20% of ticks at 0.5 m/s and ~10% at 4 m/s.
-Logs in `log/shot_hit_2026-09-24_c1_truth/`.
-
-**Next (`CV_SPLIT_PLAN.md` 1.1):** fix the case-to-case leak, then the first
-C1 baseline.
+**Passing (2026-09-24):** `shot_hit.launch.py target_state:=truth` runs no gz:
+a `/clock`, a fixed shooter point, `target_driver`'s phantom target and
+`target_state_truth`, with each shot leaving toward the newest aim (a perfect
+gimbal). 10/10 at 96-99% in chase mode, every tick firing. Floors are still
+the placeholder (`CV_SPLIT_PLAN.md` 1.7).
 
 ### C2: Estimation bench, real target, fake detections
 
