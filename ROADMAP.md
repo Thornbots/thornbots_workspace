@@ -233,6 +233,10 @@ moving-target miss is even estimation's fault before we touch estimation.
 
 ## Track C: Two benches, one per half
 
+The end-to-end tests that follow them, the whole CV stack from rendered
+pixels (E) and then moving while shooting (M), are planned in
+[`E2E_PLAN.md`](E2E_PLAN.md).
+
 ### C1: Aim bench, perfect knowledge (standalone, not run)
 
 The current shot-hit bench with its input replaced. A new emulator mode
