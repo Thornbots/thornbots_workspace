@@ -266,7 +266,8 @@ integrator. Nothing fires. Part 2 is benchmarked only on how close its
 **Built (sim `main`, 2026-09-25), not run as a suite:** `estimation.launch.py`
 on gz, the target still `target_driver`'s phantom (its truth is exact; a
 `set_pose` entity's would lag). Metrics as above, plus the facing panel's
-error, which is what Part 1 aims at. `LIMITS` fills from three runs.
+error, which is what Part 1 aims at. `LIMITS` fills from three runs. First
+run 2026-09-25: moving cells 2-3x worse than offline, not yet traced.
 
 > **The old snag, answered by S2.** The old sentry URDF had no collision
 > geometry, so a lidar couldn't see it and the opponent needed a proxy.
@@ -341,12 +342,10 @@ Humble, and `thornbots_pkg`'s CV tests (`point_to_cv_target`,
 ## Caveats
 
 - **Armor panels are canted 15 degrees in the game (S122: normal 75 degrees
-  from up), and parts of the sim have lost that.** The emulator, the aim
-  bench's facing test and the offline tool keep it. Lost: both rviz views
-  draw the panels vertical (`shot_hit_harness`'s markers and
-  `target_state_markers` orient by yaw only), and a hit is scored as the
-  ray passing within 0.05 m of the panel centre, not as crossing the
-  canted 0.1 m square. Noted 2026-09-25, not fixed.
+  from up), and the hit scoring has lost that.** The emulator, the aim
+  bench's facing test, the offline tool and both rviz views keep it (rviz
+  since 2026-09-25). A hit is scored as the ray passing within 0.05 m of
+  the panel centre, not as crossing the canted 0.1 m square. Not fixed.
 
 - Detection noise in sim is 0.005 m against a D435's centimetres, so every CV
   rate here runs optimistic. The benches rank changes; they don't predict the

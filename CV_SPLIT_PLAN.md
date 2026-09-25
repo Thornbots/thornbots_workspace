@@ -10,38 +10,39 @@ floors are measured.
 
 ## Where this stopped (2026-09-25, handoff)
 
-Paused at the user's request. Everything below is committed and pushed;
-nothing is running in the container.
+Everything below is committed and pushed; nothing is running in the
+container.
 
-Done, not yet run on gz:
-
-- **Part 2 model** (`thornbots_pkg`, 2.3): `ArmorEKF` state is now
-  `[pos, vel, acc, yaw, w, r, dz]` with named slices (`POS`, `VEL`, `ACC`,
-  `YAW`, `W`, `R`, `DZ`). Acceleration is a Singer model
-  (`process_noise_jerk` 3, `accel_time_constant_s` 1) and is published. A
-  frame with one panel also measures yaw (`single_panel_yaw_std` 0.3). Unit
-  tests pass (76).
-- **Offline C2** (`sim/tools/estimation_offline.py`): target_driver, the
-  emulator and the tracker without ROS, scored with `estimation_metrics`,
-  seconds per sweep. Facing-panel p95, old tracker to new, D435 noise:
-  still 0.39 to 0.03 m, 1 m/s 0.15 to 0.08, 2 m/s 0.29 to 0.12, 4 m/s 0.65
-  to 0.12. 2.1 checked offline: matched `camera_latency_s` 0.03 gives the
-  zero-latency numbers exactly; left at 0, 0.5 m/s facing p95 triples.
-- **Emulator noise**: a D435-shaped ray model on top of the 5 mm
-  (`noise_depth_range_coeff` 0.0036, `noise_lateral_rad` 0.003). Estimates.
-- **rviz**: the aim bench's lag was one marker pair per scored shot
-  (thousands alive per case); `shot_hit_harness` now sends one MarkerArray
-  of lists at 30 Hz wall. `cv_target.rviz` matches the gz-free bench.
-  `estimation.rviz` and `target_state_markers` draw the tracker's model
-  (panels, velocity and acceleration arrows) against the truth. Neither
-  config has been looked at in a live run.
+- **Aiming is done on C1** (1.7, 1.8): 40 per-cell floors from three runs
+  each, still and moving shooter, all three paths.
+- **Part 2 model** (`thornbots_pkg`, 2.3): `ArmorEKF` state is
+  `[pos, vel, acc, yaw, w, r, dz]`. Singer acceleration
+  (`process_noise_jerk` 3, `accel_time_constant_s` 1), single-panel yaw
+  (`single_panel_yaw_std` 0.3), and now a **still hypothesis** for a parked,
+  non-spinning target (v, a, w pinned at 0; the bank scores likelihood, not
+  NIS). Offline, D435 noise, facing-panel p95: still 0.008 m (velocity
+  exactly 0), 1 m/s 0.08, 2 m/s 0.12, 4 m/s 0.12. Drive-off from parked
+  hands over in 0.23 s at up to 9 cm. `thornbots_pkg/README.md` has the
+  design.
+- **Offline C2** (`sim/tools/estimation_offline.py`) had defaulted to the
+  old model (no jerk, no single-panel yaw); its defaults now match the
+  node's.
+- **First gz C2 run** (`../log/cv_runs/est_c2_1`, before the still
+  hypothesis): 9 of 10 cells passed on liveness. Facing-panel p95 on gz
+  against offline: still 0.04 vs 0.03, 0.5 m/s 0.22 vs 0.06, 1 m/s 0.18 vs
+  0.08, 2 m/s 0.20 vs 0.12, 4 m/s 0.31 vs 0.12; velocity p95 1.4-2.2 m/s
+  on gz vs 0.3-1.0 offline. staggered-stationary scored no state at all:
+  4 m/s had left the head at its path end, `cv_head_aim` holds with no
+  target, and the still target sat outside the view. The harness now aims
+  the head at the truth during each case's 1 s reset.
+- **rviz** panels carry the 15 deg S122 cant in both views.
 
 Next, in order:
 
-1. `ros2 launch sim estimation.launch.py log_dir:=...` (GUI on; ask the
-   user first). The one attempt was spoiled by orphaned aim-bench nodes
-   (`sim/AGENTS.md`), so C2 has never scored the new tracker. If gz and
-   offline disagree, trust gz and look at the head slewing the camera.
+1. One gz C2 run to check the head reset and the still hypothesis (ask
+   the user first; GUI on). Then chase the gz/offline gap on moving
+   cells: offline leaves out the head slewing, so start with the camera
+   TF at capture time while the head moves.
 2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
    (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
    `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
