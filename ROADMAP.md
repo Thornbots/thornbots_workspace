@@ -299,14 +299,18 @@ panel past ~1.2 m.
 
 The image is built on Humble: `nvcr.io/nvidia/isaac/ros:humble-3.2`,
 `Dockerfile.ros2_humble`, `CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots`,
-and `--rosdistro humble` in rosdep. Moving to Jazzy means an Isaac ROS release
-built on it and Ubuntu 24.04, a new gz pairing for `sim` (Jazzy pairs with
-Harmonic), and a pass over every package for API changes.
+and `--rosdistro humble` in rosdep. The target is Isaac ROS 4.6, the only
+Jazzy release that runs on Orin: Ubuntu 24.04 in the image, a JetPack 7.2.1
+reflash on every Jetson, the `isaac-ros-cli` tooling in place of our
+`run_dev.sh` fork, and gz Harmonic for `sim`. The step-by-step plan, with
+every file that changes, is [`JAZZY_PLAN.md`](JAZZY_PLAN.md).
 
-It waits until every other track is done, so no suite result gets mixed up
-with a distro change. **Done when:** the drift suite, `suite:=ekf` and both
-benches give the same verdicts on Jazzy as on Humble, and `thornbots_pkg`'s CV
-tests (`point_to_cv_target`, `target_selector`, `target_tracker`) pass.
+The cutover waits until every other track is done, so no suite result gets
+mixed up with a distro change. Steps 0 to 5 of the plan run on `jazzy`
+branches and on `ts-nano-dev` and can start earlier. **Done when:** the drift
+suite, `suite:=ekf` and both benches give the same verdicts on Jazzy as on
+Humble, and `thornbots_pkg`'s CV tests (`point_to_cv_target`,
+`target_selector`, `target_tracker`) pass.
 
 ## Order of work
 
@@ -330,7 +334,8 @@ tests (`point_to_cv_target`, `target_selector`, `target_tracker`) pass.
 8. **Hit while we move:** our pose and the aim command in the world frame
    (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
 9. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
-   Track D.
+   Track D and `JAZZY_PLAN.md`; its steps 0 to 5 don't touch the robots and
+   can run earlier.
 
 ## Caveats
 

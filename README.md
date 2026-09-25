@@ -32,4 +32,4 @@ everyone else's `git submodule update --init`.
 | `rf2o_laser_odometry` | `ros2` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `release-3.2` | Isaac ROS base, our Dockerfiles and container scripts |
 
-Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's Tracks B-C and D), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
