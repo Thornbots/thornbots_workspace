@@ -13,7 +13,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | **C1 aim bench (no gz) passes 10/10**, 96-99% every cell, chase mode (2026-09-24), still shooter. The gz shot-hit bench is gone; Part 2 gets C2 |
-| Estimation bench (10 cells) | **C2 built on gz (2026-09-25), not run as a suite.** Scores `TargetState` against truth at its stamp; no limits yet |
+| Estimation bench (10 cells) | **C2 built on gz (2026-09-25), not run as a suite.** Scores `TargetState` against truth at its stamp; no limits yet. The tracker gained acceleration and a single-panel yaw measurement, checked only offline (`sim/tools/estimation_offline.py`); see `CV_SPLIT_PLAN.md` "Where this stopped" |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 
