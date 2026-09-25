@@ -228,6 +228,11 @@ whose error at their own stamp matches the zero-latency numbers.
 
 ### 2.2 Per-pair z
 
+**Built 2026-09-25, unit-tested.** `ArmorEKF` carries `dz`, the tracked
+pair's height above the centre, with the other pair at `-dz` (only their
+difference is observable); an odd handoff flips it. Published as
+`z_offset = [dz, -dz]`.
+
 Per-pair z in `ArmorEKF`, mirroring the per-pair radius, published into the
 `z_offset` array. Done when staggered cells' `z_offset` and panel error match
 flat cells'.

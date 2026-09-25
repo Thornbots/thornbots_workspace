@@ -196,9 +196,10 @@ moving-target miss is even estimation's fault before we touch estimation.
   `TargetState`. Before convergence the tracker publishes `valid=false` and
   Part 1 aims at `panel` without leading or firing. `/cv/panel_polygon` moved
   to `target_selector`.
-- *Then* part 2: `ArmorEKF` estimates a per-pair z. It puts all four panels at
-  one height today, which is why staggering them 9 cm drops the stationary case
-  from 98% to 30%. `TargetState.z_offset[2]` is the field.
+- *Then* part 2: `ArmorEKF` estimates a per-pair z. It put all four panels at
+  one height, which is why staggering them 9 cm dropped the stationary case
+  from 98% to 30%. `TargetState.z_offset[2]` is the field. **Built
+  2026-09-25**, unit-tested; C2 scores it.
 - Part 2 owns all hardware latency. `TargetState` describes the target now:
   the tracker works out capture time, predicts forward to its publish time and
   stamps that. Part 1 only extrapolates into the future, over fire-to-impact
