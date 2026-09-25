@@ -187,9 +187,9 @@ it and move on: fixing it needs acceleration in `TargetState`.
 
 **Superseded 2026-09-24 by chase mode** (`chase_settle_s >= 0`): lead the
 facing panel and fire every tick, leaving mid-hold of the aim current at exit.
-Point bench, every tick: 96-99% of shots hit, against center aim's one tick
+Point bench, every tick: 96-99% of shots hit, against shotgating's one tick
 in five. Chase needs the gimbal to jump ~7 deg per quarter turn, so the node
-default stays center aim until that is measured on hardware.
+default stays shotgating until that is measured on hardware.
 
 The delay must fit inside one tick (25 ms at 40 Hz), and a quarter-turn at
 12.6 rad/s takes 125 ms, so the node fires on about one tick in five. Check with
