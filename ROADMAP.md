@@ -14,7 +14,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
 | Shot-hit bench (10 cells) | On `sentry_v2`: stationary 99% (flat and staggered, run alone), flat 0.5/1.0 m/s 52%/43%, 4 m/s 9%. A case's score depends on the one before it |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
-| CV seam | `TargetState` msg already carries center, velocity, yaw, yaw_rate, both radii |
+| CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 
 The two suites fail for different reasons and only one of them is a real
 defect. `drift_correction`'s threshold measures `map->odom` residual semantics,
@@ -191,13 +191,14 @@ moving-target miss is even estimation's fault before we touch estimation.
   lacks is the arriving pair's own radius and `z_offset` (it aims at the mean
   radius and `center.z`), a latency budget that keeps up at 4 m/s, and a trace
   of the 2 to 4 cm sideways miss seen even on stationary targets.
-- Part 1 stops consuming raw panels. `TargetState.panel`'s raw fallback moves
-  behind the tracker, which emits a low-confidence `TargetState` instead of
-  part 1 reaching around it.
+- **Done 2026-09-24 (`CV_SPLIT_PLAN.md` 1.0):** Part 1 no longer reads raw
+  panels. Liveness is the state's age; confidence and track id ride on
+  `TargetState`. Before convergence the tracker publishes `valid=false` and
+  Part 1 aims at `panel` without leading or firing. `/cv/panel_polygon` moved
+  to `target_selector`.
 - *Then* part 2: `ArmorEKF` estimates a per-pair z. It puts all four panels at
   one height today, which is why staggering them 9 cm drops the stationary case
-  from 98% to 30%. `TargetState` already has the fields (`z_offset`,
-  `other_z_offset`).
+  from 98% to 30%. `TargetState.z_offset[2]` is the field.
 - Part 2 owns all hardware latency. `TargetState` describes the target now:
   the tracker works out capture time, predicts forward to its publish time and
   stamps that. Part 1 only extrapolates into the future, over fire-to-impact
@@ -205,7 +206,7 @@ moving-target miss is even estimation's fault before we touch estimation.
 
 ## Track C: Two benches, one per half
 
-### C1: Aim bench, perfect knowledge (built, not run)
+### C1: Aim bench, perfect knowledge (standalone, not run)
 
 The current shot-hit bench with its input replaced. A new emulator mode
 publishes ground-truth `TargetState` straight from `/target/ground_truth_odom`:
@@ -217,20 +218,22 @@ the floors real numbers instead of the placeholder
 `MOVING_MIN_HIT_RATE = 0.25`, which was written to state an intent and has never
 been measured against a working stack.
 
-**Built (sim `main`, 2026-09-23):** `shot_hit.launch.py target_state:=truth`
-swaps `target_tracker` for `target_state_truth`, which publishes the true
-`TargetState` once per `/cv/robot_panels` message, copying its stamp and track
-id, so the aim solve sees the tracker path's timing. `target_selector` still
-runs for liveness. `TargetState` grew `z_offset`/`other_z_offset`
-(`dji_serial_bridge`), which the truth node fills and `point_to_cv_target`
-doesn't read yet, so staggered cases still aim at one height. No run yet, so the
-floors are still the placeholder.
+**Standalone (2026-09-24, `CV_SPLIT_PLAN.md` 1.0):** under
+`shot_hit.launch.py target_state:=truth`, `target_state_truth` publishes the
+current true state on its own 60 Hz timer from `/target/ground_truth_odom`,
+stamped with its sample time, with no added latency. Nothing else runs upstream
+of `/cv/target_state` but `target_driver`: no `cv_target_emulator`,
+`target_selector` or tracker. `point_to_cv_target` doesn't read `z_offset` yet,
+so staggered cases still aim at one height.
 
-**Next (`CV_SPLIT_PLAN.md` 1.0):** Part 1 is tested only on perfect models from
-the sim. `target_state_truth` drops its dependence on detections and publishes
-the current true state on its own 60 Hz timer from `/target/ground_truth_odom`,
-with no added latency. C1 then runs without `cv_target_emulator` or
-`target_selector`, once Part 1 stops reading raw panels.
+First full C1 run (2026-09-24, one run, before the 1.1 leak fix, so not yet a
+baseline): flat stationary 99%, 0.5/1/2/4 m/s 58/53/6/8%; staggered
+stationary 0% (miss mean 6 cm, the unread `z_offset`), 0.5/1/2/4 m/s
+29/23/3/2%. Moving cells fire on ~20% of ticks at 0.5 m/s and ~10% at 4 m/s.
+Logs in `log/shot_hit_2026-09-24_c1_truth/`.
+
+**Next (`CV_SPLIT_PLAN.md` 1.1):** fix the case-to-case leak, then the first
+C1 baseline.
 
 ### C2: Estimation bench, real target, fake detections
 
