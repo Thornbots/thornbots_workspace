@@ -45,11 +45,7 @@ Next, in order:
 2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
    (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
    `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
-3. 1.7: aim-bench still-shooter runs 1 and 2 passed 10/10, scores in
-   `../log/cv_runs/aim_still_{1,2}/scores.jsonl`; one more, then
-   `sim/tools/shot_floors.py`. 1.8's cells (`shooter_speed:=1.0`, radial,
-   diagonal) have never run.
-4. Open for the user: `valid` goes true after 2 updates, but a fresh track
+3. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to
    0.4 m in the first second, offline). Spin-rate variance doesn't separate
    locked from not, so no threshold was added. Chase mode is the default
@@ -199,7 +195,9 @@ they arrive late, fire on the alignment after next when that one fits.
 
 ### 1.7 Floors
 
-**Open.** The point bench passes 10/10 at 96-99% (2026-09-24, one run).
+**Done 2026-09-25.** Three chase runs at 4x per path and shooter speed
+(`../log/cv_runs/c4_*`); `FLOORS` holds 40 cells. Still shooter, lateral:
+96.5-99.3%.
 
 Replace `MOVING_MIN_HIT_RATE = 0.25` with per-cell floors from the final truth
 run: lowest of three runs minus 10 points. Part 2 never gets hit-rate floors;
@@ -207,8 +205,9 @@ it gets error thresholds on C2.
 
 ### 1.8 C3 cases on C1
 
-**Open.** The point bench has a fixed shooter, so `shooter_speed` needs a
-moving `root` there first.
+**Done 2026-09-25.** `shooter_speed:=1.0` costs at most 1.5 points (flat
+4 m/s 95.4% against 96.5%). Radial and diagonal score 98.7-99.5%. Radial or
+diagonal with a moving shooter hasn't run.
 
 `shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
 with `shooter_speed` points at `shooter_vel`'s sign or frame; a drop on radial points at the lead solve along
