@@ -202,7 +202,11 @@ moving-target miss is even estimation's fault before we touch estimation.
 - Part 2 owns all hardware latency. `TargetState` describes the target now:
   the tracker works out capture time, predicts forward to its publish time and
   stamps that. Part 1 only extrapolates into the future, over fire-to-impact
-  time. Today Part 1 adds the state's age instead, covering Part 2's delay.
+  time. **Built 2026-09-25** (`camera_latency_s` in tracker and emulator), not
+  run.
+
+`CV_SPLIT_PLAN.md` names the two phases: **Aiming** (Part 1 on C1) and
+**Estimation** (Part 2 on C2).
 
 ## Track C: Two benches, one per half
 
