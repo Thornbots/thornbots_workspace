@@ -35,10 +35,10 @@ What Part 1 lacks:
    track id, and aims at `state.panel` while the tracker is unconverged. That
    path fires with `delay 0`.
 
-## Phase 1: hitting (Part 1, on C1)
+## Aiming: Part 1 on C1
 
-Every Phase 1 run is `shot_hit.launch.py target_state:=truth`. No tracker, no
-tracker comparison: those belong to Phase 2, once C2 exists.
+Every Aiming run is `shot_hit.launch.py` (gz-free since 2026-09-25). No
+tracker, no tracker comparison: those belong to Estimation, on C2.
 
 ### 1.0 Harden the seam; the sim publishes the perfect model
 
@@ -93,7 +93,7 @@ below is measured against it. Each run needs the user's go-ahead
 ### 1.2 Fixed lateral offset (stationary)
 
 **Not Part 1's.** On the perfect model stationary shots miss by 2 mm (gz) and
-0 mm (point bench). The 2 to 4 cm came with the tracker; it moves to Phase 2.
+0 mm (point bench). The 2 to 4 cm came with the tracker; it moves to Estimation.
 
 Read `panel_right_of_shot_m` from `shots.jsonl`. If the 2 to 4 cm survives on
 the perfect model, it is geometry: `muzzle` against `root`, the `headlink` yaw
@@ -129,7 +129,7 @@ on top is Part 2's velocity error, in 2.3.
 
 **Done 2026-09-24.** `TargetState` gained `acceleration`; the truth node fills
 it, Part 1 solves the intercept on the curved path, and flat 4 m/s went from
-17% to 46% on gz. The tracker publishes 0 until Phase 2 estimates it. The
+17% to 46% on gz. The tracker publishes 0 until Estimation adds it. The
 misses left cluster where the acceleration switches, which nothing predicts.
 
 Bin 1 to 2 m/s misses by the target's position on its path. If they cluster at
@@ -151,11 +151,7 @@ they arrive late, fire on the alignment after next when that one fits.
 
 ### 1.7 Floors
 
-**Built 2026-09-25; needs three runs.** `FLOORS` in the harness holds one per
-cell, seeded from the one 2026-09-24 run minus 10 points. Each case logs its
-score to `scores.jsonl`; `sim/tools/shot_floors.py run1 run2 run3` prints the
-table to paste. Radial, diagonal and moving-shooter cells get theirs the same
-way.
+**Open.** The point bench passes 10/10 at 96-99% (2026-09-24, one run).
 
 Replace `MOVING_MIN_HIT_RATE = 0.25` with per-cell floors from the final truth
 run: lowest of three runs minus 10 points. Part 2 never gets hit-rate floors;
@@ -163,22 +159,19 @@ it gets error thresholds on C2.
 
 ### 1.8 C3 cases on C1
 
-**Built 2026-09-25, not run.** `point_shooter` moves `root` on the point
-bench and each shot carries its velocity. Working it through found Part 1
-aiming as if still: the gun pointed at the intercept from where root is now,
-so our motion to impact (~0.15 m at 1 m/s) went into the miss. `plan_shot`
-now returns the gun point, unit-tested by flying the shot.
+**Open.** The point bench has a fixed shooter, so `shooter_speed` needs a
+moving `root` there first.
 
 `shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
 with `shooter_speed` points at `shooter_vel`'s sign or frame
 (`sim/CV_TEST_GAPS.md` gap 2); a drop on radial points at the lead solve along
 the ray. Each gets its own floor.
 
-## Phase 2: model building (Part 2, on C2)
+## Estimation: Part 2 on C2
 
 Part 2 is benchmarked only on how close its `TargetState` gets to the truth.
 Nothing fires on C2, and shot-hit rates are not how Part 2 is judged: a miss
-there mixes both halves, and Phase 1 already owns the aim.
+there mixes both halves, and Aiming already owns the aim.
 
 ### All hardware latency belongs to Part 2
 
@@ -190,18 +183,16 @@ stamps the message with that moment. Part 1 does no latency correction. It
 extrapolates from the stamp into the future: the part of a frame since the
 state arrived, `firmware_latency_s`, and flight time.
 
-Today the tracker stamps its output with the detection stamp and Part 1 adds
-the state's age, so Part 1 ends up covering Part 2's delay. The RealSense
-stamp's relation to capture time is unmeasured, `pose_latency_s` (0.01) only
-shifts the camera TF lookup, and `cv_target_emulator` stamps each detection with
-its exact sample time and delays only delivery (`publish_latency_s`, 0.06).
+**Built 2026-09-25, not run.** The tracker used to stamp its output with the
+detection stamp, so Part 1 covered Part 2's delay. The RealSense stamp's
+relation to capture time is still unmeasured.
 
-- `target_tracker` gains a `camera_latency_s` param: capture time = detection
-  stamp - `camera_latency_s`, used for the EKF update time and the camera TF
-  lookup. It then predicts to its publish time and stamps that.
-- `cv_target_emulator` gains a stamp offset on top of its delivery delay: the
-  detection stamp is later than the sample time by a configurable camera
-  latency, so C2 has both kinds of hardware latency to undo.
+- `target_tracker`'s `camera_latency_s` (0): capture time = detection stamp -
+  `camera_latency_s`, used for the EKF update and the camera TF lookup. It
+  predicts to its publish time and stamps that.
+- `cv_target_emulator`'s `camera_latency_s` (0, `cv_camera_latency_s` in
+  `sim.launch.py`) stamps each detection that much after its sample, on top
+  of the `publish_latency_s` delivery delay.
 - Measure the real camera's latency on hardware (RealSense metadata timestamps,
   or a blinking LED against the stamp) before trusting a field number.
 - C1 carries none of this: `target_state_truth` publishes the current true
@@ -224,7 +215,7 @@ its exact sample time and delays only delivery (`publish_latency_s`, 0.06).
   - `radius` and `z_offset` error per pair;
   - time from first detection until panel error stays under a threshold.
 - Thresholds per metric come from the first working run, lowest of three plus
-  a margin, like Phase 1's floors.
+  a margin, like Aiming's floors.
 - Dropout and handoff cases by masking detections in the emulator.
 - Done when C2 runs every C1 cell in one gz session and scores the same run
   alone and in sequence.
@@ -263,9 +254,9 @@ well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
 
 | Where | Today | Best the node can do | When |
 |---|---|---|---|
-| `target_tracker` → `TargetState` | Detection stamp, not the time the state describes | Publish time, after predicting forward (Phase 2) | 1.0 comment, Phase 2 code |
+| `target_tracker` → `TargetState` | Detection stamp, not the time the state describes | Publish time, after predicting forward | **Done 2026-09-25** (`camera_latency_s`, stamp at publish) |
 | `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | `now()` after the frame is parsed | Stamp when the frame's first byte is read, minus its wire time at the baud rate. Later, an MCB millisecond clock on the wire, the mirror of `CV_MSG`'s `stamp_ms`, mapped to ROS time by offset | Before any field test of Part 1 while we move (1.8): `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
-| Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency (Phase 2) | Phase 2 |
+| Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency | Estimation, on hardware |
 | `mcb_relay` → relocalize | Bare `geometry_msgs/Point` | `PointStamped` with the stamp of the localization pose it came from; the bridge's subscriber follows | Own change, not CV-blocking |
 | `dji_serial_bridge` `~/nav_goal` | Bare `geometry_msgs/Point` | `PointStamped`, stamped when the goal was chosen | Same change as relocalize |
 
