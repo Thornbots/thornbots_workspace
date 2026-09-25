@@ -12,7 +12,7 @@ stays up now comes first. Updated 2026-09-24: the sim stays up, runs
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check but loses the robot (ground-truth error up to 4.3 m) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior |
-| Shot-hit bench (10 cells) | **C1 aim bench (no gz) passes 10/10**, 96-99% every cell, chase mode (2026-09-24). The gz tracker bench hasn't run since Part 1's rewrite |
+| Shot-hit bench (10 cells) | **C1 aim bench (no gz) passes 10/10**, 96-99% every cell, chase mode (2026-09-24), still shooter. The gz shot-hit bench is gone; Part 2 gets C2 |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 
@@ -218,8 +218,8 @@ the floors real numbers instead of the placeholder
 `MOVING_MIN_HIT_RATE = 0.25`, which was written to state an intent and has never
 been measured against a working stack.
 
-**Passing (2026-09-24):** `shot_hit.launch.py target_state:=truth` runs no gz:
-a `/clock`, a fixed shooter point, `target_driver`'s phantom target and
+**Passing (2026-09-24):** `shot_hit.launch.py` runs no gz:
+a `/clock`, our shooter point, `target_driver`'s phantom target and
 `target_state_truth`, with each shot leaving toward the newest aim (a perfect
 gimbal). 10/10 at 96-99% in chase mode, every tick firing. Floors are still
 the placeholder (`CV_SPLIT_PLAN.md` 1.7).
@@ -256,11 +256,12 @@ integrator. Nothing fires. Part 2 is benchmarked only on how close its
 Both run on both benches. On C1 they test the aim solve; on C2 they test the
 estimate.
 
-**Built (sim `main`, 2026-09-23):** `shooter_speed:=` bounces our chassis along
-y (±1 m) through every case. `target_path:=radial`/`diagonal` turns
+**Built on C1 (2026-09-25), not run:** `shooter_speed:=` bounces the aim
+bench's `root` along y (±1 m) through every case, and each shot carries its
+velocity. Part 1 aimed as if still, ~0.15 m off at 1 m/s; it now aims for our
+own motion (`CV_SPLIT_PLAN.md` 1.8). `target_path:=radial`/`diagonal` turns
 `target_driver`'s path by `path_angle_deg`, with presets that keep the near
-panel past ~1.2 m. Both work with either `target_state:=`, so they're ready for
-C2 as well.
+panel past ~1.2 m.
 
 ## Track D: ROS 2 Jazzy (last)
 
