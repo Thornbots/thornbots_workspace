@@ -151,7 +151,11 @@ they arrive late, fire on the alignment after next when that one fits.
 
 ### 1.7 Floors
 
-**Open.** The point bench passes 10/10 at 96-99% (2026-09-24, one run).
+**Built 2026-09-25; needs three runs.** `FLOORS` in the harness holds one per
+cell, seeded from the one 2026-09-24 run minus 10 points. Each case logs its
+score to `scores.jsonl`; `sim/tools/shot_floors.py run1 run2 run3` prints the
+table to paste. Radial, diagonal and moving-shooter cells get theirs the same
+way.
 
 Replace `MOVING_MIN_HIT_RATE = 0.25` with per-cell floors from the final truth
 run: lowest of three runs minus 10 points. Part 2 never gets hit-rate floors;
