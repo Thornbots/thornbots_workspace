@@ -277,8 +277,8 @@ error, which is what Part 1 aims at. `LIMITS` fills from three runs.
 ### C3: The two cases neither bench has (built, not run)
 
 - **We are moving.** Drive a scripted leg while engaging. Closes the
-  `shooter_vel` hole in `CV_TEST_GAPS.md` gap 2 (today only its wiring is
-  pinned, its magnitude is untested) and exercises odom-frame filtering while
+  `shooter_vel` hole (today only its wiring is pinned, its magnitude is
+  untested) and exercises odom-frame filtering while
   `root` moves.
 - **Depth changes.** `target_driver` only traverses laterally. Add radial and
   diagonal paths. Depth error grows with range squared while bearing error stays
