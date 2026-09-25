@@ -272,7 +272,8 @@ Harmonic), and a pass over every package for API changes.
 
 It waits until every other track is done, so no suite result gets mixed up
 with a distro change. **Done when:** the drift suite, `suite:=ekf` and both
-benches give the same verdicts on Jazzy as on Humble.
+benches give the same verdicts on Jazzy as on Humble, and `thornbots_pkg`'s CV
+tests (`point_to_cv_target`, `target_selector`, `target_tracker`) pass.
 
 ## Order of work
 
