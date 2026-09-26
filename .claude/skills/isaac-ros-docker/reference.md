@@ -1,81 +1,99 @@
-# Docker dev container: full reference
+# Docker dev container: full reference (Jazzy)
 
 Tier-two detail behind `SKILL.md`. Read `SKILL.md` first; come here for the
-flag catalogue, the manual equivalents of what the helper scripts do, and the
-dated postmortems. Where the two disagree, `SKILL.md` is newer and wins.
+`isaac-ros` flag catalogue, where the CLI reads its config, the manual
+equivalents of the helper scripts, and the dated postmortems. Where the two
+disagree, `SKILL.md` is newer and wins.
 
-The workspace runs inside a Docker dev container built from
-`isaac_ros_common`'s scripts and layered Dockerfiles. Host source (`src/` and
-its parent `isaac_ros-dev/`) is bind-mounted at `/workspaces/isaac_ros-dev`,
-so edits outside the container are immediately visible inside it and vice
-versa. Rebuild the image only when dependencies change (apt packages, or the
-package sources `Dockerfile.thornbots` copies in), not for ordinary source
-edits -- the bind mount already carries those.
+The container comes from `isaac-ros-cli` (release-4.6), which replaced the
+fork's `run_dev.sh` and `build_image_layers.sh`. Host `$ISAAC_ROS_WS` is
+bind-mounted at `/workspaces/isaac_ros-dev`, so edits outside the container
+are visible inside it and vice versa. Rebuild the image only when
+dependencies or the baked package sources change, never for ordinary source
+edits: the bind mount already carries those.
+
+Every command in the next three sections is **for the user to run**. An agent
+never runs `isaac-ros activate` in any form (the rule at the top of
+`SKILL.md`).
 
 ## Container lifecycle
 
 ```bash
-cd isaac_ros_common/scripts
-./run_dev.sh
+export ISAAC_ROS_WS=~/workspaces/isaac_ros-dev   # the workspace holding src/
+isaac-ros activate
 ```
 
-- First run builds the image (can take a while), then launches a container
-  named `isaac_ros_dev-<arch>-container` and drops you into a bash shell as
-  the `admin` user, workdir `/workspaces/isaac_ros-dev`.
-- Re-running `run_dev.sh` while the container is already running just attaches
-  another shell instead of starting a second container.
-- The container is started with `docker run -it --rm`, so it is **not** left
-  running in the background. `Ctrl-D`/`exit` on the *first* shell (the one
-  that ran `run_dev.sh` and launched the container, i.e. the one running
-  `workspace-entrypoint.sh` as PID 1) stops the container and Docker
-  auto-removes it. `docker exec`-attached shells can exit freely without
-  affecting the container; only exiting the original launching shell tears it
-  down. The next `run_dev.sh` starts a fresh container (and rebuilds the image
-  unless `-b`/`SKIP_DOCKER_BUILD` is used).
+- If the image is missing, `activate` tries `docker pull` and stops with
+  `Use --build to build remotely or --build-local to build locally`. Ours is
+  never on a registry, so the first run needs `--build-local`.
+- It starts `docker run -it --rm --privileged --network host --ipc=host` with
+  the name from `docker.run.container_name` (ours: `isaac_ros_jazzy_container`)
+  and drops you into bash as `admin` in `/workspaces/isaac_ros-dev`.
+- Re-running `activate` while the container runs attaches another shell.
+- Exiting the *first* shell stops the container and Docker removes it.
+  `docker exec` shells can come and go.
+- `activate` exits 0 even when the build or run failed. Read its output.
+- `-it` means it needs a real terminal. On the laptop the user may keep it
+  in a detached tmux session (`tmux attach -t jazzy`); that shell is the
+  container's PID 1 shell, so don't send it keys.
+
+## Where the CLI reads its config
+
+Read from the release-4.6 source; the docs and the plan got two of these
+wrong. `isaac_ros_common/scripts/setup_workspace.sh` links ours into place.
+
+| file | searched in (first hit wins) | ours |
+|---|---|---|
+| `config.yaml` | merged: `/usr/share/isaac-ros-cli/`, `/etc/isaac-ros-cli/`, `~/.config/isaac-ros-cli/`, `$ISAAC_ROS_WS/.isaac-ros-cli/` (last wins) | `isaac_ros_common/.isaac-ros-cli/config.yaml` |
+| `.isaac_ros_common-config` | `$ISAAC_ROS_WS/../scripts/`, `$ISAAC_ROS_WS/scripts/`, `/etc/isaac-ros-cli/` | `isaac_ros_common/scripts/.isaac_ros_common-config` |
+| `.build_image_layers.yaml` | `$ISAAC_ROS_WS/../scripts/`, `/etc/isaac-ros-cli/` | `isaac_ros_common/scripts/.build_image_layers.yaml` |
+| `.isaac_ros_dev-dockerargs` | `$DOCKER_ARGS_FILE`, `~/.isaac_ros_dev-dockerargs`, then `$ISAAC_ROS_WS/scripts/` or else `/etc/isaac-ros-cli/` | none |
+| mode (`docker`) | `/etc/isaac-ros-cli/environment.conf` | set by `sudo isaac-ros init docker` |
+
+- `config.yaml` keys (unknown keys are rejected): `version: 2`;
+  `docker.image.{base_image_keys, additional_image_keys, push}`;
+  `docker.run.{container_name, entrypoint, workdir, platform,
+  use_cached_build_image}`; `apt.{key_url, repository, distro, components}`.
+  `entrypoint` and `workdir` are validated but `run_dev.py` hardcodes both.
+- `.isaac_ros_common-config` is sourced by bash; only
+  `CONFIG_DOCKER_SEARCH_DIRS` and `BASE_DOCKER_REGISTRY_NAMES` are read. The
+  CLI stops at the first file, so ours lists the CLI's own `docker/` too.
+- `.build_image_layers.yaml` holds `context_overrides` (`thornbots: ../..`
+  makes `src/` the build context), `image_key_order` and the registries. It
+  replaces the stock file wholesale. Its only per-workspace location is
+  *outside* the workspace, so sibling workspaces share it: re-run
+  `setup_workspace.sh` from the one you build.
+- The stock `/etc/isaac-ros-cli/.isaac_ros_dev-dockerargs` mounts `~/.ssh`,
+  `~/.aws`, `~/.cache`, `~/.config` (read-write), `~/.gitconfig` and
+  `~/.bash_history`. The CLI also mounts the host `~/.bashrc`, `~/.profile`
+  and `~/.bash_profile` read-only into `/home/admin`.
 
 ## Which image gets built
 
-`run_dev.sh` builds an image for `IMAGE_KEY` (default `ros2_humble`) on
-platform `$(uname -m)` (`x86_64` here). The key is dot-composite: e.g.
-`x86_64.ros2_humble.realsense.thornbots` resolves, right-to-left, against
-`docker/Dockerfile.<suffix>` files, each layer using the previous as its
-`BASE_IMAGE`:
+`base_image_keys` + `additional_image_keys` = `isaac_ros`, `realsense`,
+`thornbots`, each resolved to a `Dockerfile.<key>` in the search dirs:
 
 ```
-Dockerfile.x86_64  →  Dockerfile.ros2_humble  →  Dockerfile.realsense  →  Dockerfile.thornbots
+Dockerfile.isaac_ros (CLI)  →  Dockerfile.realsense (CLI)  →  isaac_ros_common/docker/Dockerfile.thornbots
 ```
 
-Pinned via `isaac_ros_common/scripts/.isaac_ros_common-config`:
+`isaac_ros_common/docker/README.md` is the reference for
+`Dockerfile.thornbots`: layers, context, rosdep. The short version:
 
-```bash
-CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots
-```
-
-`Dockerfile.thornbots` is the custom top layer. It installs the Isaac ROS
-apt packages this project needs (yolov8, dnn_image_encoder, tensor_rt,
-realsense, ros-gz for sim), patches the RealSense config YAMLs, and
-`COPY`s + colcon-builds this org's packages straight into the image at
-`/workspaces/ros2_ws`. **`isaac_ros_common/docker/README.md` is the reference
-for it** -- layer rationale, the `diagnostic-updater` version floor, why `sim`
-is excluded. The short version:
-
-- Sources come from the **checked-out submodules in `src/`**, not a `git clone`
-  during the build (changed 2026-09-08). The baked copy tracks your working
-  tree, uncommitted edits included.
-- The build context is `src/`, not `docker/`: `run_dev.sh` passes
-  `--context_dir "$ROOT/../.."`, applied to the last layer only. `COPY` paths
-  are relative to `src/`; `src/.dockerignore` holds the context to ~35 MB.
-- No `RECLONE_*` args and no per-package layers. All seven build in one
-  `colcon build` (LAYER 5), so touching any one rebuilds all seven. LAYER 4
-  copies just the `package.xml` manifests and lets `rosdep install` derive the
-  dep set, so it survives source edits.
+- Sources come from the **checked-out submodules in `src/`**, uncommitted
+  edits included.
+- The final tag is `nvcr.io/nvidia/isaac/ros:isaac_ros-realsense-thornbots_<hash>-amd64`
+  (`-arm64-jetpack` on a Jetson). The hash covers the Dockerfiles and apt
+  build args only, not package sources, so `activate` keeps starting an image
+  that predates your package edits until that tag is removed.
+- The `isaac_ros` layer is on NGC, but the CLI checks for it under a
+  different name when building, so `--build-local` builds it locally too
+  (cached after the first time). `realsense` compiles librealsense.
 
 **Packages `Dockerfile.thornbots` bakes into `/workspaces/ros2_ws`**, the
 list behind the shadowing warnings in each package's `AGENTS.md` (directory
-name → ROS package name). This is what the *Dockerfile* says; a running
-container built before the last edit can hold something else (on 2026-09-06 a
-4-day-old image still had the repo under its old name `sentry_pkg`).
-`dexec.sh -- ls /workspaces/ros2_ws/src` is the ground truth:
+name → ROS package name). `dexec.sh -- ls /workspaces/ros2_ws/src` is the
+ground truth for a running container:
 
 | source dir in `src/` | ROS package |
 |---|---|
@@ -87,61 +105,66 @@ container built before the last edit can hold something else (on 2026-09-06 a
 | `thornbots_pkg` | `thornbots_pkg` |
 | `realsense-yolov8-nitros-bridge` | `realsense_yolov8_nitros_bridge` |
 
-`sim` is **not** in that list. It is deliberately never copied or built into
-the image (real hardware never launches gz-sim), which is why it is the one
-package with no shadow copy and why a fresh container needs `install-sim.sh`
-before the first sim launch. See `SKILL.md`.
+`sim` is **not** in that list. Real hardware never launches gz-sim, so it is
+the one package with no shadow copy, and a fresh container needs
+`install-sim.sh` before the first sim launch. See `SKILL.md`.
 
-## `run_dev.sh` flags and common tasks
-
-All of these are **for the user to run**. Anything that can rebuild the
-image is theirs, not an agent's (see the standing rule at the top of
-`SKILL.md`).
-
-**Attach a second terminal to the already-running container** by re-running
-the same script; it detects the running container by name and `docker exec`s
-a new shell in (see `run_dev.sh` lines 190-197):
+## `isaac-ros` flags and common tasks
 
 ```bash
-./run_dev.sh
-# equivalent manual form, if you need docker exec flags run_dev.sh doesn't expose:
-docker exec -it -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_dev-x86_64-container bash
+isaac-ros activate                      # attach, or start from an existing/pullable image
+isaac-ros activate --build-local        # build locally if the image is missing, then start
+isaac-ros activate --build              # same, on the configured remote builder (we have none)
+isaac-ros activate --build-only         # build/pull, don't start (no TTY needed)
+isaac-ros activate --start-only         # start or attach; fail if the image is missing
+isaac-ros activate --no-cache           # rebuild every layer, isaac_ros and realsense included
+isaac-ros activate --use-cached-build-image   # run the last image activate used (cached_isaac_run_dev_image_local)
+isaac-ros activate --push / --no-push   # push built layers to the registry (we don't)
+isaac-ros activate --verbose            # print the resolved Dockerfiles, bake file and docker run
+isaac-ros activate -c docker.run.container_name=foo   # override a config.yaml key once (repeatable)
+isaac-ros status                        # mode and whether this shell is activated
+sudo isaac-ros init docker              # one-time: set the mode
 ```
 
-**Force a full image rebuild** (e.g. after editing `Dockerfile.thornbots`):
-`./run_dev.sh` rebuilds by default unless a container is already running; if
-one is, stop it first with `docker stop isaac_ros_dev-x86_64-container`.
-
-**Rebuilding one package** needs no flag: touching its files in `src/`
-invalidates its `COPY` layer and everything after it, and nothing before it.
-When iterating on a single package it's still usually faster to
-`colcon build` inside the running container instead of rebuilding the image.
-
-**Other flags:**
+**Attach a second terminal**: run `isaac-ros activate` again, or
 
 ```bash
-./run_dev.sh -b                      # skip the build, use the cached image
-SKIP_DOCKER_BUILD=1 ./run_dev.sh     # same thing
-./run_dev.sh -d /path/to/isaac_ros-dev        # point at a different workspace
-./run_dev.sh -a "-v /host/path:/container/path"   # extra docker run args (repeatable)
+docker exec -it -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash
 ```
 
-Extra `docker run` args can also go one-per-line in
-`~/.isaac_ros_dev-dockerargs` (env vars in each line are expanded via
-`envsubst`).
+**Rebuild after package or Dockerfile edits**: exit the container, remove the
+final tag, build again. BuildKit's cache reruns only changed layers.
+
+```bash
+docker rmi nvcr.io/nvidia/isaac/ros:isaac_ros-realsense-thornbots_<hash>-amd64
+isaac-ros activate --build-local
+```
+
+A `Dockerfile.thornbots` edit changes the hash, so there the old tag can stay.
+
+**Rebuilding one package** for day-to-day work needs no image rebuild at all:
+`colcon build` inside the running container.
+
+Extra `docker run` args go one per line in `~/.isaac_ros_dev-dockerargs`
+(env vars in each line are expanded).
+
+**Installing the CLI.** On Ubuntu: add the Isaac ROS apt repo (`release-4`,
+`noble`), `sudo apt-get install isaac-ros-cli`, `sudo isaac-ros init docker`.
+On the Arch laptop: `isaac_ros_common/scripts/install_isaac_ros_cli.sh`, a
+no-root install into `~/.local` (its header says how).
 
 ## What's already wired up inside the container
 
-- GPU passthrough (`--runtime nvidia`, `NVIDIA_VISIBLE_DEVICES=all`)
+- GPU passthrough (`--gpus all`, `NVIDIA_VISIBLE_DEVICES=all`)
 - X11 forwarding for GUI apps (rviz2, gz sim): `DISPLAY` and `.Xauthority`
   forwarded from the host
-- SSH agent forwarding, if `SSH_AUTH_SOCK` is set on the host
-- `--network host` and `--ipc=host`
-- `ROS_DOMAIN_ID` inherited from the host env
+- `--network host`, `--ipc=host`, `--privileged`
+- `ROS_DOMAIN_ID` from the host env, overridden to 1 by `/etc/bash.bashrc`
+  until the Jazzy cutover
 - Container user is created/renamed on entry to match your host UID/GID
   (`workspace-entrypoint.sh`), and added to `video`, `plugdev`, `sudo`, and
-  **`dialout`**, the last one patched in by `Dockerfile.thornbots` for serial
-  device access (the DJI bridge's UART link)
+  **`dialout`**, the last one from `Dockerfile.thornbots`'s entrypoint
+  addition for serial device access (the DJI bridge's UART link)
 - FastDDS profile (`FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds/profile.xml`,
   source `isaac_ros_common/docker/fastdds_cable.xml`) set as every interactive
   shell's default RTPS participant profile. SIMPLE discovery plus the robots' tailscale IPs
@@ -154,7 +177,7 @@ each line encodes a bug that cost real debugging time.
 
 **The `PS1` interactive guard.** `/etc/bash.bashrc` sets `ROS_DOMAIN_ID`,
 `RMW_IMPLEMENTATION`, `FASTRTPS_DEFAULT_PROFILES_FILE` and sources both
-`/opt/ros/humble` and `/workspaces/ros2_ws/install`, but it starts with
+`/opt/ros/jazzy` and `/workspaces/ros2_ws/install`, but it starts with
 `[ -z "$PS1" ] && return`. It is an **interactive-shell-only** file, so
 `docker exec ... bash -lc "source /etc/bash.bashrc && ..."` silently does
 nothing unless `PS1` is set first. A `docker exec` session that skips this
@@ -170,7 +193,7 @@ which otherwise gets glued onto the front of captured output, so `X=$(docker
 exec …)` comes back with banner text in it.
 
 ```bash
-docker exec -i -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_dev-x86_64-container \
+docker exec -i -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_jazzy_container \
   bash -lc "{ export PS1='\$ ' && source /etc/bash.bashrc ; } >/dev/null && ros2 topic list"
 ```
 
@@ -181,7 +204,7 @@ the second, `ros2 launch sim sim.launch.py` fails with "package 'sim' not
 found" even though it's built:
 
 ```bash
-docker exec -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_dev-x86_64-container \
+docker exec -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_jazzy_container \
   bash -lc "export PS1='\$ ' && source /etc/bash.bashrc && source /workspaces/isaac_ros-dev/install/setup.bash && ros2 launch sim sim.launch.py"
 ```
 
@@ -204,15 +227,6 @@ group leaves the real tree running. (The `ps aux` grep is still the right
 tool for the different job of *detecting* whether a session is live before
 you start one.)
 
-## Robot deployment image
-
-`isaac_ros_common/scripts/docker_deploy.sh` builds a separate, slimmer image
-for flashing/running on the robot itself, not the interactive dev container.
-It layers in extra debs/tarballs, does a `rosdep install` + `colcon build` of
-a given ROS workspace, and sets a default `ros2 launch <package>
-<launch_file>` command. See that script's header comment for a usage example.
-Day-to-day development doesn't need it.
-
 ## Troubleshooting
 
 - **"not a member of the docker group"**: `sudo usermod -aG docker $USER &&
@@ -220,12 +234,19 @@ Day-to-day development doesn't need it.
 - **"Unable to run docker commands"**: check `docker ps` works standalone;
   you may need to log out/in after being added to the `docker` group.
 - **"git-lfs is not installed" / LFS files missing**: install `git-lfs`,
-  then re-clone the repos in this workspace (`run_dev.sh` checks LFS file
-  integrity in `$ISAAC_ROS_DEV_DIR` before launching).
-- **Build succeeds but no image found**: `build_image_layers.sh` couldn't
-  resolve one of the composite `Dockerfile.<suffix>` names; check
-  `CONFIG_IMAGE_KEY` in `.isaac_ros_common-config` matches actual files under
-  `isaac_ros_common/docker/`.
+  then re-clone the repos in this workspace (the CLI checks LFS files in
+  `$ISAAC_ROS_WS` before launching).
+- **`Error: Could not resolve all Dockerfiles`**: a key in
+  `docker.image.*_image_keys` has no `Dockerfile.<key>` in the search dirs.
+  The error prints the dirs and the config file it used; a wrong
+  `ISAAC_ROS_WS` or a missing `setup_workspace.sh` run are the usual causes.
+- **`/home/admin/.profile: ... .cargo/env: No such file or directory`** on
+  every `dexec.sh` call: the CLI mounts the host's `~/.profile` and
+  `~/.bashrc` into the container. Harmless noise on stderr.
+- **`ISAAC_ROS_WS or ISAAC_DIR environment variable is not set`**: export
+  `ISAAC_ROS_WS` in the shell running `activate`.
+- **Build fails at `COPY --parents`/`--exclude`**: the `# syntax=` line at the
+  top of `Dockerfile.thornbots` was lost; those flags need `1.7-labs`.
 
 ### Cross-machine ROS 2 over Tailscale
 
@@ -295,7 +316,7 @@ too, since FastDDS's async publication mode has real known issues delivering
 subscribers. That's a legitimate fix to keep, but **not** what caused the
 symptoms above. Don't re-blame it.
 
-Both changes need a full image rebuild (`./run_dev.sh`, not `-b`) to take
+Both changes need an image rebuild (see "Rebuild after package or Dockerfile edits") to take
 effect, and any already-running daemon needs `ros2 daemon stop && ros2 daemon
 start` afterward, since it caches its old, broken participant otherwise.
 
@@ -316,7 +337,7 @@ There are two colcon workspaces in the container, and they overlap:
 
 | workspace | what's in it | origin |
 |---|---|---|
-| `/workspaces/ros2_ws` | `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **copied from `src/` and built during the Docker build** (`Dockerfile.thornbots` LAYER 5) -- a snapshot, frozen at build time |
+| `/workspaces/ros2_ws` | `sentry_localization`, `sllidar_ros2`, `rf2o_laser_odometry`, `dji_serial_bridge`, … | **copied from `src/` and built during the Docker build** (`Dockerfile.thornbots` layer 3) -- a snapshot, frozen at build time |
 | `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
 
 **Which copy wins depends on the entry point** (re-measured 2026-07-26;
@@ -385,11 +406,11 @@ dexec.sh -r -- bash -lc 'cp /workspaces/isaac_ros-dev/src/sentry_localization/co
 ```
 This is a **test-only** shim: it lives inside the container and dies with
 it. The edit still has to be committed and pushed to the package's own
-GitHub repo to survive, since that's where the build clones from.
+GitHub repo to survive: teammates' images are built from the committed
+submodules.
 
 Packages that exist *only* in `isaac_ros-dev` (notably `sim`, which
-`Dockerfile.thornbots` deliberately does not clone; see LAYER 2b and
-`install-sim.sh`) have no shadow copy, so `src/` edits to them are live
+`Dockerfile.thornbots` deliberately leaves out; see `install-sim.sh`) have no shadow copy, so `src/` edits to them are live
 immediately. That asymmetry is itself confusing: `sim/urdf/*.xacro` edits
 apply instantly while `sentry_localization/config/*.yaml` edits appear to
 do nothing.
@@ -397,15 +418,14 @@ do nothing.
 
 ## When editing `Dockerfile.thornbots`
 
-- Preserve the layer ordering documented in its header comment (slowest/most
-  stable first, most volatile last): that's what keeps rebuilds fast.
-- New apt packages this project depends on go in LAYER 2 (Isaac ROS apt
-  packages) unless they're sim-specific (LAYER 2b) or belong to one of the
-  per-package clone/build layers.
-- New cloned-and-built org packages get their own `ARG RECLONE_<NAME>` +
-  `git clone` + `colcon build --packages-select <pkg>` block, placed after
-  any packages they depend on (each layer sources the workspace install
-  before building).
+- Keep the layer order (slowest and most stable first): that's what keeps
+  rebuilds fast. `isaac_ros_common/docker/README.md` has the table.
+- A package's apt dependency goes in its `package.xml`, where the rosdep
+  layer picks it up, not in the Dockerfile. Sim-only deps stay out of the
+  image (`install-sim.sh`).
+- A new first-party package needs only its directory name in the
+  `--packages-select` list; the `COPY`s pick it up. Fold any new file into
+  the existing config `RUN` rather than adding a layer.
 
 
 ### Never interpolate a file list into `dexec.sh -- bash -c "…"`
@@ -439,9 +459,9 @@ Two things compound it:
 
 ### Run source-rewriting scripts inside the container
 
-Host python is 3.14, container python is 3.10. PEP 701 changed f-string
-tokenization between them, so `tokenize`/`ast` tooling run on the host silently
-emits output that is invalid under 3.10. Anything that rewrites source goes
+Host python is 3.14, container python is 3.12 (3.10 on Humble). PEP 701 changed f-string
+tokenization at 3.12 and host tooling keeps moving, so `tokenize`/`ast` tooling run on the host silently
+can emit output the container's python rejects. Anything that rewrites source goes
 through `dexec.sh`.
 
 
@@ -450,7 +470,7 @@ through `dexec.sh`.
 **Before** launching anything (a background launch, either test launch
 file, or an ad hoc probe script), check for a live session first:
 ```bash
-dexec.sh -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
+dexec.sh -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
 ```
 A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
 list` but never publish; a *live* session (the user's own manual sim/CV
@@ -491,7 +511,7 @@ Worktrees created by `EnterWorktree` live *inside* the package directory
 (e.g. `sim/.claude/worktrees/<name>/`), which is inside the bind-mounted
 tree, so their files are already readable in the container at
 `/workspaces/isaac_ros-dev/src/<pkg>/.claude/worktrees/<name>/...` with no
-merge. That covers one-off checks (`xacro`, `ign sdf -p`, reading a value).
+merge. That covers one-off checks (`xacro`, `gz sdf -p`, reading a value).
 
 It does **not** cover `ros2 launch`/`colcon build`, because
 `--symlink-install` resolves back to the *main checkout*:
@@ -506,7 +526,7 @@ dexec.sh -- ln -sfn \
   /workspaces/isaac_ros-dev/src/sim/.claude/worktrees/<name>/urdf/sentry.urdf.xacro \
   /workspaces/isaac_ros-dev/build/sim/urdf/sentry.urdf.xacro
 # ...launch/test as normal...
-# restore (always, merged or not — the worktree may be removed later)
+# restore (always, merged or not; the worktree may be removed later)
 dexec.sh -- ln -sfn \
   /workspaces/isaac_ros-dev/src/sim/urdf/sentry.urdf.xacro \
   /workspaces/isaac_ros-dev/build/sim/urdf/sentry.urdf.xacro
