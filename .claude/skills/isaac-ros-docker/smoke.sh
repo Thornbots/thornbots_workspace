@@ -4,21 +4,24 @@
 #
 # This script NEVER starts a container or builds an image (see SKILL.md's
 # attach-only rule). If nothing is running it says so and exits 1, and the
-# fix is for the USER to run run_dev.sh.
+# fix is for the USER to run `isaac-ros activate`.
 #
 # Usage:
 #   .claude/skills/isaac-ros-docker/smoke.sh            # checks only
 #   .claude/skills/isaac-ros-docker/smoke.sh --sim      # + headless sim launch,
 #                                                       # topic check, teardown
 #
-# Env: ISAAC_ROS_CONTAINER to override the container name.
+# Container name: ISAAC_ROS_CONTAINER, else container_name in
+# isaac_ros_common/.isaac-ros-cli/config.yaml (same rule as dexec.sh).
 set -uo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS="$(cd "$SKILL_DIR/../../../isaac_ros_common/scripts" && pwd)"
 DEXEC="$SCRIPTS/dexec.sh"
 KILL_LAUNCH="$SCRIPTS/kill_launch.sh"
-CONTAINER="${ISAAC_ROS_CONTAINER:-isaac_ros_dev-$(uname -m)-container}"
+CONFIG="$SCRIPTS/../.isaac-ros-cli/config.yaml"
+CONTAINER="${ISAAC_ROS_CONTAINER:-$(sed -n "s/^ *container_name: *['\"]\{0,1\}\([^'\" #]*\).*/\1/p" "$CONFIG" 2>/dev/null || true)}"
+CONTAINER="${CONTAINER:-isaac_ros_dev_container}"
 RUN_SIM=0
 [ "${1:-}" = "--sim" ] && RUN_SIM=1
 
@@ -29,7 +32,7 @@ echo "== 1. container running?"
 if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "true" ]; then
     echo "No container named '$CONTAINER' is running." >&2
     echo "Do NOT start one yourself. Ask the user to run:" >&2
-    echo "  cd src/isaac_ros_common/scripts && ./run_dev.sh -b" >&2
+    echo "  ISAAC_ROS_WS=<workspace> isaac-ros activate" >&2
     exit 1
 fi
 ok "$CONTAINER up"
@@ -37,7 +40,7 @@ ok "$CONTAINER up"
 echo "== 2. bind mount is the workspace ROOT (build/ install/ log/ src/)"
 docker inspect -f '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}' "$CONTAINER" | grep isaac_ros-dev
 "$DEXEC" -- ls /workspaces/isaac_ros-dev | tr '\n' ' '; echo
-"$DEXEC" -- test -d /workspaces/isaac_ros-dev/src || fail "no src/ in the mount (ISAAC_ROS_WS unset when run_dev.sh ran?)"
+"$DEXEC" -- test -d /workspaces/isaac_ros-dev/src || fail "no src/ in the mount (ISAAC_ROS_WS wrong when isaac-ros activate ran?)"
 ok "src/ present"
 
 echo "== 3. env parity through dexec.sh (bare 'docker exec' gets none of this)"
@@ -58,7 +61,7 @@ echo "== 5. ROS graph reachable"
 "$DEXEC" -- ros2 topic list || fail "ros2 topic list failed"
 
 echo "== 6. nothing already running (do not kill what you did not start)"
-LIVE=$("$DEXEC" -- ps aux | grep -E 'ign gazebo|gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep)
+LIVE=$("$DEXEC" -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep)
 if [ -n "$LIVE" ]; then
     echo "$LIVE"
     echo "  ^ a session is already live. ASK the user before touching it." >&2
@@ -70,9 +73,10 @@ fi
 [ "$RUN_SIM" -eq 0 ] && { echo "== done (pass --sim to also launch the sim stack)"; exit 0; }
 
 echo "== 7. gz-sim installed? (fresh containers need install-sim.sh)"
-if ! "$DEXEC" -- bash -c 'command -v ign || command -v gz' >/dev/null 2>&1; then
-    echo "  gz/ign missing. Run this ONCE per container, backgrounded -- it pulls" >&2
-    echo "  ~225 apt packages and takes minutes, and a foreground timeout that" >&2
+# dexec.sh sources ROS first: Jazzy's gz is on PATH only after that.
+if ! "$DEXEC" -- bash -c 'command -v gz' >/dev/null 2>&1; then
+    echo "  gz missing. Run this ONCE per container, backgrounded -- it pulls" >&2
+    echo "  a few hundred apt packages and takes minutes, and a foreground timeout that" >&2
     echo "  kills it leaves apt done but sim unbuilt:" >&2
     echo "    $DEXEC -r -- src/isaac_ros_common/docker/scripts/install-sim.sh" >&2
     exit 1
@@ -81,7 +85,7 @@ ok "gz-sim present"
 
 echo "== 8. launch sim headless, detached"
 # Runs under the baked DDS profile on purpose: local discovery must work with
-# it. ~2 topics here means an old SUPER_CLIENT image; see SKILL.md.
+# it.
 NOPROFILE=''
 "$DEXEC" -- bash -c "$NOPROFILE ros2 daemon stop" >/dev/null 2>&1
 "$DEXEC" -d -- bash -c "$NOPROFILE exec ros2 launch sim sim.launch.py gui:=false"
