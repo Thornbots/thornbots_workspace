@@ -37,9 +37,17 @@ Nothing is running in the container.
 
 - **C2 runs on `bench_world` now, no gz** (2026-09-25, the user's call):
   one C++ lockstep loop is the clock, target, our chassis and head, `/pose`,
-  head controller and detections, ~4x real time with rviz.
-  `flat-speed1` read 0.19 m facing p95 there (`est_world_1`), inside the gz
-  runs' 0.13-0.26 m.
+  head controller and detections. All ten cells take 54 s with rviz (~6x;
+  gz took ~6 min), 10/10 (`est_world_full1`). Stationary cells read 0.9 cm
+  facing p95, below gz's 1.3-4 cm (no spring sag); moving cells sit in gz's
+  spread, and `flat-speed1` read 0.19 m alone and 0.31 m in the suite, so
+  the 2x swing is the tracker's, not gz's.
+- **`target_tracker` is now C2's speed ceiling.** It saturates a core at
+  ~8x: `ArmorTracker.step`'s small-matrix numpy is 46% of its main thread,
+  its TF listener thread 27%. More `pace_slack_s` reaches 10-12x but lets
+  the nodes under test lag sim time by that much, head loop included.
+  Open for the user: a C++ `ArmorTracker` core, which would also speed up
+  the Jetson.
 - **The camera TF at capture is ruled out.** `target_tracker` now waits for
   the TF at each capture time instead of taking the newest; on gz it never
   had to wait. The per-second trace shows velocity-error bursts of 4-7 m/s
@@ -253,12 +261,12 @@ relation to capture time is still unmeasured.
 
 ### 2.0 C2 estimation bench
 
-**Built 2026-09-25, not run as a suite** (`sim/launch/estimation.launch.py`,
-`test_estimation.py`). One change from below: the target stays
-`target_driver`'s phantom, and the emulator and scorer read its exact truth.
-An entity moved by `set_pose` steps at the call rate and its gz pose lags the
-integrator, so it would give worse truth, not better; spawn a visual one
-once YOLO sees rendered frames. Our robot, head and camera are real gz. Each
+**Built 2026-09-25, runs as a suite** (`sim/launch/estimation.launch.py`,
+`test_estimation.py`). It ran on gz first; since 2026-09-25 `bench_world`
+(`sim/src/bench_world.cpp`) is the whole world in one C++ lockstep loop:
+the phantom target with exact truth, our chassis and head (gz's joint PD
+on the arm inertias), `/pose`, the head controller and the detections. A
+visual opponent comes with E2E, once YOLO sees rendered frames. Each
 case restarts the track by switching detections off for 1 s. The facing
 panel's error (the one Part 1 aims at) was added: on a still target only
 that panel is observable, so convergence is measured on it. `LIMITS` is
@@ -267,11 +275,6 @@ probe (8 s cases, not a baseline): staggered stationary 1.2 cm facing p95;
 2 m/s with blackout, and 1 m/s with our chassis moving, ~35 cm p95 and
 ~10 s to converge.
 
-- Spawn one opponent from `sentry_v2`, driven by `actor_driver`, which gains yaw
-  (spin) and `target_driver`'s path profiles so C2 runs the same cells as C1.
-- `cv_target_emulator` takes panel poses from the entity's true pose (gz pose
-  bridge) instead of `target_driver`'s integrator. `target_driver` stays for C1
-  until C2 is proven.
 - `test/cv/test_estimation.py` over `estimation_harness.py`. Each published
   `TargetState` is compared with the truth at its own `header.stamp`, so a
   wrong stamp shows up as error. Per cell, mean and p95 of:
@@ -284,7 +287,7 @@ probe (8 s cases, not a baseline): staggered stationary 1.2 cm facing p95;
 - Thresholds per metric come from the first working run, lowest of three plus
   a margin, like Aiming's floors.
 - Dropout and handoff cases by masking detections in the emulator.
-- Done when C2 runs every C1 cell in one gz session and scores the same run
+- Done when C2 runs every C1 cell in one session and scores the same run
   alone and in sequence.
 
 ### 2.1 Camera latency on C2

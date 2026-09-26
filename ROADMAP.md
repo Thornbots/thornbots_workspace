@@ -16,7 +16,7 @@ the record.
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior. Measured before the A2M8 lidar and per-scan rf2o; `suite:=ekf` needs a re-run (S4) |
-| C2 estimation bench (10 cells, no gz) | **Three gz runs (2026-09-25), no limits yet.** Stationary cells 1.3 cm facing-panel p95; moving cells 0.12-0.51 m and 2x apart between runs, not yet traced. Now on `bench_world` (C++, ~4x real time); one cell run on it so far. The tracker gained acceleration, a single-panel yaw measurement and a still-target hypothesis; see `CV_SPLIT_PLAN.md` "Where this stopped" |
+| C2 estimation bench (10 cells, no gz) | **Three gz runs (2026-09-25), no limits yet.** Stationary cells 1.3 cm facing-panel p95; moving cells 0.12-0.51 m and 2x apart between runs, not yet traced. Now on `bench_world` (C++): all ten cells in 54 s with rviz, 10/10, stationary 0.9 cm, moving cells in gz's spread and still swinging, so the swing is the tracker's. The tracker gained acceleration, a single-panel yaw measurement and a still-target hypothesis; see `CV_SPLIT_PLAN.md` "Where this stopped" |
 | Whole CV stack in sim | Nothing runs the camera, YOLO, `roi_depth_node` or the serial link; planned in `E2E_PLAN.md` |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
@@ -170,11 +170,15 @@ with D435-like ray noise, and nothing fires. Part 2 is benchmarked only on how c
 gz, then moved off it. C2 only fakes detections, so `bench_world`, one C++
 lockstep loop, now stands in for gz: clock, phantom target, our chassis and
 head, `/pose`, head controller and detections. It holds sim time only for
-the nodes under test and runs ~4x with rviz. Metrics as above, plus the
-facing panel's error, which is what Part 1 aims at. On gz, stationary cells
-read 1.3 cm facing p95; moving cells 0.12-0.51 m, 2x apart between runs.
-`flat-speed1` on `bench_world` read 0.19 m, inside gz's spread. `LIMITS` is
-empty until the error is traced and three runs fill it.
+the nodes under test and runs the ten cells in 54 s with rviz (~6x; gz took
+~6 min). Metrics as above, plus the facing panel's error, which is what
+Part 1 aims at. On gz, stationary cells read 1.3 cm facing p95 and moving
+cells 0.12-0.51 m, 2x apart between runs. On `bench_world` stationary reads
+0.9 cm and moving cells land in gz's spread, still 2x apart
+(`flat-speed1` 0.19 m alone, 0.31 m in the suite). `target_tracker` is the
+speed ceiling (a saturated core at ~8x); a C++ core for it is the user's
+call (`CV_SPLIT_PLAN.md`). `LIMITS` is empty until the error is traced and
+three runs fill it.
 
 ### C3: The two cases neither bench had, on C2
 

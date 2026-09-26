@@ -13,24 +13,24 @@ depth unit between two stages shows up.
 
 ## Before either: what C2 says today
 
-Two gz C2 runs at 1x and one at 0.5x (2026-09-25, `../log/cv_runs/est_*`):
+Two gz C2 runs at 1x and one at 0.5x, then one on `bench_world`, the C++
+world that replaced gz for C2 (2026-09-25, `../log/cv_runs/est_*`):
 
-| Flat cell | 1x run A | 1x run B | 0.5x |
-|---|---|---|---|
-| stationary | 0.041 | 0.013 | 0.013 |
-| 0.5 m/s | 0.224 | 0.123 | 0.139 |
-| 1 m/s | 0.180 | 0.179 | 0.125 |
-| 2 m/s | 0.195 | 0.189 | 0.510 |
-| 4 m/s | 0.306 | 0.432 | 0.250 |
+| Flat cell | gz 1x A | gz 1x B | gz 0.5x | `bench_world` |
+|---|---|---|---|---|
+| stationary | 0.041 | 0.013 | 0.013 | 0.009 |
+| 0.5 m/s | 0.224 | 0.123 | 0.139 | 0.164 |
+| 1 m/s | 0.180 | 0.179 | 0.125 | 0.308 |
+| 2 m/s | 0.195 | 0.189 | 0.510 | 0.280 |
+| 4 m/s | 0.306 | 0.432 | 0.250 | 0.299 |
 
 Facing-panel p95 in metres. Run A predates the still hypothesis.
 
-Unthrottled C2 reaches only 0.95-1.0x (the gz server is the ceiling; the box
-sits 40% idle), and halving the speed changed nothing beyond run-to-run
-spread. So speed doesn't cost accuracy. The moving cells are poor and vary
-by 2x between runs. E would inherit that error, so trace it first
-(`CV_SPLIT_PLAN.md` Next, step 1), starting with the camera TF at capture
-time while the head slews.
+gz capped C2 near 1x; `bench_world` runs all ten cells in about a minute
+(~6x) with rviz, and speed hasn't cost accuracy on either. The moving cells
+are poor and vary by 2x between runs, on `bench_world` too, so the swing is
+the tracker's. E would inherit that error, so trace it first
+(`CV_SPLIT_PLAN.md` Next, step 1). The camera TF at capture is ruled out.
 
 ## E: the whole CV stack, our robot parked
 
