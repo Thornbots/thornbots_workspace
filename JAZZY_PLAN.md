@@ -9,6 +9,28 @@ submodules, the laptop and the three robots (`ts-nano-sentry`,
 gets mixed up with a distro change. Only step 6, the cutover, waits for
 Tracks A to C.
 
+## Where this stands (2026-09-26)
+
+Steps 0, 2 and 3 are done on the laptop, on the `jazzy` branches. Step 1 is
+ready to run at the board: `JAZZY_FLASH.md`. Step 4 ran and misses the bar:
+
+- **Drift suite: 4/7 to 6/7 per run, against Humble's 7/7.** Every metric
+  stays inside its threshold. Five of six failures are robot_localization
+  3.8's "Failed to meet update rate!", now logged at ERROR, which the
+  harness counts; Humble printed it untagged. It never fires at real-time
+  factor 1, where Jazzy scores 7/7. Deciding whether the harness ignores it
+  or `ekf.yaml` lowers `frequency` changes what the test measures, so it's
+  open.
+- **EKF startup hang, 1 in 28 starts:** Jazzy's robot_localization waits
+  for `/clock`, and once never got past it. Cause not found.
+- **C2 staggered cells at 1 and 2 m/s: 0.82 and 1.01 m p95 medians**, against
+  0.23 and 0.27 m on Humble, only unthrottled (0.08-0.22 m at factor 1). The
+  tracker's yaw rate diverges. No gz in C2, so not Harmonic.
+- `headless:=true` segfaults the gz server with no `DISPLAY`.
+
+`suite:=ekf`, C1 and the three CV test files match Humble. Step 5 waits on
+the board.
+
 ## Target
 
 | | Today | After |
@@ -51,13 +73,23 @@ Dockerfiles and `run_dev` moved into a separate apt package,
   `/etc/isaac-ros-cli/`. The workspace YAML config is
   `$ISAAC_ROS_WS/.isaac-ros-cli/config.yaml`. `ISAAC_ROS_WS` is
   `isaac_ros-dev/`, outside this repo, so a setup script symlinks both in
-  from `src/`. Search dirs resolve relative to the config file's
-  unresolved path, so the entry is `../src/isaac_ros_common/docker`.
-- `--context_dir` becomes the `context_overrides` key (image key to context
-  dir), so `Dockerfile.thornbots` keeps `src/` as its context.
-- The default container name is now `isaac_ros_dev_container`. `dexec.sh` and
-  `kill_launch.sh` derive `isaac_ros_dev-$(uname -m)-container`. Setting
-  `docker.run.container_name` to the old name keeps both scripts working.
+  from `src/`. The CLI reads only the first `.isaac_ros_common-config` it
+  finds, so ours lists the CLI's own `docker/` too, as absolute paths (a
+  relative entry breaks through the symlink).
+- `context_overrides` is not a `config.yaml` key; it lives in
+  `.build_image_layers.yaml`, read only from `$ISAAC_ROS_WS/../scripts/` or
+  `/etc/isaac-ros-cli/`. `setup_workspace.sh` links it there, so
+  `Dockerfile.thornbots` keeps `src/` as its context.
+- The image tag hashes only the Dockerfiles. After a package edit, `activate`
+  starts the old image until its tag is `docker rmi`'d, and it exits 0 on a
+  failed build.
+- The container is `isaac_ros_jazzy_container` (`docker.run.container_name`)
+  until cutover, so it runs beside the Humble one. `dexec.sh` and
+  `kill_launch.sh` read the name from `config.yaml`; `ISAAC_ROS_CONTAINER`
+  overrides it.
+- The CLI is apt-only and hardcodes `/etc` and `/usr` paths.
+  `scripts/install_isaac_ros_cli.sh` installs it without root on the Arch
+  laptop.
 - The workspace still mounts at `/workspaces/isaac_ros-dev`, and
   `/workspaces/ros2_ws` is ours, so in-container paths and the shadowing trap
   stay the same.
@@ -70,18 +102,30 @@ Dockerfiles and `run_dev` moved into a separate apt package,
 | Where | Change | Why |
 | --- | --- | --- |
 | `sllidar_ros2`, `rf2o_laser_odometry` CMakeLists | `CMAKE_CXX_STANDARD 14` to `17` | Jazzy's rclcpp headers need C++17 |
-| `image_snapshot_node.cpp`, `roi_depth_node.cpp` | `cv_bridge/cv_bridge.h` to `.hpp` | the `.h` header is deprecated |
+| `image_snapshot_node.cpp`, `roi_depth_node.cpp` | `cv_bridge/cv_bridge.h` to `.hpp` | Jazzy removed the `.h` |
+| `rf2o` CMakeLists, `package.xml` | drop the unused `find_package(Boost)`; declare `nav_msgs` | a clean rosdep install has no Boost |
+| `sentry_localization` `localization.launch.py` | lifecycle manager for slam_toolbox | slam_toolbox 2.8 starts unconfigured; `slam`/`mapping` never publish `map->odom` without it |
+| `ros2_dji_serial_bridge` CMakeLists | `rosidl_get_typesupport_target` | `rosidl_target_interfaces` is deprecated |
 | `rf2o` `CLaserOdometry2DNode.hpp` | check the `tf2/*.h` includes build clean | Jazzy still ships them |
-| `image_snapshot_node.cpp`, bridge README | optional: `SharedPtr` `take()` overload, drop the Humble note | the overload landed in Iron; the current code compiles |
+| `image_snapshot_node.cpp` | replace the `take()` polling with a subscription | the polling never saved a frame, on Humble too; Jazzy has no `SharedPtr` `take()` overload either |
 | `thornbots_pkg`, `sentry_localization` `setup.py` (`sim` is `ament_cmake` since 2026-09-25) | drop `tests_require`; `script-dir`/`install-scripts` to `script_dir`/`install_scripts` | Noble's setuptools warns on both; newer versions reject the dashed keys |
-| `install-sim.sh` | `pip install trimesh` to apt `python3-trimesh`, via a rosdep key in `sim/package.xml` | Ubuntu 24.04 enforces PEP 668, so the bare `pip install` fails |
+| `install-sim.sh` | `pip install --break-system-packages` for trimesh | PEP 668 blocks a bare `pip install`, and noble has no `python3-trimesh` |
 | 5 CMakeLists with `ament_target_dependencies` | leave | deprecated only from Kilted |
 
-The NITROS bridge should port as is. The 4.6 headers for
-`ManagedNitrosPublisher`, the `NitrosImageBuilder` methods we call,
-`nitros_image_rgb8_t`, and the `TensorRTNode` / `YoloV8DecoderNode` plugin
-names and parameters all match our launch file. 4.5's CUDA-stream change to
-NITROS is the thing to watch at runtime.
+The NITROS bridge did not port as is:
+
+- 4.6's `managed_nitros_publisher.hpp` includes a `nitros_type_view.hpp` that
+  no 4.6 package ships. The node now uses `create_publisher<NitrosImage>`,
+  which is what that class wraps.
+- The 4.6 encoder's output tensor is `output_tensor`; the launch passes
+  `tensor_name`, or TensorRT never finds its input.
+- realsense-ros 4.56 reads only `rgb_camera.color_profile` and
+  `depth_module.depth_profile`, and its topics are node-private. The config
+  sets both key forms, and the launch remaps the five topics to root.
+
+`NitrosImageBuilder`, `nitros_image_rgb8_t` and the `TensorRTNode` /
+`YoloV8DecoderNode` plugins and parameters match. 4.5's CUDA-event sync needs
+no change in our node.
 
 ### `sim`: Fortress to Harmonic
 
@@ -132,11 +176,13 @@ drift suite, `suite:=ekf`, the C1 aim bench and C2 once it has limits, and
 ### 1. Reflash `ts-nano-dev` to JetPack 7.2.1
 
 1. Back up anything on it that isn't in git. An NVMe image (`dd` to the
-   laptop, or a spare drive) is the rollback.
+   laptop, or a spare drive) is half the rollback: the installer moves QSPI
+   firmware to 39.x, and an R36 NVMe won't boot on it until R36.5 firmware
+   is reflashed from an Ubuntu 22.04 host in recovery mode.
 2. Flash from the unified ISO on a USB stick. JetPack 7 has no SD-card image
    for Orin Nano.
 3. Install Docker and the NVIDIA container toolkit, add the Isaac ROS apt repo
-   (`release-4`, `noble`), then `sudo apt-get install isaac-ros-cli` and
+   (`release-4`, `noble-jetpack` on Jetson; `noble` is x86), then `sudo apt-get install isaac-ros-cli` and
    `sudo isaac-ros init docker`.
 4. Check that `isaac-ros activate` starts the stock prebuilt image and that
    `tegrastats` works in it.
@@ -153,11 +199,12 @@ submodule so every path stays `isaac_ros_common/docker/...` and
 docker/Dockerfile.thornbots      FROM ${BASE_IMAGE}; ROS_SETUP=/opt/ros/jazzy; --rosdistro jazzy; layer merge
 docker/config/*.yaml             60 fps RealSense profiles, rediffed against 4.6
 docker/fastdds_cable.xml         unchanged until step 5 measures it
-docker/scripts/install-sim.sh    jazzy paths, apt trimesh
+docker/scripts/install-sim.sh    jazzy paths, pip trimesh past PEP 668
 docker/udev_rules/98-rplidar.rules, docker/scripts/hotplug-rplidar.sh
-scripts/.isaac_ros_common-config CONFIG_DOCKER_SEARCH_DIRS=(../src/isaac_ros_common/docker)
-.isaac-ros-cli/config.yaml       additional_image_keys [realsense, thornbots],
-                                 context_overrides thornbots -> src/, container_name
+scripts/.isaac_ros_common-config CONFIG_DOCKER_SEARCH_DIRS, absolute, ours and the CLI's
+scripts/.build_image_layers.yaml context_overrides thornbots -> src/
+.isaac-ros-cli/config.yaml       additional_image_keys [realsense, thornbots], container_name
+scripts/install_isaac_ros_cli.sh no-root CLI install (Arch laptop)
 scripts/dexec.sh, kill_launch.sh
 scripts/setup_workspace.sh       symlinks isaac_ros-dev/scripts and .isaac-ros-cli into src/
 ```
@@ -226,7 +273,7 @@ on the Orin are no worse than step 0.
 | 4.6's Orin support is one release old; the JetPack 7.2 Orin Nano forum thread is still active | Step 5 runs on the spare box; the robots are untouched if it fails |
 | The aarch64 image still hits the 128-layer cap | Count layers in step 2, before porting any package |
 | Harmonic moves a sim verdict | Step 4 catches it while Humble is still the reference |
-| A competition date lands mid-migration | Robots stay on Humble until step 6, each with an NVMe image to roll back to |
+| A competition date lands mid-migration | Robots stay on Humble until step 6, each with an NVMe image and R36.5 firmware to roll back to |
 
 ## Sources
 
