@@ -212,6 +212,12 @@ check. reference.md covers the official suites and the `--headless` flag.
   'command -v gz'` is empty → `install-sim.sh` hasn't run in this container.
   `gz` lives under `/opt/ros/jazzy/opt/gz_tools_vendor/bin` and is on `PATH`
   only after sourcing ROS, which `dexec.sh` does.
+- No `nvidia-smi` or `libcuda.so.1` in the container, gz headless segfaults
+  in `Ogre2RenderEngine::CreateRenderSystem`, or rviz/gz run on `llvmpipe`
+  → the host's `/etc/cdi/nvidia.yaml` is stale, so `--gpus all` mounted no
+  driver libraries. Ask the user to run `sudo nvidia-ctk cdi generate
+  --output=/etc/cdi/nvidia.yaml` and restart the container. Results taken
+  in that state rendered in software; re-run them.
 - rviz shows `No tf data. Frame [map] does not exist` after a bare
   `ros2 launch sim sim.launch.py` → by design. `sim` no longer runs
   `robot_state_publisher`; `thornbots_pkg`'s `auto.launch.py` owns TF.

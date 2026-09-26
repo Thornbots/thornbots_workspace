@@ -12,7 +12,12 @@ Tracks A to C.
 ## Where this stands (2026-09-26)
 
 Steps 0, 2 and 3 are done on the laptop, on the `jazzy` branches. Step 1 is
-ready to run at the board: `JAZZY_FLASH.md`. Step 4 ran and misses the bar:
+ready to run at the board: `JAZZY_FLASH.md`. Step 4 ran and misses the bar,
+but it ran without the GPU: the host's stale `/etc/cdi/nvidia.yaml` gave the
+container no NVIDIA driver libraries, so gz's lidar, the gz GUI and rviz
+all rendered on Mesa's llvmpipe (`isaac_ros_common/AGENTS.md`, Host setup).
+Both regressions below appear only at RTF 0, where CPU contention shows up,
+so re-run step 4 once `smoke.sh` passes before chasing either one:
 
 - **Drift suite: 4/7 to 6/7 per run, against Humble's 7/7.** Every metric
   stays inside its threshold. Five of six failures are robot_localization
@@ -26,7 +31,8 @@ ready to run at the board: `JAZZY_FLASH.md`. Step 4 ran and misses the bar:
 - **C2 staggered cells at 1 and 2 m/s: 0.82 and 1.01 m p95 medians**, against
   0.23 and 0.27 m on Humble, only unthrottled (0.08-0.22 m at factor 1). The
   tracker's yaw rate diverges. No gz in C2, so not Harmonic.
-- `headless:=true` segfaults the gz server with no `DISPLAY`.
+- `headless:=true` segfaults the gz server: with no `DISPLAY` and no
+  NVIDIA EGL, Ogre2 has no render system to load.
 
 `suite:=ekf`, C1 and the three CV test files match Humble. Step 5 waits on
 the board.

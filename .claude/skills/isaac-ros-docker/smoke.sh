@@ -36,6 +36,10 @@ if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "tr
     exit 1
 fi
 ok "$CONTAINER up"
+# --gpus all through a stale /etc/cdi/nvidia.yaml mounts no driver libs.
+docker exec "$CONTAINER" sh -c 'ldconfig -p | grep -q "libcuda.so.1 " || ls /usr/lib/*/tegra/libcuda.so.1' >/dev/null 2>&1 \
+    || fail "no libcuda.so.1 in the container: the host's CDI spec is stale (SKILL.md: Troubleshooting)"
+ok "NVIDIA driver libraries mounted"
 
 echo "== 2. bind mount is the workspace ROOT (build/ install/ log/ src/)"
 docker inspect -f '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}' "$CONTAINER" | grep isaac_ros-dev
