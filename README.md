@@ -1,6 +1,12 @@
 # thornbots_workspace
 
-The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace. Each package is a submodule:
+The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace. Each package is a submodule.
+
+**This is the `humble` branch**: the workspace as it was on ROS 2 Humble and
+Isaac ROS 3.2, before the move to Jazzy. Every submodule tracks its own
+`humble` branch. To get it, add `-b humble` to the clone below.
+
+Each package is a submodule:
 
 ```sh
 git clone --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
