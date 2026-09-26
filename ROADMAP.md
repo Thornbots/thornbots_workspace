@@ -57,6 +57,26 @@ suite and `suite:=ekf` give the same verdicts at `real_time_factor:=0` and
 `suite:=ekf` hasn't been re-run. If it differs, audit every node for
 wall-clock timers, rates and timeouts.
 
+### S5: Benches that start and stop cleanly
+
+Added 2026-09-25. Bringing a bench up or down takes hand-holding today:
+
+- A fresh container has no gz until `install-sim.sh` runs, and nothing says
+  so until a launch fails.
+- Nodes cold-start into a live topic stream. TF has run 0.6 s behind at
+  bring-up, and one bring-up in six left `amcl` unconfigured.
+- Ctrl-C prints a traceback from every Python node: each `main()` is a bare
+  `rclpy.spin` with no shutdown handling.
+- A launch whose host shell dies leaves its nodes orphaned (parent 1,
+  invisible to `kill_launch.sh -l`). Once, nine stacks were all publishing
+  `/clock`.
+
+**Done when:** each bench (drift suite, C1, C2) starts with one command,
+says what's missing if gz isn't installed, and waits until the stack is
+ready before it scores anything. Ctrl-C or the end of the tests stops every
+node it started, with no tracebacks, and a check afterwards finds no
+orphans.
+
 ## Track A: Localization
 
 ### Done: A1, rf2o's sign, and A2, slip in velocity (2026-09-24)
@@ -265,7 +285,7 @@ Finished items come off this list; the next one is always 1.
    can run earlier.
 
 Unscheduled: the CV nodes' move to their own package (Track B), between
-bench runs.
+bench runs, and S5, clean bench start and stop.
 
 ## Caveats
 
