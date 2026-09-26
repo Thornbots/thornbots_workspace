@@ -73,7 +73,7 @@ Dockerfiles and `run_dev` moved into a separate apt package,
 | `image_snapshot_node.cpp`, `roi_depth_node.cpp` | `cv_bridge/cv_bridge.h` to `.hpp` | the `.h` header is deprecated |
 | `rf2o` `CLaserOdometry2DNode.hpp` | check the `tf2/*.h` includes build clean | Jazzy still ships them |
 | `image_snapshot_node.cpp`, bridge README | optional: `SharedPtr` `take()` overload, drop the Humble note | the overload landed in Iron; the current code compiles |
-| `thornbots_pkg`, `sentry_localization`, `sim` `setup.py`; `sim/setup.cfg` | drop `tests_require`; `script-dir`/`install-scripts` to `script_dir`/`install_scripts` | Noble's setuptools warns on both; newer versions reject the dashed keys |
+| `thornbots_pkg`, `sentry_localization` `setup.py` (`sim` is `ament_cmake` since 2026-09-25) | drop `tests_require`; `script-dir`/`install-scripts` to `script_dir`/`install_scripts` | Noble's setuptools warns on both; newer versions reject the dashed keys |
 | `install-sim.sh` | `pip install trimesh` to apt `python3-trimesh`, via a rosdep key in `sim/package.xml` | Ubuntu 24.04 enforces PEP 668, so the bare `pip install` fails |
 | 5 CMakeLists with `ament_target_dependencies` | leave | deprecated only from Kilted |
 
