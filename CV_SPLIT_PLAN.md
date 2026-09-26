@@ -10,8 +10,7 @@ floors are measured.
 
 ## Where this stopped (2026-09-25, handoff)
 
-Everything below is committed and pushed; nothing is running in the
-container.
+Nothing is running in the container.
 
 - **Aiming is done on C1** (1.7, 1.8): 40 per-cell floors from three runs
   each, still and moving shooter, all three paths.
@@ -36,10 +35,20 @@ container.
   copy is gone (`sim/AGENTS.md`).
 - **rviz** panels carry the 15 deg S122 cant in both views.
 
+- **C2 runs on `bench_world` now, no gz** (2026-09-25, the user's call):
+  one C++ lockstep loop is the clock, target, our chassis and head, `/pose`,
+  head controller and detections, ~4x real time with rviz.
+  `flat-speed1` read 0.19 m facing p95 there (`est_world_1`), inside the gz
+  runs' 0.13-0.26 m.
+- **The camera TF at capture is ruled out.** `target_tracker` now waits for
+  the TF at each capture time instead of taking the newest; on gz it never
+  had to wait. The per-second trace shows velocity-error bursts of 4-7 m/s
+  on a 1 m/s target, with facing error up to 1.4 m (`est_tfwait_1`).
+
 Next, in order:
 
-1. Trace the moving-cell error and its run-to-run swing on C2. Start with
-   the camera TF at capture time while the head slews.
+1. Trace the moving-cell error and its run-to-run swing on C2: the velocity
+   bursts, against the path ends and the tracker's re-seeds.
 2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
    (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
    `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
