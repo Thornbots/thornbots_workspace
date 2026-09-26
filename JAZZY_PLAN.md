@@ -12,30 +12,31 @@ Tracks A to C.
 ## Where this stands (2026-09-26)
 
 Steps 0, 2 and 3 are done on the laptop, on the `jazzy` branches. Step 1 is
-ready to run at the board: `JAZZY_FLASH.md`. Step 4 ran and misses the bar,
-but it ran without the GPU: the host's stale `/etc/cdi/nvidia.yaml` gave the
-container no NVIDIA driver libraries, so gz's lidar, the gz GUI and rviz
-all rendered on Mesa's llvmpipe (`isaac_ros_common/AGENTS.md`, Host setup).
-Both regressions below appear only at RTF 0, where CPU contention shows up,
-so re-run step 4 once `smoke.sh` passes before chasing either one:
+ready to run at the board: `JAZZY_FLASH.md`. Step 4 has run twice. The first
+run had no GPU: a stale `/etc/cdi/nvidia.yaml` on the host left the
+container without NVIDIA driver libraries (`isaac_ros_common/AGENTS.md`,
+Host setup). On the GPU, `suite:=ekf` (fused 0.0079 m mean against
+Humble's 0.0075), C1, the three CV test files and `headless:=true` all
+match Humble. Two things still miss the bar, both only at RTF 0:
 
-- **Drift suite: 4/7 to 6/7 per run, against Humble's 7/7.** Every metric
-  stays inside its threshold. Five of six failures are robot_localization
-  3.8's "Failed to meet update rate!", now logged at ERROR, which the
-  harness counts; Humble printed it untagged. It never fires at real-time
-  factor 1, where Jazzy scores 7/7. Deciding whether the harness ignores it
-  or `ekf.yaml` lowers `frequency` changes what the test measures, so it's
-  open.
-- **EKF startup hang, 1 in 28 starts:** Jazzy's robot_localization waits
-  for `/clock`, and once never got past it. Cause not found.
-- **C2 staggered cells at 1 and 2 m/s: 0.82 and 1.01 m p95 medians**, against
-  0.23 and 0.27 m on Humble, only unthrottled (0.08-0.22 m at factor 1). The
-  tracker's yaw rate diverges. No gz in C2, so not Harmonic.
-- `headless:=true` segfaults the gz server: with no `DISPLAY` and no
-  NVIDIA EGL, Ogre2 has no render system to load.
+- **Drift suite: 7/7, 6/7, 6/7, against Humble's 7/7.** Every metric stays
+  inside its threshold. Both failures are robot_localization 3.8's "Failed
+  to meet update rate!", now logged at ERROR, which the harness counts;
+  Humble printed it untagged. 3 such lines in 21 scenario runs on the GPU,
+  against most scenarios failing on software GL. Deciding whether the
+  harness ignores it or `ekf.yaml` lowers `frequency` changes what the test
+  measures, so it's open.
+- **C2: the tracker's yaw rate diverges on 2 or 3 moving cells per run,
+  against about 1 on Humble.** The cells move between runs: on software GL
+  staggered 1 and 2 m/s were high, on the GPU flat 1 and 2 m/s are (0.72
+  and 0.81 m p95 medians, against 0.26 m on Humble). It's gone at RTF 1. C2
+  renders nothing, so this is ROS-side scheduling exposing the tracker
+  fragility in ROADMAP's C2 item, not the GPU and not Harmonic.
+- **EKF startup hang, 1 in 28 starts** on the first run, not seen in the
+  GPU run's 22: Jazzy's robot_localization waits for `/clock`, and once
+  never got past it. Cause not found.
 
-`suite:=ekf`, C1 and the three CV test files match Humble. Step 5 waits on
-the board.
+Step 5 waits on the board.
 
 ## Target
 
