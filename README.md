@@ -22,14 +22,14 @@ everyone else's `git submodule update --init`.
 
 | Path | Branch | Role |
 | --- | --- | --- |
-| `thornbots_pkg` | `main` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
-| `sentry_localization` | `main` | SLAM / AMCL / EKF backends |
-| `sim` | `main` | gz-sim worlds and the localization test suite |
-| `realsense-yolov8-nitros-bridge` | `main` | YOLOv8 detection on the RealSense stream |
-| `Realsense_ROI_Depth_Rectifier` | `main` | Depth rectification for detection ROIs |
-| `ros2_dji_serial_bridge` | `main` | Serial link to the DJI Type-C board |
-| `sllidar_ros2` | `main` | RPLIDAR driver (fork) |
-| `rf2o_laser_odometry` | `ros2` | Scan-matched odometry (fork) |
-| `isaac_ros_common` | `release-3.2` | Isaac ROS base, our Dockerfiles and container scripts |
+| `thornbots_pkg` | `jazzy` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
+| `sentry_localization` | `jazzy` | SLAM / AMCL / EKF backends |
+| `sim` | `jazzy` | gz-sim worlds and the localization test suite |
+| `realsense-yolov8-nitros-bridge` | `jazzy` | YOLOv8 detection on the RealSense stream |
+| `Realsense_ROI_Depth_Rectifier` | `jazzy` | Depth rectification for detection ROIs |
+| `ros2_dji_serial_bridge` | `jazzy` | Serial link to the DJI Type-C board |
+| `sllidar_ros2` | `jazzy` | RPLIDAR driver (fork) |
+| `rf2o_laser_odometry` | `jazzy` | Scan-matched odometry (fork) |
+| `isaac_ros_common` | `jazzy` | Isaac ROS base, our Dockerfiles and container scripts |
 
 Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's Tracks B-C, the end-to-end tests and Track D), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
