@@ -35,6 +35,9 @@ move several gitlinks when they are one change, and a one-line submodule commit
 still earns its own. Batching a week of unrelated commits into a single bump
 leaves a gitlink diff that `git bisect` can't read.
 
+Commit and push as you go, each logical change once it's tested, without
+waiting to be asked (the user, 2026-09-27).
+
 Push the submodule before the superproject. A gitlink pointing at a commit that
 exists only on your machine breaks `git submodule update --init` for everyone
 with `fatal: reference is not a tree`, which is worse than a stale gitlink
