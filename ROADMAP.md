@@ -3,7 +3,7 @@
 A localization suite that can be believed, and CV cut in half at `TargetState`
 with a bench for each half, then the CV stack from detections to gimbal
 tested end to end in sim (`E2E_PLAN.md`). Updated 2026-09-26: Aiming is
-finished, C2 runs on `bench_world` with no limits yet, and the Jazzy port
+finished, C2 runs on `bench_world` with limits on its ten cells, and the Jazzy port
 passes the laptop sim suites on its `jazzy` branches.
 
 This file lists only work still to do. When an item is finished, delete it
@@ -17,7 +17,7 @@ the record.
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26), with rf2o's `fixed_heading` and `/odom` prior. Not yet re-run at real time (S4) |
-| C2 estimation bench (10 cells, no gz) | **Runs on `bench_world`, no limits yet.** Ten cells in ~75 s, 10/10. Stationary under 2 cm facing-panel p95, moving cells 0.08-0.17 m medians (2026-09-26, five runs). Most of the old 0.3 m error and its 2x swing was the bench pacing ahead of the tracker. See `CV_SPLIT_PLAN.md` "Where this stands" |
+| C2 estimation bench (10 cells, no gz) | **Runs on `bench_world`, with limits.** Ten cells in ~75 s, 10/10; `LIMITS` from five runs (2026-09-26). Stationary under 2 cm facing-panel p95, moving cells 0.08-0.17 m medians (2026-09-26, five runs). Most of the old 0.3 m error was the bench pacing ahead of the tracker; the 4 m/s swing left is the radius estimate wandering. See `CV_SPLIT_PLAN.md` "Where this stands" |
 | CV stack end to end in sim | Nothing runs `roi_depth_node` or the serial link. `E2E_PLAN.md` plans the match test: sim plays only the MCB over a pty, a detector stand-in in place of YOLO, lidar and depth; our robot drives and shoots against other `sentry_v2` copies |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, acceleration, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
@@ -166,8 +166,8 @@ head controller and detections. It holds sim time only for the nodes under
 test, the tracker's input among them, and runs the ten cells in ~75 s.
 Metrics as above, plus the facing panel's error, which is what Part 1 aims
 at. `target_tracker` is the slowest node under test; a C++ core for it is
-the user's call (`CV_SPLIT_PLAN.md`). `LIMITS` is empty until three runs
-fill it.
+the user's call (`CV_SPLIT_PLAN.md`). `LIMITS` covers the ten default
+cells, from five runs.
 
 ### C3: The two cases neither bench had, on C2
 
@@ -199,9 +199,9 @@ Orin are no worse.
 
 Finished items come off this list, and off the file; the next one is always 1.
 
-1. **C2:** three of the 2026-09-26 runs fill `LIMITS`, then camera latency,
-   C3's cases and blackout each run three times. The 4 m/s cells still
-   swing 2x between runs (`CV_SPLIT_PLAN.md` "Where this stands").
+1. **C2:** camera latency, C3's cases and blackout each run three times
+   and get limits. The 4 m/s cells still swing 2x between runs, from the
+   radius estimate (`CV_SPLIT_PLAN.md` "Where this stands").
 2. **The rest of Track A:** run A3's metric under `--backend none`, run
    `suite:=ekf` at real time for S4, then A4's `slam` occupancy-grid check
    and S3's finite-acceleration scenario.
