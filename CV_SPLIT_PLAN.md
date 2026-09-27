@@ -22,7 +22,7 @@ what's left is Estimation, then hitting while we move.
   moving cells 0.08-0.17 m medians, and runs agree within 10% except at
   4 m/s (0.13-0.27 m).
 - **`LIMITS` covers all 60 the estimation bench cells** (`sim/test/cv/estimation_limits_data.py`,
-  Jazzy, 2026-09-27): the default ten from six runs, each other case from
+  Jazzy, 2026-09-27, target on sentry_v2's armor panels): the default ten from six runs, each other case from
   three or four, at 2x the worst run and floored at 0.02. A run strays up
   to ~2x from the others, so 1.25x failed fresh runs. About a quarter of
   runs still trip on one outlier: a spin rate misread by 0.6-2 rad/s or the
@@ -109,8 +109,8 @@ is still unmeasured.
 whole world in one C++ lockstep loop: the phantom target with exact truth,
 our chassis and head (gz's joint PD on the arm inertias), `/pose`, the head
 controller and the detections. Each case restarts the track by switching
-detections off for 1 s. `LIMITS` holds the ten default cells, printed by
-`sim/tools/estimation_limits.py` from five runs (2026-09-26).
+detections off for 1 s. `LIMITS` holds all 60 cells, printed by
+`sim/tools/estimation_limits.py` from 22 runs (2026-09-27).
 
 - `test/cv/test_estimation.py` over `estimation_harness.py`. Each published
   `TargetState` is compared with the truth at its own `header.stamp`, so a
