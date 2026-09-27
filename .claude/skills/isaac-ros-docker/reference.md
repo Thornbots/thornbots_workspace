@@ -160,7 +160,7 @@ no-root install into `~/.local` (its header says how).
   forwarded from the host
 - `--network host`, `--ipc=host`, `--privileged`
 - `ROS_DOMAIN_ID` from the host env, overridden to 1 by `/etc/bash.bashrc`
-  until the Jazzy cutover
+  until the robots move to Jazzy
 - Container user is created/renamed on entry to match your host UID/GID
   (`workspace-entrypoint.sh`), and added to `video`, `plugdev`, `sudo`, and
   **`dialout`**, the last one from `Dockerfile.thornbots`'s entrypoint

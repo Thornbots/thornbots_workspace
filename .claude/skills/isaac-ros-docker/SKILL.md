@@ -45,8 +45,8 @@ export ISAAC_ROS_WS=~/workspaces/isaac_ros-dev   # the workspace holding this sr
 isaac-ros activate
 ```
 
-`smoke.sh` and `dexec.sh` both preflight this. Until the Jazzy cutover a
-Humble container, `isaac_ros_dev-x86_64-container`, may run beside it. The
+`smoke.sh` and `dexec.sh` both preflight this. The frozen Humble container,
+`isaac_ros_dev-x86_64-container`, may run beside it; don't work there. The
 scripts on this branch never pick it; `ISAAC_ROS_CONTAINER=<name>` overrides.
 
 ## Driving it: `smoke.sh`
@@ -77,7 +77,7 @@ starts rviz regardless), so a window opens on the user's display.
   `log/` and `src/` are shared and colcon artifacts outlive the container.
   Packages are at `/workspaces/isaac_ros-dev/src/<pkg>`; a path missing that
   `src/` resolves to nothing instead of erroring.
-- `ROS_DOMAIN_ID` is 1 in this image until the cutover, so Humble nodes on
+- `ROS_DOMAIN_ID` is 1 in this image until the robots move, so Humble nodes on
   domain 0 stay invisible. Cross-machine work needs both sides on 1.
 - **A fresh container has no gz-sim.** Before any `sim` launch, run once:
   `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh`.

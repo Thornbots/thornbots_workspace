@@ -4,9 +4,10 @@ ROADMAP.md Track D. Covers this superproject, all nine submodules, the
 laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 `ts-nano-standard`). The test box is `ts-nano-dev`.
 
-Steps 1 to 5 happen on `jazzy` branches and on `ts-nano-dev`, so `main` and
-the robots stay on Humble and no suite verdict gets mixed up with a distro
-change. Only step 6, the cutover, waits for Tracks A to C.
+**`main` is Jazzy since 2026-09-27.** Every repo's default branch took its
+`jazzy` (`isaac_ros_common` is tracked on `jazzy` itself), and the `humble`
+branches hold the last Humble tree, **frozen**: no more work goes there.
+The robots stay on Humble, running that frozen tree, until step 6.
 
 ## Where this stands (2026-09-26)
 
@@ -44,7 +45,7 @@ first:
   the tracker's input, and both distros read the same.
 
 Left: step 1 (reflash `ts-nano-dev`, runbook `JAZZY_FLASH.md`), step 5 (the
-hardware checks on it), and step 6 (cutover). Before step 1 wipes the board,
+hardware checks on it), and step 6 (the robots). Before step 1 wipes the board,
 record the Humble YOLO numbers step 5 compares against; step 0 had no
 camera.
 
@@ -83,7 +84,7 @@ Ada, driver 615.71) already meets 4.6's driver 595+ floor.
   recorded invariants (239.255.0.1 in the peer list, `maxInitialPeersRange`
   32, SHM hiding local participants) were measured on 2.6. Measure again.
 - Humble and Jazzy nodes on one DDS domain don't interoperate reliably. Jazzy
-  machines run on `ROS_DOMAIN_ID=1` until cutover.
+  machines run on `ROS_DOMAIN_ID=1` until the last robot moves.
 - The image's layer count on aarch64. It is 42 on x86_64 (8 ours) after the
   `Dockerfile.thornbots` merge; the Humble image hit 127 of the ~128 cap.
 - The CLI mounts each host's `~/.bashrc` and `~/.profile` into the
@@ -124,21 +125,15 @@ Ada, driver 615.71) already meets 4.6's driver 595+ floor.
 5. Time a full `colcon build` on the 8 GB Orin Nano. The `-j6` / 3-worker
    caps were set for the old toolchain.
 
-### 6. Cutover, after Tracks A to C
+### 6. The robots
 
-1. Move every repo's `humble` branch up to what `main` pins, and push them,
-   packages first. `humble` holds the pre-Jazzy tree (cut 2026-09-26 at
-   `44ff037`, `.gitmodules` pointing at each package's `humble`), and it
-   goes stale while `main` keeps taking Humble work. Check it with a fresh
-   `git clone -b humble --recurse-submodules` and the README one-liner.
-2. Merge each package's `jazzy` into its default branch and push, then merge
-   the superproject's `jazzy`. `isaac_ros_common`'s `.gitmodules` branch
-   becomes `jazzy`, and the README table follows. That bump is one commit.
-3. Reflash `ts-nano-sentry` first, with an NVMe image taken beforehand. Run
+The branches moved on 2026-09-27 (`main` is Jazzy, `humble` frozen).
+
+1. Reflash `ts-nano-sentry` first, with an NVMe image taken beforehand. Run
    the step 5 checks and a full `auto.launch.py`.
-4. Then `ts-nano-hero` and `ts-nano-standard`. Every machine goes back to
+2. Then `ts-nano-hero` and `ts-nano-standard`. Every machine goes back to
    `ROS_DOMAIN_ID=0` once the last Humble one is gone.
-5. Remove the Humble images from the robots, rewrite every `humble`
+3. Remove the Humble images from the robots, rewrite every `humble`
    reference but the README's pointer to the `humble` branch, and delete
    Track D from ROADMAP.md.
 
