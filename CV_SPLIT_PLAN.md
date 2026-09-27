@@ -16,25 +16,28 @@ what's left is Estimation, then hitting while we move.
   `[pos, vel, acc, yaw, w, r, dz]`, with Singer acceleration, a single-panel
   yaw measurement and a still hypothesis for a parked, non-spinning target.
   `thornbots_pkg/README.md` has the design.
-- **C2 runs on `bench_world`**, one C++ lockstep loop with no gz. All ten
-  cells take about a minute. Stationary cells read under 1 cm facing p95;
-  moving cells' medians over three runs read 0.17-0.31 m, and one cell per
-  run jumps past 0.7 m, a different one each time. That swing is the
-  tracker's: gz showed it too.
-- **`target_tracker` is C2's speed ceiling.** It saturates a core at ~8x:
+- **C2 runs on `bench_world`**, one C++ lockstep loop with no gz, paced by
+  the nodes under test at ~5x: the ten cells take ~75 s. Five runs each on
+  Humble and Jazzy (2026-09-26): stationary cells under 2 cm facing p95,
+  moving cells 0.08-0.17 m medians, and runs agree within 10% except at
+  4 m/s (0.13-0.27 m).
+- **Most of the old moving-cell error was the bench.** Until 2026-09-26
+  `bench_world` paced on `TargetState`'s stamp, which the tracker sets at
+  publish time, so it ran ahead while the tracker worked through a full
+  queue 0.12-0.21 s behind capture. Moving cells read 0.29-0.33 m medians,
+  with a quarter to a third of them past 0.5 m. It now paces on
+  `/cv/tracker/measurement`.
+- **`target_tracker` is the slowest node under test.** Profiled at ~8x:
   `ArmorTracker.step`'s small-matrix numpy is 46% of its main thread, its TF
-  listener thread 27%. A C++ core would lift it and speed up the Jetson;
-  the user's call.
-- **The camera TF at capture is ruled out** as the moving-cell error. The
-  per-second trace shows velocity-error bursts of 4-7 m/s on a 1 m/s target,
-  with facing error up to 1.4 m.
+  listener thread 27%. A C++ core would speed up C2 and the Jetson; the
+  user's call.
 
 Next, in order:
 
-1. Trace the moving-cell error and its run-to-run swing on C2: the velocity
-   bursts, against the path ends and the tracker's re-seeds.
-2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
-   (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
+1. `sim/tools/estimation_limits.py` fills `LIMITS` from three of the
+   2026-09-26 runs (2.0). The 4 m/s cells still swing 2x between runs; look
+   at them against the path ends and the tracker's re-seeds.
+2. Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
    `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
 3. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to

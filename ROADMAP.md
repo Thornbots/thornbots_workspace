@@ -17,7 +17,7 @@ the record.
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26), with rf2o's `fixed_heading` and `/odom` prior. Not yet re-run at real time (S4) |
-| C2 estimation bench (10 cells, no gz) | **Runs on `bench_world`, no limits yet.** All ten cells in about a minute, 10/10 on liveness. Stationary under 1 cm facing-panel p95; moving cells' medians 0.17-0.31 m over three runs, with one cell per run past 0.7 m, not yet traced. See `CV_SPLIT_PLAN.md` "Where this stands" |
+| C2 estimation bench (10 cells, no gz) | **Runs on `bench_world`, no limits yet.** Ten cells in ~75 s, 10/10. Stationary under 2 cm facing-panel p95, moving cells 0.08-0.17 m medians (2026-09-26, five runs). Most of the old 0.3 m error and its 2x swing was the bench pacing ahead of the tracker. See `CV_SPLIT_PLAN.md` "Where this stands" |
 | CV stack end to end in sim | Nothing runs `roi_depth_node` or the serial link. `E2E_PLAN.md` plans the match test: sim plays only the MCB over a pty, a detector stand-in in place of YOLO, lidar and depth; our robot drives and shoots against other `sentry_v2` copies |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, acceleration, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
@@ -163,11 +163,11 @@ with D435-like ray noise, and nothing fires. Part 2 is benchmarked only on how c
 **Built:** `estimation.launch.py` on `bench_world`, one C++ lockstep loop
 that stands in for gz: clock, phantom target, our chassis and head, `/pose`,
 head controller and detections. It holds sim time only for the nodes under
-test and runs the ten cells in about a minute. Metrics as above, plus the
-facing panel's error, which is what Part 1 aims at. `target_tracker` is the
-speed ceiling (a saturated core at ~8x); a C++ core for it is the user's
-call (`CV_SPLIT_PLAN.md`). `LIMITS` is empty until the moving-cell error is
-traced and three runs fill it.
+test, the tracker's input among them, and runs the ten cells in ~75 s.
+Metrics as above, plus the facing panel's error, which is what Part 1 aims
+at. `target_tracker` is the slowest node under test; a C++ core for it is
+the user's call (`CV_SPLIT_PLAN.md`). `LIMITS` is empty until three runs
+fill it.
 
 ### C3: The two cases neither bench had, on C2
 
@@ -199,12 +199,9 @@ Orin are no worse.
 
 Finished items come off this list, and off the file; the next one is always 1.
 
-1. **C2:** trace the moving-cell error and its run-to-run swing. The camera
-   TF at capture is ruled out (the tracker never waited for it on gz); next
-   are the 4-7 m/s velocity-error bursts on a 1 m/s target, against the
-   path ends and the tracker's re-seeds. Then three runs fill `LIMITS`, and
-   camera latency, C3's cases and blackout each run three times
-   (`CV_SPLIT_PLAN.md` "Where this stands").
+1. **C2:** three of the 2026-09-26 runs fill `LIMITS`, then camera latency,
+   C3's cases and blackout each run three times. The 4 m/s cells still
+   swing 2x between runs (`CV_SPLIT_PLAN.md` "Where this stands").
 2. **The rest of Track A:** run A3's metric under `--backend none`, run
    `suite:=ekf` at real time for S4, then A4's `slam` occupancy-grid check
    and S3's finite-acceleration scenario.
@@ -239,5 +236,5 @@ Midwest competition; until then the match test drives our robot from sim.
 - `sentry_v2` collides, but what it does when driven into a wall hasn't been
   checked. That matters the day obstacle *avoidance* becomes something to
   demonstrate.
-- C2 moves 2x between runs on the same cell, so compare C2 changes over
-  three runs, not one.
+- C2's 4 m/s cells move 2x between runs, so compare C2 changes over three
+  runs, not one.
