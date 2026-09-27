@@ -21,7 +21,7 @@
 [submodule "isaac_ros_common"]
 	path = isaac_ros_common
 	url = https://github.com/Thornbots/isaac_ros_common.git
-	branch = jazzy
+	branch = main
 [submodule "Realsense_ROI_Depth_Rectifier"]
 	path = Realsense_ROI_Depth_Rectifier
 	url = https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier.git
