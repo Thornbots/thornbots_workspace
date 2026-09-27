@@ -160,12 +160,10 @@ on the field). Where it stands:
   places each detection with the camera's TF at capture time.
 - **Aim solve: already in the world.** `plan_shot` solves the intercept in
   `odom`, including our velocity.
-- **Aim output: documented in the world, not yet sent there.** Since
-  2026-09-27 `CVTarget.msg` and `UART_PROTOCOL.md` say `x/y/z` is an `odom`
-  point (same bytes). `point_to_cv_target.py` still converts it to `root`
-  with the newest TF (`Time()` lookups), so the MCB holds a `root` point
-  while the chassis moves on and the aim drifts by our motion over the
-  command's age. W.3's open issues below.
+- **Aim output: in the world on our side.** Since 2026-09-27 `CVTarget`
+  carries an `odom` point (same bytes), and `sim`'s readers hold it at
+  their own pose. The firmware and the shared frame are W.3's open issues
+  below.
 - **Our pose: incomplete.** `RobotPose` has no chassis yaw (`head_yaw` is the
   gimbal's), the stack assumes a fixed heading (`sim/AGENTS.md`: the
   chassis already picks up ~1 deg in sim), and the stamp is Jetson arrival.
@@ -180,7 +178,7 @@ What it needs, in order:
 | W.4 | `sim` | The aiming bench: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. The estimation bench: our gz chassis turns while tracking |
 | W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like the aiming bench's `FLOORS` and 2.0 |
 
-W.3's open issues (the docs changed 2026-09-27; nothing else has):
+W.3's open issues (our side switched 2026-09-27):
 
 1. **Which `odom` the MCB holds in.** The docs call it POSE_MSG's frame, but
    the Jetson's `odom->root` is `/localization/odom` (EKF-fused with rf2o
@@ -189,23 +187,13 @@ W.3's open issues (the docs changed 2026-09-27; nothing else has):
    in flight across a relocalize lands where the old origin was. Pick one
    frame both sides share, or send the aim relative to a pose the MCB also
    has. Without W.1's chassis yaw the rotations aren't shared either.
-2. **`thornbots_pkg`: `point_to_cv_target.py`** publishes `aim_odom` (and
-   `panel_odom` in the `!valid` fallback) without the `odom->root`
-   `_apply`, sets `header.frame_id = odom`, and its tests, README and
-   docstrings follow.
-3. **`sim`: every `/cv/target` reader assumes `root`**: `cv_head_aim.py`,
-   `bench_world.cpp`'s head solve, `shot_hit_harness.py`'s gun direction,
-   and `E2E_PLAN.md`'s MCB emulator row. Each converts the `odom` point to
-   `root` at its own current pose, the way the MCB would. Lands with 2, or
-   the aiming bench stops scoring.
-4. **Firmware: `CVData`** treats `x/y/z` as `odom` and re-aims as the
+2. **Firmware: `CVData`** treats `x/y/z` as `odom` and re-aims as the
    chassis moves and turns. The layout doesn't change, so a mismatch fails
    no length check (`ros2_dji_serial_bridge/README.md`).
 
 W.1 and W.3 change the wire protocol and the MCB firmware, which live
 outside this workspace; agree them with the firmware side first. W.2 and
-W.4 can start now. Until W.3 lands, sim can score the gap by holding the
-last root-frame aim while our chassis moves.
+W.4 can start now.
 
 ## Stamps
 

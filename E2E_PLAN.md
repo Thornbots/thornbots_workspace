@@ -95,7 +95,7 @@ constants in `cv_target_emulator` and `bench_world.cpp`.
 | Detector stand-in | Nothing publishes `/detections_output` in sim | For every panel on every other robot: look up its pose at the depth image's stamp, project the corners through `CameraInfo`, and keep it if it faces the camera (the 145 deg exposure cone), lands in the image, and the rendered depth at its centre agrees with its projected depth. The depth check gives occlusion by the field and other robots for free. Publishes the `Detection2DArray` YOLO would, in network space with the 640x640 letterbox `roi_depth_node` now undoes, class by team (blue 0-3, red 4-7), stamped with the image stamp. Pixel jitter and dropout are parameters, off at first |
 | Depth units | gz publishes 32FC1 metres; `roi_depth_node` reads 16UC1 millimetres | Convert in a small sim node, or let `roi_depth_node` accept both. Check the encoding on a live topic first |
 | Extrinsics | Nothing publishes `/extrinsics/depth_to_color` | Publish identity, since the stand-in's boxes are in the depth camera's frame |
-| MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | A Python node on the other end of a pty from `dji_serial_bridge`. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the root-frame point, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
+| MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | A Python node on the other end of a pty from `dji_serial_bridge`. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
 | Driving | The drift harness steps `/cmd_vel` | The test drives our chassis through the MCB emulator from a scripted route with finite acceleration (ROADMAP S3), the way the MCB's own drive would move it |
 | Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `deltaAngleGotHitIn`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS_MSG` |
 | Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. Scoring against the canted square fixes ROADMAP's Caveat that hits are scored as distance to the centre |
@@ -124,8 +124,8 @@ from stage to stage, so a drop belongs to the hops that stage added.
 3. E3, driving while shooting. Our robot drives the scripted route: straight
    at 1 and 2 m/s, a 90 deg turn while driving, and spinning in place.
    Localization from gz lidar is in the loop, so its error at fire time
-   lands in the score. Aim is still the root-frame point, which measures
-   what the current wire format costs while moving.
+   lands in the score. The aim is an `odom` point, but `RobotPose` has no
+   chassis yaw yet, which the turn and the spin measure.
 4. E4, the match. Several opponents and the ally, with opponents shooting
    back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
