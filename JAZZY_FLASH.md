@@ -32,7 +32,8 @@ camera here, take them on `ts-nano-sentry` before its reflash instead.
 ### 1.1 Temporary passwordless sudo for the backup tools
 
 `sudo` over a non-tty ssh pipe can't prompt, and `ssh -t` corrupts binary
-output. The reflash removes this file.
+output. The reflash removes this file. Skip this if the board already has
+section 4's `90-nano-dev-nopasswd` rule (`ssh ts-nano-dev sudo -n true`).
 
 ```bash
 ssh -t ts-nano-dev 'echo "nano-dev ALL=(root) NOPASSWD: /usr/bin/dd, /usr/bin/tar, /usr/sbin/sfdisk, /usr/sbin/fstrim" | sudo tee /etc/sudoers.d/99-backup && sudo chmod 440 /etc/sudoers.d/99-backup'
@@ -222,6 +223,16 @@ step 1. If it is, select it (top-bar power menu, or
 ```bash
 sudo apt update && sudo apt install -y openssh-server rsync zstd
 sudo systemctl enable --now ssh
+```
+
+Passwordless sudo, so agents and scripts can run `sudo -n`, and the
+timezone. The r39.2.1 image ships `/etc/timezone` as `Etc/UTC` and oem-config
+only sets `/etc/localtime`, so anything reading the zone name from
+`/etc/timezone` (Python's `tzlocal`, Java) sees UTC:
+
+```bash
+echo "nano-dev ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/90-nano-dev-nopasswd && sudo chmod 440 /etc/sudoers.d/90-nano-dev-nopasswd
+sudo timedatectl set-timezone America/New_York && echo America/New_York | sudo tee /etc/timezone
 ```
 
 Restore from the laptop's backup (copy `system-state.tgz` and `home/.ssh`
