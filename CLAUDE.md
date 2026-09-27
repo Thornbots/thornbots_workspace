@@ -1,5 +1,7 @@
 # isaac_ros-dev workspace
 
+**Frozen Humble tree (`humble`).** Work in `~/workspaces/isaac_ros-jazzy`, `main`.
+
 Use standard practices and callout when the current practicies in the code don't
 match the standard.
 
