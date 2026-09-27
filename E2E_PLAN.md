@@ -66,23 +66,25 @@ first.
 
 ## Panels on the URDF
 
-The stand-in needs each armor panel as a frame it can look up, and depth
-needs something solid to see. Today the panel layout lives only as
-constants in `cv_target_emulator` and `bench_world.cpp`.
+Done 2026-09-27 for both URDFs. The CAD export has the armor modules, and
+`simplify_urdf.py` emits one link per face, `armor_0` to `armor_3`, with
++x along the outward normal and a thin box for depth and shots
+(`sim/README.md` has the geometry). Two findings differ from what this plan
+assumed:
 
-- `sentry_v2.yaml` gains an `armor` section and `simplify_urdf.py` emits
-  four links, `armor_front`, `armor_left`, `armor_back` and `armor_right`,
-  fixed to the chassis. Each link's origin sits at the panel face centre
-  with +x along the outward normal, canted 15 deg (S122), so a panel's
-  corners are its centre plus or minus half the size along y and z.
-- Positions and heights come from the CAD if the export has the armor
-  modules, otherwise from the rules (S122 cant, pairs up to 100 mm apart in
-  height). The face size is the Large Armor Module's.
-- Each link has a thin box visual and collision, so the depth camera sees
-  it and shots can be scored against it.
-- `thornbots_pkg`'s URDF gets the same frames, and `test_urdf_constants.py`
-  pins `cv_target_emulator`'s and `bench_world.cpp`'s panel constants to
-  them, as it does the head chain now.
+- The faces sit on the diagonals at 45 deg + k x 90 deg from the gun, not
+  front/left/back/right, all 0.252 m out, at two heights (0.230 and
+  0.136 m).
+- The face is 135 x 125 mm, the Small Armor Module's. That is right: ARCC
+  2026 uses only the Small module, on every robot.
+
+`test_urdf_constants.py` pins `thornbots_pkg`'s armor frames to sim's, and
+checks the S122 cant and the S126 stagger.
+
+Still to do: `cv_target_emulator` and `bench_world.cpp` model the target
+with 0.30/0.24 m radii, no stagger, panels at 0/90/180/270 deg and a
+0.1 m face. Pinning them to the URDF changes every bench cell, so
+`FLOORS` and `LIMITS` would need fresh runs. That is the user's call.
 
 ## The match test
 
@@ -170,3 +172,4 @@ robot parked.
 | How many robots in E4 | The full 3v3, three opponents and two allies, if the RTF holds; one of each if it doesn't |
 | MCB emulator in Python or a firmware build on the host | Python first; a host build of the real firmware later, if the firmware side can produce one |
 | How the MCB's own drive behaves (acceleration, yaw hold) | Ask the firmware side before E3, so the emulator matches it |
+| Move the benches' target onto the URDF's panels | Yes, with fresh `FLOORS` and `LIMITS` runs, so the benches and the match test score the same robot |
