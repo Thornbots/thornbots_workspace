@@ -106,6 +106,21 @@ mesh cost ~3× sim speed. `moving_obstacles` reads 0.18 m against 0.40 m.
 **Left:** the `slam` occupancy-grid check (a `TODO(A4)` in
 `_run_cornering_loop_scenario`).
 
+### A5: Grade rf2o's matches
+
+rf2o grades each scan match good, degraded or failed from its own evidence,
+never against `/odom`, and a failed match carries the pose on `/odom`'s
+increment so the EKF never sees a jump. `sim`'s `scan_degraded` scenario
+blanks 300 deg of `/scan` for two legs.
+
+**Done when:** `scan_degraded` passes at `--backend amcl --use-ekf`, the
+other seven scenarios and `suite:=ekf` are no worse, and over 99% of clean-run
+matches grade good.
+
+**Built (2026-09-27), sim not yet run:** grading, the quality topic,
+`config/rf2o.yaml` and the scenario. rf2o's gtest passes. Thresholds are
+guesses until the suite's `/scan_odom/quality` distributions are in.
+
 ## Track B: Split CV at `TargetState`
 
 > **Part 1: hit it.** `point_to_cv_target`. `TargetState` plus our own pose in,
