@@ -232,6 +232,9 @@ check. reference.md covers the official suites and the `--headless` flag.
   `setup_workspace.sh` never ran. reference.md lists where it looks.
 - GUI app fails with X11/Qt/xcb "could not connect to display" → it ran as
   root, whose `$HOME=/root` has no `.Xauthority`. Use `dexec.sh` (`-u admin`).
+- rviz "no Qt platform plugin" and `echo $DISPLAY` empty in the container →
+  it was activated from a shell with no `DISPLAY`. Prefix the command with
+  `env DISPLAY=:2` (`ls /tmp/.X11-unix`), or re-activate from the desktop.
 - A TF/topic problem unreproducible from `docker exec` but real in the user's
   terminal → that session never loaded `FASTRTPS_DEFAULT_PROFILES_FILE`. Use
   `dexec.sh`.

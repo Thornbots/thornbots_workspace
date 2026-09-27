@@ -17,7 +17,7 @@ the record.
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26), with rf2o's `fixed_heading` and `/odom` prior. Not yet re-run at real time (S4) |
-| C2 estimation bench (10 cells, no gz) | **Runs on `bench_world`, with limits.** Ten cells in ~75 s, 10/10; `LIMITS` from five runs (2026-09-26). Stationary under 2 cm facing-panel p95, moving cells 0.08-0.17 m medians (2026-09-26, five runs). Most of the old 0.3 m error was the bench pacing ahead of the tracker; the 4 m/s swing left is the radius estimate wandering. See `CV_SPLIT_PLAN.md` "Where this stands" |
+| C2 estimation bench (60 cells, no gz) | **Runs on `bench_world`, with limits on every cell** (Jazzy, 2026-09-27): default, camera latency, moving shooter, radial, diagonal and blackout. Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m; radial doubles along-ray error at 2-4 m/s, blackout is 2-3x worse. About a quarter of runs trip one limit on a spin-rate or radius outlier. See `CV_SPLIT_PLAN.md` "Where this stands" |
 | CV stack end to end in sim | Nothing runs `roi_depth_node` or the serial link. `E2E_PLAN.md` plans the match test: sim plays only the MCB over a pty, a detector stand-in in place of YOLO, lidar and depth; our robot drives and shoots against other `sentry_v2` copies |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, acceleration, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
@@ -166,17 +166,9 @@ head controller and detections. It holds sim time only for the nodes under
 test, the tracker's input among them, and runs the ten cells in ~75 s.
 Metrics as above, plus the facing panel's error, which is what Part 1 aims
 at. `target_tracker` is the slowest node under test; a C++ core for it is
-the user's call (`CV_SPLIT_PLAN.md`). `LIMITS` covers the ten default
-cells, from five runs.
-
-### C3: The two cases neither bench had, on C2
-
-- **We are moving** (`shooter_speed:=1.0`): odom-frame filtering while
-  `root` moves.
-- **Depth changes** (`target_path:=radial`/`diagonal`): depth error grows
-  with range squared while bearing error stays near a pixel, which is why
-  `ray_covariance` is anisotropic. Center error along the ray should grow
-  and error across it should not.
+the user's call (`CV_SPLIT_PLAN.md`). `LIMITS` covers all 60 cells, the
+C3 cases (moving shooter, radial, diagonal), latency and blackout included,
+at 2x the worst of three to six runs.
 
 ## Track D: ROS 2 Jazzy (last)
 
@@ -199,19 +191,16 @@ Orin are no worse.
 
 Finished items come off this list, and off the file; the next one is always 1.
 
-1. **C2:** camera latency, C3's cases and blackout each run three times
-   and get limits. The 4 m/s cells still swing 2x between runs, from the
-   radius estimate (`CV_SPLIT_PLAN.md` "Where this stands").
-2. **The rest of Track A:** run A3's metric under `--backend none`, run
+1. **The rest of Track A:** run A3's metric under `--backend none`, run
    `suite:=ekf` at real time for S4, then A4's `slam` occupancy-grid check
    and S3's finite-acceleration scenario.
-3. **The match test, E1 to E4** (`E2E_PLAN.md`): armor panels on the URDF
+2. **The match test, E1 to E4** (`E2E_PLAN.md`): armor panels on the URDF
    and the detector stand-in, then the serial link against an MCB
    emulator, then driving while shooting, then opponents that shoot back.
    The speed work in the same file runs alongside.
-4. **Hit while we move, E5:** our pose and the aim command in the world
+3. **Hit while we move, E5:** our pose and the aim command in the world
    frame (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
-5. **Move the robots to Jazzy** (Track D): `ts-nano-dev` first (steps 1
+4. **Move the robots to Jazzy** (Track D): `ts-nano-dev` first (steps 1
    and 5), then each robot. Until then the robots run frozen Humble code.
 
 Unscheduled: the CV nodes' move to their own package (Track B), between
@@ -236,5 +225,5 @@ Midwest competition; until then the match test drives our robot from sim.
 - `sentry_v2` collides, but what it does when driven into a wall hasn't been
   checked. That matters the day obstacle *avoidance* becomes something to
   demonstrate.
-- C2's 4 m/s cells move 2x between runs, so compare C2 changes over three
-  runs, not one.
+- C2 runs stray up to 2x from each other (radius and spin-rate outliers),
+  so compare C2 changes over three runs, not one.

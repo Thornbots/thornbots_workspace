@@ -20,8 +20,21 @@ what's left is Estimation, then hitting while we move.
   the nodes under test at ~5x: the ten cells take ~75 s. Five runs each on
   Humble and Jazzy (2026-09-26): stationary cells under 2 cm facing p95,
   moving cells 0.08-0.17 m medians, and runs agree within 10% except at
-  4 m/s (0.13-0.27 m). `LIMITS` holds those ten cells: the worst of the
-  five Humble runs x 1.25, floored at 0.01.
+  4 m/s (0.13-0.27 m).
+- **`LIMITS` covers all 60 C2 cells** (`sim/test/cv/estimation_limits_data.py`,
+  Jazzy, 2026-09-27): the default ten from six runs, each other case from
+  three or four, at 2x the worst run and floored at 0.02. A run strays up
+  to ~2x from the others, so 1.25x failed fresh runs. About a quarter of
+  runs still trip on one outlier: a spin rate misread by 0.6-2 rad/s or the
+  radius wandering, on a staggered or 4 m/s cell.
+- **The other cases, facing-panel p95 against the default's 0.08-0.19 m:**
+  camera latency 0.03 s, undone, matches it. Our chassis at
+  1 m/s matches it. Radial doubles the error along the ray at 2-4 m/s
+  (0.18-0.25 m against 0.09-0.11) while error across it drops, and
+  stationary cells don't change, so it grows with speed along the ray, not
+  with range. Diagonal falls between. Blackout (0.3 s of every 2 s) is
+  2-3x worse, 0.14-0.35 m; staggered 0.5-1 m/s suffers most (0.28-0.30 m
+  against 0.09).
 - **The 4 m/s swing is the radius estimate wandering.** In the bad run of
   each 4 m/s cell (one of five each), radius error sits at 5-12 cm for
   10-20 s where the good runs hold ~2 cm, and facing-panel error follows it
@@ -40,10 +53,10 @@ what's left is Estimation, then hitting while we move.
 
 Next, in order:
 
-1. 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
-   `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice,
-   then `estimation_limits.py` adds their cells to `LIMITS`.
-2. Open for the user: whether to hold the radius tighter at 4 m/s (above).
+1. Open for the user: whether to hold the radius tighter at 4 m/s, and
+   why the spin rate is misread now and then (both above).
+2. Open for the user: radial motion's along-ray error, and blackout
+   recovery on staggered targets (above). Neither has a fix planned.
 3. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to
    0.4 m in the first second). Spin-rate variance doesn't separate locked
@@ -110,15 +123,6 @@ detections off for 1 s. `LIMITS` holds the ten default cells, printed by
 - Done when C2 runs every C1 cell in one session and scores the same run
   alone and in sequence.
 
-### 2.1 Camera latency on C2
-
-**Ready to run:** `estimation.launch.py camera_latency_s:=0.03` against the
-default 0; `tracker_camera_latency_s:=0` shows the error left undone.
-
-Turn on the emulator's camera-latency offset alongside its delivery delay.
-Done when the tracker, with `camera_latency_s` set to match, publishes states
-whose error at their own stamp matches the zero-latency numbers.
-
 ### 2.2 Per-pair z
 
 **Built, unit-tested.** `ArmorEKF` carries `dz`, the tracked pair's height
@@ -140,16 +144,6 @@ velocity error is in `estimation.jsonl` per case and per state.
 
 Tune `process_noise_accel` against C2's velocity-error trace, path ends
 included.
-
-### 2.4 C3 cases
-
-**Ready to run:** `shooter_speed:=1.0` drives our chassis, `target_path:=`
-radial or diagonal; `center_along_m` and `center_across_m` split the center
-error on the ray from us.
-
-C3's shooter-moving and radial cases on C2, scored the same way. Radial is the
-case `ray_covariance` exists for: depth error grows with range squared, so
-center error along the ray should grow and error across it should not.
 
 ## Hitting while we move: target and aim in the world
 
