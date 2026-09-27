@@ -1,42 +1,52 @@
 # Plan: move from ROS 2 Humble to Jazzy
 
-ROADMAP.md Track D, 2026-09-25. Covers this superproject, all nine
-submodules, the laptop and the three robots (`ts-nano-sentry`,
-`ts-nano-hero`, `ts-nano-standard`). The test box is `ts-nano-dev`.
+ROADMAP.md Track D. Covers this superproject, all nine submodules, the
+laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
+`ts-nano-standard`). The test box is `ts-nano-dev`.
 
-**Track D still goes last.** Steps 0 to 5 happen on `jazzy` branches and on
-`ts-nano-dev`, so `main` and the robots stay on Humble and no suite verdict
-gets mixed up with a distro change. Only step 6, the cutover, waits for
-Tracks A to C.
+Steps 1 to 5 happen on `jazzy` branches and on `ts-nano-dev`, so `main` and
+the robots stay on Humble and no suite verdict gets mixed up with a distro
+change. Only step 6, the cutover, waits for Tracks A to C.
 
 ## Where this stands (2026-09-26)
 
-Steps 0, 2 and 3 are done on the laptop, on the `jazzy` branches. Step 1 is
-ready to run at the board: `JAZZY_FLASH.md`. Step 4 has run twice. The first
-run had no GPU: a stale `/etc/cdi/nvidia.yaml` on the host left the
-container without NVIDIA driver libraries (`isaac_ros_common/AGENTS.md`,
-Host setup). On the GPU, `suite:=ekf` (fused 0.0079 m mean against
-Humble's 0.0075), C1, the three CV test files and `headless:=true` all
-match Humble. Two things still miss the bar, both only at RTF 0:
+The laptop half is done: steps 0, 2, 3 and 4. Every repo has a `jazzy`
+branch with the port, and `main` is merged into each, so `jazzy` is
+`main` plus the port. `isaac_ros_common`'s `jazzy` is upstream
+`release-4.6` plus our container files; the image comes from `isaac-ros
+activate`, and the `isaac-ros-docker` skill covers it.
 
-- **Drift suite: 7/7, 6/7, 6/7, against Humble's 7/7.** Every metric stays
-  inside its threshold. Both failures are robot_localization 3.8's "Failed
-  to meet update rate!", now logged at ERROR, which the harness counts;
-  Humble printed it untagged. 3 such lines in 21 scenario runs on the GPU,
-  against most scenarios failing on software GL. Deciding whether the
-  harness ignores it or `ekf.yaml` lowers `frequency` changes what the test
-  measures, so it's open.
-- **C2: the tracker's yaw rate diverges on 2 or 3 moving cells per run,
-  against about 1 on Humble.** The cells move between runs: on software GL
-  staggered 1 and 2 m/s were high, on the GPU flat 1 and 2 m/s are (0.72
-  and 0.81 m p95 medians, against 0.26 m on Humble). It's gone at RTF 1. C2
-  renders nothing, so this is ROS-side scheduling exposing the tracker
-  fragility in ROADMAP's C2 item, not the GPU and not Harmonic.
-- **EKF startup hang, 1 in 28 starts** on the first run, not seen in the
-  GPU run's 22: Jazzy's robot_localization waits for `/clock`, and once
-  never got past it. Cause not found.
+On the laptop, in `isaac_ros_jazzy_container` with the GPU:
 
-Step 5 waits on the board.
+| Check | Humble | Jazzy |
+| --- | --- | --- |
+| `colcon build`, 8 packages, `-Wall` | clean | clean; warnings only in `sllidar_ros2`'s vendored SDK |
+| `colcon test` | `dji_serial_bridge` lint fails | same lint failures, nothing else |
+| CV tests (`point_to_cv_target`, `target_selector`, `target_tracker`) | pass | pass |
+| Drift suite, unthrottled | 7/7 | 7/7 in each of the last three runs |
+| `suite:=ekf` fused mean | 0.0075 m | 0.0079 m |
+| C1, 10 cells | 10/10 | 10/10, every score within 0.004 |
+| C2, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
+
+Three bench fixes came out of step 4, all merged into `main` too except the
+first:
+
+- robot_localization 3.8 logs "Failed to meet update rate!" at ERROR where
+  Humble's printed it untagged, so the drift harness counted it and failed
+  1-2 scenarios a run. It now skips the line.
+- A robot stack could stall at bring-up for good: a lifecycle
+  `change_state` reply lost in DDS (Humble too), or the EKF never leaving
+  "Waiting for clock". The drift harness now restarts such a stack once.
+- C2 on Jazzy first read worse than Humble (moving cells past 0.5 m in 36%
+  of cases against 27%). Both were a bench artifact: `bench_world` paced
+  on `TargetState`'s publish-time stamp and let the tracker fall a full
+  queue behind, a little further on Jazzy's slower Python. It now paces on
+  the tracker's input, and both distros read the same.
+
+Left: step 1 (reflash `ts-nano-dev`, runbook `JAZZY_FLASH.md`), step 5 (the
+hardware checks on it), and step 6 (cutover). Before step 1 wipes the board,
+record the Humble YOLO numbers step 5 compares against; step 0 had no
+camera.
 
 ## Target
 
@@ -62,101 +72,11 @@ Measured 2026-09-25: `ts-nano-dev` is an Orin Nano Super devkit (8 GB),
 JetPack 6.2.x (L4T R36.5), 70 GB used of a 456 GB NVMe. The laptop (RTX 1000
 Ada, driver 615.71) already meets 4.6's driver 595+ floor.
 
-## What breaks
+## What still has to be checked on hardware
 
-### Container tooling
-
-Upstream `isaac_ros_common` 4.x has no `docker/` and no `scripts/`. The
-Dockerfiles and `run_dev` moved into a separate apt package,
-[isaac-ros-cli](https://github.com/NVIDIA-ISAAC-ROS/isaac-ros-cli/tree/release-4.6).
-
-- Our fork's `run_dev.sh`, `build_image_layers.sh`, `Dockerfile.ros2_humble`,
-  `Dockerfile.x86_64`/`aarch64` and `Dockerfile.realsense` go away. The new
-  chain is `isaac_ros` (prebuilt on NGC), then `realsense` (shipped by the
-  CLI: librealsense v2.56.3, realsense-ros 4.56.3), then `thornbots`.
-- The CLI finds our layer through `CONFIG_DOCKER_SEARCH_DIRS` in
-  `.isaac_ros_common-config`, which it only looks for in
-  `$ISAAC_ROS_WS/scripts/`, `$ISAAC_ROS_WS/../scripts/` and
-  `/etc/isaac-ros-cli/`. The workspace YAML config is
-  `$ISAAC_ROS_WS/.isaac-ros-cli/config.yaml`. `ISAAC_ROS_WS` is
-  `isaac_ros-dev/`, outside this repo, so a setup script symlinks both in
-  from `src/`. The CLI reads only the first `.isaac_ros_common-config` it
-  finds, so ours lists the CLI's own `docker/` too, as absolute paths (a
-  relative entry breaks through the symlink).
-- `context_overrides` is not a `config.yaml` key; it lives in
-  `.build_image_layers.yaml`, read only from `$ISAAC_ROS_WS/../scripts/` or
-  `/etc/isaac-ros-cli/`. `setup_workspace.sh` links it there, so
-  `Dockerfile.thornbots` keeps `src/` as its context.
-- The image tag hashes only the Dockerfiles. After a package edit, `activate`
-  starts the old image until its tag is `docker rmi`'d, and it exits 0 on a
-  failed build.
-- The container is `isaac_ros_jazzy_container` (`docker.run.container_name`)
-  until cutover, so it runs beside the Humble one. `dexec.sh` and
-  `kill_launch.sh` read the name from `config.yaml`; `ISAAC_ROS_CONTAINER`
-  overrides it.
-- The CLI is apt-only and hardcodes `/etc` and `/usr` paths.
-  `scripts/install_isaac_ros_cli.sh` installs it without root on the Arch
-  laptop.
-- The workspace still mounts at `/workspaces/isaac_ros-dev`, and
-  `/workspaces/ros2_ws` is ours, so in-container paths and the shadowing trap
-  stay the same.
-- The `isaac-ros-docker` skill forbids `run_dev.sh` in any form. It needs the
-  same rule for `isaac-ros activate` and `--build-local`, and `reference.md`
-  needs a new flag catalogue.
-
-### Package code
-
-| Where | Change | Why |
-| --- | --- | --- |
-| `sllidar_ros2`, `rf2o_laser_odometry` CMakeLists | `CMAKE_CXX_STANDARD 14` to `17` | Jazzy's rclcpp headers need C++17 |
-| `image_snapshot_node.cpp`, `roi_depth_node.cpp` | `cv_bridge/cv_bridge.h` to `.hpp` | Jazzy removed the `.h` |
-| `rf2o` CMakeLists, `package.xml` | drop the unused `find_package(Boost)`; declare `nav_msgs` | a clean rosdep install has no Boost |
-| `sentry_localization` `localization.launch.py` | lifecycle manager for slam_toolbox | slam_toolbox 2.8 starts unconfigured; `slam`/`mapping` never publish `map->odom` without it |
-| `ros2_dji_serial_bridge` CMakeLists | `rosidl_get_typesupport_target` | `rosidl_target_interfaces` is deprecated |
-| `rf2o` `CLaserOdometry2DNode.hpp` | check the `tf2/*.h` includes build clean | Jazzy still ships them |
-| `image_snapshot_node.cpp` | replace the `take()` polling with a subscription | the polling never saved a frame, on Humble too; Jazzy has no `SharedPtr` `take()` overload either |
-| `thornbots_pkg`, `sentry_localization` `setup.py` (`sim` is `ament_cmake` since 2026-09-25) | drop `tests_require`; `script-dir`/`install-scripts` to `script_dir`/`install_scripts` | Noble's setuptools warns on both; newer versions reject the dashed keys |
-| `install-sim.sh` | `pip install --break-system-packages` for trimesh | PEP 668 blocks a bare `pip install`, and noble has no `python3-trimesh` |
-| 5 CMakeLists with `ament_target_dependencies` | leave | deprecated only from Kilted |
-
-The NITROS bridge did not port as is:
-
-- 4.6's `managed_nitros_publisher.hpp` includes a `nitros_type_view.hpp` that
-  no 4.6 package ships. The node now uses `create_publisher<NitrosImage>`,
-  which is what that class wraps.
-- The 4.6 encoder's output tensor is `output_tensor`; the launch passes
-  `tensor_name`, or TensorRT never finds its input.
-- realsense-ros 4.56 reads only `rgb_camera.color_profile` and
-  `depth_module.depth_profile`, and its topics are node-private. The config
-  sets both key forms, and the launch remaps the five topics to root.
-
-`NitrosImageBuilder`, `nitros_image_rgb8_t` and the `TensorRTNode` /
-`YoloV8DecoderNode` plugins and parameters match. 4.5's CUDA-event sync needs
-no change in our node.
-
-### `sim`: Fortress to Harmonic
-
-- `sentry.urdf.xacro`, `sentry_v2.urdf.xacro`: the `ignition-gazebo-*-system`
-  plugin filenames (joint-position-controller, velocity-control,
-  odometry-publisher, joint-state-publisher) to `gz-sim-*-system`, and
-  `ignition::gazebo::systems::*` to `gz::sim::systems::*`.
-- `head_slider_relay.py`: `ign topic` and `ignition.msgs.Double` to `gz topic`
-  and `gz.msgs.Double`. Harmonic ships only the `gz` CLI.
-- `drift_harness.py` and the skill's cleanup `ps | grep`: `ign gazebo` to
-  `gz sim`. A stale pattern passes silently and leaves orphans.
-- `sim.launch.py`: drop `IGN_GAZEBO_RESOURCE_PATH`; it already sets
-  `GZ_SIM_RESOURCE_PATH`, and the `parameter_bridge` strings already use
-  `gz.msgs.*`.
-- Physics and sensor noise may differ between Fortress and Harmonic. If a
-  drift verdict moves, look there before blaming ROS.
-
-### Runtime and hardware
-
-- `yolo11s_fp16.plan` is tied to the TensorRT version, and JetPack 7.2 brings
-  a new one. Rebuild it from ONNX on each Orin; confirm the ONNX file is in
-  hand before flashing anything.
-- Our 60 fps `realsense_mono*.yaml` overwrite the same-named files in
-  `isaac_ros_realsense/config`. Diff them against 4.6's before copying.
+- `yolo11s_fp16.plan` is tied to the TensorRT version. Rebuild it on each
+  Orin from `best.onnx` in `Thornbots/trained-models` (LFS,
+  `detect/yolo11s_realsense/v1/weights/`).
 - Kernel 5.15 to 6.8: check `/dev/ttyTHS1` (DJI serial bridge) is still that
   UART, and that the RPLIDAR and RealSense enumerate.
 - Fast DDS 2.6 to 2.14. `fastdds_cable.xml` should load unchanged, but its
@@ -164,21 +84,14 @@ no change in our node.
   32, SHM hiding local participants) were measured on 2.6. Measure again.
 - Humble and Jazzy nodes on one DDS domain don't interoperate reliably. Jazzy
   machines run on `ROS_DOMAIN_ID=1` until cutover.
-- The `Dockerfile.thornbots` rebuild is uncached anyway, so fold in the
-  layer-budget item from `isaac_ros_common/AGENTS.md` (`COPY --parents
-  */package.xml`, one `COPY` for sources, merged `bashrc` RUNs). Count layers
-  on aarch64: the new base's count is unknown, and 128 is the cap.
+- The image's layer count on aarch64. It is 42 on x86_64 (8 ours) after the
+  `Dockerfile.thornbots` merge; the Humble image hit 127 of the ~128 cap.
+- The CLI mounts each host's `~/.bashrc` and `~/.profile` into the
+  container, and on apt installs `~/.config`, `~/.ssh` and `~/.cache`.
+  Check each robot's dotfiles before its first Jazzy run
+  (`isaac_ros_common/AGENTS.md`).
 
 ## Steps
-
-### 0. Humble baseline (laptop, no Jazzy yet)
-
-On today's `main`, record what Track D's "done when" compares against: the
-drift suite, `suite:=ekf`, the C1 aim bench and C2 once it has limits, and
-`thornbots_pkg`'s `point_to_cv_target`, `target_selector` and
-`target_tracker` tests. On a robot, record YOLO fps and camera-to-
-`TargetState` latency. The numbers go in the commit message that opens the
-`jazzy` branch.
 
 ### 1. Reflash `ts-nano-dev` to JetPack 7.2.1
 
@@ -188,65 +101,22 @@ drift suite, `suite:=ekf`, the C1 aim bench and C2 once it has limits, and
    is reflashed from an Ubuntu 22.04 host in recovery mode.
 2. Flash from the unified ISO on a USB stick. JetPack 7 has no SD-card image
    for Orin Nano.
-3. Install Docker and the NVIDIA container toolkit, add the Isaac ROS apt repo
-   (`release-4`, `noble-jetpack` on Jetson; `noble` is x86), then `sudo apt-get install isaac-ros-cli` and
-   `sudo isaac-ros init docker`.
+3. Install Docker and the NVIDIA container toolkit, add the Isaac ROS apt
+   repo (`release-4`, `noble-jetpack` on Jetson; `noble` is x86), then
+   `sudo apt-get install isaac-ros-cli` and `sudo isaac-ros init docker`.
 4. Check that `isaac-ros activate` starts the stock prebuilt image and that
-   `tegrastats` works in it.
+   `tegrastats` works in it. Then `scripts/setup_workspace.sh` and
+   `isaac-ros activate --build-local` for our three-layer chain, and count
+   its layers.
 
-### 2. Container tooling: `isaac_ros_common` branch `jazzy`
-
-Upstream's 4.x branches hold only ROS packages we don't build, so the old
-reason for the fork, re-merging upstream's docker files, is gone. We keep the
-submodule so every path stays `isaac_ros_common/docker/...` and
-`isaac_ros_common/scripts/...`, and start `jazzy` from upstream
-`release-4.6` with only our files on top:
-
-```text
-docker/Dockerfile.thornbots      FROM ${BASE_IMAGE}; ROS_SETUP=/opt/ros/jazzy; --rosdistro jazzy; layer merge
-docker/config/*.yaml             60 fps RealSense profiles, rediffed against 4.6
-docker/fastdds_cable.xml         unchanged until step 5 measures it
-docker/scripts/install-sim.sh    jazzy paths, pip trimesh past PEP 668
-docker/udev_rules/98-rplidar.rules, docker/scripts/hotplug-rplidar.sh
-scripts/.isaac_ros_common-config CONFIG_DOCKER_SEARCH_DIRS, absolute, ours and the CLI's
-scripts/.build_image_layers.yaml context_overrides thornbots -> src/
-.isaac-ros-cli/config.yaml       additional_image_keys [realsense, thornbots], container_name
-scripts/install_isaac_ros_cli.sh no-root CLI install (Arch laptop)
-scripts/dexec.sh, kill_launch.sh
-scripts/setup_workspace.sh       symlinks isaac_ros-dev/scripts and .isaac-ros-cli into src/
-```
-
-Check on the laptop first (faster, no layer-cap problem), then on
-`ts-nano-dev`: `isaac-ros activate --build-local` builds the three-layer
-chain, `dexec.sh` finds the container, and the aarch64 layer count is well
-under 128. Rewrite the `isaac-ros-docker` skill and
-`isaac_ros_common/AGENTS.md` on the superproject's `jazzy` branch.
-
-### 3. Port the packages, one `jazzy` branch each
-
-Every row of the package table, then `colcon build` of the seven image
-packages plus `sim` with warnings on, then `colcon test`. The superproject's
-`jazzy` branch points `.gitmodules` at the `jazzy` branches, so a teammate
-checks it out with the README one-liner. `main` never sees a Jazzy gitlink
-before cutover.
-
-Dependency order: `ros2_dji_serial_bridge`, `sllidar_ros2`,
-`rf2o_laser_odometry`, `sentry_localization`,
-`Realsense_ROI_Depth_Rectifier`, `realsense-yolov8-nitros-bridge`,
-`thornbots_pkg`, `sim`.
-
-### 4. Sim suites on the laptop
-
-`install-sim.sh`, then the drift suite, `suite:=ekf`, both benches and the CV
-tests. Compare with step 0. Explain any moved verdict before step 6, whether
-it comes from Harmonic physics or a Nav2/slam_toolbox default that changed
-(diff `sentry_localization/config/*.yaml` against the Jazzy defaults).
+`JAZZY_FLASH.md` is the runbook for all of this.
 
 ### 5. Hardware on `ts-nano-dev`
 
-1. RealSense at 60 fps with our profiles.
+1. RealSense at 60 fps with our profiles (`docker/config/*_60fps.yaml`).
 2. Rebuild the TensorRT engine, run `isaac_ros_yolov8_realsense.launch.py`,
-   and compare fps and latency with step 0.
+   and compare YOLO fps and camera-to-`TargetState` latency with the Humble
+   numbers taken before step 1.
 3. Serial bridge on `/dev/ttyTHS1` and the RPLIDAR, if the parts fit on the
    dev box. Otherwise these move to the first robot in step 6.
 4. DDS: repeat the 2026-09-14 and 2026-09-20 measurements recorded in
@@ -268,24 +138,24 @@ it comes from Harmonic physics or a Nav2/slam_toolbox default that changed
    the step 5 checks and a full `auto.launch.py`.
 4. Then `ts-nano-hero` and `ts-nano-standard`. Every machine goes back to
    `ROS_DOMAIN_ID=0` once the last Humble one is gone.
-5. Remove the Humble images from the robots, rewrite every `humble` reference but the
-   README's pointer to the `humble` branch, and delete Track D from
-   ROADMAP.md.
+5. Remove the Humble images from the robots, rewrite every `humble`
+   reference but the README's pointer to the `humble` branch, and delete
+   Track D from ROADMAP.md.
 
 ## Done when
 
 Track D's bar: the drift suite, `suite:=ekf` and both benches give the same
 verdicts on Jazzy as on Humble, and `point_to_cv_target`, `target_selector`
-and `target_tracker` pass. Added for hardware: YOLO fps and detection latency
-on the Orin are no worse than step 0.
+and `target_tracker` pass (met on the laptop). Added for hardware: YOLO fps
+and detection latency on the Orin are no worse than on Humble.
 
 ## Risks
 
 | Risk | Answer |
 | --- | --- |
 | 4.6's Orin support is one release old; the JetPack 7.2 Orin Nano forum thread is still active | Step 5 runs on the spare box; the robots are untouched if it fails |
-| The aarch64 image still hits the 128-layer cap | Count layers in step 2, before porting any package |
-| Harmonic moves a sim verdict | Step 4 catches it while Humble is still the reference |
+| The aarch64 image hits the 128-layer cap | Count layers in step 1, before any hardware check |
+| A lost lifecycle reply stalls the robot's localization at boot | Seen only in sim so far, on Humble too. Watch for it in step 6's `auto.launch.py` runs |
 | A competition date lands mid-migration | Robots stay on Humble until step 6, each with an NVMe image and R36.5 firmware to roll back to |
 
 ## Sources

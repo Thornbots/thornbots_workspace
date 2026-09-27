@@ -1,10 +1,11 @@
 # thornbots_workspace
 
-The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace. Each package is a submodule.
+The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace.
 
-The workspace as it was on ROS 2 Humble, before the Jazzy move, is the
-`humble` branch here and in every package: add `-b humble` to the clone
-below.
+This branch is the ROS 2 Jazzy port. Until the cutover (`JAZZY_PLAN.md`
+step 6), `main` stays on Humble, so add `-b jazzy` to the clone below. The
+`humble` branch here and in every package keeps the Humble tree for after
+the cutover.
 
 Each package is a submodule:
 
@@ -38,4 +39,4 @@ everyone else's `git submodule update --init`.
 | `rf2o_laser_odometry` | `jazzy` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `jazzy` | Isaac ROS base, our Dockerfiles and container scripts |
 
-Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's Tracks B-C, the end-to-end tests and Track D), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's Tracks B-C, the end-to-end tests and Track D), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).

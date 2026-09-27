@@ -24,6 +24,11 @@ Sources: [JetPack 7.2.1 downloads](https://developer.nvidia.com/embedded/jetpack
 
 Everything here runs from the laptop over ssh while the board is up.
 
+If the RealSense is on this board, first record the Humble numbers step 5
+compares against: YOLO fps and camera-to-`TargetState` latency from
+`isaac_ros_yolov8_realsense.launch.py` in the Humble container. Without a
+camera here, take them on `ts-nano-sentry` before its reflash instead.
+
 ### 1.1 Temporary passwordless sudo for the backup tools
 
 `sudo` over a non-tty ssh pipe can't prompt, and `ssh -t` corrupts binary
@@ -269,7 +274,7 @@ lsusb | grep -i 8086; lsusb -t | grep -B1 -i uvc; ls -l /dev/video*; sudo dmesg 
 Pass: `ttyTHS1` points at the same `*.serial` device as on R36 and the
 loopback prints `ping`; the lidar appears as `/dev/ttyUSB0`; the RealSense
 shows as a UVC device at 5000M. A full `rs-enumerate-devices` needs the
-realsense image layer, which is step 2.
+realsense image layer, built in section 8.
 
 ## 6. Docker, NVIDIA container toolkit, Isaac ROS CLI
 
@@ -341,7 +346,7 @@ source ~/.bashrc
 
 Copy the ONNX (and old `.plan`, for reference) from the backup into
 `~/workspaces/isaac_ros-dev/isaac_ros_assets/models/yolo11/`. Don't clone
-our repo or add image keys yet; that is step 2.
+our repo or add image keys yet; that is section 8.
 
 ## 7. Done check
 
@@ -375,6 +380,30 @@ reported on 7.2.1 in containers
 ([post #115](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/115)).
 Record it and stop.
 
-Step 1 is done when `activate` starts the stock image and `tegrastats`
-prints inside it. Put the kernel 6.8 check results, the power modes offered
-and the image size in the commit message that records step 1.
+The stock image works when `activate` starts it and `tegrastats` prints
+inside it. Exit the container before section 8.
+
+## 8. Our image
+
+```bash
+cd ~/workspaces/isaac_ros-dev
+git clone -b jazzy --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
+cd src && git submodule foreach --recursive \
+  'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch)'
+isaac_ros_common/scripts/setup_workspace.sh
+export ISAAC_ROS_WS=~/workspaces/isaac_ros-dev
+isaac-ros activate --build-local
+```
+
+`activate` exits 0 even when a layer fails, so read its output. In a second
+shell, count the layers against overlay2's ~128 cap and run the smoke test:
+
+```bash
+docker image inspect -f '{{len .RootFS.Layers}}' \
+  $(docker inspect -f '{{.Config.Image}}' isaac_ros_jazzy_container)
+~/workspaces/isaac_ros-dev/src/.claude/skills/isaac-ros-docker/smoke.sh
+```
+
+Step 1 is done when our image starts on the Orin and `smoke.sh` passes. Put
+the kernel 6.8 check results, the power modes offered, the layer count and
+the image size in the commit message that records step 1.
