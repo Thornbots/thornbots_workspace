@@ -3,8 +3,8 @@
 A localization suite that can be believed, and CV cut in half at `TargetState`
 with a bench for each half, then the CV stack from detections to gimbal
 tested end to end in sim (`E2E_PLAN.md`). Updated 2026-09-26: Aiming is
-finished, C2 runs on `bench_world` with limits on its ten cells, and the Jazzy port
-passes the laptop sim suites on its `jazzy` branches.
+finished, C2 runs on `bench_world` with limits on its ten cells, and `main`
+is on Jazzy since 2026-09-27. Humble is frozen on the `humble` branches.
 
 This file lists only work still to do. When an item is finished, delete it
 outright rather than marking it done; git history and the package docs keep
@@ -22,7 +22,7 @@ the record.
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, acceleration, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 | Aiming (Part 1 on C1) | **Done.** 40 per-cell floors in `FLOORS`, chase mode the default |
-| ROS 2 Jazzy | **Laptop half done** on `jazzy` branches: builds, unit tests, drift suite, `suite:=ekf`, C1 and C2 match Humble. The Orin reflash, hardware checks and cutover are left (Track D) |
+| ROS 2 Jazzy | **`main` is Jazzy** (2026-09-27); Humble is frozen on `humble`. On the laptop builds, unit tests, drift suite, `suite:=ekf`, C1 and C2 match Humble. The Orin reflashes and hardware checks are left (Track D) |
 
 ## The sim
 
@@ -182,15 +182,15 @@ cells, from five runs.
 
 Isaac ROS 4.6 on Jazzy, Ubuntu 24.04 in the image, `isaac-ros-cli` in place
 of our `run_dev.sh` fork, gz Harmonic for `sim`, and a JetPack 7.2.1 reflash
-on every Jetson. The work lives on each repo's `jazzy` branch, and
-`JAZZY_PLAN.md` there is the current plan; `main` stays on Humble until the
-cutover.
+on every Jetson. `main` is Jazzy since 2026-09-27, and `JAZZY_PLAN.md` is
+the plan for the hardware. **Humble is frozen:** the `humble` branches take
+no more work, and a robot on Humble runs that frozen tree until it is
+reflashed.
 
-**Where it stands (2026-09-26):** the port builds clean and passes every
+**Where it stands (2026-09-27):** the port builds clean and passes every
 unit test. On the laptop the drift suite, `suite:=ekf`, C1 and C2 give
 Humble's verdicts. Left: reflash `ts-nano-dev` (step 1), the hardware checks
-on it (step 5: RealSense, YOLO fps, serial, DDS), and the cutover (step 6),
-which waits until every other track is done. **Done when:** the drift suite,
+on it (step 5: RealSense, YOLO fps, serial, DDS), then the robots (step 6). **Done when:** the drift suite,
 `suite:=ekf` and both benches give the same verdicts on Jazzy as on Humble,
 `thornbots_pkg`'s CV tests pass, and YOLO fps and detection latency on the
 Orin are no worse.
@@ -211,8 +211,8 @@ Finished items come off this list, and off the file; the next one is always 1.
    The speed work in the same file runs alongside.
 4. **Hit while we move, E5:** our pose and the aim command in the world
    frame (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
-5. **Cut over to ROS 2 Jazzy,** once everything above is done. Steps 1 and
-   5 on `ts-nano-dev` don't touch the robots and can run earlier (Track D).
+5. **Move the robots to Jazzy** (Track D): `ts-nano-dev` first (steps 1
+   and 5), then each robot. Until then the robots run frozen Humble code.
 
 Unscheduled: the CV nodes' move to their own package (Track B), between
 bench runs, and S5, clean bench start and stop. Navigation comes after the

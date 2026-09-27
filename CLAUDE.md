@@ -16,6 +16,13 @@ CV (target detection/tracking) comes first. Read
 [`ARCC_2026_SENTRY_CONTEXT.md`](ARCC_2026_SENTRY_CONTEXT.md) for the game rules
 and field geometry.
 
+## Branches
+
+`main` is ROS 2 Jazzy, worked in `~/workspaces/isaac_ros-jazzy` and
+`isaac_ros_jazzy_container`. **Humble is frozen since 2026-09-27**: the
+`humble` branches, `~/workspaces/isaac_ros-dev` and
+`isaac_ros_dev-x86_64-container` take no more work.
+
 ## Packages
 
 `src/` is the `thornbots_workspace` repo; every package dir under it is a
