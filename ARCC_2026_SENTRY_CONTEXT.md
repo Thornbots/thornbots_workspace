@@ -129,9 +129,11 @@ general form has stayed consistent across RoboMaster years):
 
 - **Shape**: flat rectangular plastic module, screwed onto a bracket bolted
   to a flat chassis face, always **side-mounted** (front/back/left/right),
-  never top-mounted. Two sizes: **Large Armor Module** (Hero, Sentry) and
-  **Small Armor Module** (Standard, Engineer). Most ARCC opponents will be
-  Standard-class, so expect mostly Small Armor Modules.
+  never top-mounted. RoboMaster has two sizes, Large (Hero, Sentry) and
+  Small (Standard, Engineer), but **ARCC 2026 uses only the Small Armor
+  Module, on every robot, ours included** (the user, 2026-09-27). Its face
+  is 135 x 125 mm (width x height), measured on `sentry_v2`'s CAD; the sim
+  and both benches use that size.
 - **Visual signature**: each panel has **two separate indicator lights**,
   one on each side of the panel body (not a single glowing panel):
   **steady red or blue** = team color / alive, **steady yellow** = that
@@ -198,7 +200,8 @@ above; fetched from
 `bbs-web-static.robomaster.com/.../RoboMaster 2026 University Championship
 Rule Manual V1.2.0 (20260107).pdf`)
 
-- **Detection speed thresholds confirmed**: Large/Small Armor Module needs
+- **Detection speed thresholds confirmed**: Large/Small Armor Module (only
+  Small is in ARCC 2026) needs
   >12 m/s normal-component impact speed for a 17mm projectile to register
   (matches the Combat mechanics section above); minimum detection interval
   is 50ms for 17mm projectiles (so back-to-back hits within 50ms may not
@@ -301,13 +304,6 @@ treated like an RMUL event.
   base doc's actual numeric limits aren't extracted yet since it isn't
   reachable as a static PDF (see note above).
 - Full Referee System data interface / UART protocol spec.
-- **Armor panel face dimensions.** `sim/sim/cv_target_emulator.py`'s
-  `PANEL_SIZE = 0.1` (a 0.1m x 0.1m face) is an assumption, explicitly not
-  sourced from this document. `sim/test/cv/shot_hit_harness.py` derives
-  `DEFAULT_HIT_RADIUS` from it, so the shot-hit suite's entire pass/fail line
-  rests on that number — treat any hit-rate figure as calibrated on an
-  approximation until the real dimension is pulled from the rulebook. The
-  145-degree front exposure cone used alongside it *is* sourced from here.
 - Round timing/countdown details (§7.5–7.9) if precise match-phase state
   machine timing is needed later.
 
