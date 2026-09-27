@@ -1,9 +1,10 @@
 # Where the project is going
 
 A localization suite that can be believed, and CV cut in half at `TargetState`
-with a bench for each half, then the whole CV stack tested end to end in sim
-(`E2E_PLAN.md`). Updated 2026-09-25: C2 has had its first runs, and Track A
-has two runs, a map check and S3 left.
+with a bench for each half, then the CV stack from detections to gimbal
+tested end to end in sim (`E2E_PLAN.md`). Updated 2026-09-26: Aiming is
+finished, C2 runs on `bench_world` with no limits yet, and the Jazzy port
+passes the laptop sim suites on its `jazzy` branches.
 
 This file lists only work still to do. When an item is finished, delete it
 outright rather than marking it done; git history and the package docs keep
@@ -15,11 +16,13 @@ the record.
 |---|---|
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
-| EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior. Measured before the A2M8 lidar and per-scan rf2o; `suite:=ekf` needs a re-run (S4) |
-| C2 estimation bench (10 cells, no gz) | **Three gz runs (2026-09-25), no limits yet.** Stationary cells 1.3 cm facing-panel p95; moving cells 0.12-0.51 m and 2x apart between runs, not yet traced. Now on `bench_world` (C++): all ten cells in 54 s with rviz, 10/10, stationary 0.9 cm, moving cells in gz's spread and still swinging, so the swing is the tracker's. The tracker gained acceleration, a single-panel yaw measurement and a still-target hypothesis; see `CV_SPLIT_PLAN.md` "Where this stopped" |
+| EKF fusion path | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26), with rf2o's `fixed_heading` and `/odom` prior. Not yet re-run at real time (S4) |
+| C2 estimation bench (10 cells, no gz) | **Runs on `bench_world`, no limits yet.** All ten cells in about a minute, 10/10 on liveness. Stationary under 1 cm facing-panel p95; moving cells' medians 0.17-0.31 m over three runs, with one cell per run past 0.7 m, not yet traced. See `CV_SPLIT_PLAN.md` "Where this stands" |
 | CV stack end to end in sim | Nothing runs `roi_depth_node` or the serial link. `E2E_PLAN.md` plans the match test: sim plays only the MCB over a pty, a detector stand-in in place of YOLO, lidar and depth; our robot drives and shoots against other `sentry_v2` copies |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
-| CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
+| CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, acceleration, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
+| Aiming (Part 1 on C1) | **Done.** 40 per-cell floors in `FLOORS`, chase mode the default |
+| ROS 2 Jazzy | **Laptop half done** on `jazzy` branches: builds, unit tests, drift suite, `suite:=ekf`, C1 and C2 match Humble. The Orin reflash, hardware checks and cutover are left (Track D) |
 
 ## The sim
 
@@ -38,10 +41,9 @@ save wall clock. It didn't: `drift_correction` read 4.02 m unthrottled and
 0.42 m at 1×. rf2o's wall-clock loop was one known cause, and it now matches
 every scan in its callback (`thornbots_workspace#11`). **Done when:** the drift
 suite and `suite:=ekf` give the same verdicts at `real_time_factor:=0` and
-`:=1`. **Drift suite met 2026-09-24:** 6/6 unthrottled, drift_correction
-0.17 m against 0.23–0.26 m at real time before the lidar change. **Left:**
-`suite:=ekf` hasn't been re-run. If it differs, audit every node for
-wall-clock timers, rates and timeouts.
+`:=1`. The drift suite meets it. `suite:=ekf` passes unthrottled (0.0075 m
+fused mean, 2026-09-26). **Left:** `suite:=ekf` at `real_time_factor:=1`. If
+it differs, audit every node for wall-clock timers, rates and timeouts.
 
 ### S5: Benches that start and stop cleanly
 
@@ -115,20 +117,9 @@ mesh cost ~3× sim speed. `moving_obstacles` reads 0.18 m against 0.40 m.
 Both stay nodes in `thornbots_pkg`. The work is making the seam *hard*. The
 step-by-step plan is [`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md).
 
-What's left is Part 2, on C2.
-
-- Part 2: `ArmorEKF` estimates a per-pair z. It put all four panels at
-  one height, which is why staggering them 9 cm dropped the stationary case
-  from 98% to 30%. `TargetState.z_offset[2]` is the field. **Built
-  2026-09-25**, unit-tested; C2 scores it.
-- Part 2 owns all hardware latency. `TargetState` describes the target now:
-  the tracker works out capture time, predicts forward to its publish time and
-  stamps that. Part 1 only extrapolates into the future, over fire-to-impact
-  time. **Built 2026-09-25** (`camera_latency_s` in tracker and emulator), not
-  run.
-
-`CV_SPLIT_PLAN.md` names the two phases: **Aiming** (Part 1 on C1) and
-**Estimation** (Part 2 on C2).
+Aiming (Part 1 on C1) is done. What's left is Estimation (Part 2 on C2):
+per-pair z and the camera-latency model are built and unit-tested, and C2
+hasn't scored either yet.
 
 - **Wanted: the CV nodes move out of `thornbots_pkg` into their own
   package** (added 2026-09-25), say `thornbots_cv`. `thornbots_pkg` keeps
@@ -167,19 +158,14 @@ with D435-like ray noise, and nothing fires. Part 2 is benchmarked only on how c
 - center, velocity, yaw, yaw_rate, radius and z_offset error
 - time from first detection until panel error settles
 
-**Built (sim `main`, 2026-09-25):** `estimation.launch.py`, three runs on
-gz, then moved off it. C2 only fakes detections, so `bench_world`, one C++
-lockstep loop, now stands in for gz: clock, phantom target, our chassis and
-head, `/pose`, head controller and detections. It holds sim time only for
-the nodes under test and runs the ten cells in 54 s with rviz (~6x; gz took
-~6 min). Metrics as above, plus the facing panel's error, which is what
-Part 1 aims at. On gz, stationary cells read 1.3 cm facing p95 and moving
-cells 0.12-0.51 m, 2x apart between runs. On `bench_world` stationary reads
-0.9 cm and moving cells land in gz's spread, still 2x apart
-(`flat-speed1` 0.19 m alone, 0.31 m in the suite). `target_tracker` is the
+**Built:** `estimation.launch.py` on `bench_world`, one C++ lockstep loop
+that stands in for gz: clock, phantom target, our chassis and head, `/pose`,
+head controller and detections. It holds sim time only for the nodes under
+test and runs the ten cells in about a minute. Metrics as above, plus the
+facing panel's error, which is what Part 1 aims at. `target_tracker` is the
 speed ceiling (a saturated core at ~8x); a C++ core for it is the user's
-call (`CV_SPLIT_PLAN.md`). `LIMITS` is empty until the error is traced and
-three runs fill it.
+call (`CV_SPLIT_PLAN.md`). `LIMITS` is empty until the moving-cell error is
+traced and three runs fill it.
 
 ### C3: The two cases neither bench had, on C2
 
@@ -192,20 +178,20 @@ three runs fill it.
 
 ## Track D: ROS 2 Jazzy (last)
 
-The image is built on Humble: `nvcr.io/nvidia/isaac/ros:humble-3.2`,
-`Dockerfile.ros2_humble`, `CONFIG_IMAGE_KEY=ros2_humble.realsense.thornbots`,
-and `--rosdistro humble` in rosdep. The target is Isaac ROS 4.6, the only
-Jazzy release that runs on Orin: Ubuntu 24.04 in the image, a JetPack 7.2.1
-reflash on every Jetson, the `isaac-ros-cli` tooling in place of our
-`run_dev.sh` fork, and gz Harmonic for `sim`. The step-by-step plan, with
-every file that changes, is [`JAZZY_PLAN.md`](JAZZY_PLAN.md).
+Isaac ROS 4.6 on Jazzy, Ubuntu 24.04 in the image, `isaac-ros-cli` in place
+of our `run_dev.sh` fork, gz Harmonic for `sim`, and a JetPack 7.2.1 reflash
+on every Jetson. The work lives on each repo's `jazzy` branch, and
+`JAZZY_PLAN.md` there is the current plan; `main` stays on Humble until the
+cutover.
 
-The cutover waits until every other track is done, so no suite result gets
-mixed up with a distro change. Steps 0 to 5 of the plan run on `jazzy`
-branches and on `ts-nano-dev` and can start earlier. **Done when:** the drift
-suite, `suite:=ekf` and both benches give the same verdicts on Jazzy as on
-Humble, and `thornbots_pkg`'s CV tests (`point_to_cv_target`,
-`target_selector`, `target_tracker`) pass.
+**Where it stands (2026-09-26):** the port builds clean and passes every
+unit test. On the laptop the drift suite, `suite:=ekf`, C1 and C2 give
+Humble's verdicts. Left: reflash `ts-nano-dev` (step 1), the hardware checks
+on it (step 5: RealSense, YOLO fps, serial, DDS), and the cutover (step 6),
+which waits until every other track is done. **Done when:** the drift suite,
+`suite:=ekf` and both benches give the same verdicts on Jazzy as on Humble,
+`thornbots_pkg`'s CV tests pass, and YOLO fps and detection latency on the
+Orin are no worse.
 
 ## Order of work
 
@@ -216,19 +202,18 @@ Finished items come off this list, and off the file; the next one is always 1.
    are the 4-7 m/s velocity-error bursts on a 1 m/s target, against the
    path ends and the tracker's re-seeds. Then three runs fill `LIMITS`, and
    camera latency, C3's cases and blackout each run three times
-   (`CV_SPLIT_PLAN.md` Next).
-2. **The rest of Track A:** run A3's metric under `--backend none`, re-run
-   `suite:=ekf` for S4, then A4's `slam` occupancy-grid check and S3's
-   finite-acceleration scenario.
+   (`CV_SPLIT_PLAN.md` "Where this stands").
+2. **The rest of Track A:** run A3's metric under `--backend none`, run
+   `suite:=ekf` at real time for S4, then A4's `slam` occupancy-grid check
+   and S3's finite-acceleration scenario.
 3. **The match test, E1 to E4** (`E2E_PLAN.md`): armor panels on the URDF
    and the detector stand-in, then the serial link against an MCB
    emulator, then driving while shooting, then opponents that shoot back.
    The speed work in the same file runs alongside.
 4. **Hit while we move, E5:** our pose and the aim command in the world
    frame (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
-5. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
-   Track D and `JAZZY_PLAN.md`; its steps 0 to 5 don't touch the robots and
-   can run earlier.
+5. **Cut over to ROS 2 Jazzy,** once everything above is done. Steps 1 and
+   5 on `ts-nano-dev` don't touch the robots and can run earlier (Track D).
 
 Unscheduled: the CV nodes' move to their own package (Track B), between
 bench runs, and S5, clean bench start and stop. Navigation comes after the
@@ -245,15 +230,12 @@ Midwest competition; until then the match test drives our robot from sim.
 - Detection noise in sim is 0.005 m against a D435's centimetres, so every CV
   rate here runs optimistic. The benches rank changes; they don't predict the
   field.
-- Rendered detections stay out of both benches. E2 puts YOLO in the loop
-  (`E2E_PLAN.md`).
+- No sim test runs YOLO; its detections come from truth. YOLO is checked on
+  hardware only.
 - Neither CV bench runs gz; the drift suite does. SAPIEN was tested against
   gz, came out worse, and is out for good (removed 2026-09-24).
 - `sentry_v2` collides, but what it does when driven into a wall hasn't been
   checked. That matters the day obstacle *avoidance* becomes something to
   demonstrate.
-- The EKF numbers above predate the A2M8 lidar (800 beams, 0.01 m noise; was
-  3000 beams, 0.03 m) and rf2o's per-scan matching. Re-run before quoting
-  them. The drift suite was re-run 2026-09-24.
 - C2 moves 2x between runs on the same cell, so compare C2 changes over
   three runs, not one.
