@@ -387,7 +387,7 @@ inside it. Exit the container before section 8.
 
 ```bash
 cd ~/workspaces/isaac_ros-dev
-git clone -b jazzy --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
+git clone --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
 cd src && git submodule foreach --recursive \
   'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch)'
 isaac_ros_common/scripts/setup_workspace.sh

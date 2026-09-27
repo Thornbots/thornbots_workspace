@@ -5,8 +5,8 @@ laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 `ts-nano-standard`). The test box is `ts-nano-dev`.
 
 **`main` is Jazzy since 2026-09-27.** Every repo's default branch took its
-`jazzy` (`isaac_ros_common` is tracked on `jazzy` itself), and the `humble`
-branches hold the last Humble tree, **frozen**: no more work goes there.
+`jazzy`, the `jazzy` branches are deleted, and the `humble` branches hold
+the last Humble tree, **frozen**: no more work goes there.
 The robots stay on Humble, running that frozen tree, until step 6.
 
 ## Where this stands (2026-09-26)
