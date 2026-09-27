@@ -52,7 +52,9 @@ Added 2026-09-25. Bringing a bench up or down takes hand-holding today:
 - A fresh container has no gz until `install-sim.sh` runs, and nothing says
   so until a launch fails.
 - Nodes cold-start into a live topic stream. TF has run 0.6 s behind at
-  bring-up, and one bring-up in six left `amcl` unconfigured.
+  bring-up. A lifecycle reply lost in DDS can leave `amcl` or `map_server`
+  unconfigured for good. The drift harness now restarts such a stack once;
+  the robot's own boot has no such guard.
 - Ctrl-C prints a traceback from every Python node: each `main()` is a bare
   `rclpy.spin` with no shutdown handling.
 - A launch whose host shell dies leaves its nodes orphaned (parent 1,
