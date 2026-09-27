@@ -17,7 +17,7 @@ the record.
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **63% better than raw `/odom`** at 4 m/s, real time (0.050 m vs 0.134 m mean), with rf2o's `fixed_heading` and `/odom` prior. Measured before the A2M8 lidar and per-scan rf2o; `suite:=ekf` needs a re-run (S4) |
 | C2 estimation bench (10 cells, no gz) | **Three gz runs (2026-09-25), no limits yet.** Stationary cells 1.3 cm facing-panel p95; moving cells 0.12-0.51 m and 2x apart between runs, not yet traced. Now on `bench_world` (C++): all ten cells in 54 s with rviz, 10/10, stationary 0.9 cm, moving cells in gz's spread and still swinging, so the swing is the tracker's. The tracker gained acceleration, a single-panel yaw measurement and a still-target hypothesis; see `CV_SPLIT_PLAN.md` "Where this stopped" |
-| Whole CV stack in sim | Nothing runs the camera, YOLO, `roi_depth_node` or the serial link; planned in `E2E_PLAN.md` |
+| CV stack end to end in sim | Nothing runs `roi_depth_node` or the serial link. `E2E_PLAN.md` plans the match test: sim plays only the MCB over a pty, a detector stand-in in place of YOLO, lidar and depth; our robot drives and shoots against other `sentry_v2` copies |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
 
@@ -152,9 +152,10 @@ What's left is Part 2, on C2.
 
 ## Track C: Two benches, one per half
 
-The end-to-end tests that follow them, the whole CV stack from rendered
-pixels (E) and then moving while shooting (M), are planned in
-[`E2E_PLAN.md`](E2E_PLAN.md).
+The match test that follows them, with sim playing only the MCB, YOLO and
+the sensors while our robot drives and shoots, is planned in
+[`E2E_PLAN.md`](E2E_PLAN.md) with the speed work for every suite. It
+doesn't run YOLO.
 
 ### C2: Estimation bench, fake detections
 
@@ -219,18 +220,19 @@ Finished items come off this list, and off the file; the next one is always 1.
 2. **The rest of Track A:** run A3's metric under `--backend none`, re-run
    `suite:=ekf` for S4, then A4's `slam` occupancy-grid check and S3's
    finite-acceleration scenario.
-3. **E, the whole CV stack with our robot parked** (`E2E_PLAN.md`): E1 with a
-   detector stand-in, E2 with real YOLO, E3 over the serial link. E1 can
-   start without the YOLO ONNX.
-4. **Hit while we move:** our pose and the aim command in the world frame
-   (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits, then M,
-   moving and shooting at once, on E's stack.
+3. **The match test, E1 to E4** (`E2E_PLAN.md`): armor panels on the URDF
+   and the detector stand-in, then the serial link against an MCB
+   emulator, then driving while shooting, then opponents that shoot back.
+   The speed work in the same file runs alongside.
+4. **Hit while we move, E5:** our pose and the aim command in the world
+   frame (`CV_SPLIT_PLAN.md` W.1-W.5), after both benches have limits.
 5. **Move from ROS 2 Humble to Jazzy,** once everything above is done. See
    Track D and `JAZZY_PLAN.md`; its steps 0 to 5 don't touch the robots and
    can run earlier.
 
 Unscheduled: the CV nodes' move to their own package (Track B), between
-bench runs, and S5, clean bench start and stop.
+bench runs, and S5, clean bench start and stop. Navigation comes after the
+Midwest competition; until then the match test drives our robot from sim.
 
 ## Caveats
 
