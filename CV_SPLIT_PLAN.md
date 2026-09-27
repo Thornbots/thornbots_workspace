@@ -20,7 +20,13 @@ what's left is Estimation, then hitting while we move.
   the nodes under test at ~5x: the ten cells take ~75 s. Five runs each on
   Humble and Jazzy (2026-09-26): stationary cells under 2 cm facing p95,
   moving cells 0.08-0.17 m medians, and runs agree within 10% except at
-  4 m/s (0.13-0.27 m).
+  4 m/s (0.13-0.27 m). `LIMITS` holds those ten cells: the worst of the
+  five Humble runs x 1.25, floored at 0.01.
+- **The 4 m/s swing is the radius estimate wandering.** In the bad run of
+  each 4 m/s cell (one of five each), radius error sits at 5-12 cm for
+  10-20 s where the good runs hold ~2 cm, and facing-panel error follows it
+  (correlation ~0.55). It isn't path ends, which come every ~1.9 s, and it
+  isn't re-seeds: each case keeps one track.
 - **Most of the old moving-cell error was the bench.** Until 2026-09-26
   `bench_world` paced on `TargetState`'s stamp, which the tracker sets at
   publish time, so it ran ahead while the tracker worked through a full
@@ -34,11 +40,10 @@ what's left is Estimation, then hitting while we move.
 
 Next, in order:
 
-1. `sim/tools/estimation_limits.py` fills `LIMITS` from three of the
-   2026-09-26 runs (2.0). The 4 m/s cells still swing 2x between runs; look
-   at them against the path ends and the tracker's re-seeds.
-2. Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
-   `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
+1. 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
+   `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice,
+   then `estimation_limits.py` adds their cells to `LIMITS`.
+2. Open for the user: whether to hold the radius tighter at 4 m/s (above).
 3. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to
    0.4 m in the first second). Spin-rate variance doesn't separate locked
@@ -91,8 +96,8 @@ is still unmeasured.
 whole world in one C++ lockstep loop: the phantom target with exact truth,
 our chassis and head (gz's joint PD on the arm inertias), `/pose`, the head
 controller and the detections. Each case restarts the track by switching
-detections off for 1 s. `LIMITS` is empty; `sim/tools/estimation_limits.py`
-fills it from three runs.
+detections off for 1 s. `LIMITS` holds the ten default cells, printed by
+`sim/tools/estimation_limits.py` from five runs (2026-09-26).
 
 - `test/cv/test_estimation.py` over `estimation_harness.py`. Each published
   `TargetState` is compared with the truth at its own `header.stamp`, so a
@@ -100,8 +105,8 @@ fills it from three runs.
   four, and the facing one Part 1 aims at), center, velocity, yaw (mod a
   quarter-turn), `yaw_rate`, `radius` and `z_offset` per pair, and the time
   until the facing panel's error stays under 5 cm.
-- Thresholds per metric come from three runs, lowest plus a margin, like
-  Aiming's floors.
+- Limits per metric come from three or more runs: the worst p95 x 1.25,
+  never under 0.01, like Aiming's floors.
 - Done when C2 runs every C1 cell in one session and scores the same run
   alone and in sequence.
 

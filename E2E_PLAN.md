@@ -60,8 +60,8 @@ the user sets once the numbers are in.
 
 ## Before the match test: C2's moving-cell error
 
-C2's moving cells are poor and swing 2x between runs (`CV_SPLIT_PLAN.md`
-"Where this stands"). The match test would inherit that error, so trace it
+C2's moving cells are poor, and the 4 m/s cells swing 2x between runs
+with the radius estimate (`CV_SPLIT_PLAN.md` "Where this stands"). The match test would inherit that error, so trace it
 first.
 
 ## Panels on the URDF
