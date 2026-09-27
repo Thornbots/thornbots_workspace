@@ -151,8 +151,8 @@ hasn't scored either yet.
   AGENTS.md split the same way. Do it between bench runs, not during one,
   and re-run both benches after to show nothing moved.
 - **Next: hit while we move** (added 2026-09-25). The target and the aim
-  solve are already in `odom`; the aim still leaves as a `root`-frame point
-  the MCB holds while the chassis moves, and `RobotPose` has no chassis yaw.
+  solve are already in `odom`, and since 2026-09-27 so is the aim `CVTarget`
+  carries; `RobotPose` still has no chassis yaw.
   The fix puts our pose (with yaw, stamped at capture) and the aim command
   in the world frame, and lets the MCB hold it; `CV_SPLIT_PLAN.md`
   "Hitting while we move" has the steps. Wire and firmware changes, so
