@@ -1,6 +1,6 @@
 # isaac_ros-dev workspace
 
-Use standard practices, and call out code that doesn't follow them.
+Call out code that doesn't follow standard practice.
 
 ## Skills
 
@@ -21,23 +21,15 @@ CV (target detection/tracking) comes first. Game rules and field geometry:
 
 ## Packages
 
-`src/` is the `thornbots_workspace` repo and each package dir is a submodule.
-A package change takes two commits: one in the package, one here bumping the
-gitlink. Skip the bump and everyone else builds old code, and your next
-`git submodule update` rewinds your work.
+Each package dir is a submodule. Every package change needs a gitlink bump
+here, or everyone else builds old code. One logical change per bump, even if
+it moves several gitlinks or just one line.
 
-One logical change, one bump. A bump may move several gitlinks if they are one
-change; a one-line submodule commit still gets its own. `git bisect` can't read
-a bump that batches unrelated work.
-
-Commit and push each logical change once it's tested, without being asked
-(the user, 2026-09-27).
-
-Push the submodule first. A gitlink to an unpushed commit breaks
-`git submodule update --init` for everyone (`fatal: reference is not a tree`).
+Commit and push each logical change once it's tested, without being asked.
+Push the submodule before the superproject.
 
 `.gitmodules` records each package's branch. After a clone, run the one-liner
-in `README.md` or you're on a detached HEAD and commits land on no branch.
+in `README.md` to get off detached HEAD.
 
 Read a package's `AGENTS.md` before working there. Keep it short: current
 state, open questions, rules. Test runs and measurements go in commit messages.
@@ -48,11 +40,11 @@ Write `README.md` for a human in a container terminal: plain `colcon` and
 
 ## Timestamps
 
-Every internal ROS message carries a `std_msgs/Header` stamped with when the
-data was true (sensor capture, or the input's stamp carried through), not when
-it was published. Use `now()` only for data created on the spot, like a fire
-decision. Document the stamp's meaning in the `.msg` comment. Use `*Stamped`
-over bare `Point`/`Twist` unless a standard interface requires the bare type.
+Stamp every internal ROS message's `std_msgs/Header` with when the data was
+true (sensor capture, or the input's stamp carried through). Use `now()` only
+for data created on the spot, like a fire decision. Document the stamp's
+meaning in the `.msg` comment. Use `*Stamped` over bare `Point`/`Twist` unless
+a standard interface requires the bare type.
 
 ## Comments
 
