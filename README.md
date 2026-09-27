@@ -6,6 +6,10 @@ The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace. Each package 
 Isaac ROS 3.2, before the move to Jazzy. Every submodule tracks its own
 `humble` branch. To get it, add `-b humble` to the clone below.
 
+**Frozen since 2026-09-27.** `main` is Jazzy now and all new work goes
+there. This branch takes no more commits; it stays so a robot not yet
+reflashed to JetPack 7.2 can still build and run.
+
 Each package is a submodule:
 
 ```sh
@@ -38,4 +42,4 @@ everyone else's `git submodule update --init`.
 | `rf2o_laser_odometry` | `ros2` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `release-3.2` | Isaac ROS base, our Dockerfiles and container scripts |
 
-Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's Tracks B-C, the end-to-end tests and Track D), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md` and `E2E_PLAN.md` (the plans behind ROADMAP.md's Tracks B-C and the end-to-end tests; Track D's `JAZZY_PLAN.md` is on the `jazzy` branch), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).

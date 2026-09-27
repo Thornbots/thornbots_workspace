@@ -1,232 +1,63 @@
 # Plan: split CV at `TargetState`
 
-ROADMAP.md Track B and C, 2026-09-24. Part 1 (`point_to_cv_target`) aims and
-fires from a `TargetState`. Part 2 (`target_selector` + `target_tracker`) builds
-that `TargetState` from detections. **We start with Part 1, the hitting side.**
-It is the half that misses today. **The sim tests it on perfect models:**
-`target_state_truth` publishes the target's true `TargetState`, the tracker is
-not launched, and every miss left is Part 1's own. Part 2 waits until Part 1's
-floors are measured.
+ROADMAP.md Track B and C. Part 1 (`point_to_cv_target`) aims and fires from a
+`TargetState`. Part 2 (`target_selector` + `target_tracker`) builds that
+`TargetState` from detections. Updated 2026-09-26: Aiming is finished, and
+what's left is Estimation, then hitting while we move.
 
-## Where this stopped (2026-09-25, handoff)
+## Where this stands
 
-Nothing is running in the container.
-
-- **Aiming is done on C1** (1.7, 1.8): 40 per-cell floors from three runs
-  each, still and moving shooter, all three paths.
-- **Part 2 model** (`thornbots_pkg`, 2.3): `ArmorEKF` state is
-  `[pos, vel, acc, yaw, w, r, dz]`. Singer acceleration
-  (`process_noise_jerk` 3, `accel_time_constant_s` 1), single-panel yaw
-  (`single_panel_yaw_std` 0.3), and now a **still hypothesis** for a parked,
-  non-spinning target (v, a, w pinned at 0; the bank scores likelihood, not
-  NIS). `thornbots_pkg/README.md` has the design.
-- **gz C2, three runs** (`../log/cv_runs/est_c2_1`, `est_rtf0_gui`,
-  `est_rtf05_flat`). The first scored no state on staggered stationary:
-  4 m/s had left the head at its path end, `cv_head_aim` holds with no
-  target, and the still target sat outside the view. The harness now aims
-  the head at the truth during each case's 1 s reset, and the second run
-  passed 10/10. Stationary cells now read velocity and spin exactly 0,
-  facing p95 1.3 cm flat. Moving cells read 0.12-0.51 m facing p95 and
-  swing up to 2x between runs. Half speed scored within that spread, so
-  load isn't the cause; unthrottled only reaches ~1x anyway. All three
-  ran at 10% detection dropout; the default is 3% since, so later runs
-  aren't directly comparable.
-- **Every CV test runs with ROS** (the user's rule): the offline estimator
-  copy is gone (`sim/AGENTS.md`).
-- **rviz** panels carry the 15 deg S122 cant in both views.
-
-- **C2 runs on `bench_world` now, no gz** (2026-09-25, the user's call):
-  one C++ lockstep loop is the clock, target, our chassis and head, `/pose`,
-  head controller and detections. All ten cells take 54 s with rviz (~6x;
-  gz took ~6 min), 10/10 (`est_world_full1`). Stationary cells read 0.9 cm
-  facing p95, below gz's 1.3-4 cm (no spring sag); moving cells sit in gz's
-  spread, and `flat-speed1` read 0.19 m alone and 0.31 m in the suite, so
-  the 2x swing is the tracker's, not gz's.
-- **`target_tracker` is now C2's speed ceiling.** It saturates a core at
-  ~8x: `ArmorTracker.step`'s small-matrix numpy is 46% of its main thread,
-  its TF listener thread 27%. More `pace_slack_s` reaches 10-12x but lets
-  the nodes under test lag sim time by that much, head loop included.
-  Open for the user: a C++ `ArmorTracker` core, which would also speed up
-  the Jetson.
-- **The camera TF at capture is ruled out.** `target_tracker` now waits for
-  the TF at each capture time instead of taking the newest; on gz it never
-  had to wait. The per-second trace shows velocity-error bursts of 4-7 m/s
-  on a 1 m/s target, with facing error up to 1.4 m (`est_tfwait_1`).
+- **Aiming is done on C1.** `shot_hit_harness.py`'s `FLOORS` holds 40
+  per-cell floors from three chase-mode runs each: still and moving shooter,
+  lateral, radial and diagonal paths. `point_to_cv_target` reads only
+  `TargetState` and `RobotPose`, and with `valid` false it aims at the
+  measured panel with no lead and doesn't fire.
+- **Part 2 model** (`thornbots_pkg`): `ArmorEKF` state is
+  `[pos, vel, acc, yaw, w, r, dz]`, with Singer acceleration, a single-panel
+  yaw measurement and a still hypothesis for a parked, non-spinning target.
+  `thornbots_pkg/README.md` has the design.
+- **C2 runs on `bench_world`**, one C++ lockstep loop with no gz, paced by
+  the nodes under test at ~5x: the ten cells take ~75 s. Five runs each on
+  Humble and Jazzy (2026-09-26): stationary cells under 2 cm facing p95,
+  moving cells 0.08-0.17 m medians, and runs agree within 10% except at
+  4 m/s (0.13-0.27 m). `LIMITS` holds those ten cells: the worst of the
+  five Humble runs x 1.25, floored at 0.01.
+- **The 4 m/s swing is the radius estimate wandering.** In the bad run of
+  each 4 m/s cell (one of five each), radius error sits at 5-12 cm for
+  10-20 s where the good runs hold ~2 cm, and facing-panel error follows it
+  (correlation ~0.55). It isn't path ends, which come every ~1.9 s, and it
+  isn't re-seeds: each case keeps one track.
+- **Most of the old moving-cell error was the bench.** Until 2026-09-26
+  `bench_world` paced on `TargetState`'s stamp, which the tracker sets at
+  publish time, so it ran ahead while the tracker worked through a full
+  queue 0.12-0.21 s behind capture. Moving cells read 0.29-0.33 m medians,
+  with a quarter to a third of them past 0.5 m. It now paces on
+  `/cv/tracker/measurement`.
+- **`target_tracker` is the slowest node under test.** Profiled at ~8x:
+  `ArmorTracker.step`'s small-matrix numpy is 46% of its main thread, its TF
+  listener thread 27%. A C++ core would speed up C2 and the Jetson; the
+  user's call.
 
 Next, in order:
 
-1. Trace the moving-cell error and its run-to-run swing on C2: the velocity
-   bursts, against the path ends and the tracker's re-seeds.
-2. Three C2 runs, then `sim/tools/estimation_limits.py` fills `LIMITS`
-   (2.0). Then 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
-   `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice.
+1. 2.1 (`camera_latency_s:=0.03`), 2.4 (`shooter_speed:=1.0`,
+   `target_path:=radial`/`diagonal`) and `blackout:=true`, each thrice,
+   then `estimation_limits.py` adds their cells to `LIMITS`.
+2. Open for the user: whether to hold the radius tighter at 4 m/s (above).
 3. Open for the user: `valid` goes true after 2 updates, but a fresh track
    on a spinning target takes 0.3-3 s to lock (facing-panel error up to
-   0.4 m in the first second). Spin-rate variance doesn't separate
-   locked from not, so no threshold was added. Chase mode is the default
-   now (1.6); its `chase_settle_s` waits on a hardware gimbal measurement.
+   0.4 m in the first second). Spin-rate variance doesn't separate locked
+   from not, so no threshold was added.
 
-## Where Part 1 actually stands
+Left over from Aiming, none of it blocking:
 
-The roadmap used to say Part 1 still had to pick a panel and time the shot
-against the spin. `plan_shot` (`thornbots_pkg/point_to_cv_target_core.py`)
-already does both. Above `spin_enter_rad_s` (3 rad/s) it aims at a point on the
-center-to-shooter line and sets `delay_ms` to land on the next quarter-turn
-alignment, firing only when that delay fits inside one publish tick. Below it,
-it leads the tracked panel and fires at once. Every moving shot-hit cell spins
-at 1 to 2 Hz (6 to 12.6 rad/s), so every moving cell already runs in spin mode.
-
-What Part 1 lacks:
-
-1. Spin mode aims at the mean radius `(r + other_r)/2` and at `center.z`. It
-   never works out which pair arrives at the next alignment, so it uses neither
-   that pair's radius nor its `z_offset`. Non-spin mode ignores `z_offset` too.
-   That is the aim side of the staggered collapse (98% to 30%), and it can be
-   fixed now: `TargetState` already carries per-pair heights.
-2. At 4 m/s shots trail the panel by about 0.23 m. That number came from the
-   tracker. On a perfect model the velocity is exact, so any trail left there
-   is Part 1's own horizon: fire decision to muzzle exit (`firmware_latency_s`,
-   0.05 s) plus flight time.
-3. Every case, stationary included, lands 2 to 4 cm to one side. A stationary
-   run on a perfect model pins it to TF/muzzle geometry.
-4. It still subscribes to raw `/cv/panel_detection` for liveness, confidence and
-   track id, and aims at `state.panel` while the tracker is unconverged. That
-   path fires with `delay 0`.
-
-## Aiming: Part 1 on C1
-
-Every Aiming run is `shot_hit.launch.py` (gz-free since 2026-09-25). No
-tracker, no tracker comparison: those belong to Estimation, on C2.
-
-### 1.0 Harden the seam; the sim publishes the perfect model
-
-**Done 2026-09-24.** Later the same day C1 dropped gz altogether: a point
-shooter with a perfect gimbal (`sim/README.md`), and `target_state_truth`
-publishes each sample as it arrives, not on a timer that sent it ~17 ms late.
-
-Today `target_state_truth` publishes only when a `/cv/robot_panels` message
-arrives, so C1 still runs `cv_target_emulator` and `target_selector`, and Part 1
-still reads raw panels for liveness. The perfect model should stand alone, which
-needs Part 1 to stop reading panels first. This goes first because every later
-step is measured on it, and because 1.3's pair logic should be written against
-the new fields once rather than twice.
-
-One logical change across three submodules, pushed in this order, then one
-gitlink bump:
-
-| Package | Change |
-|---|---|
-| `ros2_dji_serial_bridge` | `TargetState`'s header comment says the stamp is the time the state describes (its publish time), and it gains `float32 confidence`, renames `centre` to `center`, and replaces `radius`/`other_radius` and `z_offset`/`other_z_offset` with `float32[2] radius` and `float32[2] z_offset`, indexed by panel pair `k % 2` (`[0]` is the tracked panel's pair). Every user in `thornbots_pkg` and `sim` follows, including `ArmorEKF`'s `other_r` and `plan_shot`'s `other_r` argument |
-| `thornbots_pkg` tracker | Publishes on every `/cv/robot_panels` message, before convergence too, with `valid=false`, `confidence` from the selector's winning panel, and center/yaw seeded from the raw panel |
-| `thornbots_pkg` Part 1 | Drops the `panel_topic` subscription. Liveness is `TargetState` age, track id and confidence come off the message. `!valid` aims at the tracked panel with no lead. `/cv/panel_polygon` moves to `target_selector` |
-| `sim` | `target_state_truth` publishes on its own timer at `publish_rate_hz` (60, the emulator's camera rate) from `/target/ground_truth_odom` alone: the target's current state, stamped with its own sample time and published at once, with no added latency. `valid=true`, `confidence=1`, one fixed track id, no field of view or occlusion. `shot_hit.launch.py target_state:=truth` stops launching `target_selector` and `cv_target_emulator` |
-
-A test in `test_point_to_cv_target.py` pins the contract: the node subscribes to
-`TargetState` and `RobotPose` only. Done when a truth run fires with nothing
-upstream of `/cv/target_state` but `target_driver` and `target_state_truth`.
-
-### 1.1 Make the bench trustworthy
-
-**Resolved 2026-09-24.** The leak was Part 1: stationary aim went to panel 0,
-whichever way the previous case left the target facing. It now aims at the
-facing panel, and the gz-free bench has no head or chassis state to carry.
-
-Shot-hit scores depend on the case before them: staggered stationary read 0.3%
-right after flat 4 m/s and 99% twice alone. Until that is fixed, a before/after
-comparison means nothing.
-
-- Candidates, cheapest first: `point_to_cv_target`'s `spinning` hysteresis and
-  `last_fire_time`; `target_state_truth`'s 2 s `history_s` (gone if 1.0 drops
-  the history); `target_driver`'s pose at the switch; the head still slewing
-  when `SETTLE_S` ends.
-- Fix: `run_case` resets whatever carries over, through a `~/reset` service like
-  `pose_emulator`'s, and settles until the head is on target rather than for a
-  fixed time.
-- Done when a cell scores the same run alone and run after flat 4 m/s.
-
-Then take the first C1 baseline, both layouts. Nobody has run C1 yet, and every change
-below is measured against it. Each run needs the user's go-ahead
-(`sim/AGENTS.md`).
-
-### 1.2 Fixed lateral offset (stationary)
-
-**Not Part 1's.** On the perfect model stationary shots miss by 2 mm (gz) and
-0 mm (point bench). The 2 to 4 cm came with the tracker; it moves to Estimation.
-
-Read `panel_right_of_shot_m` from `shots.jsonl`. If the 2 to 4 cm survives on
-the perfect model, it is geometry: `muzzle` against `root`, the `headlink` yaw
-offset, or the harness's duplicated FK chain disagreeing with the URDF since the
-`sentry_v2` move. Fix it at the source, not with an aim trim.
-
-### 1.3 Pair-aware aim: radius and height
-
-**Done 2026-09-24.** Staggered matches flat. In spin mode the pair also has to
-hold until its last shot has left the muzzle: switching it on the aim horizon
-moved gz's gun under that shot (staggered 0.5 m/s 58% to 97%).
-
-In `plan_shot`, spin mode picks the pair that lines up at the next quarter-turn
-(parity of the step count from the tracked panel) and aims at `radius[k % 2]`
-and `center.z + z_offset[k % 2]`. Non-spin mode adds `z_offset[0]`. Unit-test
-both against the armor model in `TargetState.msg`. Done when staggered
-stationary matches flat (about 99%) and staggered moving cells come within a few
-points of flat.
-
-### 1.4 Lead at speed
-
-**Done 2026-09-24, not as planned.** The overshoot at speed was the gimbal,
-not the firmware: gz's head reaches a moving setpoint in 35 ms, and the aim
-led by 62 ms. Part 1 now leads by `gimbal_lag_s` plus half the publish tick,
-and times the fire over `firmware_latency_s`.
-
-If 4 m/s still trails, the velocity is exact, so the missing time is latency.
-Measure fire decision to muzzle exit in sim (the harness logs `fire` and
-`t_fire`) and set `firmware_latency_s` from it. Whatever trail the tracker adds
-on top is Part 2's velocity error, in 2.3.
-
-### 1.5 Path-end braking
-
-**Done 2026-09-24.** `TargetState` gained `acceleration`; the truth node fills
-it, Part 1 solves the intercept on the curved path, and flat 4 m/s went from
-17% to 46% on gz. The tracker publishes 0 until Estimation adds it. The
-misses left cluster where the acceleration switches, which nothing predicts.
-
-Bin 1 to 2 m/s misses by the target's position on its path. If they cluster at
-the 6 m/s² braking ends, constant-velocity extrapolation is the limit. Record
-it and move on: fixing it needs acceleration in `TargetState`.
-
-### 1.6 Spin fire window
-
-**Superseded 2026-09-24 by chase mode** (`chase_settle_s >= 0`): lead the
-facing panel and fire every tick, leaving mid-hold of the aim current at exit.
-Point bench, every tick: 96-99% of shots hit, against shotgating's one tick
-in five. Chase is the node default since 2026-09-25. It needs the gimbal to
-jump ~7 deg per quarter turn and settle; measure that on hardware and set
-`chase_settle_s` to the settle time.
-
-The delay must fit inside one tick (25 ms at 40 Hz), and a quarter-turn at
-12.6 rad/s takes 125 ms, so the node fires on about one tick in five. Check with
-`panel_hits.jsonl` that shots land on the aligned panel inside its 145° cone. If
-they arrive late, fire on the alignment after next when that one fits.
-
-### 1.7 Floors
-
-**Done 2026-09-25.** Three chase runs at 4x per path and shooter speed
-(`../log/cv_runs/c4_*`); `FLOORS` holds 40 cells. Still shooter, lateral:
-96.5-99.3%.
-
-Replace `MOVING_MIN_HIT_RATE = 0.25` with per-cell floors from the final truth
-run: lowest of three runs minus 10 points. Part 2 never gets hit-rate floors;
-it gets error thresholds on C2.
-
-### 1.8 C3 cases on C1
-
-**Done 2026-09-25.** `shooter_speed:=1.0` costs at most 1.5 points (flat
-4 m/s 95.4% against 96.5%). Radial and diagonal score 98.7-99.5%. Radial or
-diagonal with a moving shooter hasn't run.
-
-`shooter_speed:=1.0` and `target_path:=radial`/`diagonal`, already built. A drop
-with `shooter_speed` points at `shooter_vel`'s sign or frame; a drop on radial points at the lead solve along
-the ray. Each gets its own floor.
+- Chase mode (the default) needs the gimbal to jump ~7 deg per quarter turn
+  and settle. Measure that on hardware and set `chase_settle_s` to it.
+- Radial and diagonal paths with a moving shooter haven't run on C1.
+- Flat 4 m/s misses cluster where the target's acceleration switches at its
+  path ends, which nothing predicts.
+- The 2-4 cm sideways offset seen with the tracker in the loop is gone on
+  the perfect model, so it belongs to Estimation.
 
 ## Estimation: Part 2 on C2
 
@@ -244,9 +75,8 @@ stamps the message with that moment. Part 1 does no latency correction. It
 extrapolates from the stamp into the future: the part of a frame since the
 state arrived, `firmware_latency_s`, and flight time.
 
-**Built 2026-09-25, not run.** The tracker used to stamp its output with the
-detection stamp, so Part 1 covered Part 2's delay. The RealSense stamp's
-relation to capture time is still unmeasured.
+**Built 2026-09-25, not run.** The RealSense stamp's relation to capture time
+is still unmeasured.
 
 - `target_tracker`'s `camera_latency_s` (0): capture time = detection stamp -
   `camera_latency_s`, used for the EKF update and the camera TF lookup. It
@@ -261,32 +91,22 @@ relation to capture time is still unmeasured.
 
 ### 2.0 C2 estimation bench
 
-**Built 2026-09-25, runs as a suite** (`sim/launch/estimation.launch.py`,
-`test_estimation.py`). It ran on gz first; since 2026-09-25 `bench_world`
-(`sim/src/bench_world.cpp`) is the whole world in one C++ lockstep loop:
-the phantom target with exact truth, our chassis and head (gz's joint PD
-on the arm inertias), `/pose`, the head controller and the detections. A
-visual opponent comes with E2E, once YOLO sees rendered frames. Each
-case restarts the track by switching detections off for 1 s. The facing
-panel's error (the one Part 1 aims at) was added: on a still target only
-that panel is observable, so convergence is measured on it. `LIMITS` is
-empty; `sim/tools/estimation_limits.py` fills it from three runs. A headless
-probe (8 s cases, not a baseline): staggered stationary 1.2 cm facing p95;
-2 m/s with blackout, and 1 m/s with our chassis moving, ~35 cm p95 and
-~10 s to converge.
+**Built, runs as a suite** (`sim/launch/estimation.launch.py`,
+`test_estimation.py`). `bench_world` (`sim/src/bench_world.cpp`) is the
+whole world in one C++ lockstep loop: the phantom target with exact truth,
+our chassis and head (gz's joint PD on the arm inertias), `/pose`, the head
+controller and the detections. Each case restarts the track by switching
+detections off for 1 s. `LIMITS` holds the ten default cells, printed by
+`sim/tools/estimation_limits.py` from five runs (2026-09-26).
 
 - `test/cv/test_estimation.py` over `estimation_harness.py`. Each published
   `TargetState` is compared with the truth at its own `header.stamp`, so a
-  wrong stamp shows up as error. Per cell, mean and p95 of:
-  - panel error: the four panel positions the state implies against the true
-    four, the one number that says what Part 1 would be handed;
-  - center and velocity error;
-  - yaw error (mod a quarter-turn, matching pairs) and `yaw_rate` error;
-  - `radius` and `z_offset` error per pair;
-  - time from first detection until panel error stays under a threshold.
-- Thresholds per metric come from the first working run, lowest of three plus
-  a margin, like Aiming's floors.
-- Dropout and handoff cases by masking detections in the emulator.
+  wrong stamp shows up as error. Per cell, mean and p95 of panel error (all
+  four, and the facing one Part 1 aims at), center, velocity, yaw (mod a
+  quarter-turn), `yaw_rate`, `radius` and `z_offset` per pair, and the time
+  until the facing panel's error stays under 5 cm.
+- Limits per metric come from three or more runs: the worst p95 x 1.25,
+  never under 0.01, like Aiming's floors.
 - Done when C2 runs every C1 cell in one session and scores the same run
   alone and in sequence.
 
@@ -301,19 +121,15 @@ whose error at their own stamp matches the zero-latency numbers.
 
 ### 2.2 Per-pair z
 
-**Built 2026-09-25, unit-tested.** `ArmorEKF` carries `dz`, the tracked
-pair's height above the centre, with the other pair at `-dz` (only their
-difference is observable); an odd handoff flips it. Published as
-`z_offset = [dz, -dz]`.
-
-Per-pair z in `ArmorEKF`, mirroring the per-pair radius, published into the
-`z_offset` array. Done when staggered cells' `z_offset` and panel error match
-flat cells'.
+**Built, unit-tested.** `ArmorEKF` carries `dz`, the tracked pair's height
+above the centre, with the other pair at `-dz` (only their difference is
+observable); an odd handoff flips it. Published as `z_offset = [dz, -dz]`.
+Done when staggered cells' `z_offset` and panel error match flat cells' on
+C2.
 
 ### 2.3 Velocity lag
 
-**Built 2026-09-25**, unit-tested; C2 hasn't passed it yet (handoff
-section above). Tuning
+**Built**, unit-tested; C2 hasn't passed it yet. Tuning
 `process_noise_accel` alone couldn't fix it: the lag is at the path ends,
 and a filter fed only panel positions can't tell the centre accelerating
 from the panel spinning over less than a spin period. A slow Singer
@@ -322,13 +138,12 @@ acceleration tracks the 6 m/s^2 braking without that confusion.
 **Ready to run:** `process_noise_accel:=` sweeps the tracker on C2; the
 velocity error is in `estimation.jsonl` per case and per state.
 
-The 0.23 m trail at 4 m/s, minus whatever 1.4 found in Part 1's horizon, is
-Part 2's: velocity error, or latency it didn't predict across. Tune `process_noise_accel` against C2's velocity-error trace,
-path ends included.
+Tune `process_noise_accel` against C2's velocity-error trace, path ends
+included.
 
 ### 2.4 C3 cases
 
-**Ready to run:** `shooter_speed:=1.0` drives our gz chassis, `target_path:=`
+**Ready to run:** `shooter_speed:=1.0` drives our chassis, `target_path:=`
 radial or diagonal; `center_along_m` and `center_across_m` split the center
 error on the ray from us.
 
@@ -350,7 +165,7 @@ on the field). Where it stands:
 - **Target: already in the world.** `TargetState` is in `odom`, and Part 2
   places each detection with the camera's TF at capture time.
 - **Aim solve: already in the world.** `plan_shot` solves the intercept in
-  `odom`, including our velocity (1.8).
+  `odom`, including our velocity.
 - **Aim output: not in the world.** `CVTarget` is a `root`-frame point,
   converted with the newest TF (`point_to_cv_target.py`, `Time()` lookups).
   The MCB holds that point while the chassis moves on, so the aim drifts in
@@ -367,7 +182,7 @@ What it needs, in order:
 | W.2 | `thornbots_pkg` | Every TF lookup at the time the data was true: the camera at capture (Part 2 does this), our pose at the fire horizon in Part 1, not `Time()` |
 | W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CVData` to follow (`thornbots_pkg/AGENTS.md`) |
 | W.4 | `sim` | C1: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. C2: our gz chassis turns while tracking |
-| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like 1.7 and 2.0 |
+| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like C1's `FLOORS` and 2.0 |
 
 W.1 and W.3 change the wire protocol and the MCB firmware, which live
 outside this workspace; agree them with the firmware side first. W.2 and
@@ -379,13 +194,13 @@ last root-frame aim while our chassis moves.
 Workspace rule (`CLAUDE.md` § Timestamps): every internal message is stamped as
 well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
 `roi_depth_node` and `target_selector` carry the detection stamp through,
+`target_tracker` predicts to its publish time and stamps that,
 `cv_target_emulator` stamps sample time, `CVTarget` stamps decision time,
 `lidar_self_filter` and `pose_translator` pass the input's stamp on. The gaps:
 
 | Where | Today | Best the node can do | When |
 |---|---|---|---|
-| `target_tracker` → `TargetState` | Detection stamp, not the time the state describes | Publish time, after predicting forward | **Done 2026-09-25** (`camera_latency_s`, stamp at publish) |
-| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | `now()` after the frame is parsed | Stamp when the frame's first byte is read, minus its wire time at the baud rate. Later, an MCB millisecond clock on the wire, the mirror of `CV_MSG`'s `stamp_ms`, mapped to ROS time by offset | Before any field test of Part 1 while we move (1.8): `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
+| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | `now()` after the frame is parsed | Stamp when the frame's first byte is read, minus its wire time at the baud rate. Later, an MCB millisecond clock on the wire, the mirror of `CV_MSG`'s `stamp_ms`, mapped to ROS time by offset | Before any field test of Part 1 while we move: `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
 | Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency | Estimation, on hardware |
 | `mcb_relay` → relocalize | Bare `geometry_msgs/Point` | `PointStamped` with the stamp of the localization pose it came from; the bridge's subscriber follows | Own change, not CV-blocking |
 | `dji_serial_bridge` `~/nav_goal` | Bare `geometry_msgs/Point` | `PointStamped`, stamped when the goal was chosen | Same change as relocalize |
@@ -393,22 +208,12 @@ well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
 `/cmd_vel` stays a bare `Twist`: gz's diff-drive plugin and the harnesses expect
 it, which is the standard-interface exception in the rule.
 
-## Decisions for the user
-
-| Question | Recommendation |
-|---|---|
-| Fire before the tracker converges? Today it fires at the raw panel, unled | Aim, don't fire until `valid` |
-| `confidence` as a `TargetState` field, or keep Part 1's panel subscription? | New field; the subscription keeps the seam soft |
-| Floor margin under the measured truth score | Lowest of three runs minus 10 points |
-
 ## Commits
 
-1.0 is `ros2_dji_serial_bridge`, `thornbots_pkg`, `sim`, pushed in that order,
-then one bump. 1.1 is `sim` (plus `thornbots_pkg` if the leak is in a node) and
-one bump. 1.2 to 1.6 each get their own commit and bump, with C1 before/after
-numbers in the message. Update this file and ROADMAP.md in the bump for the
-step they describe.
-`thornbots_pkg` is shadowed in `/workspaces/ros2_ws`: rebuild it in
+Each step is its own commit per package, pushed in dependency order
+(`ros2_dji_serial_bridge`, `thornbots_pkg`, `sim`), then one bump with C2
+before/after numbers in the message. Update this file and ROADMAP.md in that
+bump. `thornbots_pkg` is shadowed in `/workspaces/ros2_ws`: rebuild it in
 `isaac_ros-dev` and check `ros2 pkg prefix` before any run.
 
 Sim detection noise is 0.005 m and C1 has no estimation noise at all, so C1's
