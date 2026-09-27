@@ -26,8 +26,8 @@ On the laptop, in `isaac_ros_jazzy_container` with the GPU:
 | CV tests (`point_to_cv_target`, `target_selector`, `target_tracker`) | pass | pass |
 | Drift suite, unthrottled | 7/7 | 7/7 in each of the last three runs |
 | `suite:=ekf` fused mean | 0.0075 m | 0.0079 m |
-| C1, 10 cells | 10/10 | 10/10, every score within 0.004 |
-| C2, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
+| The aiming bench, 10 cells | 10/10 | 10/10, every score within 0.004 |
+| The estimation bench, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
 
 Three bench fixes came out of step 4, all merged into `main` too except the
 first:
@@ -38,7 +38,7 @@ first:
 - A robot stack could stall at bring-up for good: a lifecycle
   `change_state` reply lost in DDS (Humble too), or the EKF never leaving
   "Waiting for clock". The drift harness now restarts such a stack once.
-- C2 on Jazzy first read worse than Humble (moving cells past 0.5 m in 36%
+- The estimation bench on Jazzy first read worse than Humble (moving cells past 0.5 m in 36%
   of cases against 27%). Both were a bench artifact: `bench_world` paced
   on `TargetState`'s publish-time stamp and let the tracker fall a full
   queue behind, a little further on Jazzy's slower Python. It now paces on
