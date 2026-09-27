@@ -7,7 +7,7 @@ what's left is Estimation, then hitting while we move.
 
 ## Where this stands
 
-- **Aiming is done on C1.** `shot_hit_harness.py`'s `FLOORS` holds 40
+- **Aiming is done on the aiming bench.** `shot_hit_harness.py`'s `FLOORS` holds 40
   per-cell floors from three chase-mode runs each: still and moving shooter,
   lateral, radial and diagonal paths. `point_to_cv_target` reads only
   `TargetState` and `RobotPose`, and with `valid` false it aims at the
@@ -16,12 +16,12 @@ what's left is Estimation, then hitting while we move.
   `[pos, vel, acc, yaw, w, r, dz]`, with Singer acceleration, a single-panel
   yaw measurement and a still hypothesis for a parked, non-spinning target.
   `thornbots_pkg/README.md` has the design.
-- **C2 runs on `bench_world`**, one C++ lockstep loop with no gz, paced by
+- **The estimation bench runs on `bench_world`**, one C++ lockstep loop with no gz, paced by
   the nodes under test at ~5x: the ten cells take ~75 s. Five runs each on
   Humble and Jazzy (2026-09-26): stationary cells under 2 cm facing p95,
   moving cells 0.08-0.17 m medians, and runs agree within 10% except at
   4 m/s (0.13-0.27 m).
-- **`LIMITS` covers all 60 C2 cells** (`sim/test/cv/estimation_limits_data.py`,
+- **`LIMITS` covers all 60 the estimation bench cells** (`sim/test/cv/estimation_limits_data.py`,
   Jazzy, 2026-09-27): the default ten from six runs, each other case from
   three or four, at 2x the worst run and floored at 0.02. A run strays up
   to ~2x from the others, so 1.25x failed fresh runs. About a quarter of
@@ -48,7 +48,7 @@ what's left is Estimation, then hitting while we move.
   `/cv/tracker/measurement`.
 - **`target_tracker` is the slowest node under test.** Profiled at ~8x:
   `ArmorTracker.step`'s small-matrix numpy is 46% of its main thread, its TF
-  listener thread 27%. A C++ core would speed up C2 and the Jetson; the
+  listener thread 27%. A C++ core would speed up the estimation bench and the Jetson; the
   user's call.
 
 Next, in order:
@@ -66,16 +66,16 @@ Left over from Aiming, none of it blocking:
 
 - Chase mode (the default) needs the gimbal to jump ~7 deg per quarter turn
   and settle. Measure that on hardware and set `chase_settle_s` to it.
-- Radial and diagonal paths with a moving shooter haven't run on C1.
+- Radial and diagonal paths with a moving shooter haven't run on the aiming bench.
 - Flat 4 m/s misses cluster where the target's acceleration switches at its
   path ends, which nothing predicts.
 - The 2-4 cm sideways offset seen with the tracker in the loop is gone on
   the perfect model, so it belongs to Estimation.
 
-## Estimation: Part 2 on C2
+## Estimation: Part 2 on the estimation bench
 
 Part 2 is benchmarked only on how close its `TargetState` gets to the truth.
-Nothing fires on C2, and shot-hit rates are not how Part 2 is judged: a miss
+Nothing fires on the estimation bench, and shot-hit rates are not how Part 2 is judged: a miss
 there mixes both halves, and Aiming already owns the aim.
 
 ### All hardware latency belongs to Part 2
@@ -99,10 +99,10 @@ is still unmeasured.
   of the `publish_latency_s` delivery delay.
 - Measure the real camera's latency on hardware (RealSense metadata timestamps,
   or a blinking LED against the stamp) before trusting a field number.
-- C1 carries none of this: `target_state_truth` publishes the current true
+- The aiming bench carries none of this: `target_state_truth` publishes the current true
   state, which is the contract Part 2 has to meet.
 
-### 2.0 C2 estimation bench
+### 2.0 Estimation bench
 
 **Built, runs as a suite** (`sim/launch/estimation.launch.py`,
 `test_estimation.py`). `bench_world` (`sim/src/bench_world.cpp`) is the
@@ -120,7 +120,7 @@ detections off for 1 s. `LIMITS` holds the ten default cells, printed by
   until the facing panel's error stays under 5 cm.
 - Limits per metric come from three or more runs: the worst p95 x 1.25,
   never under 0.01, like Aiming's floors.
-- Done when C2 runs every C1 cell in one session and scores the same run
+- Done when the estimation bench runs every aiming-bench cell in one session and scores the same run
   alone and in sequence.
 
 ### 2.2 Per-pair z
@@ -129,20 +129,20 @@ detections off for 1 s. `LIMITS` holds the ten default cells, printed by
 above the centre, with the other pair at `-dz` (only their difference is
 observable); an odd handoff flips it. Published as `z_offset = [dz, -dz]`.
 Done when staggered cells' `z_offset` and panel error match flat cells' on
-C2.
+the estimation bench.
 
 ### 2.3 Velocity lag
 
-**Built**, unit-tested; C2 hasn't passed it yet. Tuning
+**Built**, unit-tested; the estimation bench hasn't passed it yet. Tuning
 `process_noise_accel` alone couldn't fix it: the lag is at the path ends,
 and a filter fed only panel positions can't tell the centre accelerating
 from the panel spinning over less than a spin period. A slow Singer
 acceleration tracks the 6 m/s^2 braking without that confusion.
 
-**Ready to run:** `process_noise_accel:=` sweeps the tracker on C2; the
+**Ready to run:** `process_noise_accel:=` sweeps the tracker on the estimation bench; the
 velocity error is in `estimation.jsonl` per case and per state.
 
-Tune `process_noise_accel` against C2's velocity-error trace, path ends
+Tune `process_noise_accel` against the estimation bench's velocity-error trace, path ends
 included.
 
 ## Hitting while we move: target and aim in the world
@@ -175,8 +175,8 @@ What it needs, in order:
 | W.1 | `ros2_dji_serial_bridge`, firmware | `RobotPose` gains chassis yaw and yaw rate, and a capture stamp (Stamps table below: first-byte time less wire time, later an MCB clock). `odom->root` carries the yaw |
 | W.2 | `thornbots_pkg` | Every TF lookup at the time the data was true: the camera at capture (Part 2 does this), our pose at the fire horizon in Part 1, not `Time()` |
 | W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CVData` to follow (`thornbots_pkg/AGENTS.md`) |
-| W.4 | `sim` | C1: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. C2: our gz chassis turns while tracking |
-| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like C1's `FLOORS` and 2.0 |
+| W.4 | `sim` | The aiming bench: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. The estimation bench: our gz chassis turns while tracking |
+| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like the aiming bench's `FLOORS` and 2.0 |
 
 W.1 and W.3 change the wire protocol and the MCB firmware, which live
 outside this workspace; agree them with the firmware side first. W.2 and
@@ -205,11 +205,11 @@ it, which is the standard-interface exception in the rule.
 ## Commits
 
 Each step is its own commit per package, pushed in dependency order
-(`ros2_dji_serial_bridge`, `thornbots_pkg`, `sim`), then one bump with C2
+(`ros2_dji_serial_bridge`, `thornbots_pkg`, `sim`), then one bump with the estimation bench
 before/after numbers in the message. Update this file and ROADMAP.md in that
 bump. `thornbots_pkg` is shadowed in `/workspaces/ros2_ws`: rebuild it in
 `isaac_ros-dev` and check `ros2 pkg prefix` before any run.
 
-Sim detection noise is 0.005 m and C1 has no estimation noise at all, so C1's
+Sim detection noise is 0.005 m and the aiming bench has no estimation noise at all, so the aiming bench's
 floors describe the aim solve alone. Neither bench predicts field hit rates;
 they rank changes.

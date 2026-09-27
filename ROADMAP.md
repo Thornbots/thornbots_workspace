@@ -3,7 +3,7 @@
 A localization suite that can be believed, and CV cut in half at `TargetState`
 with a bench for each half, then the CV stack from detections to gimbal
 tested end to end in sim (`E2E_PLAN.md`). Updated 2026-09-26: Aiming is
-finished, C2 runs on `bench_world` with limits on its ten cells, and `main`
+finished, the estimation bench runs on `bench_world` with limits on its ten cells, and `main`
 is on Jazzy since 2026-09-27. Humble is frozen on the `humble` branches.
 
 This file lists only work still to do. When an item is finished, delete it
@@ -17,12 +17,12 @@ the record.
 | Test stack | **One gz session per run**, `sentry_v2` with collision and sprung wheels. Same verdicts shared, fresh per scenario, and alone |
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8 lidar, per-scan rf2o (2026-09-24, 212 s with GUI): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. `odom_stuck` passes its liveness check and loses the robot at 4 m/s, accepted as a limit (2026-09-25) |
 | EKF fusion path | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26), with rf2o's `fixed_heading` and `/odom` prior. Not yet re-run at real time (S4) |
-| C2 estimation bench (60 cells, no gz) | **Runs on `bench_world`, with limits on every cell** (Jazzy, 2026-09-27): default, camera latency, moving shooter, radial, diagonal and blackout. Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m; radial doubles along-ray error at 2-4 m/s, blackout is 2-3x worse. About a quarter of runs trip one limit on a spin-rate or radius outlier. See `CV_SPLIT_PLAN.md` "Where this stands" |
+| Estimation bench (60 cells, no gz) | **Runs on `bench_world`, with limits on every cell** (Jazzy, 2026-09-27): default, camera latency, moving shooter, radial, diagonal and blackout. Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m; radial doubles along-ray error at 2-4 m/s, blackout is 2-3x worse. About a quarter of runs trip one limit on a spin-rate or radius outlier. See `CV_SPLIT_PLAN.md` "Where this stands" |
 | CV stack end to end in sim | Nothing runs `roi_depth_node` or the serial link. `E2E_PLAN.md` plans the match test: sim plays only the MCB over a pty, a detector stand-in in place of YOLO, lidar and depth; our robot drives and shoots against other `sentry_v2` copies |
 | Target in sim | Phantom: `target_driver` integrates a pose, no gz entity exists |
 | CV seam | **Hard**: `point_to_cv_target` reads `TargetState` and `RobotPose` only. `TargetState` carries confidence, center, velocity, acceleration, yaw, yaw_rate, and per-pair `radius[2]`/`z_offset[2]` |
-| Aiming (Part 1 on C1) | **Done.** 40 per-cell floors in `FLOORS`, chase mode the default |
-| ROS 2 Jazzy | **`main` is Jazzy** (2026-09-27); Humble is frozen on `humble`. On the laptop builds, unit tests, drift suite, `suite:=ekf`, C1 and C2 match Humble. The Orin reflashes and hardware checks are left (Track D) |
+| Aiming (Part 1 on the aiming bench) | **Done.** 40 per-cell floors in `FLOORS`, chase mode the default |
+| ROS 2 Jazzy | **`main` is Jazzy** (2026-09-27); Humble is frozen on `humble`. On the laptop builds, unit tests, drift suite, `suite:=ekf`, the aiming and estimation benches match Humble. The Orin reflashes and hardware checks are left (Track D) |
 
 ## The sim
 
@@ -61,7 +61,7 @@ Added 2026-09-25. Bringing a bench up or down takes hand-holding today:
   invisible to `kill_launch.sh -l`). Once, nine stacks were all publishing
   `/clock`.
 
-**Done when:** each bench (drift suite, C1, C2) starts with one command,
+**Done when:** each bench (drift suite, aiming, estimation) starts with one command,
 says what's missing if gz isn't installed, and waits until the stack is
 ready before it scores anything. Ctrl-C or the end of the tests stops every
 node it started, with no tracebacks, and a check afterwards finds no
@@ -119,8 +119,8 @@ mesh cost ~3× sim speed. `moving_obstacles` reads 0.18 m against 0.40 m.
 Both stay nodes in `thornbots_pkg`. The work is making the seam *hard*. The
 step-by-step plan is [`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md).
 
-Aiming (Part 1 on C1) is done. What's left is Estimation (Part 2 on C2):
-per-pair z and the camera-latency model are built and unit-tested, and C2
+Aiming (Part 1 on the aiming bench) is done. What's left is Estimation (Part 2 on the estimation bench):
+per-pair z and the camera-latency model are built and unit-tested, and the estimation bench
 hasn't scored either yet.
 
 - **Wanted: the CV nodes move out of `thornbots_pkg` into their own
@@ -150,7 +150,7 @@ the sensors while our robot drives and shoots, is planned in
 [`E2E_PLAN.md`](E2E_PLAN.md) with the speed work for every suite. It
 doesn't run YOLO.
 
-### C2: Estimation bench, fake detections
+### Estimation bench, fake detections
 
 Detections are synthesized from the target's true pose (no YOLO in the loop),
 with D435-like ray noise, and nothing fires. Part 2 is benchmarked only on how close its
@@ -167,7 +167,7 @@ test, the tracker's input among them, and runs the ten cells in ~75 s.
 Metrics as above, plus the facing panel's error, which is what Part 1 aims
 at. `target_tracker` is the slowest node under test; a C++ core for it is
 the user's call (`CV_SPLIT_PLAN.md`). `LIMITS` covers all 60 cells, the
-C3 cases (moving shooter, radial, diagonal), latency and blackout included,
+extra cases (moving shooter, radial, diagonal), latency and blackout included,
 at 2x the worst of three to six runs.
 
 ## Track D: ROS 2 Jazzy (last)
@@ -180,7 +180,7 @@ no more work, and a robot on Humble runs that frozen tree until it is
 reflashed.
 
 **Where it stands (2026-09-27):** the port builds clean and passes every
-unit test. On the laptop the drift suite, `suite:=ekf`, C1 and C2 give
+unit test. On the laptop the drift suite, `suite:=ekf`, the aiming and estimation benches give
 Humble's verdicts. Left: reflash `ts-nano-dev` (step 1), the hardware checks
 on it (step 5: RealSense, YOLO fps, serial, DDS), then the robots (step 6). **Done when:** the drift suite,
 `suite:=ekf` and both benches give the same verdicts on Jazzy as on Humble,
@@ -225,5 +225,5 @@ Midwest competition; until then the match test drives our robot from sim.
 - `sentry_v2` collides, but what it does when driven into a wall hasn't been
   checked. That matters the day obstacle *avoidance* becomes something to
   demonstrate.
-- C2 runs stray up to 2x from each other (radius and spin-rate outliers),
-  so compare C2 changes over three runs, not one.
+- The estimation bench runs stray up to 2x from each other (radius and spin-rate outliers),
+  so compare the estimation bench changes over three runs, not one.

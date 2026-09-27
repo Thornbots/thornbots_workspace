@@ -26,10 +26,10 @@ speed work below makes each run cheaper and makes one run cover more.
 
 ## Speed
 
-Today: the drift suite takes 227 s for 7 scenarios, C2 about 54 s for 10
-cells on `bench_world`, and C1 runs 40 cells. The full gz stack caps at RTF
+Today: the drift suite takes 227 s for 7 scenarios, the estimation bench about 54 s for 10
+cells on `bench_world`, and the aiming bench runs 40 cells. The full gz stack caps at RTF
 ~1.55 for a reason nobody has found (`sim/AGENTS.md` Open), and
-`target_tracker` caps C2 near 8x.
+`target_tracker` caps the estimation bench near 8x.
 
 1. Measure first. Each suite logs its wall time split into bring-up,
    per-case reset and scored time, plus the mean RTF. Numbers go in the
@@ -51,16 +51,16 @@ cells on `bench_world`, and C1 runs 40 cells. The full gz stack caps at RTF
    of single-purpose cases in the regular run. The benches stay for
    diagnosis: run them when a match segment drops or when their half of the
    code changes.
-7. A C++ core for `target_tracker` lifts C2's ceiling and the match test's.
+7. A C++ core for `target_tracker` lifts the estimation bench's ceiling and the match test's.
    Still the user's call (`CV_SPLIT_PLAN.md`).
 
 Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits the time budget
 the user sets once the numbers are in.
 
-## Before the match test: C2's moving-cell error
+## Before the match test: the estimation bench's moving-cell error
 
-C2's moving cells are poor, and the 4 m/s cells swing 2x between runs
+The estimation bench's moving cells are poor, and the 4 m/s cells swing 2x between runs
 with the radius estimate (`CV_SPLIT_PLAN.md` "Where this stands"). The match test would inherit that error, so trace it
 first.
 
@@ -114,7 +114,7 @@ Each stage adds hops and is its own commit and bump. Scoring stays the same
 from stage to stage, so a drop belongs to the hops that stage added.
 
 1. E1, the stand-in to the gimbal, our robot parked. Panels on the URDF, one
-   opponent running C1's cells, the stand-in, depth, extrinsics, and a team
+   opponent running the aiming bench's cells, the stand-in, depth, extrinsics, and a team
    stub in place of the referee. The real `roi_depth_node`, selector,
    tracker and `point_to_cv_target` feed `cv_head_aim`.
 2. E2, the wire. `dji_serial_bridge` and `mcb_relay` on a pty against the
@@ -141,7 +141,7 @@ One `sim/launch/e2e.launch.py` and a pytest suite in `sim/test/e2e/`. Per
 segment:
 
 - hit rate on enemy panels, the pass condition, with floors from three runs
-  minus 10 points, like C1's `FLOORS`;
+  minus 10 points, like the aiming bench's `FLOORS`;
 - shots at the ally, which must be zero;
 - for E3 on: route error and localization error (EKF against gz truth) at
   each fire time;
