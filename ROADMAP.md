@@ -35,6 +35,11 @@ Localization (`sim/README.md` has the scenarios):
 - T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
   acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
   The match test's driving (track A, E3) wants the same ramp.
+  `--drive-accel` / `drive_accel:=` is in (off by default; sim commit
+  has the measurements). Open: ramped runs read RTF 0.86 against 1.15,
+  and the robot doesn't seem to reach full speed (at 6 m/s^2 a 3 m leg
+  only touches 4 m/s). Pick the chassis's real acceleration, find the
+  RTF drop, then run the full suite on it.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
