@@ -1,6 +1,6 @@
 # Plan: split CV at `TargetState`
 
-ROADMAP.md track B and the Estimation todos. Part 1 (`point_to_cv_target`)
+ROADMAP.md tracks G and B and the Estimation todos. Part 1 (`point_to_cv_target`)
 aims and fires from a `TargetState`. Part 2 (`target_selector` +
 `target_tracker`) builds that `TargetState` from detections. Updated
 2026-09-28: Aiming is done, Estimation is down to todos, and hitting while
@@ -43,16 +43,24 @@ we move is the long work left.
   `chase_settle_s` to it.
 - Aiming bench: radial and diagonal paths with a moving shooter haven't run.
 
+## Estimation accuracy (ROADMAP.md track G)
+
+The user's call (2026-09-28): all three of these get fixed. Each is its own
+commit, scored on the estimation bench over three runs.
+
+| Step | Problem | Where to start |
+|---|---|---|
+| G.1 | In about one 4 m/s run in five, radius error sits at 5-12 cm for 10-20 s (normally ~2 cm) and facing-panel error follows. The spin rate is sometimes misread by 0.6-2 rad/s | Hold the radius tighter: `process_noise_radius` (0.02 m/sqrt(s)) down, and a prior at the armor radius. Log innovations around each spin misread to find what triggers it |
+| G.2 | Radial motion doubles along-ray error at 2-4 m/s (0.18-0.25 m against 0.09-0.11). Blackouts (0.3 s of every 2 s) run 2-3x worse, worst on staggered 0.5-1 m/s (0.28-0.30 m against 0.09) | Radial: `ray_covariance` already splits depth from lateral noise; tune `meas_noise_base_m` / `meas_noise_range_coeff` against the bench's depth noise. Blackout: check what the `dz` pair handoff does across a gap |
+| G.3 | `valid` goes true after 2 updates (`target_tracker.py`), but a fresh track on a spinner takes 0.3-3 s to settle, up to 0.4 m off in the first second. Spin-rate variance doesn't separate settled from not | Gate `valid` on settling, not a count: try a minimum track age, or the facing panel's predicted-vs-measured residual. Check the cost on the aiming bench |
+
+Done when a fresh run of every cell passes `LIMITS` tightened to the new
+worst runs, with radial and blackout cells within 1.5x of the default and
+no fresh track `valid` before its facing-panel error settles under 5 cm.
+
 ## Open for the user
 
-1. Whether to hold the radius tighter at 4 m/s, and why the spin rate is
-   misread now and then.
-2. Radial motion's along-ray error, and blackout recovery on staggered
-   targets. Neither has a fix planned.
-3. `valid` goes true after 2 updates, but a fresh track on a spinner takes
-   0.3-3 s to lock (facing-panel error up to 0.4 m in the first second).
-   Spin-rate variance doesn't separate locked from not.
-4. A C++ core for `target_tracker`, for the bench and the Jetson.
+- A C++ core for `target_tracker`, for the bench and the Jetson.
 
 Flat 4 m/s misses cluster where the target's acceleration switches at path
 ends, which nothing predicts. Known, no plan.

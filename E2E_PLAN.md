@@ -60,14 +60,12 @@ the user sets once the numbers are in.
 
 ## Before the match test
 
-- Trace the estimation bench's moving-cell error first; the match test
-  would inherit it (`CV_SPLIT_PLAN.md` "Where this stands").
+- ROADMAP.md track G fixes the estimation error the match test would
+  inherit (`CV_SPLIT_PLAN.md` "Estimation accuracy").
 - Armor panels are on both URDFs (2026-09-27): `armor_0` to `armor_3` on
   the diagonals at 45 deg + k x 90 deg, 0.252 m out, at 0.230 and 0.136 m,
-  each a 135 x 125 mm Small module (`sim/README.md`). The benches' target
-  still uses 0.30/0.24 m radii, no stagger, panels at 0/90/180/270 deg and a
-  0.1 m face. Moving it onto the URDF means fresh `FLOORS` and `LIMITS`: the
-  user's call.
+  each a 135 x 125 mm Small module (`sim/README.md`). Both benches' target
+  uses them, with `FLOORS` and `LIMITS` rerun on it.
 
 ## The match test
 
@@ -151,4 +149,3 @@ has a diagnostic that names the hop that lost it.
 | How many robots in E4 | The full 3v3, three opponents and two allies, if the RTF holds; one of each if it doesn't |
 | MCB emulator in Python or a firmware build on the host | Python first; a host build of the real firmware later, if the firmware side can produce one |
 | How the MCB's own drive behaves (acceleration, yaw hold) | Ask the firmware side before E3, so the emulator matches it |
-| Move the benches' target onto the URDF's panels | Yes, with fresh `FLOORS` and `LIMITS` runs, so the benches and the match test score the same robot |
