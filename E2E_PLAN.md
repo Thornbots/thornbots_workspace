@@ -51,8 +51,9 @@ cells on `bench_world`, and the aiming bench runs 40 cells. The full gz stack ca
    of single-purpose cases in the regular run. The benches stay for
    diagnosis: run them when a match segment drops or when their half of the
    code changes.
-7. A C++ core for `target_tracker` lifts the estimation bench's ceiling and the match test's.
-   Still the user's call (`CV_SPLIT_PLAN.md`).
+7. A C++ core for `target_tracker` could lift the estimation bench's
+   ceiling and the match test's. ROADMAP.md T10 measures the cost first;
+   then it's the user's call.
 
 Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits the time budget

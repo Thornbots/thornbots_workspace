@@ -60,7 +60,7 @@ no fresh track `valid` before its facing-panel error settles under 5 cm.
 
 ## Open for the user
 
-- A C++ core for `target_tracker`, for the bench and the Jetson.
+- A C++ core for `target_tracker`, after ROADMAP.md T10 measures its cost.
 
 Flat 4 m/s misses cluster where the target's acceleration switches at path
 ends, which nothing predicts. Known, no plan.
