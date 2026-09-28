@@ -26,10 +26,6 @@ the detail, and numbers stay put when items are deleted.
 
 Localization (`sim/README.md` has the scenarios):
 
-- T1: Run the ground-truth metric under `--backend none`. Built 2026-09-25:
-  `noise_correction` and the three cornering-loop scenarios score
-  `odom->root` against `/sim/raw_odom`. Done when six scenarios pass there.
-  `odom_stuck` stays a liveness check (the user's call).
 - T2: Run `suite:=ekf` at `real_time_factor:=1`. Done when it gives the same
   verdict as unthrottled; if it doesn't, audit every node for wall-clock
   timers, rates and timeouts.
