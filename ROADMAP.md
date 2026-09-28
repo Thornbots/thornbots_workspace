@@ -28,6 +28,10 @@ Localization (`sim/README.md` has the scenarios):
 
 - T3: Moving obstacles under `slam`: sample the grid cells the actors
   crossed and check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
+  The check is on `sim` branch `t3-actor-map-check`. Blocked: with the
+  ARCC26 pose graph loaded, slam_toolbox never publishes `/map`; its
+  `getOccupancyGrid` ran 600 s at 100% of a core (2026-09-28). Needs a
+  map that rasterises in seconds (track H rebuilds it).
 - T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
   acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
   The match test's driving (track A, E3) wants the same ramp.
