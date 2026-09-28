@@ -13,7 +13,7 @@ don't mark it done. Git history and the package docs keep the record.
 
 | Thing | State |
 |---|---|
-| Localization drift suite (8 scenarios) | **7 of 8 pass** at `--backend amcl --use-rf2o`, unthrottled (2026-09-28); `jerk_with_motion` fails on a `trigger_jerk` timeout (T13). On 2026-09-24: drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
+| Localization drift suite (8 scenarios) | **8 of 8 pass** at `--backend amcl --use-rf2o`, unthrottled, 255 s (2026-09-28): drift_correction 0.17 m, with obstacle 0.15 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | Nothing runs `roi_depth_node` or the serial link yet (track A) |
@@ -57,10 +57,6 @@ Tracker cost:
   bench's speed. On the laptop at ~8x, `ArmorTracker.step`'s numpy is 46% of
   its main thread and its TF listener 27%, so check how much of that the TF
   listener alone accounts for. Then the user decides.
-
-- T13: `jerk_with_motion` fails on "trigger_jerk call timed out", alone
-  too (found 2026-09-28): check it on pre-rename code, then find what
-  stopped answering.
 
 Later:
 
