@@ -44,8 +44,10 @@ Localization (`sim/README.md` has the scenarios):
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
-- T6: Score per-pair z: staggered cells' `z_offset` and panel error against
-  flat cells'.
+- T15: A still target seen at an angle loses yaw and radius (0.35 rad,
+  0.07 m), and the bench only tests one at an angle by accident
+  (`CV_SPLIT_PLAN.md` "Todos"). Reset the target's yaw per case, add a
+  still cell with two panels in view, then fix the tracker.
 - T7: Sweep `process_noise_accel` against the velocity-error trace, path ends
   included.
 - T8: Check the bench scores the same with a cell run alone as in sequence.
