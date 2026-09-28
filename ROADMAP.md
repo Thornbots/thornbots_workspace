@@ -45,6 +45,10 @@ Localization (`sim/README.md` has the scenarios):
   runs here span 0.93-1.34. Open: the chassis's real acceleration (ask
   firmware, `E2E_PLAN.md`), an interleaved ramped/unramped A/B for the
   RTF, then the full suite at that acceleration.
+- T16: The robot's true yaw seems to drift in `odom_stuck` (the user saw
+  it in gz, 2026-09-28). Measure `/sim/raw_odom`'s yaw over the scenario
+  against `drift_correction`'s, where `sentry_v2` picks up ~1 deg in the
+  first hard corners (`sim/AGENTS.md`), and find what turns it.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
