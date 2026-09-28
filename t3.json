@@ -28,11 +28,6 @@
       "icon": "test"
     },
     {
-      "name": "Sim: EKF",
-      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh ekf'",
-      "icon": "test"
-    },
-    {
       "name": "Sim: shot hit",
       "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh shot_hit'",
       "icon": "test"
