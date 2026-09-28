@@ -32,8 +32,13 @@ we move is the long work left.
 
 ## Todos
 
-- Per-pair z: staggered cells' `z_offset` and panel error should match flat
-  cells'.
+- A still target seen at an angle (ROADMAP.md T15). Stationary cells never
+  reset the target's yaw: `flat-stationary` runs first, square to the
+  camera, and `staggered-stationary` sits wherever the last 4 m/s spin
+  stopped, 0.2-0.76 rad off. Two panels are then in view, so no facing
+  pseudo-measurement, and two panel positions don't fix centre, yaw and
+  both radii: yaw wanders 0.02-0.35 rad and radius error grows 0.006 to
+  0.07 m over 33 s (`est_default_r2`-`r6`). Stagger isn't the cause.
 - Velocity lag: sweep `process_noise_accel:=` on the estimation bench
   against the per-case velocity error in `estimation.jsonl`.
 - Confirm a cell scores the same run alone as in sequence.
@@ -51,7 +56,7 @@ commit, scored on the estimation bench over three runs.
 | Step | Problem | Where to start |
 |---|---|---|
 | G.1 | In about one 4 m/s run in five, radius error sits at 5-12 cm for 10-20 s (normally ~2 cm) and facing-panel error follows. The spin rate is sometimes misread by 0.6-2 rad/s | Hold the radius tighter: `process_noise_radius` (0.02 m/sqrt(s)) down, and a prior at the armor radius. Log innovations around each spin misread to find what triggers it |
-| G.2 | Radial motion doubles along-ray error at 2-4 m/s (0.18-0.25 m against 0.09-0.11). Blackouts (0.3 s of every 2 s) run 2-3x worse, worst on staggered 0.5-1 m/s (0.28-0.30 m against 0.09) | Radial: `ray_covariance` already splits depth from lateral noise; tune `meas_noise_base_m` / `meas_noise_range_coeff` against the bench's depth noise. Blackout: check what the `dz` pair handoff does across a gap |
+| G.2 | Radial motion doubles along-ray error at 2-4 m/s (0.18-0.25 m against 0.09-0.11). Blackouts (0.3 s of every 2 s) run 2-3x worse, worst on staggered 0.5-1 m/s (0.28-0.30 m against 0.09) | Radial: `ray_covariance` already splits depth from lateral noise; tune `meas_noise_base_m` / `meas_noise_range_coeff` against the bench's depth noise. Blackout: check what the `dz` pair handoff does across a gap. Staggered blackout cells at 1-4 m/s read `z_offset` p95 0.012-0.062 m (median of runs) against flat's 0.002 (stagger 0.095 m), and 1.4-1.6x flat's panel error at 2-4 m/s: the pair parity likely comes back wrong. Without blackout, staggered matches flat (panel error within 0.9-1.2x, `z_offset` under 4 mm) |
 | G.3 | `valid` goes true after 2 updates (`target_tracker.py`), but a fresh track on a spinner takes 0.3-3 s to settle, up to 0.4 m off in the first second. Spin-rate variance doesn't separate settled from not | Gate `valid` on settling, not a count: try a minimum track age, or the facing panel's predicted-vs-measured residual. Check the cost on the aiming bench |
 
 Done when a fresh run of every cell passes `LIMITS` tightened to the new
