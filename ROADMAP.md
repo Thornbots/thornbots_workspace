@@ -40,6 +40,13 @@ Estimation (`CV_SPLIT_PLAN.md` "Todos"):
   included.
 - T8: Check the bench scores the same with a cell run alone as in sequence.
 
+Serial link:
+
+- T14: A better publisher of odometry updates to `dji_serial_bridge`.
+  Today `mcb_relay` sends a relocalize only while the chassis is under
+  0.05 m/s and localization is over 0.05 m from the MCB's `/odom`
+  (`thornbots_pkg/README.md`, mcb_relay.py).
+
 Tracker cost:
 
 - T10: Measure what `target_tracker` costs before deciding on a C++ core:
