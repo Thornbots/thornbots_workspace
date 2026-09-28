@@ -79,6 +79,11 @@ starts rviz regardless), so a window opens on the user's display.
   `src/` resolves to nothing instead of erroring.
 - `ROS_DOMAIN_ID` is 1 in this image until the robots move, so Humble nodes on
   domain 0 stay invisible. Cross-machine work needs both sides on 1.
+- **On a Mac** the container is `Dockerfile.mac` (arm64, no NVIDIA, no
+  Isaac ROS), started with the `docker run` in
+  `isaac_ros_common/docker/README.md` under the same name. It has gz baked
+  in, no `ros2_ws` and no `admin` user, so the scripts run as root there
+  (`scripts/container.sh`). GUI is VNC at `vnc://localhost:5901`.
 - **A fresh container has no gz-sim.** Before any `sim` launch, run once:
   `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh`.
   Background it and budget minutes: it pulls a few hundred apt packages. A

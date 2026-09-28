@@ -19,7 +19,7 @@
     },
     {
       "name": "Container shell",
-      "command": "docker exec -it -u admin -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -c 'exec bash --rcfile <(echo \"source install/setup.bash\")'",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -c 'exec bash --rcfile <(echo \"source install/setup.bash\")'",
       "icon": "debug"
     },
     {

@@ -11,17 +11,14 @@
 #   .claude/skills/isaac-ros-docker/smoke.sh --sim      # + headless sim launch,
 #                                                       # topic check, teardown
 #
-# Container name: ISAAC_ROS_CONTAINER, else container_name in
-# isaac_ros_common/.isaac-ros-cli/config.yaml (same rule as dexec.sh).
+# Container name: isaac_ros_common/scripts/container.sh (same rule as dexec.sh).
 set -uo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS="$(cd "$SKILL_DIR/../../../isaac_ros_common/scripts" && pwd)"
 DEXEC="$SCRIPTS/dexec.sh"
 KILL_LAUNCH="$SCRIPTS/kill_launch.sh"
-CONFIG="$SCRIPTS/../.isaac-ros-cli/config.yaml"
-CONTAINER="${ISAAC_ROS_CONTAINER:-$(sed -n "s/^ *container_name: *['\"]\{0,1\}\([^'\" #]*\).*/\1/p" "$CONFIG" 2>/dev/null || true)}"
-CONTAINER="${CONTAINER:-isaac_ros_dev_container}"
+source "$SCRIPTS/container.sh"
 RUN_SIM=0
 [ "${1:-}" = "--sim" ] && RUN_SIM=1
 
@@ -36,16 +33,30 @@ if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "tr
     exit 1
 fi
 ok "$CONTAINER up"
+# Dockerfile.mac (docker/README.md) has no NVIDIA by design.
+MAC=0
+[ "$(docker inspect -f '{{.Config.Image}}' "$CONTAINER")" = thornbots-mac ] && MAC=1
+if [ "$MAC" -eq 1 ]; then
+    ok "Mac image: no NVIDIA, gz and rviz on llvmpipe (VNC at vnc://localhost:5901)"
+else
 # --gpus all through a stale /etc/cdi/nvidia.yaml mounts no driver libs.
 docker exec "$CONTAINER" sh -c 'ldconfig -p | grep -q "libcuda.so.1 " || ls /usr/lib/*/tegra/libcuda.so.1' >/dev/null 2>&1 \
     || fail "no libcuda.so.1 in the container: the host's CDI spec is stale (SKILL.md: Troubleshooting)"
 ok "NVIDIA driver libraries mounted"
+fi
 
 echo "== 2. bind mount is the workspace ROOT (build/ install/ log/ src/)"
 docker inspect -f '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}' "$CONTAINER" | grep isaac_ros-dev
 "$DEXEC" -- ls /workspaces/isaac_ros-dev | tr '\n' ' '; echo
 "$DEXEC" -- test -d /workspaces/isaac_ros-dev/src || fail "no src/ in the mount (ISAAC_ROS_WS wrong when isaac-ros activate ran?)"
 ok "src/ present"
+WS_ROOT="$(cd "$SKILL_DIR/../../../.." && pwd)"
+MOUNT_SRC=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/workspaces/isaac_ros-dev"}}{{.Source}}{{end}}{{end}}' "$CONTAINER")
+if [ "$MOUNT_SRC" = "$WS_ROOT" ]; then
+    ok "mount is this checkout's workspace ($WS_ROOT)"
+else
+    echo "  WARN: mount is $MOUNT_SRC, not this checkout's $WS_ROOT; edits here won't run there" >&2
+fi
 
 echo "== 3. env parity through dexec.sh (bare 'docker exec' gets none of this)"
 "$DEXEC" -- bash -c 'echo "  user=$(whoami) ROS_DOMAIN_ID=$ROS_DOMAIN_ID RMW=$RMW_IMPLEMENTATION"
@@ -56,7 +67,7 @@ echo "== 4. which workspace each package resolves to (see SKILL.md: Two workspac
 printf '  %-22s %-42s %s\n' PACKAGE 'dexec.sh (your src/ edits win)' 'user terminal (bashrc only)'
 for p in sim thornbots_pkg sentry_localization sllidar_ros2; do
     a=$("$DEXEC" -- ros2 pkg prefix "$p" 2>&1 | tail -1)
-    b=$(docker exec -u admin "$CONTAINER" bash -c \
+    b=$(docker exec -u "$CONTAINER_USER" "$CONTAINER" bash -c \
         "export PS1='\$ '; source /etc/bash.bashrc >/dev/null; ros2 pkg prefix $p" 2>&1 | tail -1)
     printf '  %-22s %-42s %s\n' "$p" "$a" "$b"
 done
