@@ -28,10 +28,6 @@ Localization (`sim/README.md` has the scenarios):
 
 - T3: Moving obstacles under `slam`: sample the grid cells the actors
   crossed and check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
-- T4: rf2o match grading (built 2026-09-27): run `scan_degraded` at
-  `--backend amcl --use-rf2o` and set the thresholds from the
-  `/scan_odom/quality` distributions. Done when it passes, the other seven
-  and `suite:=ekf` are no worse, and over 99% of clean matches grade good.
 - T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
   acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
   The match test's driving (track A, E3) wants the same ramp.
