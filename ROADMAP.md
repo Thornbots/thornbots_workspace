@@ -64,7 +64,7 @@ Stamps (`CV_SPLIT_PLAN.md` "Stamps"):
 ## Tracks, in order of work
 
 Finish the short todos first, then G, then A-C in order. D runs alongside
-A, and E-F are unscheduled. Navigation comes after the Midwest competition;
+A, and E, F and H are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
 ### G. Estimation accuracy
@@ -130,6 +130,24 @@ new submodule means a new `Thornbots/` repo, a `.gitmodules` entry and a
 its UDP-only DDS pinning) and `sim`'s `sim.launch.py`, `shot_hit.launch.py`
 and `estimation.launch.py`. Do it between bench runs, and re-run both
 benches after to show nothing moved.
+
+### H. SLAM at amcl's level
+
+Keep `--backend slam` a real fallback to amcl. amcl with the EKF passes all
+seven drift scenarios, the map-based ones at 0.14-0.18 m. `slam` was last
+tuned 2026-07 on the old
+stack, at 0.31-0.33 m, and `slam --use-ekf` measured worse than plain
+`slam`, likely because slam_toolbox's correction stacks on the EKF's rf2o
+correction (`sentry_localization/README.md` "Closed levers" and after).
+
+1. Rerun the drift suite at `--backend slam`, with and without
+   `--use-ekf`, on today's stack (`sentry_v2`, A2M8, per-scan rf2o).
+2. Fix the EKF stacking, for example by pointing slam_toolbox's
+   `odom_frame` at raw odometry, then retune `slam.yaml`.
+3. T3's occupancy-grid check covers slam's map under moving obstacles.
+
+**Done when:** `--backend slam` passes the same scenarios as amcl, each
+within 0.05 m of amcl's error, over three runs.
 
 ## Caveats
 
