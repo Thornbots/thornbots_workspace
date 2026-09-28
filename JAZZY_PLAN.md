@@ -1,6 +1,6 @@
 # Plan: move from ROS 2 Humble to Jazzy
 
-ROADMAP.md Track D. Covers this superproject, all nine submodules, the
+ROADMAP.md track 3. Covers this superproject, all nine submodules, the
 laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 `ts-nano-standard`). The test box is `ts-nano-dev`.
 
@@ -9,15 +9,12 @@ laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 the last Humble tree, **frozen**: no more work goes there.
 The robots stay on Humble, running that frozen tree, until step 6.
 
-## Where this stands (2026-09-26)
+## Where this stands (2026-09-28)
 
-The laptop half is done: steps 0, 2, 3 and 4. Every repo has a `jazzy`
-branch with the port, and `main` is merged into each, so `jazzy` is
-`main` plus the port. `isaac_ros_common`'s `jazzy` is upstream
-`release-4.6` plus our container files; the image comes from `isaac-ros
-activate`, and the `isaac-ros-docker` skill covers it.
-
-On the laptop, in `isaac_ros_jazzy_container` with the GPU:
+The laptop half (steps 0, 2, 3 and 4) is done. `isaac_ros_common`'s `main`
+is upstream `release-4.6` plus our container files, and the image comes
+from `isaac-ros activate` (the `isaac-ros-docker` skill). Laptop results,
+the baseline step 5 and the robots compare against:
 
 | Check | Humble | Jazzy |
 | --- | --- | --- |
@@ -28,21 +25,6 @@ On the laptop, in `isaac_ros_jazzy_container` with the GPU:
 | `suite:=ekf` fused mean | 0.0075 m | 0.0079 m |
 | The aiming bench, 10 cells | 10/10 | 10/10, every score within 0.004 |
 | The estimation bench, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
-
-Three bench fixes came out of step 4, all merged into `main` too except the
-first:
-
-- robot_localization 3.8 logs "Failed to meet update rate!" at ERROR where
-  Humble's printed it untagged, so the drift harness counted it and failed
-  1-2 scenarios a run. It now skips the line.
-- A robot stack could stall at bring-up for good: a lifecycle
-  `change_state` reply lost in DDS (Humble too), or the EKF never leaving
-  "Waiting for clock". The drift harness now restarts such a stack once.
-- The estimation bench on Jazzy first read worse than Humble (moving cells past 0.5 m in 36%
-  of cases against 27%). Both were a bench artifact: `bench_world` paced
-  on `TargetState`'s publish-time stamp and let the tracker fall a full
-  queue behind, a little further on Jazzy's slower Python. It now paces on
-  the tracker's input, and both distros read the same.
 
 Left: step 1 (reflash `ts-nano-dev`, runbook `JAZZY_FLASH.md`), step 5 (the
 hardware checks on it), and step 6 (the robots). Before step 1 wipes the board,
@@ -135,11 +117,11 @@ The branches moved on 2026-09-27 (`main` is Jazzy, `humble` frozen).
    `ROS_DOMAIN_ID=0` once the last Humble one is gone.
 3. Remove the Humble images from the robots, rewrite every `humble`
    reference but the README's pointer to the `humble` branch, and delete
-   Track D from ROADMAP.md.
+   track 3 from ROADMAP.md.
 
 ## Done when
 
-Track D's bar: the drift suite, `suite:=ekf` and both benches give the same
+ROADMAP.md track 3's bar: the drift suite, `suite:=ekf` and both benches give the same
 verdicts on Jazzy as on Humble, and `point_to_cv_target`, `target_selector`
 and `target_tracker` pass (met on the laptop). Added for hardware: YOLO fps
 and detection latency on the Orin are no worse than on Humble.
