@@ -58,19 +58,22 @@ Stamps (`CV_SPLIT_PLAN.md` "Stamps"):
 
 ## Open for the user
 
-- The estimation bench's three open questions: the radius wandering at
-  4 m/s, radial and blackout error, and a fresh track's slow lock on a
-  spinner (`CV_SPLIT_PLAN.md` "Open for the user").
 - A C++ core for `target_tracker`, the slowest node on the estimation bench.
-- Moving both benches' target onto the URDF's armor panels, with fresh
-  `FLOORS` and `LIMITS` runs (`E2E_PLAN.md` "Panels on the URDF").
 - The match test's open questions (`E2E_PLAN.md`).
 
 ## Tracks, in order of work
 
-Finish the short todos first. Tracks A-C run in order; D runs alongside A,
-and E-F are unscheduled. Navigation comes after the Midwest competition;
+Finish the short todos first, then G, then A-C in order. D runs alongside
+A, and E-F are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
+
+### G. Estimation accuracy
+
+[`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Estimation accuracy", steps
+G.1-G.3. The tracker's radius drifts on some 4 m/s runs, radial motion and
+detection blackouts cost 2-3x the usual error, and a fresh track is `valid`
+(so it can fire) up to 3 s before its estimate settles. It runs first
+because the match test would inherit all three.
 
 ### A. The match test
 
