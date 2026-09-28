@@ -1,8 +1,8 @@
 # Plan: end-to-end tests in sim, and faster benches
 
-2026-09-26. The goal is one test, the match test, that runs the robot's
-code as `auto.launch.py` runs it on the field. Sim plays only what sits
-outside the Jetson:
+ROADMAP.md tracks 1 and 4, 2026-09-26. The goal is one test, the match
+test, that runs the robot's code as `auto.launch.py` runs it on the field.
+Sim plays only what sits outside the Jetson:
 
 - the MCB, on the far side of a real UART link (a pty), speaking
   `ros2_dji_serial_bridge/UART_PROTOCOL.md`;
@@ -58,33 +58,16 @@ Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits the time budget
 the user sets once the numbers are in.
 
-## Before the match test: the estimation bench's moving-cell error
+## Before the match test
 
-The estimation bench's moving cells are poor, and the 4 m/s cells swing 2x between runs
-with the radius estimate (`CV_SPLIT_PLAN.md` "Where this stands"). The match test would inherit that error, so trace it
-first.
-
-## Panels on the URDF
-
-Done 2026-09-27 for both URDFs. The CAD export has the armor modules, and
-`simplify_urdf.py` emits one link per face, `armor_0` to `armor_3`, with
-+x along the outward normal and a thin box for depth and shots
-(`sim/README.md` has the geometry). Two findings differ from what this plan
-assumed:
-
-- The faces sit on the diagonals at 45 deg + k x 90 deg from the gun, not
-  front/left/back/right, all 0.252 m out, at two heights (0.230 and
-  0.136 m).
-- The face is 135 x 125 mm, the Small Armor Module's. That is right: ARCC
-  2026 uses only the Small module, on every robot.
-
-`test_urdf_constants.py` pins `thornbots_pkg`'s armor frames to sim's, and
-checks the S122 cant and the S126 stagger.
-
-Still to do: `cv_target_emulator` and `bench_world.cpp` model the target
-with 0.30/0.24 m radii, no stagger, panels at 0/90/180/270 deg and a
-0.1 m face. Pinning them to the URDF changes every bench cell, so
-`FLOORS` and `LIMITS` would need fresh runs. That is the user's call.
+- Trace the estimation bench's moving-cell error first; the match test
+  would inherit it (`CV_SPLIT_PLAN.md` "Where this stands").
+- Armor panels are on both URDFs (2026-09-27): `armor_0` to `armor_3` on
+  the diagonals at 45 deg + k x 90 deg, 0.252 m out, at 0.230 and 0.136 m,
+  each a 135 x 125 mm Small module (`sim/README.md`). The benches' target
+  still uses 0.30/0.24 m radii, no stagger, panels at 0/90/180/270 deg and a
+  0.1 m face. Moving it onto the URDF means fresh `FLOORS` and `LIMITS`: the
+  user's call.
 
 ## The match test
 
@@ -98,9 +81,9 @@ with 0.30/0.24 m radii, no stagger, panels at 0/90/180/270 deg and a
 | Depth units | gz publishes 32FC1 metres; `roi_depth_node` reads 16UC1 millimetres | Convert in a small sim node, or let `roi_depth_node` accept both. Check the encoding on a live topic first |
 | Extrinsics | Nothing publishes `/extrinsics/depth_to_color` | Publish identity, since the stand-in's boxes are in the depth camera's frame |
 | MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | A Python node on the other end of a pty from `dji_serial_bridge`. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
-| Driving | The drift harness steps `/cmd_vel` | The test drives our chassis through the MCB emulator from a scripted route with finite acceleration (ROADMAP S3), the way the MCB's own drive would move it |
+| Driving | The drift harness steps `/cmd_vel` | The test drives our chassis through the MCB emulator from a scripted route with finite acceleration (ROADMAP.md's acceleration-ramp todo), the way the MCB's own drive would move it |
 | Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `deltaAngleGotHitIn`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS_MSG` |
-| Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. Scoring against the canted square fixes ROADMAP's Caveat that hits are scored as distance to the centre |
+| Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. Scoring against the canted square fixes the ROADMAP.md caveat that hits are scored as distance to the centre |
 
 Driving comes from sim for now. `ROS_MSG` goals have no publisher in this
 workspace, and navigation comes after the Midwest competition. Once a
@@ -131,11 +114,9 @@ from stage to stage, so a drop belongs to the hops that stage added.
 4. E4, the match. Several opponents and the ally, with opponents shooting
    back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
-5. E5, the world-frame aim. `RobotPose` stamped at capture with chassis yaw
-   and yaw rate, every TF lookup at the data's own time, and the aim as a
-   world-frame command the MCB emulator holds with its IMU
-   (`CV_SPLIT_PLAN.md` W.1-W.5). Agree the wire change with the firmware
-   side before it goes past the emulator.
+The world-frame aim that follows E3 is ROADMAP.md track 2
+(`CV_SPLIT_PLAN.md` W.1-W.5). Its done bar: each moving segment comes within
+10 points of the same target cell with our robot parked.
 
 ### Scoring
 
@@ -160,9 +141,7 @@ without a second run.
 
 E4 runs in one gz session, every segment scores the same alone and in
 sequence, and each segment's hit rate is within 10 points of its floor or
-has a diagnostic that names the hop that lost it. E5 is done when each
-moving segment comes within 10 points of the same target cell with our
-robot parked.
+has a diagnostic that names the hop that lost it.
 
 ## Open questions for the user
 

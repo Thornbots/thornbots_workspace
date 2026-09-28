@@ -1,149 +1,61 @@
 # Plan: split CV at `TargetState`
 
-ROADMAP.md Track B and C. Part 1 (`point_to_cv_target`) aims and fires from a
-`TargetState`. Part 2 (`target_selector` + `target_tracker`) builds that
-`TargetState` from detections. Updated 2026-09-26: Aiming is finished, and
-what's left is Estimation, then hitting while we move.
+ROADMAP.md track 2 and the Estimation todos. Part 1 (`point_to_cv_target`)
+aims and fires from a `TargetState`. Part 2 (`target_selector` +
+`target_tracker`) builds that `TargetState` from detections. Updated
+2026-09-28: Aiming is done, Estimation is down to todos, and hitting while
+we move is the long work left.
 
 ## Where this stands
 
-- **Aiming is done on the aiming bench.** `shot_hit_harness.py`'s `FLOORS` holds 40
-  per-cell floors from three chase-mode runs each: still and moving shooter,
-  lateral, radial and diagonal paths. `point_to_cv_target` reads only
-  `TargetState` and `RobotPose`, and with `valid` false it aims at the
-  measured panel with no lead and doesn't fire.
-- **Part 2 model** (`thornbots_pkg`): `ArmorEKF` state is
-  `[pos, vel, acc, yaw, w, r, dz]`, with Singer acceleration, a single-panel
-  yaw measurement and a still hypothesis for a parked, non-spinning target.
-  `thornbots_pkg/README.md` has the design.
-- **The estimation bench runs on `bench_world`**, one C++ lockstep loop with no gz, paced by
-  the nodes under test at ~5x: the ten cells take ~75 s. Five runs each on
-  Humble and Jazzy (2026-09-26): stationary cells under 2 cm facing p95,
-  moving cells 0.08-0.17 m medians, and runs agree within 10% except at
-  4 m/s (0.13-0.27 m).
-- **`LIMITS` covers all 60 the estimation bench cells** (`sim/test/cv/estimation_limits_data.py`,
-  Jazzy, 2026-09-27, target on sentry_v2's armor panels): the default ten from six runs, each other case from
-  three or four, at 2x the worst run and floored at 0.02. A run strays up
-  to ~2x from the others, so 1.25x failed fresh runs. About a quarter of
-  runs still trip on one outlier: a spin rate misread by 0.6-2 rad/s or the
-  radius wandering, on a staggered or 4 m/s cell.
-- **The other cases, facing-panel p95 against the default's 0.08-0.19 m:**
-  camera latency 0.03 s, undone, matches it. Our chassis at
-  1 m/s matches it. Radial doubles the error along the ray at 2-4 m/s
-  (0.18-0.25 m against 0.09-0.11) while error across it drops, and
-  stationary cells don't change, so it grows with speed along the ray, not
-  with range. Diagonal falls between. Blackout (0.3 s of every 2 s) is
-  2-3x worse, 0.14-0.35 m; staggered 0.5-1 m/s suffers most (0.28-0.30 m
-  against 0.09).
-- **The 4 m/s swing is the radius estimate wandering.** In the bad run of
-  each 4 m/s cell (one of five each), radius error sits at 5-12 cm for
-  10-20 s where the good runs hold ~2 cm, and facing-panel error follows it
-  (correlation ~0.55). It isn't path ends, which come every ~1.9 s, and it
-  isn't re-seeds: each case keeps one track.
-- **Most of the old moving-cell error was the bench.** Until 2026-09-26
-  `bench_world` paced on `TargetState`'s stamp, which the tracker sets at
-  publish time, so it ran ahead while the tracker worked through a full
-  queue 0.12-0.21 s behind capture. Moving cells read 0.29-0.33 m medians,
-  with a quarter to a third of them past 0.5 m. It now paces on
-  `/cv/tracker/measurement`.
-- **`target_tracker` is the slowest node under test.** Profiled at ~8x:
-  `ArmorTracker.step`'s small-matrix numpy is 46% of its main thread, its TF
-  listener thread 27%. A C++ core would speed up the estimation bench and the Jetson; the
-  user's call.
+- Aiming is done on the aiming bench: `shot_hit_harness.py`'s `FLOORS`
+  holds 40 per-cell floors, chase mode is the default, and Part 1 reads only
+  `TargetState` and `RobotPose`.
+- Part 2's `ArmorEKF` state is `[pos, vel, acc, yaw, w, r, dz]`, with Singer
+  acceleration, per-pair z and a still hypothesis (`thornbots_pkg/README.md`).
+  `target_tracker` stamps each `TargetState` with its publish time and
+  predicts to it; `camera_latency_s` backs capture time out of the
+  detection stamp. Part 1 does no latency correction.
+- The estimation bench (`sim/launch/estimation.launch.py`, `bench_world`,
+  one C++ lockstep loop, no gz) runs ten cells in ~75 s. `LIMITS`
+  (`sim/test/cv/estimation_limits_data.py`, 2026-09-27) covers all 60
+  cells at 2x the worst of three to six runs, floored at 0.02.
+- Results: stationary under 2 cm facing-panel p95; moving 0.08-0.19 m.
+  Camera latency 0.03 s and our chassis at 1 m/s match the default. Radial
+  motion doubles along-ray error at 2-4 m/s (0.18-0.25 m); blackout (0.3 s
+  of every 2 s) is 2-3x worse, worst on staggered 0.5-1 m/s (0.28-0.30 m).
+- About a quarter of runs trip one limit on a spin rate misread by
+  0.6-2 rad/s or a wandering radius. In the bad 4 m/s runs radius error sits
+  at 5-12 cm for 10-20 s against ~2 cm, and facing-panel error follows it.
+- `target_tracker` is the slowest node under test: `ArmorTracker.step`'s
+  numpy is 46% of its main thread, its TF listener 27%.
 
-Next, in order:
+## Todos
 
-1. Open for the user: whether to hold the radius tighter at 4 m/s, and
-   why the spin rate is misread now and then (both above).
-2. Open for the user: radial motion's along-ray error, and blackout
-   recovery on staggered targets (above). Neither has a fix planned.
-3. Open for the user: `valid` goes true after 2 updates, but a fresh track
-   on a spinning target takes 0.3-3 s to lock (facing-panel error up to
-   0.4 m in the first second). Spin-rate variance doesn't separate locked
-   from not, so no threshold was added.
+- Per-pair z: staggered cells' `z_offset` and panel error should match flat
+  cells'.
+- Velocity lag: sweep `process_noise_accel:=` on the estimation bench
+  against the per-case velocity error in `estimation.jsonl`.
+- Confirm a cell scores the same run alone as in sequence.
+- On hardware: measure the RealSense stamp against capture (metadata
+  timestamps, or a blinking LED), then set `camera_latency_s`.
+- On hardware: measure the gimbal's ~7 deg chase jump settling and set
+  `chase_settle_s` to it.
+- Aiming bench: radial and diagonal paths with a moving shooter haven't run.
 
-Left over from Aiming, none of it blocking:
+## Open for the user
 
-- Chase mode (the default) needs the gimbal to jump ~7 deg per quarter turn
-  and settle. Measure that on hardware and set `chase_settle_s` to it.
-- Radial and diagonal paths with a moving shooter haven't run on the aiming bench.
-- Flat 4 m/s misses cluster where the target's acceleration switches at its
-  path ends, which nothing predicts.
-- The 2-4 cm sideways offset seen with the tracker in the loop is gone on
-  the perfect model, so it belongs to Estimation.
+1. Whether to hold the radius tighter at 4 m/s, and why the spin rate is
+   misread now and then.
+2. Radial motion's along-ray error, and blackout recovery on staggered
+   targets. Neither has a fix planned.
+3. `valid` goes true after 2 updates, but a fresh track on a spinner takes
+   0.3-3 s to lock (facing-panel error up to 0.4 m in the first second).
+   Spin-rate variance doesn't separate locked from not.
+4. A C++ core for `target_tracker`, for the bench and the Jetson.
 
-## Estimation: Part 2 on the estimation bench
-
-Part 2 is benchmarked only on how close its `TargetState` gets to the truth.
-Nothing fires on the estimation bench, and shot-hit rates are not how Part 2 is judged: a miss
-there mixes both halves, and Aiming already owns the aim.
-
-### All hardware latency belongs to Part 2
-
-`TargetState` describes the target now. Part 2 owns every delay between the
-target being somewhere and the state reaching Part 1: exposure, readout, USB,
-YOLO, `roi_depth_node`, the tracker itself and delivery. It works out when the
-image was captured, predicts the model forward to the moment it publishes, and
-stamps the message with that moment. Part 1 does no latency correction. It
-extrapolates from the stamp into the future: the part of a frame since the
-state arrived, `firmware_latency_s`, and flight time.
-
-**Built 2026-09-25, not run.** The RealSense stamp's relation to capture time
-is still unmeasured.
-
-- `target_tracker`'s `camera_latency_s` (0): capture time = detection stamp -
-  `camera_latency_s`, used for the EKF update and the camera TF lookup. It
-  predicts to its publish time and stamps that.
-- `cv_target_emulator`'s `camera_latency_s` (0, `cv_camera_latency_s` in
-  `sim.launch.py`) stamps each detection that much after its sample, on top
-  of the `publish_latency_s` delivery delay.
-- Measure the real camera's latency on hardware (RealSense metadata timestamps,
-  or a blinking LED against the stamp) before trusting a field number.
-- The aiming bench carries none of this: `target_state_truth` publishes the current true
-  state, which is the contract Part 2 has to meet.
-
-### 2.0 Estimation bench
-
-**Built, runs as a suite** (`sim/launch/estimation.launch.py`,
-`test_estimation.py`). `bench_world` (`sim/src/bench_world.cpp`) is the
-whole world in one C++ lockstep loop: the phantom target with exact truth,
-our chassis and head (gz's joint PD on the arm inertias), `/pose`, the head
-controller and the detections. Each case restarts the track by switching
-detections off for 1 s. `LIMITS` holds all 60 cells, printed by
-`sim/tools/estimation_limits.py` from 22 runs (2026-09-27).
-
-- `test/cv/test_estimation.py` over `estimation_harness.py`. Each published
-  `TargetState` is compared with the truth at its own `header.stamp`, so a
-  wrong stamp shows up as error. Per cell, mean and p95 of panel error (all
-  four, and the facing one Part 1 aims at), center, velocity, yaw (mod a
-  quarter-turn), `yaw_rate`, `radius` and `z_offset` per pair, and the time
-  until the facing panel's error stays under 5 cm.
-- Limits per metric come from three or more runs: the worst p95 x 1.25,
-  never under 0.01, like Aiming's floors.
-- Done when the estimation bench runs every aiming-bench cell in one session and scores the same run
-  alone and in sequence.
-
-### 2.2 Per-pair z
-
-**Built, unit-tested.** `ArmorEKF` carries `dz`, the tracked pair's height
-above the centre, with the other pair at `-dz` (only their difference is
-observable); an odd handoff flips it. Published as `z_offset = [dz, -dz]`.
-Done when staggered cells' `z_offset` and panel error match flat cells' on
-the estimation bench.
-
-### 2.3 Velocity lag
-
-**Built**, unit-tested; the estimation bench hasn't passed it yet. Tuning
-`process_noise_accel` alone couldn't fix it: the lag is at the path ends,
-and a filter fed only panel positions can't tell the centre accelerating
-from the panel spinning over less than a spin period. A slow Singer
-acceleration tracks the 6 m/s^2 braking without that confusion.
-
-**Ready to run:** `process_noise_accel:=` sweeps the tracker on the estimation bench; the
-velocity error is in `estimation.jsonl` per case and per state.
-
-Tune `process_noise_accel` against the estimation bench's velocity-error trace, path ends
-included.
+Flat 4 m/s misses cluster where the target's acceleration switches at path
+ends, which nothing predicts. Known, no plan.
 
 ## Hitting while we move: target and aim in the world
 
@@ -176,7 +88,7 @@ What it needs, in order:
 | W.2 | `thornbots_pkg` | Every TF lookup at the time the data was true: the camera at capture (Part 2 does this), our pose at the fire horizon in Part 1, not `Time()` |
 | W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CVData` to follow (`thornbots_pkg/AGENTS.md`) |
 | W.4 | `sim` | The aiming bench: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. The estimation bench: our gz chassis turns while tracking |
-| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like the aiming bench's `FLOORS` and 2.0 |
+| W.5 | `sim`, `thornbots_pkg` | Floors and limits for the new cells, like the aiming bench's `FLOORS` and the estimation bench's `LIMITS` |
 
 W.3's open issues (our side switched 2026-09-27):
 
