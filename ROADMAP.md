@@ -40,11 +40,6 @@ Estimation (`CV_SPLIT_PLAN.md` "Todos"):
   included.
 - T8: Check the bench scores the same with a cell run alone as in sequence.
 
-Stamps (`CV_SPLIT_PLAN.md` "Stamps"):
-
-- T9: `mcb_relay`'s relocalize and the bridge's `~/nav_goal` become
-  `PointStamped`.
-
 Tracker cost:
 
 - T10: Measure what `target_tracker` costs before deciding on a C++ core:
