@@ -24,6 +24,15 @@ don't mark it done. Git history and the package docs keep the record.
 Nearly finished work, plus a few later items at the end. Pointers lead to
 the detail, and numbers stay put when items are deleted.
 
+Now:
+
+- T12: Rename `use_ekf` / `--use-ekf` to `use_rf2o` / `--use-rf2o`. The
+  flag's real effect is fusing rf2o's scan odometry into `/odom`; the EKF
+  is only how. It spans `auto.launch.py`, `localization.launch.py`, sim's
+  launches, the drift and EKF harnesses and tests, `suite:=ekf`, and every
+  README and AGENTS.md that names it (~110 uses across 18 files). One bump
+  for all the submodules together, since the launch args must match.
+
 Localization (`sim/README.md` has the scenarios):
 
 - T1: Run the ground-truth metric under `--backend none`. Built 2026-09-25:
