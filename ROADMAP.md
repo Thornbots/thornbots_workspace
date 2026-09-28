@@ -37,10 +37,14 @@ Localization (`sim/README.md` has the scenarios):
   acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
   The match test's driving (track A, E3) wants the same ramp.
   `--drive-accel` / `drive_accel:=` is in (off by default; sim commit
-  has the measurements). Open: ramped runs read RTF 0.86 against 1.15,
-  and the robot doesn't seem to reach full speed (at 6 m/s^2 a 3 m leg
-  only touches 4 m/s). Pick the chassis's real acceleration, find the
-  RTF drop, then run the full suite on it.
+  has the measurements). The speed shortfall is the profile, not a bug:
+  rest to 4 m/s and back takes v^2/a = 2.7 m at 6 m/s^2, so a 3 m side
+  cruises 0.3 m and a 1.5 m leg peaks at sqrt(a d) = 3 m/s. The RTF drop
+  (0.86 against 1.15) is at least partly the machine: `baseline`, which
+  never drives, fell 1.22 to 1.02 between the two runs, and unramped full
+  runs here span 0.93-1.34. Open: the chassis's real acceleration (ask
+  firmware, `E2E_PLAN.md`), an interleaved ramped/unramped A/B for the
+  RTF, then the full suite at that acceleration.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
