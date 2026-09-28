@@ -1,6 +1,6 @@
 # Plan: end-to-end tests in sim, and faster benches
 
-ROADMAP.md tracks 1 and 4, 2026-09-26. The goal is one test, the match
+ROADMAP.md tracks A and D, 2026-09-26. The goal is one test, the match
 test, that runs the robot's code as `auto.launch.py` runs it on the field.
 Sim plays only what sits outside the Jetson:
 
@@ -114,7 +114,7 @@ from stage to stage, so a drop belongs to the hops that stage added.
 4. E4, the match. Several opponents and the ally, with opponents shooting
    back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
-The world-frame aim that follows E3 is ROADMAP.md track 2
+The world-frame aim that follows E3 is ROADMAP.md track B
 (`CV_SPLIT_PLAN.md` W.1-W.5). Its done bar: each moving segment comes within
 10 points of the same target cell with our robot parked.
 

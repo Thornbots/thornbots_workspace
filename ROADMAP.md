@@ -16,13 +16,13 @@ don't mark it done. Git history and the package docs keep the record.
 | Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8, per-scan rf2o (2026-09-24): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
-| CV end to end in sim | Nothing runs `roi_depth_node` or the serial link yet (track 1) |
-| Jazzy | Laptop matches Humble on every suite and bench. Orin reflash and robots left (track 3) |
+| CV end to end in sim | Nothing runs `roi_depth_node` or the serial link yet (track A) |
+| Jazzy | Laptop matches Humble on every suite and bench. Orin reflash and robots left (track C) |
 
 ## Short todos
 
-Nearly finished work, numbered T1-T9 so they aren't confused with tracks.
-Pointers lead to the detail. Numbers stay put when items are deleted.
+Nearly finished work. Pointers lead to the detail, and numbers stay put
+when items are deleted.
 
 Localization (`sim/README.md` has the scenarios):
 
@@ -41,7 +41,7 @@ Localization (`sim/README.md` has the scenarios):
   and `suite:=ekf` are no worse, and over 99% of clean matches grade good.
 - T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
   acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
-  The match test's driving (track 1, E3) wants the same ramp.
+  The match test's driving (track A, E3) wants the same ramp.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
@@ -68,11 +68,11 @@ Stamps (`CV_SPLIT_PLAN.md` "Stamps"):
 
 ## Tracks, in order of work
 
-Finish the short todos first. Tracks 1-3 run in order; 4 runs alongside 1,
-and 5-6 are unscheduled. Navigation comes after the Midwest competition;
+Finish the short todos first. Tracks A-C run in order; D runs alongside A,
+and E-F are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
-### 1. The match test
+### A. The match test
 
 [`E2E_PLAN.md`](E2E_PLAN.md), stages E1-E4. Sim plays only the MCB over a
 pty, a detector stand-in for YOLO, lidar and depth. Our robot drives and
@@ -81,28 +81,28 @@ Stages: the stand-in to the gimbal with our robot parked, then the serial
 link against an MCB emulator, then driving while shooting, then opponents
 that shoot back.
 
-### 2. Hit while we move
+### B. Hit while we move
 
 [`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Hitting while we move", steps
-W.1-W.5, after track 1's E3. The target, the aim solve and `CVTarget`'s aim
+W.1-W.5, after track A's E3. The target, the aim solve and `CVTarget`'s aim
 point are already in `odom`. `RobotPose` still lacks chassis yaw and a
 capture stamp, and the MCB has to hold a world-frame aim. W.1 and W.3 change
 the wire protocol and firmware, so agree them with the firmware side first.
 
-### 3. Jazzy on the robots
+### C. Jazzy on the robots
 
 [`JAZZY_PLAN.md`](JAZZY_PLAN.md) steps 1, 5 and 6: reflash `ts-nano-dev`
 (runbook [`JAZZY_FLASH.md`](JAZZY_FLASH.md)), run the hardware checks on it,
 then each robot. Until then the robots run frozen Humble. Done when YOLO fps
 and detection latency on the Orin are no worse than on Humble.
 
-### 4. Faster suites
+### D. Faster suites
 
 [`E2E_PLAN.md`](E2E_PLAN.md) "Speed". Log each suite's wall-time split,
 find why the full gz stack caps at RTF ~1.55, render only what gets scored.
 Suites run one at a time; we are compute-limited.
 
-### 5. Benches that start and stop cleanly
+### E. Benches that start and stop cleanly
 
 Today a fresh container has no gz until `install-sim.sh` runs, and nothing
 says so until a launch fails. Nodes cold-start into live topics (TF has run
@@ -116,7 +116,7 @@ boot doesn't. Ctrl-C prints a traceback from every Python node (bare
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
 stops every node it started, with no tracebacks and no orphans.
 
-### 6. CV nodes into their own package
+### F. CV nodes into their own package
 
 Move `target_selector`, `target_tracker` and `point_to_cv_target`, their
 `*_core.py` and tests from `thornbots_pkg` to a new `thornbots_cv`.
@@ -132,7 +132,7 @@ benches after to show nothing moved.
 
 - Armor panels are canted 15 degrees (S122), and hit scoring ignores that:
   a hit is the ray passing within 0.05 m of the panel centre, not crossing
-  the canted square. Track 1's shot model fixes it.
+  the canted square. Track A's shot model fixes it.
 - Sim detection noise is 0.005 m against a D435's centimetres, and no sim
   test runs YOLO, so every CV rate here runs optimistic. The benches rank
   changes; they don't predict the field.
