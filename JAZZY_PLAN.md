@@ -121,10 +121,10 @@ The branches moved on 2026-09-27 (`main` is Jazzy, `humble` frozen).
 
 ## Done when
 
-ROADMAP.md track 3's bar: the drift suite, `suite:=ekf` and both benches give the same
-verdicts on Jazzy as on Humble, and `point_to_cv_target`, `target_selector`
-and `target_tracker` pass (met on the laptop). Added for hardware: YOLO fps
-and detection latency on the Orin are no worse than on Humble.
+The drift suite, `suite:=ekf` and both benches give the same verdicts on
+Jazzy as on Humble, and `point_to_cv_target`, `target_selector` and
+`target_tracker` pass (met on the laptop). Added for hardware: YOLO fps and
+detection latency on the Orin are no worse than on Humble.
 
 ## Risks
 
