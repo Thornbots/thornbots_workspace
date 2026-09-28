@@ -135,10 +135,10 @@ benches after to show nothing moved.
 
 Keep `--backend slam` a real fallback to amcl. amcl with the EKF passes all
 seven drift scenarios, the map-based ones at 0.14-0.18 m. `slam` was last
-tuned 2026-07 on the old
-stack, at 0.31-0.33 m, and `slam --use-ekf` measured worse than plain
-`slam`, likely because slam_toolbox's correction stacks on the EKF's rf2o
-correction (`sentry_localization/README.md` "Closed levers" and after).
+tuned 2026-07 on the old stack, at 0.31-0.33 m, and `slam --use-ekf`
+measured worse than plain `slam`, likely because slam_toolbox's correction
+stacks on the EKF's rf2o correction (`sentry_localization/README.md` "Closed
+levers" and after).
 
 1. Rerun the drift suite at `--backend slam`, with and without
    `--use-ekf`, on today's stack (`sentry_v2`, A2M8, per-scan rf2o).
