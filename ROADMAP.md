@@ -21,38 +21,39 @@ don't mark it done. Git history and the package docs keep the record.
 
 ## Short todos
 
-Nearly finished work, one line each. Pointers lead to the detail.
+Nearly finished work, numbered T1-T9 so they aren't confused with tracks.
+Pointers lead to the detail. Numbers stay put when items are deleted.
 
 Localization (`sim/README.md` has the scenarios):
 
-- Run the ground-truth metric under `--backend none`. Built 2026-09-25:
+- T1: Run the ground-truth metric under `--backend none`. Built 2026-09-25:
   `noise_correction` and the three cornering-loop scenarios score
   `odom->root` against `/sim/raw_odom`. Done when six scenarios pass there.
   `odom_stuck` stays a liveness check (the user's call).
-- Run `suite:=ekf` at `real_time_factor:=1`. Done when it gives the same
+- T2: Run `suite:=ekf` at `real_time_factor:=1`. Done when it gives the same
   verdict as unthrottled; if it doesn't, audit every node for wall-clock
   timers, rates and timeouts.
-- Moving obstacles under `slam`: sample the grid cells the actors crossed and
-  check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
-- rf2o match grading (built 2026-09-27): run `scan_degraded` at
+- T3: Moving obstacles under `slam`: sample the grid cells the actors
+  crossed and check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
+- T4: rf2o match grading (built 2026-09-27): run `scan_degraded` at
   `--backend amcl --use-ekf` and set the thresholds from the
   `/scan_odom/quality` distributions. Done when it passes, the other seven
   and `suite:=ekf` are no worse, and over 99% of clean matches grade good.
-- A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
+- T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
   acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
   The match test's driving (track 1, E3) wants the same ramp.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
-- Score per-pair z: staggered cells' `z_offset` and panel error against
+- T6: Score per-pair z: staggered cells' `z_offset` and panel error against
   flat cells'.
-- Sweep `process_noise_accel` against the velocity-error trace, path ends
+- T7: Sweep `process_noise_accel` against the velocity-error trace, path ends
   included.
-- Check the bench scores the same with a cell run alone as in sequence.
+- T8: Check the bench scores the same with a cell run alone as in sequence.
 
 Stamps (`CV_SPLIT_PLAN.md` "Stamps"):
 
-- `mcb_relay`'s relocalize and the bridge's `~/nav_goal` become
+- T9: `mcb_relay`'s relocalize and the bridge's `~/nav_goal` become
   `PointStamped`.
 
 ## Open for the user
