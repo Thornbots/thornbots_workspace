@@ -61,11 +61,15 @@ Tracker cost:
 
 Later:
 
-- T11: Look into running the stack on a Mac (Apple Silicon). Find which
-  parts need an NVIDIA GPU (Isaac ROS, YOLO, the image's CUDA base) and
-  which could run in an arm64 Linux container or VM without one: gz, the
-  localization stack, the aiming and estimation benches. Measure the RTF
-  there against the laptop.
+- T11: Sim on a Mac. The Mac mini (M6, 12 cores, 32 GB) beats the laptop
+  on every suite, inside `Dockerfile.mac` under Colima with gz and rviz on
+  llvmpipe and the GUI on: drift 179 s at RTF 1.69 against 242 s at 1.29
+  (laptop headless on its GPU), estimation 30 s against 54 s, aiming 31 s
+  against 42 s (2026-09-28). Only YOLO and Isaac ROS need NVIDIA.
+  Open: the GUI shows over VNC, not on the Mac's screen. Next is native
+  macOS through RoboStack, which puts windows on the screen and renders
+  gz on Metal. `robostack-jazzy` has osx-arm64 builds of ros_gz, slam_toolbox,
+  AMCL, robot_localization, rviz2 and the other 9 deps checked so far.
 
 ## Open for the user
 
