@@ -133,21 +133,33 @@ benches after to show nothing moved.
 
 ### H. SLAM at amcl's level
 
-Keep `--backend slam` a real fallback to amcl. amcl with the EKF passes all
-seven drift scenarios, the map-based ones at 0.14-0.18 m. `slam` was last
-tuned 2026-07 on the old stack, at 0.31-0.33 m, and `slam --use-ekf`
-measured worse than plain `slam`, likely because slam_toolbox's correction
-stacks on the EKF's rf2o correction (`sentry_localization/README.md` "Closed
-levers" and after).
+Keep SLAM a real fallback to amcl. amcl with the EKF passes all seven drift
+scenarios, the map-based ones at 0.14-0.18 m. `slam` was last tuned 2026-07
+on the old stack, at 0.31-0.33 m, localizing against the saved field map.
 
-1. Rerun the drift suite at `--backend slam`, with and without
-   `--use-ekf`, on today's stack (`sentry_v2`, A2M8, per-scan rf2o).
+SLAM here means `mapping` mode: slam_toolbox builds the map during the run
+and localizes on it, with the EKF allowed. Earlier `slam --use-ekf` read
+worse than plain `slam`, likely because slam_toolbox's correction stacked on
+the EKF's rf2o correction (`sentry_localization/README.md`); fix that, don't
+drop the EKF.
+
+1. Add `mapping` to the drift harness's backends (it isn't offered today,
+   since nothing scored a map-building run) and score it against truth with
+   the map frame aligned at spawn: the built map's origin is wherever the
+   run starts. Then run it with and without `--use-ekf` on today's stack
+   (`sentry_v2`, A2M8, per-scan rf2o).
 2. Fix the EKF stacking, for example by pointing slam_toolbox's
    `odom_frame` at raw odometry, then retune `slam.yaml`.
-3. T3's occupancy-grid check covers slam's map under moving obstacles.
+3. A game-like scenario: a full 5-minute Battle on the field with other
+   `sentry_v2` copies driving, spinning and blocking the lidar (track A's
+   opponents), our robot driving a match-like route with finite
+   acceleration (T5), including the high ground. Score pose error against
+   truth throughout, and check the built map doesn't keep robots as walls
+   (T3).
 
-**Done when:** `--backend slam` passes the same scenarios as amcl, each
-within 0.05 m of amcl's error, over three runs.
+**Done when:** SLAM with the EKF passes the drift scenarios amcl passes,
+each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on
+the game-like scenario too (run both there), over three runs.
 
 ## Caveats
 
