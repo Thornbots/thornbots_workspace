@@ -137,11 +137,12 @@ Keep SLAM a real fallback to amcl. amcl with the EKF passes all seven drift
 scenarios, the map-based ones at 0.14-0.18 m. `slam` was last tuned 2026-07
 on the old stack, at 0.31-0.33 m, localizing against the saved field map.
 
-SLAM here means `mapping` mode: slam_toolbox builds the map during the run
-and localizes on it, with the EKF allowed. Earlier `slam --use-ekf` read
-worse than plain `slam`, likely because slam_toolbox's correction stacked on
-the EKF's rf2o correction (`sentry_localization/README.md`); fix that, don't
-drop the EKF.
+SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
+it, with the EKF allowed. It gets a mapping window before each game, and
+carries one map from game to game: load it at boot, extend it during the
+game, save it after. Earlier `slam --use-ekf` read worse than plain `slam`,
+likely because slam_toolbox's correction stacked on the EKF's rf2o
+correction (`sentry_localization/README.md`); fix that, don't drop the EKF.
 
 1. Add `mapping` to the drift harness's backends (it isn't offered today,
    since nothing scored a map-building run) and score it against truth with
@@ -150,7 +151,13 @@ drop the EKF.
    (`sentry_v2`, A2M8, per-scan rf2o).
 2. Fix the EKF stacking, for example by pointing slam_toolbox's
    `odom_frame` at raw odometry, then retune `slam.yaml`.
-3. A game-like scenario: a full 5-minute Battle on the field with other
+3. Carry the map across games. After each game, serialize the pose graph
+   (slam_toolbox's `serialize_map`) and load it at the next boot with
+   `load_map:=true` in `mapping` mode, starting from our known spawn pose
+   (`map_start_pose`). Before the Battle, give it a mapping window: a short
+   scripted lap, if the rules allow moving then (check the Setup Period
+   rules). Moving robots from past games must not pile up in the map.
+4. A game-like scenario: a full 5-minute Battle on the field with other
    `sentry_v2` copies driving, spinning and blocking the lidar (track A's
    opponents), our robot driving a match-like route with finite
    acceleration (T5), including the high ground. Score pose error against
@@ -158,8 +165,10 @@ drop the EKF.
    (T3).
 
 **Done when:** SLAM with the EKF passes the drift scenarios amcl passes,
-each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on
-the game-like scenario too (run both there), over three runs.
+each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on the
+game-like scenario too (run both there). Run that scenario as three games
+in a row on one carried-over map: the error must not grow from game to
+game, and the map must not collect robots or duplicate walls.
 
 ## Caveats
 
