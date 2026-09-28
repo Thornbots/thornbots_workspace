@@ -1,6 +1,6 @@
 # Plan: split CV at `TargetState`
 
-ROADMAP.md track 2 and the Estimation todos. Part 1 (`point_to_cv_target`)
+ROADMAP.md track B and the Estimation todos. Part 1 (`point_to_cv_target`)
 aims and fires from a `TargetState`. Part 2 (`target_selector` +
 `target_tracker`) builds that `TargetState` from detections. Updated
 2026-09-28: Aiming is done, Estimation is down to todos, and hitting while

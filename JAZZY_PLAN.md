@@ -1,6 +1,6 @@
 # Plan: move from ROS 2 Humble to Jazzy
 
-ROADMAP.md track 3. Covers this superproject, all nine submodules, the
+ROADMAP.md track C. Covers this superproject, all nine submodules, the
 laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 `ts-nano-standard`). The test box is `ts-nano-dev`.
 
@@ -117,7 +117,7 @@ The branches moved on 2026-09-27 (`main` is Jazzy, `humble` frozen).
    `ROS_DOMAIN_ID=0` once the last Humble one is gone.
 3. Remove the Humble images from the robots, rewrite every `humble`
    reference but the README's pointer to the `humble` branch, and delete
-   track 3 from ROADMAP.md.
+   track C from ROADMAP.md.
 
 ## Done when
 
