@@ -21,8 +21,8 @@ don't mark it done. Git history and the package docs keep the record.
 
 ## Short todos
 
-Nearly finished work. Pointers lead to the detail, and numbers stay put
-when items are deleted.
+Nearly finished work, plus a few later items at the end. Pointers lead to
+the detail, and numbers stay put when items are deleted.
 
 Localization (`sim/README.md` has the scenarios):
 
@@ -64,6 +64,14 @@ Tracker cost:
   bench's speed. On the laptop at ~8x, `ArmorTracker.step`'s numpy is 46% of
   its main thread and its TF listener 27%, so check how much of that the TF
   listener alone accounts for. Then the user decides.
+
+Later:
+
+- T11: Look into running the stack on a Mac (Apple Silicon). Find which
+  parts need an NVIDIA GPU (Isaac ROS, YOLO, the image's CUDA base) and
+  which could run in an arm64 Linux container or VM without one: gz, the
+  localization stack, the aiming and estimation benches. Measure the RTF
+  there against the laptop.
 
 ## Open for the user
 
