@@ -18,6 +18,31 @@
       "icon": "test"
     },
     {
+      "name": "Install sim",
+      "command": "isaac_ros_common/scripts/dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh",
+      "icon": "configure"
+    },
+    {
+      "name": "Sim: drift",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh drift'",
+      "icon": "test"
+    },
+    {
+      "name": "Sim: EKF",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh ekf'",
+      "icon": "test"
+    },
+    {
+      "name": "Sim: shot hit",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh shot_hit'",
+      "icon": "test"
+    },
+    {
+      "name": "Sim: estimation",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh estimation'",
+      "icon": "test"
+    },
+    {
       "name": "Container shell",
       "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -c 'exec bash --rcfile <(echo \"source install/setup.bash\")'",
       "icon": "debug"
