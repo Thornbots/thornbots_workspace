@@ -6,8 +6,6 @@ Call out code that doesn't follow standard practice.
 
 - [`isaac-ros-docker`](.claude/skills/isaac-ros-docker/): every docker command,
   and anything run inside the container.
-- `writing:deslop`: all writing.
-- `t3-fleet:serve-plan`: every plan or report.
 
 ## Priority
 
