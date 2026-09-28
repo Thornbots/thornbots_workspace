@@ -128,8 +128,6 @@ well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
 |---|---|---|---|
 | `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | `now()` after the frame is parsed | Stamp when the frame's first byte is read, minus its wire time at the baud rate. Later, an MCB millisecond clock on the wire, the mirror of `CV_MSG`'s `stamp_ms`, mapped to ROS time by offset | Before any field test of Part 1 while we move: `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
 | Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency | Estimation, on hardware |
-| `mcb_relay` → relocalize | Bare `geometry_msgs/Point` | `PointStamped` with the stamp of the localization pose it came from; the bridge's subscriber follows | Own change, not CV-blocking |
-| `dji_serial_bridge` `~/nav_goal` | Bare `geometry_msgs/Point` | `PointStamped`, stamped when the goal was chosen | Same change as relocalize |
 
 `/cmd_vel` stays a bare `Twist`: gz's diff-drive plugin and the harnesses expect
 it, which is the standard-interface exception in the rule.
