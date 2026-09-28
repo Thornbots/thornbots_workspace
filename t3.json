@@ -1,16 +1,36 @@
 {
-  "environments": {
-    "ros2-jazzy-mac": {
-      "host_type": "macos",
-      "container_name": "isaac_ros_jazzy_container",
-      "workspace_dir": "/workspace",
-      "shell": "/bin/bash"
+  "$schema": "https://t3.codes/schema/t3.json",
+  "defaultThreadEnvMode": "local",
+  "scripts": [
+    {
+      "name": "Smoke",
+      "command": ".claude/skills/isaac-ros-docker/smoke.sh",
+      "icon": "test"
     },
-    "ros2-jazzy-linux": {
-      "host_type": "linux",
-      "container_name": "isaac_ros_jazzy_container",
-      "workspace_dir": "/workspace",
-      "shell": "/bin/bash"
+    {
+      "name": "Build",
+      "command": "isaac_ros_common/scripts/dexec.sh -- colcon build --symlink-install --packages-skip-regex '^isaac'",
+      "icon": "build"
+    },
+    {
+      "name": "Test",
+      "command": "isaac_ros_common/scripts/dexec.sh -- bash -c 'P=\"thornbots_pkg sentry_localization sim\"; colcon test --packages-select $P; for p in $P; do colcon test-result --verbose --test-result-base build/$p; done'",
+      "icon": "test"
+    },
+    {
+      "name": "Container shell",
+      "command": "docker exec -it -u admin -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -c 'exec bash --rcfile <(echo \"source install/setup.bash\")'",
+      "icon": "debug"
+    },
+    {
+      "name": "Launches",
+      "command": "isaac_ros_common/scripts/kill_launch.sh -l",
+      "icon": "lint"
+    },
+    {
+      "name": "Submodules",
+      "command": "git submodule foreach --quiet 'b=$(git config -f $toplevel/.gitmodules submodule.$name.branch); printf \"%-32s %-6s on %-10s %s dirty, %s unpushed\\n\" $name $b \"$(git branch --show-current || true)\" $(git status --porcelain | wc -l) $(git rev-list --count @{u}..HEAD 2>/dev/null || echo ?)'",
+      "icon": "lint"
     }
-  }
+  ]
 }
