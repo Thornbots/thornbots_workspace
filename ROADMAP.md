@@ -56,9 +56,18 @@ Stamps (`CV_SPLIT_PLAN.md` "Stamps"):
 - T9: `mcb_relay`'s relocalize and the bridge's `~/nav_goal` become
   `PointStamped`.
 
+Tracker cost:
+
+- T10: Measure what `target_tracker` costs before deciding on a C++ core:
+  time per update and CPU on the Orin and the laptop, its share of
+  detection-to-`TargetState` latency, and how much it caps the estimation
+  bench's speed. On the laptop at ~8x, `ArmorTracker.step`'s numpy is 46% of
+  its main thread and its TF listener 27%, so check how much of that the TF
+  listener alone accounts for. Then the user decides.
+
 ## Open for the user
 
-- A C++ core for `target_tracker`, the slowest node on the estimation bench.
+- A C++ core for `target_tracker`, once T10 has measured its cost.
 - The match test's open questions (`E2E_PLAN.md`).
 
 ## Tracks, in order of work
