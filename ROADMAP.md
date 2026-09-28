@@ -13,8 +13,8 @@ don't mark it done. Git history and the package docs keep the record.
 
 | Thing | State |
 |---|---|
-| Localization drift suite (7 scenarios) | **7 pass** at `--backend amcl --use-ekf`, unthrottled, A2M8, per-scan rf2o (2026-09-24): drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
-| EKF fusion | **95% better than raw `/odom`** (0.0075 m vs 0.1415 m mean, `suite:=ekf`, unthrottled, 2026-09-26) |
+| Localization drift suite (8 scenarios) | **7 of 8 pass** at `--backend amcl --use-rf2o`, unthrottled (2026-09-28); `jerk_with_motion` fails on a `trigger_jerk` timeout (T13). On 2026-09-24: drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
+| EKF fusion | **75-80% better than raw `/odom`** (0.025-0.030 m vs ~0.12 m mean, `suite:=ekf`, 2026-09-28), down from 95% (0.0075 m) on 2026-09-26 (T13) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | Nothing runs `roi_depth_node` or the serial link yet (track A) |
 | Jazzy | Laptop matches Humble on every suite and bench. Orin reflash and robots left (track C) |
@@ -23,15 +23,6 @@ don't mark it done. Git history and the package docs keep the record.
 
 Nearly finished work, plus a few later items at the end. Pointers lead to
 the detail, and numbers stay put when items are deleted.
-
-Now:
-
-- T12: Rename `use_ekf` / `--use-ekf` to `use_rf2o` / `--use-rf2o`. The
-  flag's real effect is fusing rf2o's scan odometry into `/odom`; the EKF
-  is only how. It spans `auto.launch.py`, `localization.launch.py`, sim's
-  launches, the drift and EKF harnesses and tests, `suite:=ekf`, and every
-  README and AGENTS.md that names it (~110 uses across 18 files). One bump
-  for all the submodules together, since the launch args must match.
 
 Localization (`sim/README.md` has the scenarios):
 
@@ -45,7 +36,7 @@ Localization (`sim/README.md` has the scenarios):
 - T3: Moving obstacles under `slam`: sample the grid cells the actors
   crossed and check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
 - T4: rf2o match grading (built 2026-09-27): run `scan_degraded` at
-  `--backend amcl --use-ekf` and set the thresholds from the
+  `--backend amcl --use-rf2o` and set the thresholds from the
   `/scan_odom/quality` distributions. Done when it passes, the other seven
   and `suite:=ekf` are no worse, and over 99% of clean matches grade good.
 - T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
@@ -73,6 +64,13 @@ Tracker cost:
   bench's speed. On the laptop at ~8x, `ArmorTracker.step`'s numpy is 46% of
   its main thread and its TF listener 27%, so check how much of that the TF
   listener alone accounts for. Then the user decides.
+
+- T13: Two regressions found 2026-09-28 while testing the `use_rf2o`
+  rename (the rename isn't the cause of the first; pre-rename code reads
+  the same). `suite:=ekf`'s fused error went from 0.0075 m (2026-09-26) to
+  0.025-0.030 m: bisect the sim and localization commits between.
+  `jerk_with_motion` fails on "trigger_jerk call timed out", alone too:
+  check it on pre-rename code, then find what stopped answering.
 
 Later:
 
@@ -171,14 +169,14 @@ on the old stack, at 0.31-0.33 m, localizing against the saved field map.
 SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
 it, with the EKF allowed. It gets a mapping window before each game, and
 carries one map from game to game: load it at boot, extend it during the
-game, save it after. Earlier `slam --use-ekf` read worse than plain `slam`,
+game, save it after. Earlier `slam --use-rf2o` read worse than plain `slam`,
 likely because slam_toolbox's correction stacked on the EKF's rf2o
 correction (`sentry_localization/README.md`); fix that, don't drop the EKF.
 
 1. Add `mapping` to the drift harness's backends (it isn't offered today,
    since nothing scored a map-building run) and score it against truth with
    the map frame aligned at spawn: the built map's origin is wherever the
-   run starts. Then run it with and without `--use-ekf` on today's stack
+   run starts. Then run it with and without `--use-rf2o` on today's stack
    (`sentry_v2`, A2M8, per-scan rf2o).
 2. Fix the EKF stacking, for example by pointing slam_toolbox's
    `odom_frame` at raw odometry, then retune `slam.yaml`.
