@@ -14,7 +14,7 @@ keep the record.
 
 | Thing | State |
 |---|---|
-| Localization drift suite (8 scenarios) | **8 of 8 pass** at `--backend amcl --use-rf2o`, unthrottled, 255 s (2026-09-28): drift_correction 0.17 m, with obstacle 0.15 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
+| Localization drift suite (9 scenarios) | **9 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, legs ramped at 20 m/s^2, ~285 s (2026-09-28, three runs): drift_correction 0.16-0.18 m, with obstacle 0.15-0.18 m, moving obstacles 0.17-0.19 m, real_accel (1.2 m/s^2) 0.09-0.11 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | Nothing runs `roi_depth_node` or the serial link yet (track A) |
@@ -33,22 +33,12 @@ Localization (`sim/README.md` has the scenarios):
   ARCC26 pose graph loaded, slam_toolbox never publishes `/map`; its
   `getOccupancyGrid` ran 600 s at 100% of a core (2026-09-28). Needs a
   map that rasterises in seconds (track H rebuilds it).
-- T5: A scenario, or a `drive()` option, that ramps `/cmd_vel` under an
-  acceleration limit. Today every leg steps to 4 m/s within one 0.1 s tick.
-  The match test's driving (track A, E3) wants the same ramp.
-  `--drive-accel` / `drive_accel:=` is in (off by default; sim commit
-  has the measurements). The speed shortfall is the profile, not a bug:
-  rest to 4 m/s and back takes v^2/a = 2.7 m at 6 m/s^2, so a 3 m side
-  cruises 0.3 m and a 1.5 m leg peaks at sqrt(a d) = 3 m/s. The RTF drop
-  (0.86 against 1.15) is at least partly the machine: `baseline`, which
-  never drives, fell 1.22 to 1.02 between the two runs, and unramped full
-  runs here span 0.93-1.34. Open: the chassis's real acceleration (ask
-  firmware, `E2E_PLAN.md`), an interleaved ramped/unramped A/B for the
-  RTF, then the full suite at that acceleration.
-- T16: The robot's true yaw seems to drift in `odom_stuck` (the user saw
-  it in gz, 2026-09-28). Measure `/sim/raw_odom`'s yaw over the scenario
-  against `drift_correction`'s, where `sentry_v2` picks up ~1 deg in the
-  first hard corners (`sim/AGENTS.md`), and find what turns it.
+- T16: The robot's true yaw seems to drift in `odom_stuck` (the user,
+  2026-09-28). The drift suite now logs `true_yaw` per sample. One run
+  (2026-09-28) read 0.17-0.22 deg across `odom_stuck`, about the same as
+  `drift_correction` (up to 0.25), so the robot's heading held. amcl's
+  estimate does turn there, up to 0.66 rad (`sim/README.md`). Open:
+  confirm which yaw was seen drifting, and whether a longer run shows it.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
@@ -186,7 +176,7 @@ correction (`sentry_localization/README.md`); fix that, don't drop the EKF.
 4. A game-like scenario: a full 5-minute Battle on the field with other
    `sentry_v2` copies driving, spinning and blocking the lidar (track A's
    opponents), our robot driving a match-like route with finite
-   acceleration (T5), including the high ground. Score pose error against
+   acceleration (`real_accel`'s 1.2 m/s^2), including the high ground. Score pose error against
    truth throughout, and check the built map doesn't keep robots as walls
    (T3).
 
