@@ -26,9 +26,6 @@ the detail, and numbers stay put when items are deleted.
 
 Localization (`sim/README.md` has the scenarios):
 
-- T2: Run `suite:=ekf` at `real_time_factor:=1`. Done when it gives the same
-  verdict as unthrottled; if it doesn't, audit every node for wall-clock
-  timers, rates and timeouts.
 - T3: Moving obstacles under `slam`: sample the grid cells the actors
   crossed and check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
 - T4: rf2o match grading (built 2026-09-27): run `scan_degraded` at
