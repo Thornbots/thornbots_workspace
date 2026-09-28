@@ -102,7 +102,7 @@ W.3's open issues (our side switched 2026-09-27):
 
 1. **Which `odom` the MCB holds in.** The docs call it POSE_MSG's frame, but
    the Jetson's `odom->root` is `/localization/odom` (EKF-fused with rf2o
-   when `use_ekf`), not the MCB's raw odometry, and `mcb_relay`'s
+   when `use_rf2o`), not the MCB's raw odometry, and `mcb_relay`'s
    RELOCALIZE resets the MCB's origin when the two drift apart. An aim point
    in flight across a relocalize lands where the old origin was. Pick one
    frame both sides share, or send the aim relative to a pose the MCB also
