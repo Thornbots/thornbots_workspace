@@ -14,7 +14,7 @@ don't mark it done. Git history and the package docs keep the record.
 | Thing | State |
 |---|---|
 | Localization drift suite (8 scenarios) | **7 of 8 pass** at `--backend amcl --use-rf2o`, unthrottled (2026-09-28); `jerk_with_motion` fails on a `trigger_jerk` timeout (T13). On 2026-09-24: drift_correction 0.14 m, with obstacle 0.17 m, moving obstacles 0.18 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
-| EKF fusion | **75-80% better than raw `/odom`** (0.025-0.030 m vs ~0.12 m mean, `suite:=ekf`, 2026-09-28), down from 95% (0.0075 m) on 2026-09-26 (T13) |
+| EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | Nothing runs `roi_depth_node` or the serial link yet (track A) |
 | Jazzy | Laptop matches Humble on every suite and bench. Orin reflash and robots left (track C) |
@@ -58,12 +58,9 @@ Tracker cost:
   its main thread and its TF listener 27%, so check how much of that the TF
   listener alone accounts for. Then the user decides.
 
-- T13: Two regressions found 2026-09-28 while testing the `use_rf2o`
-  rename (the rename isn't the cause of the first; pre-rename code reads
-  the same). `suite:=ekf`'s fused error went from 0.0075 m (2026-09-26) to
-  0.025-0.030 m: bisect the sim and localization commits between.
-  `jerk_with_motion` fails on "trigger_jerk call timed out", alone too:
-  check it on pre-rename code, then find what stopped answering.
+- T13: `jerk_with_motion` fails on "trigger_jerk call timed out", alone
+  too (found 2026-09-28): check it on pre-rename code, then find what
+  stopped answering.
 
 Later:
 
