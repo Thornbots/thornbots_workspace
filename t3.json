@@ -14,7 +14,7 @@
     },
     {
       "name": "Test",
-      "command": "isaac_ros_common/scripts/dexec.sh -- bash -c 'P=\"thornbots_pkg sentry_localization sim\"; colcon test --packages-select $P; for p in $P; do colcon test-result --verbose --test-result-base build/$p; done'",
+      "command": "isaac_ros_common/scripts/dexec.sh -- bash -c 'colcon test --packages-skip-regex ^isaac; for p in $(colcon list --names-only --packages-skip-regex ^isaac); do colcon test-result --verbose --test-result-base build/$p; done'",
       "icon": "test"
     },
     {
