@@ -84,6 +84,9 @@ starts rviz regardless), so a window opens on the user's display.
   `isaac_ros_common/docker/README.md` under the same name. It has gz baked
   in, no `ros2_ws` and no `admin` user, so the scripts run as root there
   (`scripts/container.sh`). GUI is VNC at `vnc://localhost:5901`.
+  `scripts/mac-keepalive.sh`, in the host tmux session `keepalive`, restarts
+  a frozen colima, `docker start`s the container, and tunnels
+  `<tailscale IP>:8765` to its Foxglove bridge. Don't kill that session.
 - **A fresh container has no gz-sim.** Before any `sim` launch, run once:
   `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh`.
   Background it and budget minutes: it pulls a few hundred apt packages. A
