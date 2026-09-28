@@ -6,8 +6,9 @@ end in sim. Updated 2026-09-28. Aiming is done, the estimation bench has
 limits on all 60 cells, and `main` has been Jazzy since 2026-09-27. Humble
 is frozen on the `humble` branches.
 
-This file lists only work still to do. Delete an item when it's finished;
-don't mark it done. Git history and the package docs keep the record.
+This file lists only work still to do. Delete an item when it's finished,
+then commit and push; don't mark it done. Git history and the package docs
+keep the record.
 
 ## Where we actually are
 
