@@ -33,12 +33,6 @@ Localization (`sim/README.md` has the scenarios):
   ARCC26 pose graph loaded, slam_toolbox never publishes `/map`; its
   `getOccupancyGrid` ran 600 s at 100% of a core (2026-09-28). Needs a
   map that rasterises in seconds (track H rebuilds it).
-- T16: The robot's true yaw seems to drift in `odom_stuck` (the user,
-  2026-09-28). The drift suite now logs `true_yaw` per sample. One run
-  (2026-09-28) read 0.17-0.22 deg across `odom_stuck`, about the same as
-  `drift_correction` (up to 0.25), so the robot's heading held. amcl's
-  estimate does turn there, up to 0.66 rad (`sim/README.md`). Open:
-  confirm which yaw was seen drifting, and whether a longer run shows it.
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
