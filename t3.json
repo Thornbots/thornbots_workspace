@@ -1,0 +1,16 @@
+{
+  "environments": {
+    "ros2-jazzy-mac": {
+      "host_type": "macos",
+      "container_name": "isaac_ros_jazzy_container",
+      "workspace_dir": "/workspace",
+      "shell": "/bin/bash"
+    },
+    "ros2-jazzy-linux": {
+      "host_type": "linux",
+      "container_name": "isaac_ros_jazzy_container",
+      "workspace_dir": "/workspace",
+      "shell": "/bin/bash"
+    }
+  }
+}
