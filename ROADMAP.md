@@ -114,6 +114,11 @@ and detection latency on the Orin are no worse than on Humble.
 find why the full gz stack caps at RTF ~1.55, render only what gets scored.
 Suites run one at a time; we are compute-limited.
 
+Keep the gz camera off (`camera:=false`, the default) in every suite.
+Nothing consumes its images yet, and a subscribed RGB-D camera alone caps a
+bare server near RTF 2.2. Turn it on only when a suite scores it: track A
+needs depth alone.
+
 ### E. Benches that start and stop cleanly
 
 Today a fresh container has no gz until `install-sim.sh` runs, and nothing

@@ -36,9 +36,12 @@ cells on `bench_world`, and the aiming bench runs 40 cells. The full gz stack ca
    commit message, as usual.
 2. Find the RTF cap by bisecting the stack's nodes and bridges. Every gz
    suite, the match test included, gains from it.
-3. Render only what gets scored. The stand-in reads truth, so the camera
-   becomes a depth-only sensor with no colour image. Only our robot carries
-   a camera and a lidar; the other sentries carry neither. A subscribed 60 Hz
+3. Render only what gets scored. Until a suite consumes camera images, the
+   camera stays off everywhere (`camera:=false`, the default); no suite
+   turns it on today. When the match test needs it, the stand-in reads
+   truth, so the camera becomes a depth-only sensor with no colour image.
+   Only our robot carries a camera and a lidar; the other sentries carry
+   neither. A subscribed 60 Hz
    RGB-D camera alone caps a bare server near RTF 2.2, so check what depth
    alone costs before settling its rate.
 4. Keep the other sentries cheap in physics. Box collisions cost about
