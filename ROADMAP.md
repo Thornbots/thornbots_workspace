@@ -78,8 +78,9 @@ Later:
   llvmpipe and the GUI on: drift 179 s at RTF 1.69 against 242 s at 1.29
   (laptop headless on its GPU), estimation 30 s against 54 s, aiming 31 s
   against 42 s (2026-09-28). Only YOLO and Isaac ROS need NVIDIA.
-  Open: the GUI shows over VNC, not on the Mac's screen. Native macOS
-  through RoboStack would put windows on the screen and gz on Metal. The
+  The container has no display (no VNC, 2026-09-28): watch in Foxglove.
+  Native macOS through RoboStack would put windows on the screen and gz on
+  Metal. The
   stack builds there (2026-09-28): `~/robostack_ws/pixi.toml` on the Mac
   has every dep from `robostack-jazzy` (setuptools < 80, pytest < 8),
   `colcon build --base-paths ~/ros2_ws/src` into its own build and install
