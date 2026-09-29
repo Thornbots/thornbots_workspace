@@ -55,8 +55,8 @@ cells on `bench_world`, and the aiming bench runs 40 cells. The full gz stack ca
    diagnosis: run them when a match segment drops or when their half of the
    code changes.
 7. A C++ core for `target_tracker` could lift the estimation bench's
-   ceiling and the match test's. ROADMAP.md T10 measures the cost first;
-   then it's the user's call.
+   ceiling and the match test's. Its cost is measured (ROADMAP.md "Open
+   for the user"); the user's call.
 
 Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits the time budget
@@ -83,7 +83,7 @@ the user sets once the numbers are in.
 | Depth units | gz publishes 32FC1 metres; `roi_depth_node` reads 16UC1 millimetres | Convert in a small sim node, or let `roi_depth_node` accept both. Check the encoding on a live topic first |
 | Extrinsics | Nothing publishes `/extrinsics/depth_to_color` | Publish identity, since the stand-in's boxes are in the depth camera's frame |
 | MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | A Python node on the other end of a pty from `dji_serial_bridge`. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
-| Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route with finite acceleration (`drive(accel=)` in `drift_harness.py`), the way the MCB's own drive would move it |
+| Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 20 m/s^2 like the drift suite (`drive(accel=)` in `drift_harness.py`). The real MCB's 1.2 m/s^2 stays its own case, as `real_accel` is (the user, 2026-09-28) |
 | Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `deltaAngleGotHitIn`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS_MSG` |
 | Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. Scoring against the canted square fixes the ROADMAP.md caveat that hits are scored as distance to the centre |
 
@@ -113,8 +113,8 @@ from stage to stage, so a drop belongs to the hops that stage added.
    Localization from gz lidar is in the loop, so its error at fire time
    lands in the score. The aim is an `odom` point, but `RobotPose` has no
    chassis yaw yet, which the turn and the spin measure.
-4. E4, the match. Several opponents and the ally, with opponents shooting
-   back and the referee emulator counting HP. One fixed-seed scenario of set
+4. E4, the match, 2v2: two opponents and one ally (the user, 2026-09-28),
+   with opponents shooting back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
 The world-frame aim that follows E3 is ROADMAP.md track B
 (`CV_SPLIT_PLAN.md` W.1-W.5). Its done bar: each moving segment comes within
@@ -150,6 +150,5 @@ has a diagnostic that names the hop that lost it.
 | Question | Recommendation |
 |---|---|
 | Time budget for the regular run | Set it after the speed work's first measurements |
-| How many robots in E4 | The full 3v3, three opponents and two allies, if the RTF holds; one of each if it doesn't |
 | MCB emulator in Python or a firmware build on the host | Python first; a host build of the real firmware later, if the firmware side can produce one |
-| How the MCB's own drive behaves (acceleration, yaw hold) | Ask the firmware side before E3, so the emulator matches it |
+| Whether the MCB's own drive holds yaw | Ask the firmware side before E3, so the emulator matches it |
