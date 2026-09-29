@@ -36,10 +36,12 @@ Localization (`sim/README.md` has the scenarios):
 
 Estimation (`CV_SPLIT_PLAN.md` "Todos"):
 
-- T15: A still target seen at an angle loses yaw and radius (0.35 rad,
-  0.07 m), and the bench only tests one at an angle by accident
-  (`CV_SPLIT_PLAN.md` "Todos"). Reset the target's yaw per case, add a
-  still cell with two panels in view, then fix the tracker.
+- T15: A still target seen at an angle loses yaw and radius. The bench
+  now resets the target's yaw per case and has `stationary45`, still at
+  45 deg with two panels in view (sim f47c84a). Four runs (2026-09-28),
+  p95: staggered centre 0.064-0.071 m and `z_offset` 0.052-0.060 m (0.002
+  at yaw 0), yaw 0.12 rad on both layouts. Next: fix the tracker, then
+  give `stationary45` its `LIMITS`.
 - T7: Sweep `process_noise_accel` against the velocity-error trace, path ends
   included.
 - T8: Check the bench scores the same with a cell run alone as in sequence.
@@ -48,7 +50,9 @@ Repeatability:
 
 - T17: Runs with the same inputs should score nearly the same, and today
   they don't (the user, 2026-09-28). Estimation bench runs stray up to 2x
-  from each other, and about a quarter trip one limit on an outlier.
+  from each other, and about a quarter trip one limit on an outlier:
+  `staggered-speed1.0` failed 3 of 7 runs on 2026-09-28 by settling only
+  at ~33 s (facing p95 0.27-0.29 m).
   Drift runs spread less (0.16-0.18 m). Find where the spread comes from
   (`bench_world`'s `seed` defaults to random, and pacing and DDS timing
   vary) and cut it, so one run is enough to judge a change.
