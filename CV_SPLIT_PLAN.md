@@ -27,8 +27,8 @@ we move is the long work left.
 - About a quarter of runs trip one limit on a spin rate misread by
   0.6-2 rad/s or a wandering radius. In the bad 4 m/s runs radius error sits
   at 5-12 cm for 10-20 s against ~2 cm, and facing-panel error follows it.
-- `target_tracker` is the slowest node under test: `ArmorTracker.step`'s
-  numpy is 46% of its main thread, its TF listener 27%.
+- `target_tracker` is C++ since 2026-09-28: 33% of a core on the Mac's
+  bench at ~27x, down from 110% at ~14x in Python.
 
 ## Todos
 
@@ -57,15 +57,11 @@ commit, scored on the estimation bench over three runs.
 |---|---|---|
 | G.1 | In about one 4 m/s run in five, radius error sits at 5-12 cm for 10-20 s (normally ~2 cm) and facing-panel error follows. The spin rate is sometimes misread by 0.6-2 rad/s | Hold the radius tighter: `process_noise_radius` (0.02 m/sqrt(s)) down, and a prior at the armor radius. Log innovations around each spin misread to find what triggers it |
 | G.2 | Radial motion doubles along-ray error at 2-4 m/s (0.18-0.25 m against 0.09-0.11). Blackouts (0.3 s of every 2 s) run 2-3x worse, worst on staggered 0.5-1 m/s (0.28-0.30 m against 0.09) | Radial: `ray_covariance` already splits depth from lateral noise; tune `meas_noise_base_m` / `meas_noise_range_coeff` against the bench's depth noise. Blackout: check what the `dz` pair handoff does across a gap. Staggered blackout cells at 1-4 m/s read `z_offset` p95 0.012-0.062 m (median of runs) against flat's 0.002 (stagger 0.095 m), and 1.4-1.6x flat's panel error at 2-4 m/s: the pair parity likely comes back wrong. Without blackout, staggered matches flat (panel error within 0.9-1.2x, `z_offset` under 4 mm) |
-| G.3 | `valid` goes true after 2 updates (`target_tracker.py`), but a fresh track on a spinner takes 0.3-3 s to settle, up to 0.4 m off in the first second. Spin-rate variance doesn't separate settled from not | Gate `valid` on settling, not a count: try a minimum track age, or the facing panel's predicted-vs-measured residual. Check the cost on the aiming bench |
+| G.3 | `valid` goes true after 2 updates (`target_tracker.cpp`), but a fresh track on a spinner takes 0.3-3 s to settle, up to 0.4 m off in the first second. Spin-rate variance doesn't separate settled from not | Gate `valid` on settling, not a count: try a minimum track age, or the facing panel's predicted-vs-measured residual. Check the cost on the aiming bench |
 
 Done when a fresh run of every cell passes `LIMITS` tightened to the new
 worst runs, with radial and blackout cells within 1.5x of the default and
 no fresh track `valid` before its facing-panel error settles under 5 cm.
-
-## Open for the user
-
-- A C++ core for `target_tracker`; its cost is in ROADMAP.md "Open for the user".
 
 Flat 4 m/s misses cluster where the target's acceleration switches at path
 ends, which nothing predicts. Known, no plan.
