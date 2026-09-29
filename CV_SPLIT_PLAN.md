@@ -85,15 +85,18 @@ on the field). Where it stands:
   carries an `odom` point (same bytes), and `sim`'s readers hold it at
   their own pose. The firmware and the shared frame are W.3's open issues
   below.
-- **Our pose: incomplete.** `RobotPose` has no chassis yaw (`head_yaw` is the
-  gimbal's), the stack assumes a fixed heading (`sim/AGENTS.md`: the
-  chassis already picks up ~1 deg in sim), and the stamp is Jetson arrival.
+- **Our pose: chassis yaw in, not on the wire.** `RobotPose` has
+  `chassis_yaw` and `chassis_yaw_rate`, driving a `chassis_yaw` joint under a
+  heading-fixed `root` (`thornbots_pkg/README.md`); the head hangs off `root`
+  at the MCB's world `head_yaw`. Sim sends it; the wire doesn't yet
+  (`UART_PROTOCOL.md` "Proposed: POSE_MSG chassis yaw"). The stamp is Jetson
+  arrival.
 
 What it needs, in order:
 
 | Step | Package | Change |
 |---|---|---|
-| W.1 | `ros2_dji_serial_bridge`, firmware | `RobotPose` gains chassis yaw and yaw rate, and a capture stamp (Stamps table below: first-byte time less wire time, later an MCB clock). `odom->root` carries the yaw |
+| W.1 | `ros2_dji_serial_bridge`, firmware | `RobotPose` gains chassis yaw and yaw rate (ROS side done 2026-09-29, wire proposed), and a capture stamp (Stamps table below: first-byte time less wire time, later an MCB clock). The yaw is a joint under a heading-fixed `root`, not in `odom->root` |
 | W.2 | `thornbots_pkg` | Every TF lookup at the time the data was true: the camera at capture (Part 2 does this), our pose at the fire horizon in Part 1, not `Time()` |
 | W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CVData` to follow (`thornbots_pkg/AGENTS.md`) |
 | W.4 | `sim` | The aiming bench: our `root` turns as well as translates (`shooter_speed` only slides it along y today), and the shooter carries the aim in `odom` the way W.3's MCB would. The estimation bench: our gz chassis turns while tracking |
