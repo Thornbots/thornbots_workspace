@@ -84,10 +84,12 @@ Later:
   has every dep from `robostack-jazzy` (setuptools < 80, pytest < 8),
   `colcon build --base-paths ~/ros2_ws/src` into its own build and install
   dirs (the container shares `ros2_ws/build`), `sllidar_ros2` ignored
-  (Linux-only, and sim never starts it). Next: the harnesses and
-  `head_slider_relay.py` call Linux's `prctl(PR_SET_PDEATHSIG)`, so no sim
-  test even collects; port that, then run each suite natively. `sim.launch.py`
-  already runs gz's server and GUI as two processes, as macOS needs.
+  (Linux-only, and sim never starts it). `sim`'s unit tier passes natively.
+  Next: run each suite natively with the windows on the Mac's screen, and
+  time it against the container. On macOS a harness killed hard orphans
+  its stack (no `PR_SET_PDEATHSIG`), and `head_slider_relay.py` needs GNU
+  `stdbuf`. `sim.launch.py` already runs gz's server and GUI as two
+  processes, as macOS needs.
 
 ## Open for the user
 
