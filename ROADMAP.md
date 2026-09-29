@@ -53,6 +53,15 @@ Repeatability:
   (`bench_world`'s `seed` defaults to random, and pacing and DDS timing
   vary) and cut it, so one run is enough to judge a change.
 
+Aiming:
+
+- T18: Score hits on the canted panel, not a circle. Armor panels are
+  canted 15 degrees (S122), but a hit is the ray passing within 0.0625 m
+  (half the panel's 0.125 m height) of the panel centre, inside a 145-degree
+  cone, not the ray crossing the canted 0.135 x 0.125 m face
+  (`shot_hit_harness.py`). Intersect the ray with that face, then regenerate
+  `FLOORS` over three runs. Track A's shot model can reuse it.
+
 Tracker cost:
 
 - T10: Measure what `target_tracker` costs before deciding on a C++ core:
@@ -195,9 +204,6 @@ game, and the map must not collect robots or duplicate walls.
 
 ## Caveats
 
-- Armor panels are canted 15 degrees (S122), and hit scoring ignores that:
-  a hit is the ray passing within 0.05 m of the panel centre, not crossing
-  the canted square. Track A's shot model fixes it.
 - Sim detection noise is 0.005 m against a D435's centimetres, and no sim
   test runs YOLO, so every CV rate here runs optimistic. The benches rank
   changes; they don't predict the field.
