@@ -58,8 +58,8 @@ the estimation bench scores at ~20x with the C++ `target_tracker`.
    ~20x, up from ~14x, and the tracker is no longer the ceiling.
 
 Done when each suite's time split is logged, the RTF cap has a named cause,
-and the regular run (unit tests, then the match test) fits the time budget
-the user sets once the numbers are in.
+and the regular run (unit tests, then the match test) fits 10 minutes, and
+5 without the match test (the user, 2026-09-28).
 
 ## Before the match test
 
@@ -81,8 +81,8 @@ the user sets once the numbers are in.
 | Detector stand-in | Nothing publishes `/detections_output` in sim | For every panel on every other robot: look up its pose at the depth image's stamp, project the corners through `CameraInfo`, and keep it if it faces the camera (the 145 deg exposure cone), lands in the image, and the rendered depth at its centre agrees with its projected depth. The depth check gives occlusion by the field and other robots for free. Publishes the `Detection2DArray` YOLO would, in network space with the 640x640 letterbox `roi_depth_node` now undoes, class by team (blue 0-3, red 4-7), stamped with the image stamp. Pixel jitter and dropout are parameters, off at first |
 | Depth units | gz publishes 32FC1 metres; `roi_depth_node` reads 16UC1 millimetres | Convert in a small sim node, or let `roi_depth_node` accept both. Check the encoding on a live topic first |
 | Extrinsics | Nothing publishes `/extrinsics/depth_to_color` | Publish identity, since the stand-in's boxes are in the depth camera's frame |
-| MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | A Python node on the other end of a pty from `dji_serial_bridge`. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
-| Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 20 m/s^2 like the drift suite (`drive(accel=)` in `drift_harness.py`). The real MCB's 1.2 m/s^2 stays its own case, as `real_accel` is (the user, 2026-09-28) |
+| MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | ROADMAP.md track I: a node on the other end of a pty from `dji_serial_bridge`, copied from the real firmware (`Thornbots/MCBV3`), where it and this row differ the firmware wins. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
+| Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 2 m/s^2 (`drive(accel=)` in `drift_harness.py`; the user, 2026-09-28). The MCB holds yaw within 2 deg over a match |
 | Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `deltaAngleGotHitIn`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS_MSG` |
 | Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. Scoring against the canted square fixes the ROADMAP.md caveat that hits are scored as distance to the centre |
 
@@ -143,11 +143,3 @@ without a second run.
 E4 runs in one gz session, every segment scores the same alone and in
 sequence, and each segment's hit rate is within 10 points of its floor or
 has a diagnostic that names the hop that lost it.
-
-## Open questions for the user
-
-| Question | Recommendation |
-|---|---|
-| Time budget for the regular run | Set it after the speed work's first measurements |
-| MCB emulator in Python or a firmware build on the host | Python first; a host build of the real firmware later, if the firmware side can produce one |
-| Whether the MCB's own drive holds yaw | Ask the firmware side before E3, so the emulator matches it |
