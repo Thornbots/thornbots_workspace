@@ -80,17 +80,9 @@ Later:
 
 ## Tracks, in order of work
 
-Finish the short todos first, then G, then A-C in order, with I before
-A's E2. D runs alongside A, and E, F and H are unscheduled. Navigation comes after the Midwest competition;
+Finish the short todos first, then A-C in order, with I before A's E2,
+then G. D runs alongside A, and E, F and H are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
-
-### G. Estimation accuracy
-
-[`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Estimation accuracy", steps
-G.1-G.3. The tracker's radius drifts on some 4 m/s runs, radial motion and
-detection blackouts cost 2-3x the usual error, and a fresh track is `valid`
-(so it can fire) up to 3 s before its estimate settles. It runs first
-because the match test would inherit all three.
 
 ### A. The match test
 
@@ -134,6 +126,15 @@ the wire protocol and firmware, so agree them with the firmware side first.
 (runbook [`JAZZY_FLASH.md`](JAZZY_FLASH.md)), run the hardware checks on it,
 then each robot. Until then the robots run frozen Humble. Done when YOLO fps
 and detection latency on the Orin are no worse than on Humble.
+
+### G. Estimation accuracy
+
+[`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Estimation accuracy", steps
+G.1-G.3. The tracker's radius drifts on some 4 m/s runs, radial motion and
+detection blackouts cost 2-3x the usual error, and a fresh track is `valid`
+(so it can fire) up to 3 s before its estimate settles. Tuning waits until
+the stack works end to end (the user, 2026-09-29); the match test runs on
+today's tracker.
 
 ### D. Faster suites
 

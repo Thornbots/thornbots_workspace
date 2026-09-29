@@ -63,8 +63,6 @@ and the regular run (unit tests, then the match test) fits 10 minutes, and
 
 ## Before the match test
 
-- ROADMAP.md track G fixes the estimation error the match test would
-  inherit (`CV_SPLIT_PLAN.md` "Estimation accuracy").
 - Armor panels are on both URDFs (2026-09-27): `armor_0` to `armor_3` on
   the diagonals at 45 deg + k x 90 deg, 0.252 m out, at 0.230 and 0.136 m,
   each a 135 x 125 mm Small module (`sim/README.md`). Both benches' target
