@@ -87,14 +87,10 @@ Later:
   `stdbuf`. `sim.launch.py` already runs gz's server and GUI as two
   processes, as macOS needs.
 
-## Open for the user
-
-- The match test's open questions (`E2E_PLAN.md`).
-
 ## Tracks, in order of work
 
-Finish the short todos first, then G, then A-C in order. D runs alongside
-A, and E, F and H are unscheduled. Navigation comes after the Midwest competition;
+Finish the short todos first, then G, then A-C in order, with I before
+A's E2. D runs alongside A, and E, F and H are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
 ### G. Estimation accuracy
@@ -113,6 +109,25 @@ shoots against other `sentry_v2` copies with the real code in between.
 Stages: the stand-in to the gimbal with our robot parked, then the serial
 link against an MCB emulator, then driving while shooting, then opponents
 that shoot back.
+
+### I. MCB emulator
+
+The MCB on the far end of track A's pty, copied from the real firmware,
+`Thornbots/MCBV3` (`MCB-project/src/subsystems/jetson/`, `robots/sentry/`),
+not from `UART_PROTOCOL.md` alone (the user, 2026-09-28). Not built yet.
+What the firmware does at `708b8d6`: reads `CVData` x, y, z as a
+camera-frame point (camera offsets added, y and z swapped) where we send an
+`odom` point, has no `fire` or `delay_ms`, and solves its own ballistics at
+24 m/s. It fires at indexer rate 10 while it holds a target, drops
+confidence under 0.75 and panels past 3 m, and patrols otherwise. It takes
+`RELOCALIZE` but doesn't apply it, spins the chassis at 9 rad/s in
+`AutoDriveCommand`, and moves and fires only `IN_GAME`. Yaw holds within
+2 deg over a match (the user). Each gap from `UART_PROTOCOL.md` goes to
+the firmware side before E2.
+
+**Done when** the emulator runs the firmware's Jetson, aim-and-fire and
+auto-drive logic against `dji_serial_bridge` on a pty, and E2 scores
+through it.
 
 ### B. Hit while we move
 
