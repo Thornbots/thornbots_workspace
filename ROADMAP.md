@@ -57,15 +57,6 @@ Repeatability:
   (`bench_world`'s `seed` defaults to random, and pacing and DDS timing
   vary) and cut it, so one run is enough to judge a change.
 
-Aiming:
-
-- T18: Score hits on the canted panel, not a circle. Armor panels are
-  canted 15 degrees (S122), but a hit is the ray passing within 0.0625 m
-  (half the panel's 0.125 m height) of the panel centre, inside a 145-degree
-  cone, not the ray crossing the canted 0.135 x 0.125 m face
-  (`shot_hit_harness.py`). Intersect the ray with that face, then regenerate
-  `FLOORS` over three runs. Track A's shot model can reuse it.
-
 Later:
 
 - T11: Sim on a Mac. The Mac mini (M6, 12 cores, 32 GB) beats the laptop
