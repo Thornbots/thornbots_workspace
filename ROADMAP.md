@@ -44,6 +44,15 @@ Estimation (`CV_SPLIT_PLAN.md` "Todos"):
   included.
 - T8: Check the bench scores the same with a cell run alone as in sequence.
 
+Repeatability:
+
+- T17: Runs with the same inputs should score nearly the same, and today
+  they don't (the user, 2026-09-28). Estimation bench runs stray up to 2x
+  from each other, and about a quarter trip one limit on an outlier.
+  Drift runs spread less (0.16-0.18 m). Find where the spread comes from
+  (`bench_world`'s `seed` defaults to random, and pacing and DDS timing
+  vary) and cut it, so one run is enough to judge a change.
+
 Tracker cost:
 
 - T10: Measure what `target_tracker` costs before deciding on a C++ core:
@@ -193,7 +202,7 @@ game, and the map must not collect robots or duplicate walls.
   test runs YOLO, so every CV rate here runs optimistic. The benches rank
   changes; they don't predict the field.
 - Estimation bench runs stray up to 2x from each other, so compare changes
-  over three runs, not one.
+  over three runs, not one, until T17 cuts the spread.
 - `odom_stuck` loses the robot at 4 m/s with `/odom` frozen, accepted as a
   limit (2026-09-25).
 - Neither CV bench runs gz; the drift suite does. SAPIEN is out for good.
