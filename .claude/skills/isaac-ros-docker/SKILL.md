@@ -83,9 +83,10 @@ starts rviz regardless), so a window opens on the user's display.
   Isaac ROS), started with the `docker run` in
   `isaac_ros_common/docker/README.md` under the same name. It has gz baked
   in, no `ros2_ws` and no `admin` user, so the scripts run as root there
-  (`scripts/container.sh`). GUI is VNC at `vnc://localhost:5901`.
+  (`scripts/container.sh`). It has no display: benches drop the gz and
+  rviz windows and you watch in Foxglove, `ws://<Mac tailscale IP>:8765`.
   The host tmux session `keepalive` (`scripts/mac-keepalive.sh`) carries the
-  Mac's docker.sock forward and the tailnet Foxglove forward. Killing it
+  Mac's docker.sock forward and that Foxglove forward. Killing it
   cuts `docker` off; re-run the script instead.
 - **A fresh container has no gz-sim.** Before any `sim` launch, run once:
   `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh`.
