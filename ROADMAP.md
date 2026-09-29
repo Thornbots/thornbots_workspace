@@ -78,10 +78,16 @@ Later:
   llvmpipe and the GUI on: drift 179 s at RTF 1.69 against 242 s at 1.29
   (laptop headless on its GPU), estimation 30 s against 54 s, aiming 31 s
   against 42 s (2026-09-28). Only YOLO and Isaac ROS need NVIDIA.
-  Open: the GUI shows over VNC, not on the Mac's screen. Next is native
-  macOS through RoboStack, which puts windows on the screen and renders
-  gz on Metal. `robostack-jazzy` has osx-arm64 builds of ros_gz, slam_toolbox,
-  AMCL, robot_localization, rviz2 and the other 9 deps checked so far.
+  Open: the GUI shows over VNC, not on the Mac's screen. Native macOS
+  through RoboStack would put windows on the screen and gz on Metal. The
+  stack builds there (2026-09-28): `~/robostack_ws/pixi.toml` on the Mac
+  has every dep from `robostack-jazzy` (setuptools < 80, pytest < 8),
+  `colcon build --base-paths ~/ros2_ws/src` into its own build and install
+  dirs (the container shares `ros2_ws/build`), `sllidar_ros2` ignored
+  (Linux-only, and sim never starts it). Next: the harnesses and
+  `head_slider_relay.py` call Linux's `prctl(PR_SET_PDEATHSIG)`, so no sim
+  test even collects; port that, then run each suite natively. `sim.launch.py`
+  already runs gz's server and GUI as two processes, as macOS needs.
 
 ## Open for the user
 
@@ -165,8 +171,8 @@ benches after to show nothing moved.
 
 ### H. SLAM at amcl's level
 
-Keep SLAM a real fallback to amcl. amcl with the EKF passes all seven drift
-scenarios, the map-based ones at 0.14-0.18 m. `slam` was last tuned 2026-07
+Keep SLAM a real fallback to amcl. amcl with the EKF passes all nine drift
+scenarios, the map-based ones at 0.15-0.19 m (2026-09-28). `slam` was last tuned 2026-07
 on the old stack, at 0.31-0.33 m, localizing against the saved field map.
 
 SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
