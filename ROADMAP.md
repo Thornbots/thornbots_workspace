@@ -66,15 +66,6 @@ Aiming:
   (`shot_hit_harness.py`). Intersect the ray with that face, then regenerate
   `FLOORS` over three runs. Track A's shot model can reuse it.
 
-Tracker cost:
-
-- T10: Measure what `target_tracker` costs before deciding on a C++ core:
-  time per update and CPU on the Orin and the laptop, its share of
-  detection-to-`TargetState` latency, and how much it caps the estimation
-  bench's speed. On the laptop at ~8x, `ArmorTracker.step`'s numpy is 46% of
-  its main thread and its TF listener 27%, so check how much of that the TF
-  listener alone accounts for. Then the user decides.
-
 Later:
 
 - T11: Sim on a Mac. The Mac mini (M6, 12 cores, 32 GB) beats the laptop
@@ -98,7 +89,11 @@ Later:
 
 ## Open for the user
 
-- A C++ core for `target_tracker`, once T10 has measured its cost.
+- A C++ core for `target_tracker`. Measured 2026-09-28 (T10): each
+  detection costs 3.1 ms of Python on the Orin (`ts-nano-dev`), 18% of a
+  core at 60 Hz; 1.4 ms on the laptop, 0.38 ms on the Mac. On the Mac's
+  estimation bench (~14.5x) the node takes 110% of a core: main thread
+  70%, TF listener thread 32%.
 - The match test's open questions (`E2E_PLAN.md`).
 
 ## Tracks, in order of work
