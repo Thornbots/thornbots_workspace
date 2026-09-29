@@ -89,11 +89,6 @@ Later:
 
 ## Open for the user
 
-- A C++ core for `target_tracker`. Measured 2026-09-28 (T10): each
-  detection costs 3.1 ms of Python on the Orin (`ts-nano-dev`), 18% of a
-  core at 60 Hz; 1.4 ms on the laptop, 0.38 ms on the Mac. On the Mac's
-  estimation bench (~14.5x) the node takes 110% of a core: main thread
-  70%, TF listener thread 32%.
 - The match test's open questions (`E2E_PLAN.md`).
 
 ## Tracks, in order of work

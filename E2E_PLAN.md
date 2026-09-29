@@ -29,7 +29,7 @@ speed work below makes each run cheaper and makes one run cover more.
 Today: the drift suite takes 227 s for 7 scenarios, the estimation bench about 54 s for 10
 cells on `bench_world`, and the aiming bench runs 40 cells. The full gz stack caps at RTF
 ~1.55 for a reason nobody has found (`sim/AGENTS.md` Open), and
-`target_tracker` caps the estimation bench near 8x.
+the estimation bench scores at ~20x with the C++ `target_tracker`.
 
 1. Measure first. Each suite logs its wall time split into bring-up,
    per-case reset and scored time, plus the mean RTF. Numbers go in the
@@ -54,9 +54,8 @@ cells on `bench_world`, and the aiming bench runs 40 cells. The full gz stack ca
    of single-purpose cases in the regular run. The benches stay for
    diagnosis: run them when a match segment drops or when their half of the
    code changes.
-7. A C++ core for `target_tracker` could lift the estimation bench's
-   ceiling and the match test's. Its cost is measured (ROADMAP.md "Open
-   for the user"); the user's call.
+7. `target_tracker` is C++ (2026-09-28): the estimation bench scores at
+   ~20x, up from ~14x, and the tracker is no longer the ceiling.
 
 Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits the time budget
