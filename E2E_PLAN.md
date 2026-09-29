@@ -42,8 +42,9 @@ the estimation bench scores at ~20x with the C++ `target_tracker`.
    truth, so the camera becomes a depth-only sensor with no colour image.
    Only our robot carries a camera and a lidar; the other sentries carry
    neither. A subscribed 60 Hz
-   RGB-D camera alone caps a bare server near RTF 2.2, so check what depth
-   alone costs before settling its rate.
+   RGB-D camera alone caps a bare server near RTF 2.2. Depth alone at 60 Hz
+   takes the Mac's bare `sim.launch.py` from RTF 2.66 to 1.1 (llvmpipe,
+   2026-09-29); settle its rate once E1 runs.
 4. Keep the other sentries cheap in physics. Box collisions cost about
    2 us per shape per step, so each copy gets one hull for the body and one
    box per panel, not the full collision set.
@@ -77,8 +78,6 @@ and the regular run (unit tests, then the match test) fits 10 minutes, and
 | Opponents | `target_driver` is a phantom; `actor_driver` spawns plain boxes | Spawn N `sentry_v2` copies, each with a team. One `opponent_driver` node moves them all along `target_driver`'s path profiles with chassis spin, aims each head at our panels from truth with added noise, and fires at a set rate |
 | An ally | None | One copy on our team, so the selector has to drop its panels and we must never fire at it |
 | Detector stand-in | Nothing publishes `/detections_output` in sim | For every panel on every other robot: look up its pose at the depth image's stamp, project the corners through `CameraInfo`, and keep it if it faces the camera (the 145 deg exposure cone), lands in the image, and the rendered depth at its centre agrees with its projected depth. The depth check gives occlusion by the field and other robots for free. Publishes the `Detection2DArray` YOLO would, in network space with the 640x640 letterbox `roi_depth_node` now undoes, class by team (blue 0-3, red 4-7), stamped with the image stamp. Pixel jitter and dropout are parameters, off at first |
-| Depth units | gz publishes 32FC1 metres; `roi_depth_node` reads 16UC1 millimetres | Convert in a small sim node, or let `roi_depth_node` accept both. Check the encoding on a live topic first |
-| Extrinsics | Nothing publishes `/extrinsics/depth_to_color` | Publish identity, since the stand-in's boxes are in the depth camera's frame |
 | MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | ROADMAP.md track I: a node on the other end of a pty from `dji_serial_bridge`, copied from the real firmware (`Thornbots/MCBV3`), where it and this row differ the firmware wins. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
 | Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 2 m/s^2 (`drive(accel=)` in `drift_harness.py`; the user, 2026-09-28). The MCB holds yaw within 2 deg over a match |
 | Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `deltaAngleGotHitIn`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS_MSG` |
