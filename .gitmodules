@@ -34,3 +34,7 @@
 	path = sllidar_ros2
 	url = https://github.com/Thornbots/sllidar_ros2.git
 	branch = main
+[submodule "isaac-ros-startup"]
+	path = isaac-ros-startup
+	url = https://github.com/Thornbots/isaac-ros-startup.git
+	branch = main
