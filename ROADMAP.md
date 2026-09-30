@@ -32,7 +32,7 @@ Repeatability:
   2026-09-28). The estimation bench now starts each case identically and
   keys its noise per case (sim 46e752d): still cells repeat to 1.00-1.03x
   across runs, but moving cells still stray up to 1.27x (facing p95,
-  worst `staggered-speed4`). The remainder is node timing within
+  worst `staggered-speed4`), likely from node timing within
   `pace_slack_s`. Drift runs spread 0.16-0.18 m and haven't been looked at.
   Cut both until one run is enough to judge a change.
 
