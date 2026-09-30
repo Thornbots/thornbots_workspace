@@ -22,7 +22,7 @@ keep the record.
 
 ## Short todos
 
-Nearly finished work, plus a few later items at the end. Pointers lead to
+Nearly finished work. Pointers lead to
 the detail, and numbers stay put when items are deleted or move to a
 track (T3 to H, T7, T8 and T15 to G).
 
@@ -35,27 +35,6 @@ Repeatability:
   worst `staggered-speed4`), likely from node timing within
   `pace_slack_s`. Drift runs spread 0.16-0.18 m and haven't been looked at.
   Cut both until one run is enough to judge a change.
-
-Later:
-
-- T11: Sim on a Mac. The Mac mini (M6, 12 cores, 32 GB) beats the laptop
-  on every suite, inside `Dockerfile.mac` under Colima with gz and rviz on
-  llvmpipe and the GUI on: drift 179 s at RTF 1.69 against 242 s at 1.29
-  (laptop headless on its GPU), estimation 30 s against 54 s, aiming 31 s
-  against 42 s (2026-09-28). Only YOLO and Isaac ROS need NVIDIA.
-  The container has no display (no VNC, 2026-09-28): watch in Foxglove.
-  Native macOS through RoboStack would put windows on the screen and gz on
-  Metal. The
-  stack builds there (2026-09-28): `~/robostack_ws/pixi.toml` on the Mac
-  has every dep from `robostack-jazzy` (setuptools < 80, pytest < 8),
-  `colcon build --base-paths ~/ros2_ws/src` into its own build and install
-  dirs (the container shares `ros2_ws/build`), `sllidar_ros2` ignored
-  (Linux-only, and sim never starts it). `sim`'s unit tier passes natively.
-  Next: run each suite natively with the windows on the Mac's screen, and
-  time it against the container. On macOS a harness killed hard orphans
-  its stack (no `PR_SET_PDEATHSIG`), and `head_slider_relay.py` needs GNU
-  `stdbuf`. `sim.launch.py` already runs gz's server and GUI as two
-  processes, as macOS needs.
 
 ## Tracks, in order of work
 
