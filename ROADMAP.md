@@ -2,9 +2,9 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-09-28. Aiming is done, the estimation bench has
-limits on all 60 cells, and `main` has been Jazzy since 2026-09-27. Humble
-is frozen on the `humble` branches.
+end in sim. Updated 2026-09-30. Aiming is done, the estimation bench has
+limits on all 60 cells, the match test's E1 scores, and `main` has been
+Jazzy since 2026-09-27. Humble is frozen on the `humble` branches.
 
 This file lists only work still to do. Delete an item when it's finished,
 then commit and push; don't mark it done. Git history and the package docs
@@ -23,28 +23,8 @@ keep the record.
 ## Short todos
 
 Nearly finished work, plus a few later items at the end. Pointers lead to
-the detail, and numbers stay put when items are deleted.
-
-Localization (`sim/README.md` has the scenarios):
-
-- T3: Moving obstacles under `slam`: sample the grid cells the actors
-  crossed and check none stayed walls (the `TODO` in `_run_cornering_loop_scenario`).
-  The check is on `sim` branch `t3-actor-map-check`. Blocked: with the
-  ARCC26 pose graph loaded, slam_toolbox never publishes `/map`; its
-  `getOccupancyGrid` ran 600 s at 100% of a core (2026-09-28). Needs a
-  map that rasterises in seconds (track H rebuilds it).
-
-Estimation (`CV_SPLIT_PLAN.md` "Todos"):
-
-- T15: A still target seen at an angle loses yaw and radius. The bench
-  now resets the target's yaw per case and has `stationary45`, still at
-  45 deg with two panels in view (sim f47c84a). Four runs (2026-09-28),
-  p95: staggered centre 0.064-0.071 m and `z_offset` 0.052-0.060 m (0.002
-  at yaw 0), yaw 0.12 rad on both layouts. Next: fix the tracker, then
-  give `stationary45` its `LIMITS`.
-- T7: Sweep `process_noise_accel` against the velocity-error trace, path ends
-  included.
-- T8: Check the bench scores the same with a cell run alone as in sequence.
+the detail, and numbers stay put when items are deleted or move to a
+track (T3 to H, T7, T8 and T15 to G).
 
 Repeatability:
 
@@ -115,10 +95,12 @@ through it.
 ### B. Hit while we move
 
 [`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Hitting while we move", steps
-W.1-W.5, after track A's E3. The target, the aim solve and `CVTarget`'s aim
-point are already in `odom`. `RobotPose` still lacks chassis yaw and a
-capture stamp, and the MCB has to hold a world-frame aim. W.1 and W.3 change
-the wire protocol and firmware, so agree them with the firmware side first.
+W.1-W.5, after track A's E3. Our side is done (2026-09-29): target, aim
+solve and `CVTarget`'s aim point in `odom`, `RobotPose` with chassis yaw and
+a send-start stamp, TF looked up at the state's stamp, and the estimation
+bench spinning our chassis. Left: W.1's wire half and W.3, a world-frame aim
+the MCB holds. Both change the wire protocol and firmware, so agree them
+with the firmware side first.
 
 ### C. Jazzy on the robots
 
@@ -134,7 +116,16 @@ G.1-G.3. The tracker's radius drifts on some 4 m/s runs, radial motion and
 detection blackouts cost 2-3x the usual error, and a fresh track is `valid`
 (so it can fire) up to 3 s before its estimate settles. Tuning waits until
 the stack works end to end (the user, 2026-09-29); the match test runs on
-today's tracker.
+today's tracker. Also from `CV_SPLIT_PLAN.md` "Todos":
+
+- T15: A still target seen at an angle loses yaw and radius. The bench
+  has `stationary45`, still at 45 deg with two panels in view (sim
+  f47c84a). Four runs (2026-09-28), p95: staggered centre 0.064-0.071 m
+  and `z_offset` 0.052-0.060 m (0.002 at yaw 0), yaw 0.12 rad on both
+  layouts. Fix the tracker, then give `stationary45` its `LIMITS`.
+- T7: Sweep `process_noise_accel` against the velocity-error trace, path
+  ends included.
+- T8: Check the bench scores the same with a cell run alone as in sequence.
 
 ### D. Faster suites
 
@@ -142,10 +133,9 @@ today's tracker.
 find why the full gz stack caps at RTF ~1.55, render only what gets scored.
 Suites run one at a time; we are compute-limited.
 
-Keep the gz camera off (`camera:=false`, the default) in every suite.
-Nothing consumes its images yet, and a subscribed RGB-D camera alone caps a
-bare server near RTF 2.2. Turn it on only when a suite scores it: track A
-needs depth alone.
+Keep the gz camera off (`camera:=false`, the default) in every suite but
+the match test, which runs it depth-only (`e2e.launch.py`). A subscribed
+RGB-D camera alone caps a bare server near RTF 2.2.
 
 ### E. Benches that start and stop cleanly
 
@@ -204,7 +194,11 @@ correction (`sentry_localization/README.md`); fix that, don't drop the EKF.
    opponents), our robot driving a match-like route with finite
    acceleration (`real_accel`'s 1.2 m/s^2), including the high ground. Score pose error against
    truth throughout, and check the built map doesn't keep robots as walls
-   (T3).
+   (T3: sample the grid cells the actors crossed, the `TODO` in
+   `_run_cornering_loop_scenario`; the check is on `sim` branch
+   `t3-actor-map-check`. Blocked: with the ARCC26 pose graph loaded,
+   slam_toolbox never publishes `/map`, `getOccupancyGrid` ran 600 s at
+   100% of a core on 2026-09-28. Needs a map that rasterises in seconds).
 
 **Done when:** SLAM with the EKF passes the drift scenarios amcl passes,
 each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on the
