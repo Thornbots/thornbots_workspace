@@ -31,6 +31,14 @@ hardware checks on it), and step 6 (the robots). Before step 1 wipes the board,
 record the Humble YOLO numbers step 5 compares against; step 0 had no
 camera.
 
+2026-09-30: both `ts-nano-dev` and `ts-nano-sentry` run L4T R39.2.1.
+`ts-nano-dev` has our image built (36.4 GB). The sentry was reflashed
+ahead of step 6.1 and nothing records whether an NVMe image was taken
+first (none is in the laptop's `~/backups`). It rejoined tailscale as
+100.110.38.3 with Tailscale SSH on; its step 5 host checks pass (`ttyTHS1`
+at `3100000.serial`, lidar at `/dev/ttyUSB0` and `/dev/rplidar`, D435i on
+uvcvideo at 5000M; UART loopback not run). Its image isn't built yet.
+
 ## Target
 
 | | Today | After |

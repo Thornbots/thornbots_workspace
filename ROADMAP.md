@@ -82,10 +82,16 @@ with the firmware side first.
 
 ### C. Jazzy on the robots
 
-[`JAZZY_PLAN.md`](JAZZY_PLAN.md) steps 1, 5 and 6: reflash `ts-nano-dev`
-(runbook [`JAZZY_FLASH.md`](JAZZY_FLASH.md)), run the hardware checks on it,
-then each robot. Until then the robots run frozen Humble. Done when YOLO fps
-and detection latency on the Orin are no worse than on Humble.
+[`JAZZY_PLAN.md`](JAZZY_PLAN.md) steps 1, 5 and 6 (runbook
+[`JAZZY_FLASH.md`](JAZZY_FLASH.md)). `ts-nano-dev` and `ts-nano-sentry`
+are on JetPack 7.2.1; hero and standard still run frozen Humble. Done when
+YOLO fps and detection latency on the Orin are no worse than on Humble.
+
+Boot time: power-on to a running ROS stack under 1 min on each robot (the
+user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the
+7.2.1 installs are full `ubuntu-desktop` and boot to `graphical.target`
+(sentry 15.0 s, dev 17.2 s, `systemd-analyze`). Container start, launch and
+TensorRT engine load are unmeasured and likely dominate.
 
 ### G. Estimation accuracy
 

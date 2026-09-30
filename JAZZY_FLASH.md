@@ -259,6 +259,13 @@ step 5 of the plan adds it. Restore Wi-Fi profiles from
 `etc/NetworkManager/system-connections` only if you need Wi-Fi (files must
 stay `root:root 600`, then `sudo nmcli connection reload`).
 
+With no `system-state.tgz`, the node joins with a new IP: `sudo tailscale up
+--hostname <name> --advertise-tags=tag:jetsons`, then `sudo tailscale set
+--ssh`, and put the IP in `fastdds_cable.xml` and `fastdds_udp_only.xml`.
+Campus DNS registers the board's Wi-Fi hostname, so the short name can
+resolve to the Wi-Fi address, where port 22 is blocked. Give `~/.ssh/config`
+the tailscale IP as `HostName` (ts-nano-sentry, 2026-09-30).
+
 From the laptop: `ssh ts-nano-dev true`. If it warns about a changed host
 key, the host keys weren't restored; run `ssh-keygen -R ts-nano-dev` and
 reconnect.
