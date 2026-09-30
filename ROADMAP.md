@@ -28,14 +28,13 @@ track (T3 to H, T7, T8 and T15 to G).
 
 Repeatability:
 
-- T17: Runs with the same inputs should score nearly the same, and today
-  they don't (the user, 2026-09-28). Estimation bench runs stray up to 2x
-  from each other, and about a quarter trip one limit on an outlier:
-  `staggered-speed1.0` failed 3 of 7 runs on 2026-09-28 by settling only
-  at ~33 s (facing p95 0.27-0.29 m).
-  Drift runs spread less (0.16-0.18 m). Find where the spread comes from
-  (`bench_world`'s `seed` defaults to random, and pacing and DDS timing
-  vary) and cut it, so one run is enough to judge a change.
+- T17: Runs with the same inputs should score nearly the same (the user,
+  2026-09-28). The estimation bench now starts each case identically and
+  keys its noise per case (sim 46e752d): still cells repeat to 1.00-1.03x
+  across runs, but moving cells still stray up to 1.27x (facing p95,
+  worst `staggered-speed4`). The remainder is node timing within
+  `pace_slack_s`. Drift runs spread 0.16-0.18 m and haven't been looked at.
+  Cut both until one run is enough to judge a change.
 
 Later:
 
@@ -211,8 +210,8 @@ game, and the map must not collect robots or duplicate walls.
 - Sim detection noise is 0.005 m against a D435's centimetres, and no sim
   test runs YOLO, so every CV rate here runs optimistic. The benches rank
   changes; they don't predict the field.
-- Estimation bench runs stray up to 2x from each other, so compare changes
-  over three runs, not one, until T17 cuts the spread.
+- Estimation bench moving cells stray up to 1.3x from run to run, so
+  compare changes over three runs, not one, until T17 cuts the spread.
 - `odom_stuck` loses the robot at 4 m/s with `/odom` frozen, accepted as a
   limit (2026-09-25).
 - Neither CV bench runs gz; the drift suite does. SAPIEN is out for good.
