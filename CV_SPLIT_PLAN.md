@@ -32,13 +32,11 @@ we move is the long work left.
 
 ## Todos
 
-- A still target seen at an angle (ROADMAP.md T15). Stationary cells never
-  reset the target's yaw: `flat-stationary` runs first, square to the
-  camera, and `staggered-stationary` sits wherever the last 4 m/s spin
-  stopped, 0.2-0.76 rad off. Two panels are then in view, so no facing
+- A still target seen at an angle (ROADMAP.md T15). `stationary45` holds
+  it at 45 deg (sim f47c84a): two panels in view, so no facing
   pseudo-measurement, and two panel positions don't fix centre, yaw and
-  both radii: yaw wanders 0.02-0.35 rad and radius error grows 0.006 to
-  0.07 m over 33 s (`est_default_r2`-`r6`). Stagger isn't the cause.
+  both radii. Yaw p95 0.12 rad, staggered centre 0.064-0.071 m. Needs a
+  tracker fix, then `LIMITS` for `stationary45`.
 - Velocity lag: sweep `process_noise_accel:=` on the estimation bench
   against the per-case velocity error in `estimation.jsonl`.
 - Confirm a cell scores the same run alone as in sequence.
