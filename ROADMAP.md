@@ -31,8 +31,13 @@ Repeatability:
 - T17: Runs with the same inputs should score nearly the same (the user,
   2026-09-28). The estimation bench runs in lockstep now and every cell's
   p95s repeat to 1.03x (five Mac runs, 2026-10-01), close enough that one
-  run is a benchmark; exact repeats aren't the goal. Left: drift runs
-  spread 0.16-0.18 m, not yet looked at.
+  run is a benchmark; exact repeats aren't the goal. The aiming bench
+  already is: three Mac runs 2026-10-01, cells within 0.5 points, worst
+  `staggered-speed4` 0.968-0.981. E1 isn't, and looks broken since
+  2026-09-29: three runs failed 11, 10 and 8 of 12 cases, most firing no
+  shots at all (both still radial and diagonal cells in every run), only
+  stationary-lateral hitting 95-100%. Find why before measuring its
+  spread. Left: drift and EKF runs, not yet measured.
 
 CV:
 
