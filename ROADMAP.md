@@ -34,7 +34,9 @@ Repeatability:
   (facing p95, worst `staggered-speed4`), maybe node timing within
   `pace_slack_s` (unchecked), and drift runs spread 0.16-0.18 m, not yet
   looked at. Cut both until one run is enough to judge a change. A
-  lockstep `bench_world` is parked untested on sim `t17-lockstep`.
+  lockstep `bench_world` is on sim `t17-lockstep` (1efd19f, tested
+  2026-10-01, not merged): 4 of 5 runs repeat to 1.00x, but one strayed
+  to 2.74x, since `target_tracker`'s `now()` stamp races `/clock`.
 
 ## Tracks, in order of work
 
