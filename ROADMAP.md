@@ -2,7 +2,7 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-09-30. Aiming is done, the estimation bench has
+end in sim. Updated 2026-10-01. Aiming is done, the estimation bench has
 limits on all 60 cells, the match test's E1 scores, and `main` has been
 Jazzy since 2026-09-27. Humble is frozen on the `humble` branches.
 
@@ -17,7 +17,7 @@ keep the record.
 | Localization drift suite (9 scenarios) | **9 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, legs ramped at 20 m/s^2, ~285 s (2026-09-28, three runs): drift_correction 0.16-0.18 m, with obstacle 0.15-0.18 m, moving obstacles 0.17-0.19 m, real_accel (1.2 m/s^2) 0.09-0.11 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
-| CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). No serial link yet (track A) |
+| CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs over the wire against the MCB emulator but fires nothing: the firmware refuses our `CV_MSG` (track I) |
 | Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; hardware checks, the sentry's image and hero and standard left (track C) |
 
 ## Short todos
@@ -54,16 +54,15 @@ that shoot back.
 
 The MCB on the far end of track A's pty, copied from the real firmware,
 `Thornbots/MCBV3` (`MCB-project/src/subsystems/jetson/`, `robots/sentry/`),
-not from `UART_PROTOCOL.md` alone (the user, 2026-09-28). Not built yet.
-What the firmware does at `708b8d6`: reads `CVData` x, y, z as a
-camera-frame point (camera offsets added, y and z swapped) where we send an
-`odom` point, has no `fire` or `delay_ms`, and solves its own ballistics at
-24 m/s. It fires at indexer rate 10 while it holds a target, drops
-confidence under 0.75 and panels past 3 m, and patrols otherwise. It takes
-`RELOCALIZE` but doesn't apply it, spins the chassis at 9 rad/s in
-`AutoDriveCommand`, and moves and fires only `IN_GAME`. Yaw holds within
-2 deg over a match (the user). Each gap from `UART_PROTOCOL.md` goes to
-the firmware side before E2.
+not from `UART_PROTOCOL.md` alone (the user, 2026-09-28). Built
+(2026-10-01): `sim/mcb_emulator/` ports MCBV3 `708b8d6`, and
+`e2e.launch.py stage:=e2` runs it on a pty against `dji_serial_bridge`
+and `mcb_relay` (`sim/README.md` "MCB emulator"). E2 scores nothing yet:
+the firmware refuses our 23-byte `CV_MSG` (its `CVData` is 40 bytes), so
+it only patrols, and `test_e2.py` is xfail. The thirteen gaps from
+`UART_PROTOCOL.md` are in `ros2_dji_serial_bridge/README.md` "Where the
+firmware stands"; each goes to the firmware side. Yaw holds within 2 deg
+over a match (the user).
 
 **Done when** the emulator runs the firmware's Jetson, aim-and-fire and
 auto-drive logic against `dji_serial_bridge` on a pty, and E2 scores

@@ -103,7 +103,8 @@ from stage to stage, so a drop belongs to the hops that stage added.
 2. E2, the wire. `dji_serial_bridge` and `mcb_relay` on a pty against the
    MCB emulator, which replaces `pose_emulator`, `cv_head_aim` and the team
    stub. Tests the `CV_MSG` packing, the stamps both ways, the fire path,
-   and `REF_SYS_MSG` into the selector.
+   and `REF_SYS_MSG` into the selector. `stage:=e2` runs it (2026-10-01);
+   it fires nothing until the firmware reads our `CV_MSG` (ROADMAP track I).
 3. E3, driving while shooting. Our robot drives the scripted route: straight
    at 1 and 2 m/s, a 90 deg turn while driving, and spinning in place.
    Localization from gz lidar is in the loop, so its error at fire time
