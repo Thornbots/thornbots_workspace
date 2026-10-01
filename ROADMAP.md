@@ -33,7 +33,8 @@ Repeatability:
   1.00-1.03x (sim 46e752d). Left: moving cells still stray up to 1.27x
   (facing p95, worst `staggered-speed4`), maybe node timing within
   `pace_slack_s` (unchecked), and drift runs spread 0.16-0.18 m, not yet
-  looked at. Cut both until one run is enough to judge a change.
+  looked at. Cut both until one run is enough to judge a change. A
+  lockstep `bench_world` is parked untested on sim `t17-lockstep`.
 
 ## Tracks, in order of work
 
@@ -94,7 +95,9 @@ TensorRT engine load are unmeasured and likely dominate.
 the sentry ran it 2026-09-30, boot time not yet measured. Not run on
 hardware yet, so parked on branches: `robot_setup.sh` and a keyboard-free
 USB installer (`isaac_ros_common` `robot-setup`), and the Jazzy boot
-service (`isaac-ros-startup` `jazzy-port`).
+service (`isaac-ros-startup` `jazzy-port`). A stick with hero's installer
+(`make_installer_usb.sh --robot hero`) is written and verified
+(2026-10-01); hero hasn't booted it.
 
 ### G. Estimation accuracy
 
