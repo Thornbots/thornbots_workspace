@@ -30,10 +30,9 @@ Repeatability:
 
 - T17: Runs with the same inputs should score nearly the same (the user,
   2026-09-28). The estimation bench runs in lockstep now and every cell's
-  p95s repeat to 1.03x (five Mac runs, 2026-10-01). Left: drift runs
-  spread 0.16-0.18 m, not yet looked at, and a few estimation states
-  still differ in value, too little to show at 4 digits of p95, likely
-  `point_to_cv_target`'s rclpy timer firing before a fresh state.
+  p95s repeat to 1.03x (five Mac runs, 2026-10-01), close enough that one
+  run is a benchmark; exact repeats aren't the goal. Left: drift runs
+  spread 0.16-0.18 m, not yet looked at.
 
 ## Tracks, in order of work
 
