@@ -119,8 +119,10 @@ trimmed and running the Jazzy boot service, measured 2026-10-01: 13.6 s to
 the keyboard-free USB installer (`isaac_ros_common`) and the Jazzy boot
 service (`isaac-ros-startup`) moved to `main` on 2026-10-01, untested,
 because hero's stick (`make_installer_usb.sh --robot hero`) clones `main` on
-first boot. Hero started that install 2026-10-01; check
-`journalctl -u robot-firstboot` on `ts-nano-hero`.
+first boot. Hero's stick bounced back to the boot menu; started from the
+UEFI Shell instead, the install ran 2026-10-01 (`JAZZY_FLASH.md` step 3 has
+the workaround for standard). Check `journalctl -u robot-firstboot` on
+`ts-nano-hero`.
 
 ### G. Estimation accuracy
 
