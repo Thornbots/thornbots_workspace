@@ -18,7 +18,7 @@ keep the record.
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). No serial link yet (track A) |
-| Jazzy | Laptop matches Humble on every suite and bench. Orin reflash and robots left (track C) |
+| Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; hardware checks, the sentry's image and hero and standard left (track C) |
 
 ## Short todos
 
@@ -29,12 +29,11 @@ track (T3 to H, T7, T8 and T15 to G).
 Repeatability:
 
 - T17: Runs with the same inputs should score nearly the same (the user,
-  2026-09-28). The estimation bench now starts each case identically and
-  keys its noise per case (sim 46e752d): still cells repeat to 1.00-1.03x
-  across runs, but moving cells still stray up to 1.27x (facing p95,
-  worst `staggered-speed4`), likely from node timing within
-  `pace_slack_s`. Drift runs spread 0.16-0.18 m and haven't been looked at.
-  Cut both until one run is enough to judge a change.
+  2026-09-28). Still cells on the estimation bench now repeat to
+  1.00-1.03x (sim 46e752d). Left: moving cells still stray up to 1.27x
+  (facing p95, worst `staggered-speed4`), maybe node timing within
+  `pace_slack_s` (unchecked), and drift runs spread 0.16-0.18 m, not yet
+  looked at. Cut both until one run is enough to judge a change.
 
 ## Tracks, in order of work
 
@@ -92,6 +91,11 @@ user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the
 7.2.1 installs are full `ubuntu-desktop` and boot to `graphical.target`
 (sentry 15.0 s, dev 17.2 s, `systemd-analyze`). Container start, launch and
 TensorRT engine load are unmeasured and likely dominate.
+`isaac_ros_common`'s `jetson_trim.sh` (on `main`) makes a robot headless;
+the sentry ran it 2026-09-30, boot time not yet measured. Not run on
+hardware yet, so parked on branches: `robot_setup.sh` and a keyboard-free
+USB installer (`isaac_ros_common` `robot-setup`), and the Jazzy boot
+service (`isaac-ros-startup` `jazzy-port`).
 
 ### G. Estimation accuracy
 
