@@ -29,14 +29,11 @@ track (T3 to H, T7, T8 and T15 to G).
 Repeatability:
 
 - T17: Runs with the same inputs should score nearly the same (the user,
-  2026-09-28). Still cells on the estimation bench now repeat to
-  1.00-1.03x (sim 46e752d). Left: moving cells still stray up to 1.27x
-  (facing p95, worst `staggered-speed4`), maybe node timing within
-  `pace_slack_s` (unchecked), and drift runs spread 0.16-0.18 m, not yet
-  looked at. Cut both until one run is enough to judge a change. A
-  lockstep `bench_world` is on sim `t17-lockstep` (1efd19f, tested
-  2026-10-01, not merged): 4 of 5 runs repeat to 1.00x, but one strayed
-  to 2.74x, since `target_tracker`'s `now()` stamp races `/clock`.
+  2026-09-28). The estimation bench runs in lockstep now and every cell's
+  p95s repeat to 1.03x (five Mac runs, 2026-10-01). Left: drift runs
+  spread 0.16-0.18 m, not yet looked at, and a few estimation states
+  still differ in value, too little to show at 4 digits of p95, likely
+  `point_to_cv_target`'s rclpy timer firing before a fresh state.
 
 ## Tracks, in order of work
 
@@ -203,8 +200,6 @@ game, and the map must not collect robots or duplicate walls.
 - Sim detection noise is 0.005 m against a D435's centimetres, and no sim
   test runs YOLO, so every CV rate here runs optimistic. The benches rank
   changes; they don't predict the field.
-- Estimation bench moving cells stray up to 1.3x from run to run, so
-  compare changes over three runs, not one, until T17 cuts the spread.
 - `odom_stuck` loses the robot at 4 m/s with `/odom` frozen, accepted as a
   limit (2026-09-25).
 - Neither CV bench runs gz; the drift suite does. SAPIEN is out for good.
