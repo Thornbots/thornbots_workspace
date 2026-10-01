@@ -95,10 +95,11 @@ YOLO fps and detection latency on the Orin are no worse than on Humble.
 Boot time: power-on to a running ROS stack under 1 min on each robot (the
 user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the
 7.2.1 installs are full `ubuntu-desktop` and boot to `graphical.target`
-(sentry 15.0 s, dev 17.2 s, `systemd-analyze`). Container start, launch and
-TensorRT engine load are unmeasured and likely dominate.
-`isaac_ros_common`'s `jetson_trim.sh` makes a robot headless;
-the sentry ran it 2026-09-30, boot time not yet measured. `robot_setup.sh`,
+(sentry 15.0 s, dev 17.2 s, `systemd-analyze`).
+`isaac_ros_common`'s `jetson_trim.sh` makes a robot headless. The sentry,
+trimmed and running the Jazzy boot service, measured 2026-10-01: 13.6 s to
+`multi-user.target`, both launches at 17.6 s, engine loaded about 21 s
+(kernel start, not power-on; `isaac-ros-startup` `AGENTS.md`). `robot_setup.sh`,
 the keyboard-free USB installer (`isaac_ros_common`) and the Jazzy boot
 service (`isaac-ros-startup`) moved to `main` on 2026-10-01, untested,
 because hero's stick (`make_installer_usb.sh --robot hero`) clones `main` on
