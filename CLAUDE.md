@@ -7,6 +7,13 @@ Call out code that doesn't follow standard practice.
 - [`isaac-ros-docker`](.claude/skills/isaac-ros-docker/): every docker command,
   and anything run inside the container.
 
+## Containers
+
+Ask before starting, restarting or stopping any container or container VM,
+on any machine: `docker run`/`start`, a script or service that starts one,
+`colima start`/`stop`. One started wrong can die, or take a running one
+with it.
+
 ## Priority
 
 CV (target detection/tracking) comes first. Game rules and field geometry:
