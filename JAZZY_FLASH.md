@@ -210,31 +210,55 @@ stop there.
 
 ### If picking the USB disk drops straight back to the boot menu
 
-Hero hit this 2026-10-01 (firmware 36.4.7; dev and sentry didn't). The
-stick is fine. Its `bootaa64.efi` is NVIDIA's L4TLauncher, which boots a
-recovery partition the stick doesn't have, fails and returns. To see it,
-pick UEFI Shell in the boot menu and find the stick (`ls FS4:\EFI\BOOT`,
-trying FS0, FS1, … until one lists `bootaa64`, `grubaa64`, `mmaa64` and
-`shimaa64`). Don't run `map`: its output scrolls off the screen.
-`FS4:\EFI\BOOT\bootaa64.efi` printed "L4TLauncher: Attempting Recovery
-Boot … Failed to boot recovery:1 partition". Two causes, from the
-`edk2-nvidia` source:
+Hero hit this 2026-10-01 (firmware 36.4.7, its old JetPack 6 install
+trimmed). The stick is fine: its `bootaa64.efi` is NVIDIA's L4TLauncher,
+which chose recovery boot, found no recovery partition and returned. Check
+first, before picking the stick, so the normal path (with the Y firmware
+prompt) works. Boot menu → UEFI Shell (don't run `map`, it scrolls off):
 
-1. Setup → Device Manager → NVIDIA Configuration → L4T Configuration →
-   **L4T Boot Mode** was "Recovery Partition". Set it to Application
-   Default. F10 then fails with "Submit Fail For Form: Grace
-   Configuration" (Grace doesn't apply to the Orin); press D to discard that
-   form and the L4T change still saves.
-2. It still went to recovery after that: the launcher's install-slot check
-   (`ValidateRootfsStatus`) found no bootable slot, probably because the
-   JetPack 6 install doesn't keep that state where the JetPack 7 launcher
-   looks. Not confirmed.
+```
+dmpstore Rootfs* -guid 781E084C-A330-417C-B678-38E696380CB9
+```
 
-Way round both: from the shell run `FS4:\EFI\BOOT\grubaa64.efi`. That
-skips the launcher, so no firmware update prompt appears; the installer
-does that update at "Updating boot firmware". Over USB-C the Mac sees
-nothing until the new system is up. Photos and videos of hero's run:
-`~/robot-flash-logs/hero-2026-10-01/` on the Mac mini.
+Hero had `RootfsStatusSlotA` = `FF` (Unbootable; `00` is Normal) with
+`RootfsRedundancyLevel` 0, so the launcher always forces recovery
+(`ValidateRootfsStatus` in `edk2-nvidia`). Probably the trimmed JetPack 6
+system never marked its boots good and used up the 3 retries. Fix:
+
+```
+setvar RootfsStatusSlotA -guid 781E084C-A330-417C-B678-38E696380CB9 -nv -rt -bs =00000000
+```
+
+Also Setup → Device Manager → NVIDIA Configuration → L4T Configuration:
+**L4T Boot Mode** must be Application Default (hero's was Recovery
+Partition). F10 there fails with "Submit Fail For Form: Grace
+Configuration"; press D and the L4T change still saves.
+
+What hero did instead, before the slot fix was known: from the shell,
+`FSn:\EFI\BOOT\grubaa64.efi` (FSn: the one whose `EFI\BOOT` lists
+`bootaa64`, `grubaa64`, `mmaa64`, `shimaa64`). The install works, but it
+skips the firmware update: the installer logs "Using ISO to update the
+QSPI version 2360327 is not supported", so 36.4.7 firmware stays under
+R39. Hero then booted recovery (black screen) until the `setvar` above.
+The firmware update then went in from Linux, the same capsule-on-disk the
+launcher stages (board `jetson-orin-nano-devkit-super` →
+`TEGRA_BL_3767_super.Cap`, from the stick's ESP):
+
+```bash
+sudo mkdir -p /boot/efi/EFI/UpdateCapsule
+sudo cp <stick ESP>/EFI/TEGRA_BL_3767_super.Cap /boot/efi/EFI/UpdateCapsule/TEGRA_BL.Cap
+V=/sys/firmware/efi/efivars/OsIndications-8be4df61-93ca-11d2-aa0d-00e098032b8c
+sudo chattr -i $V
+printf "\x07\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00" | sudo dd of=$V bs=12
+sudo reboot   # applies it; nvbootctrl dump-slots-info then says 39.2.1
+```
+
+The two "Ubuntu" boot entries the installer adds point at `\EFI\ubuntu`,
+which isn't on the ESP; they bounce and are harmless. Over USB-C the board
+links at 480 Mb/s and the Mac's NCM link stayed inactive; only the serial
+console (`/dev/cu.usbmodem*`, login prompt on `ttyGS0`) worked. Use
+Ethernet on the Mac's switch for anything big (108 MB/s measured). Photos
+and videos: `~/robot-flash-logs/hero-2026-10-01/` on the Mac mini.
 
 First checks on the board:
 
