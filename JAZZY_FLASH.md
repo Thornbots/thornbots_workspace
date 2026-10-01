@@ -254,10 +254,15 @@ sudo reboot   # applies it; nvbootctrl dump-slots-info then says 39.2.1
 ```
 
 The two "Ubuntu" boot entries the installer adds point at `\EFI\ubuntu`,
-which isn't on the ESP; they bounce and are harmless. Over USB-C the board
-links at 480 Mb/s and the Mac's NCM link stayed inactive; only the serial
-console (`/dev/cu.usbmodem*`, login prompt on `ttyGS0`) worked. Use
-Ethernet on the Mac's switch for anything big (108 MB/s measured). Photos
+which isn't on the ESP; they bounce and are harmless. Over USB-C the
+serial console (`/dev/cu.usbmodem*`, login prompt on `ttyGS0`) works from
+the first boot. The network link to a Mac only works once
+`jetson_setup.sh` has bridged NCM (NVIDIA's start script never brings up
+`usb1`). It runs at USB 2.0 (36 MB/s) with Apple's cable and port: the
+device controller's SuperSpeed phy is `usb3-0`, whose companion is
+`usb2-1`, not the USB-C port's `usb2-0` (hero's device tree; not checked
+against the schematic). Use Ethernet on the Mac's switch for anything big
+(108 MB/s measured). Photos
 and videos: `~/robot-flash-logs/hero-2026-10-01/` on the Mac mini.
 
 First checks on the board:
