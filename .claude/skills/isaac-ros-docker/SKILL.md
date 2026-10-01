@@ -148,21 +148,22 @@ Two things in that file look removable and aren't: the `239.255.0.1` peer
 `maxInitialPeersRange` 32 (at the default 4, remote nodes past participant ID
 3 are never found). A new robot needs its tailscale IP added there.
 
-**Shared memory is on, and it hides nodes from local tooling.** A participant
-using SHM is nearly invisible to `ros2 topic`/`node list` started in a shell on
-that same machine: 1 of 15 nodes on ts-nano-sentry 2026-09-20, against all 15
-from another machine over tailscale. SHM stays on because it is the intra-host
-fast path for the image topics. Instead, `auto.launch.py` pins the small
-high-level publishers (`dji_serial_bridge`, `pose_translator`,
-`odom_tf_broadcaster`, `robot_state_publisher`, `target_tracker`,
-`point_to_cv_target`) to `thornbots_pkg/config/fastdds_udp_only.xml`, so pose,
-odom, TF and the CV target stay greppable from a robot terminal.
+**Shared memory is on. On a robot, logind must not delete it.** The 2026-09-20
+note that SHM hides nodes from a robot shell (1 of 15 in `ros2 node list`) was
+most likely logind's `RemoveIPC=yes`: 10 s after the last ssh session of
+UID 1000 ends, logind deletes that UID's `/dev/shm` files, Fast DDS's
+segments included, and same-host nodes stop hearing each other, the
+localization lifecycle too. With `RemoveIPC=no` (`isaac-ros-startup`
+`install.sh`, 2026-10-01) a robot shell sees all 15 nodes. If it reappears,
+check `ls /dev/shm | grep -c fastrtps` against a node's
+`grep -c fastrtps /proc/<pid>/maps`: mapped but missing means deleted.
 
-So on the robot, a near-empty `ros2 node list` that still shows those nodes is
-working as designed, not broken. Two ways out: check from another machine, or
-`ros2 launch thornbots_pkg auto.launch.py dds_transport:=udp_only`, which puts
-every node that file launches on UDP (not `sentry_localization`'s nodes or the
-camera launch). One-off CLI calls can borrow the profile:
+`auto.launch.py` still pins the small high-level publishers
+(`dji_serial_bridge`, `pose_translator`, `odom_tf_broadcaster`,
+`robot_state_publisher`, `target_tracker`, `point_to_cv_target`) to
+`thornbots_pkg/config/fastdds_udp_only.xml`, and
+`dds_transport:=udp_only` puts every node that file launches on UDP (not
+`sentry_localization`'s nodes or the camera launch). One-off CLI calls can borrow the profile:
 
 ```bash
 export FASTRTPS_DEFAULT_PROFILES_FILE=$(ros2 pkg prefix thornbots_pkg)/share/thornbots_pkg/config/fastdds_udp_only.xml
@@ -213,9 +214,9 @@ check. reference.md covers the official suites and the `--headless` flag.
 - `ros2 topic list` nearly empty, `hz`/`echo` hang, `tf2_echo` says the frame
   doesn't exist, rviz Fixed Frame empty → the DDS profile, above, or a
   `ROS_DOMAIN_ID` mismatch (this image is on 1).
-- Nodes visible from another machine but not from a shell on the robot → SHM,
-  by design. Export the `fastdds_udp_only.xml` profile for your CLI calls, or
-  relaunch with `dds_transport:=udp_only`. See the DDS section.
+- Nodes visible from another machine but not from a shell on the robot, or a
+  lifecycle manager losing a heartbeat → Fast DDS SHM files deleted by
+  logind (`RemoveIPC`). See the DDS section.
 - An edit "had no effect" → two workspaces, above. `ros2 pkg prefix <pkg>`.
 - `ros2 launch sim ...` can't find gz plugins, or `dexec.sh -- bash -c
   'command -v gz'` is empty → `install-sim.sh` hasn't run in this container.
