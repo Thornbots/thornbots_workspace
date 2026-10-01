@@ -9,7 +9,7 @@ laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 the last Humble tree, **frozen**: no more work goes there.
 The robots stay on Humble, running that frozen tree, until step 6.
 
-## Where this stands (2026-09-28)
+## Where this stands (2026-09-30)
 
 The laptop half (steps 0, 2, 3 and 4) is done. `isaac_ros_common`'s `main`
 is upstream `release-4.6` plus our container files, and the image comes
@@ -26,10 +26,10 @@ the baseline step 5 and the robots compare against:
 | The aiming bench, 10 cells | 10/10 | 10/10, every score within 0.004 |
 | The estimation bench, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
 
-Left: step 1 (reflash `ts-nano-dev`, runbook `JAZZY_FLASH.md`), step 5 (the
-hardware checks on it), and step 6 (the robots). Before step 1 wipes the board,
-record the Humble YOLO numbers step 5 compares against; step 0 had no
-camera.
+Step 1 is done (below). Left: step 5 (the hardware checks) and step 6
+(the robots). No Humble YOLO baseline is recorded, and dev and sentry
+are already wiped: take it on `ts-nano-hero` or `ts-nano-standard` before
+either is reflashed.
 
 2026-09-30: both `ts-nano-dev` and `ts-nano-sentry` run L4T R39.2.1.
 `ts-nano-dev` has our image built (36.4 GB). The sentry was reflashed
