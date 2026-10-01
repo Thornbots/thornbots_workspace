@@ -42,6 +42,17 @@ CV:
   alone caps gz near RTF 2.2). Without it, range would have to come from
   the colour image.
 
+Robot ops:
+
+- T20: A better log format on the robots (the user, 2026-10-01). Today
+  each boot-service run is one text file of console output
+  (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
+  counter for a name). About 75% of its lines are `dji_serial_bridge`'s
+  per-frame `ref_sys RX` (10 Hz) and `relocalize TX` INFO lines
+  (`debug_log` defaults true). Options: record `/rosout` per run to MCAP
+  (severity, node and stamp as fields, opens in Foxglove), JSON lines,
+  and per-frame logs at DEBUG or throttled.
+
 ## Tracks, in order of work
 
 Finish the short todos first, then A-C in order, with I before A's E2,
