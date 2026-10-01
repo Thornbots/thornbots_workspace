@@ -34,6 +34,14 @@ Repeatability:
   run is a benchmark; exact repeats aren't the goal. Left: drift runs
   spread 0.16-0.18 m, not yet looked at.
 
+CV:
+
+- T19: See if the depth camera is actually needed (the user, 2026-10-01).
+  Today `roi_depth_node` ranges each detection off the D435's depth, and
+  the match test runs a gz depth camera for it (track D: an RGB-D camera
+  alone caps gz near RTF 2.2). Without it, range would have to come from
+  the colour image.
+
 ## Tracks, in order of work
 
 Finish the short todos first, then A-C in order, with I before A's E2,
