@@ -132,7 +132,11 @@ Suites run one at a time; we are compute-limited.
 
 Keep the gz camera off (`camera:=false`, the default) in every suite but
 the match test, which runs it depth-only (`e2e.launch.py`). A subscribed
-RGB-D camera alone caps a bare server near RTF 2.2.
+RGB-D camera alone caps a bare server near RTF 2.2. Only E1 and E2 use
+it, through `depth_camera_emulator` into the real `roi_depth_node`; the CV
+benches make 3D detections directly and the drift and EKF suites run
+camera-off. If T19 finds depth isn't needed, the match test can drop the
+camera too.
 
 ### E. Benches that start and stop cleanly
 
