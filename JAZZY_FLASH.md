@@ -167,6 +167,14 @@ A forum user fixed an install that hung mid-way by rewriting the stick
 ([post #29](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/29)),
 so do the `cmp`.
 
+For a keyboard-free stick for one robot, use
+`isaac_ros_common/scripts/usb_installer/make_installer_usb.sh --robot <name>
+--iso "$ISO" --out ~/<name>.iso --dev <stick>`. It runs on Arch or macOS
+(`brew install xorriso`; the stick is `/dev/diskN` from
+`diskutil list external`) and does the `cmp` itself. macOS won't mount a
+USB stick's EFI partition without root, so a failed mount there proves
+nothing about the stick.
+
 ## 3. Flash (at the board)
 
 From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/quick_start.html).
@@ -199,6 +207,34 @@ Someone on an Orin Nano Super with NVMe hit this on 2026-09-18
 ([post #118](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/118))
 and it was unresolved at the time. Save the journal to a spare stick and
 stop there.
+
+### If picking the USB disk drops straight back to the boot menu
+
+Hero hit this 2026-10-01 (firmware 36.4.7; dev and sentry didn't). The
+stick is fine. Its `bootaa64.efi` is NVIDIA's L4TLauncher, which boots a
+recovery partition the stick doesn't have, fails and returns. To see it,
+pick UEFI Shell in the boot menu and find the stick (`ls FS4:\EFI\BOOT`,
+trying FS0, FS1, … until one lists `bootaa64`, `grubaa64`, `mmaa64` and
+`shimaa64`). Don't run `map`: its output scrolls off the screen.
+`FS4:\EFI\BOOT\bootaa64.efi` printed "L4TLauncher: Attempting Recovery
+Boot … Failed to boot recovery:1 partition". Two causes, from the
+`edk2-nvidia` source:
+
+1. Setup → Device Manager → NVIDIA Configuration → L4T Configuration →
+   **L4T Boot Mode** was "Recovery Partition". Set it to Application
+   Default. F10 then fails with "Submit Fail For Form: Grace
+   Configuration" (Grace doesn't apply to the Orin); press D to discard that
+   form and the L4T change still saves.
+2. It still went to recovery after that: the launcher's install-slot check
+   (`ValidateRootfsStatus`) found no bootable slot, probably because the
+   JetPack 6 install doesn't keep that state where the JetPack 7 launcher
+   looks. Not confirmed.
+
+Way round both: from the shell run `FS4:\EFI\BOOT\grubaa64.efi`. That
+skips the launcher, so no firmware update prompt appears; the installer
+does that update at "Updating boot firmware". Over USB-C the Mac sees
+nothing until the new system is up. Photos and videos of hero's run:
+`~/robot-flash-logs/hero-2026-10-01/` on the Mac mini.
 
 First checks on the board:
 
