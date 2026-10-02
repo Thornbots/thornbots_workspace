@@ -87,7 +87,7 @@ on the field). Where it stands:
   `chassis_yaw` and `chassis_yaw_rate`, driving a `chassis_yaw` joint under a
   heading-fixed `root` (`thornbots_pkg/README.md`); the head hangs off `root`
   at the MCB's world `head_yaw`. Sim sends it; the wire doesn't yet
-  (`UART_PROTOCOL.md` "Proposed: POSE_MSG chassis yaw"). The stamp is when
+  (`UART_PROTOCOL.md` "Proposed: POSE chassis yaw"). The stamp is when
   the MCB started sending, less unmeasured USB latency.
 
 What it needs, in order:
@@ -102,7 +102,7 @@ What it needs, in order:
 
 W.3's open issues (our side switched 2026-09-27):
 
-1. **Which `odom` the MCB holds in.** The docs call it POSE_MSG's frame, but
+1. **Which `odom` the MCB holds in.** The docs call it POSE's frame, but
    the Jetson's `odom->root` is `/localization/odom` (EKF-fused with rf2o
    when `use_rf2o`), not the MCB's raw odometry, and `mcb_relay`'s
    RELOCALIZE resets the MCB's origin when the two drift apart. An aim point
@@ -128,7 +128,7 @@ well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
 
 | Where | Today | Best the node can do | When |
 |---|---|---|---|
-| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | Since 2026-09-29, the last byte's read time less the frame's wire time at the baud; USB-serial latency not taken off | An MCB millisecond clock on the wire, the mirror of `CV_MSG`'s `stamp_ms`, mapped to ROS time by offset; until then, measure the USB latency on the robot | Before any field test of Part 1 while we move: `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
+| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | Since 2026-09-29, the last byte's read time less the frame's wire time at the baud; USB-serial latency not taken off | An MCB millisecond clock on the wire, the mirror of `CV_TARGET`'s `stamp_ms`, mapped to ROS time by offset; until then, measure the USB latency on the robot | Before any field test of Part 1 while we move: `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
 | Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency | Estimation, on hardware |
 
 `/cmd_vel` stays a bare `Twist`: gz's diff-drive plugin and the harnesses expect
