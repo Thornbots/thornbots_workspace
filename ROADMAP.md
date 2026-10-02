@@ -64,9 +64,12 @@ Robot ops:
   (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
   counter for a name). About 75% of its lines are `dji_serial_bridge`'s
   per-frame `ref_sys RX` (10 Hz) and `relocalize TX` INFO lines
-  (`debug_log` defaults true). Options: record `/rosout` per run to MCAP
-  (severity, node and stamp as fields, opens in Foxglove), JSON lines,
-  and per-frame logs at DEBUG or throttled.
+  (`debug_log` defaults true). Done 2026-10-02: each run also records
+  an MCAP bag of `/rosout` plus the localization, lidar, referee and CV
+  topics, keeps the ROS node logs, and prunes old runs by free disk
+  (`isaac-ros-startup` README.md "Per-run bag"), untested on a robot.
+  Left: the bridge's per-frame logs at DEBUG or throttled, throttled
+  CRC and rf2o per-scan WARNs, its DIAG stats on `/diagnostics`.
 
 ## Tracks, in order of work
 
