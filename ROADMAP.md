@@ -54,6 +54,19 @@ CV:
   hurts, use the lidar to find robots and only turn the gun toward them
   instead of patrolling all the time.
 
+Lidar:
+
+- T22: Can the RPLIDAR's points per scan and scan rate change, and would
+  it help (the user, 2026-10-02)? Questions, not answered yet:
+  - Which scan modes and rates does our model support, and does
+    `sllidar_node` (`auto.launch.py` sets only port, baud and frame) expose
+    them?
+  - What runs today: mode, points per scan, Hz?
+  - Would more points or a faster scan help rf2o, the EKF, amcl or the
+    map, and which matters more?
+  - What does it cost: range, noise, CPU on the Orin, USB bandwidth?
+  - Does a faster scan cut the skew while the head turns (T23)?
+
 Robot ops:
 
 - T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
