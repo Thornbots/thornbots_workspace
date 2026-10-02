@@ -49,6 +49,16 @@ CV:
 
 Robot ops:
 
+- T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
+  user, 2026-10-02). The MCB team updates the auto-drive route for the
+  field. Our side: `auto.launch.py` defaults to `mapping` from a blank map
+  at boot, `mcb_relay` keeps relocalizing from rf2o + EKF
+  (`/localization/odom`), and `map_autosaver` saves the map every 30 s to
+  `maps/<boot time>/` on the workspace. The robot runs its image's
+  packages (`USE_WS_OVERLAY=false`), so it needs a rebuilt image or the
+  overlay. Bring back the maps and logs to judge the map layer:
+  `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
+  since sim's EKF barely drifts; real floors over 5-minute runs decide.
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
   (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
