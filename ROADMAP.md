@@ -66,6 +66,28 @@ Robot ops:
   `/tf`, `/scan`, `/scan_odom`, `/localization/odom` and
   `/localization/map_odom`, so the map layer can be judged offline. A run
   ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
+
+  Shots on Sunday (the user, 2026-10-02). CV can't reach the gun: the
+  firmware (MCBV3 `708b8d6`) drops our 23-byte `CV_MSG`, as it has since
+  `dji_serial_bridge` `1962841` (2026-07-28) cut the 40-byte `CVData`. It
+  still aims, leads and fires on its own from a camera-frame `CVData` with
+  confidence > 0.75 inside 60 deg of the gun (`sim/sim/mcb_emulator/jetson.py`).
+  - Done: with no team colour, `target_selector` shoots at all targets.
+    `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
+  - Proposed, not started: a bridge mode that sends the 40-byte `CVData`
+    with no firmware change. Point: the selected panel in the camera frame
+    (x right, y up, z forward), not lead-applied. Velocity 0 at first, accel
+    0. Confidence 1.0 only when we want shots; else send nothing, since the
+    firmware has no colour, heat or rate gate. Check it in sim first:
+    `test_e2.py` (xfail today) runs that firmware.
+  - On the sentry, nothing in CV has run on Jazzy yet: YOLO fps and depth on
+    a lit panel, bridge diagnostics `pose>0`, the firmware's
+    `CAMERA_*_OFFSET` against `sentry_v2`'s mount, muzzle under 25 m/s.
+    First shots on a stand, eye protection on, e-stop in reach.
+  - The rebuilt image carries both halves: on the Mac,
+    `isaac_ros_common/scripts/build_robot_image.sh ts-nano-sentry`, then
+    restart the service. With no referee, the selector logs `Team colour
+    unknown (robot_id 0)`; `Team colour set to RED` means old code.
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
   (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
