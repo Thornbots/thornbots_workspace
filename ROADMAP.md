@@ -59,6 +59,13 @@ Robot ops:
   overlay. Bring back the maps and logs to judge the map layer:
   `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
   since sim's EKF barely drifts; real floors over 5-minute runs decide.
+  Before Sunday, on the sentry: pull `isaac-ros-startup`, `sudo bash
+  install.sh`, restart the service, and check `~/logs/latest/bag/` fills
+  with `.mcap` files (the per-run bag, T20; unproven on the robot image).
+  Bring back `~/logs/thornbots-run<N>/` with each `.log`: its bag holds
+  `/tf`, `/scan`, `/scan_odom`, `/localization/odom` and
+  `/localization/map_odom`, so the map layer can be judged offline. A run
+  ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
   (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
