@@ -68,21 +68,28 @@ Robot ops:
   ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
 
   Shots on Sunday (the user, 2026-10-02). CV can't reach the gun: the
-  firmware (MCBV3 `708b8d6`) drops our 23-byte `CV_MSG`, as it has since
-  `dji_serial_bridge` `1962841` (2026-07-28) cut the 40-byte `CVData`. It
-  still aims, leads and fires on its own from a camera-frame `CVData` with
-  confidence > 0.75 inside 60 deg of the gun (`sim/sim/mcb_emulator/jetson.py`).
+  firmware (MCBV3 `708b8d6`, `newMain` untouched since 2026-09-27) drops
+  our 23-byte `CV_MSG` on its size check; it still expects the 40-byte
+  `CVData` that `dji_serial_bridge` `1962841` (2026-07-28) dropped. New
+  format only: the bridge doesn't fall back to the old one (the user,
+  2026-10-02), so the firmware has to take `CV_MSG` as `UART_PROTOCOL.md`
+  has it.
   - Done: with no team colour, `target_selector` shoots at all targets.
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
-  - Proposed, not started: a bridge mode that sends the 40-byte `CVData`
-    with no firmware change. Point: the selected panel in the camera frame
-    (x right, y up, z forward), not lead-applied. Velocity 0 at first, accel
-    0. Confidence 1.0 only when we want shots; else send nothing, since the
-    firmware has no colour, heat or rate gate. Check it in sim first:
-    `test_e2.py` (xfail today) runs that firmware.
+  - Firmware, MCB team: `ros2_dji_serial_bridge/README.md` "Where the
+    firmware stands" items 1-4. Take the 23-byte payload; aim at `x/y/z`
+    as an `odom` point, not a camera-frame one; fire on the `fire` bit after
+    `delay_ms`, not on its 60 deg rule; don't lead when `lead_applied` is
+    set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
+    for Sunday, aiming at the latest point every frame skips holding it.
+  - Our side: port the change into `sim`'s MCB emulator, then
+    `e2e.launch.py stage:=e2` and `test_e2.py` (xfail today) should score.
+    That checks the firmware change before it reaches the robot.
   - On the sentry, nothing in CV has run on Jazzy yet: YOLO fps and depth on
-    a lit panel, bridge diagnostics `pose>0`, the firmware's
-    `CAMERA_*_OFFSET` against `sentry_v2`'s mount, muzzle under 25 m/s.
+    a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
+    `odom` point rides on our TF, so check `head_yaw`'s sign and
+    `POSE_MSG`'s x/y axes (bridge README items 7-8): a panel straight
+    ahead should land straight ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
   - The rebuilt image carries both halves: on the Mac,
     `isaac_ros_common/scripts/build_robot_image.sh ts-nano-sentry`, then
