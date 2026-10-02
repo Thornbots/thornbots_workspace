@@ -250,16 +250,18 @@ boot doesn't. Ctrl-C prints a traceback from every Python node (bare
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
 stops every node it started, with no tracebacks and no orphans.
 
-### F. CV nodes into their own package
+### F. CV nodes into their own repo
 
-Move `target_selector`, `target_tracker` and `point_to_cv_target`, their
-`*_core.py` and tests from `thornbots_pkg` to a new `thornbots_cv`.
+Later, not before Sunday (the user, 2026-10-02). Move most of the CV
+aiming code, `target_selector`, `target_tracker` and `point_to_cv_target`
+with its patrol, their `*_core.py` and tests, from `thornbots_pkg` to a new
+`thornbots_cv` package in its own repo.
 `thornbots_pkg` keeps the hardware interface, URDF, TF and `mcb_relay`. A
 new submodule means a new `Thornbots/` repo, a `.gitmodules` entry and a
 `Dockerfile.thornbots` build line. Everything naming
 `package='thornbots_pkg'` for those nodes follows: `auto.launch.py` (with
-its UDP-only DDS pinning) and `sim`'s `sim.launch.py`, `shot_hit.launch.py`
-and `estimation.launch.py`. Do it between bench runs, and re-run both
+its UDP-only DDS pinning) and `sim`'s `sim.launch.py`, `shot_hit.launch.py`,
+`estimation.launch.py` and `e2e.launch.py`. Do it between bench runs, and re-run both
 benches after to show nothing moved.
 
 ### H. SLAM at amcl's level
