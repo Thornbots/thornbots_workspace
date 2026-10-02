@@ -79,7 +79,7 @@ Robot ops:
   - Firmware, MCB team: `ros2_dji_serial_bridge/README.md` "Where the
     firmware stands" items 1-4. Take the 23-byte payload; aim at `x/y/z`
     as an `odom` point, not a camera-frame one; fire on the `fire` bit after
-    `delay_ms`, not on its 60 deg rule; don't lead when `lead_applied` is
+    `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
     for Sunday, aiming at the latest point every frame skips holding it.
   - Our side: port the change into `sim`'s MCB emulator, then
