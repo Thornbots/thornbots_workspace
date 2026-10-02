@@ -96,6 +96,7 @@ Robot ops:
   - Our side: port the change into `sim`'s MCB emulator, then
     `e2e.launch.py stage:=e2` and `test_e2.py` (xfail today) should score.
     That checks the firmware change before it reaches the robot.
+  - YOLO runs at about 58 fps (the user, 2026-10-02).
   - Patrol: `point_to_cv_target` sweeps the gun with no target and faces
     hits off `ref_sys`, never firing (2026-10-02). Firmware that fires on
     every frame would fire all through it: run `patrol_enabled:=false`
