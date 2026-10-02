@@ -46,6 +46,13 @@ CV:
   the match test runs a gz depth camera for it (track D: an RGB-D camera
   alone caps gz near RTF 2.2). Without it, range would have to come from
   the colour image.
+- T23: Does the patrol hurt the lidar (the user, 2026-10-02)? The lidar
+  is on the head, so `point_to_cv_target`'s patrol (`thornbots_pkg`
+  README, 2026-10-02) turns it at 2 rad/s, about 0.2 rad per scan at
+  10 Hz, where a held head keeps it still in the world. Check rf2o, the EKF and
+  the map with the patrol on against off, in sim and on the robot. If it
+  hurts, use the lidar to find robots and only turn the gun toward them
+  instead of patrolling all the time.
 
 Robot ops:
 
@@ -89,7 +96,12 @@ Robot ops:
   - Our side: port the change into `sim`'s MCB emulator, then
     `e2e.launch.py stage:=e2` and `test_e2.py` (xfail today) should score.
     That checks the firmware change before it reaches the robot.
-  - On the sentry, nothing in CV has run on Jazzy yet: YOLO fps and depth on
+  - Patrol: `point_to_cv_target` sweeps the gun with no target and faces
+    hits off `ref_sys`, never firing (2026-10-02). Firmware that fires on
+    every frame would fire all through it: run `patrol_enabled:=false`
+    unless the firmware fires on the bit alone. On the robot, check the
+    sweep direction and that a hit turns the gun toward it.
+  - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `head_yaw`'s sign and
     `POSE`'s x/y axes (bridge README items 7-8): a panel straight
