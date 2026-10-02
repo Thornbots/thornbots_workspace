@@ -21,3 +21,6 @@ sim/
 # isaac_ros_common ships the Dockerfiles and configs; only docker/ is COPYed.
 isaac_ros_common/*
 !isaac_ros_common/docker/
+
+# MCB firmware (opt-in submodule, see README.md "MCB firmware"); never in the image.
+firmware/
