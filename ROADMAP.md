@@ -80,8 +80,8 @@ Robot ops:
     names and the 19- and 8-byte layouts, so `CV_TARGET` and `RELOCALIZE`
     frames get through; it compiles (gcc 10, all three robots) but doesn't
     aim or fire on CV yet. Thornbots/MCBV3#73 (open) lets the firmware
-    build on Linux. Left, MCB team: bridge README "Where the firmware
-    stands" items 2-4. Take the 19-byte payload; aim at `x/y/z`
+    build on Linux. Left, MCB team: aiming and firing on `CV_TARGET`,
+    Thornbots/MCBV3#77 (bridge README "Where the firmware stands" items 2-4). Take the 19-byte payload; aim at `x/y/z`
     as an `odom` point, not a camera-frame one; fire on the `fire` bit after
     `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
