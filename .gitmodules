@@ -38,3 +38,8 @@
 	path = isaac-ros-startup
 	url = https://github.com/Thornbots/isaac-ros-startup.git
 	branch = main
+[submodule "firmware/MCBV3"]
+	path = firmware/MCBV3
+	url = https://github.com/Thornbots/MCBV3.git
+	branch = newMain
+	update = none
