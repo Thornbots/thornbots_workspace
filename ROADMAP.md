@@ -69,7 +69,7 @@ Robot ops:
 
   Shots on Sunday (the user, 2026-10-02). CV can't reach the gun: the
   firmware (MCBV3 `708b8d6`, `newMain` untouched since 2026-09-27) drops
-  our 23-byte `CV_MSG` on its size check; it still expects the 40-byte
+  our 19-byte `CV_MSG` on its size check; it still expects the 40-byte
   `CVData` that `dji_serial_bridge` `1962841` (2026-07-28) dropped. New
   format only: the bridge doesn't fall back to the old one (the user,
   2026-10-02), so the firmware has to take `CV_MSG` as `UART_PROTOCOL.md`
@@ -77,7 +77,7 @@ Robot ops:
   - Done: with no team colour, `target_selector` shoots at all targets.
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
   - Firmware, MCB team: `ros2_dji_serial_bridge/README.md` "Where the
-    firmware stands" items 1-4. Take the 23-byte payload; aim at `x/y/z`
+    firmware stands" items 1-4. Take the 19-byte payload; aim at `x/y/z`
     as an `odom` point, not a camera-frame one; fire on the `fire` bit after
     `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
@@ -130,7 +130,7 @@ not from `UART_PROTOCOL.md` alone (the user, 2026-09-28). Built
 (2026-10-01): `sim/mcb_emulator/` ports MCBV3 `708b8d6`, and
 `e2e.launch.py stage:=e2` runs it on a pty against `dji_serial_bridge`
 and `mcb_relay` (`sim/README.md` "MCB emulator"). E2 scores nothing yet:
-the firmware refuses our 23-byte `CV_MSG` (its `CVData` is 40 bytes), so
+the firmware refuses our 19-byte `CV_MSG` (its `CVData` is 40 bytes), so
 it only patrols, and `test_e2.py` is xfail. The thirteen gaps from
 `UART_PROTOCOL.md` are in `ros2_dji_serial_bridge/README.md` "Where the
 firmware stands"; each goes to the firmware side. Yaw holds within 2 deg
