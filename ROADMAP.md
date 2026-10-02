@@ -69,15 +69,19 @@ Robot ops:
 
   Shots on Sunday (the user, 2026-10-02). CV can't reach the gun: the
   firmware (MCBV3 `708b8d6`, `newMain` untouched since 2026-09-27) drops
-  our 19-byte `CV_MSG` on its size check; it still expects the 40-byte
-  `CVData` that `dji_serial_bridge` `1962841` (2026-07-28) dropped. New
-  format only: the bridge doesn't fall back to the old one (the user,
-  2026-10-02), so the firmware has to take `CV_MSG` as `UART_PROTOCOL.md`
-  has it.
+  our 19-byte `CV_TARGET` (the firmware's `CV_MSG`) on its size check; it
+  still expects the 40-byte `CVData` that `dji_serial_bridge` `1962841`
+  (2026-07-28) dropped. New format only: the bridge doesn't fall back to
+  the old one (the user, 2026-10-02), so the firmware has to take
+  `CV_TARGET` as `UART_PROTOCOL.md` has it.
   - Done: with no team colour, `target_selector` shoots at all targets.
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
-  - Firmware, MCB team: `ros2_dji_serial_bridge/README.md` "Where the
-    firmware stands" items 1-4. Take the 19-byte payload; aim at `x/y/z`
+  - Firmware: Thornbots/MCBV3#74 (open, 2026-10-02) takes our message
+    names and the 19- and 8-byte layouts, so `CV_TARGET` and `RELOCALIZE`
+    frames get through; it compiles (gcc 10, all three robots) but doesn't
+    aim or fire on CV yet. Thornbots/MCBV3#73 (open) lets the firmware
+    build on Linux. Left, MCB team: bridge README "Where the firmware
+    stands" items 2-4. Take the 19-byte payload; aim at `x/y/z`
     as an `odom` point, not a camera-frame one; fire on the `fire` bit after
     `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
@@ -88,7 +92,7 @@ Robot ops:
   - On the sentry, nothing in CV has run on Jazzy yet: YOLO fps and depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `head_yaw`'s sign and
-    `POSE_MSG`'s x/y axes (bridge README items 7-8): a panel straight
+    `POSE`'s x/y axes (bridge README items 7-8): a panel straight
     ahead should land straight ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
   - The rebuilt image carries both halves: on the Mac,
@@ -130,8 +134,9 @@ not from `UART_PROTOCOL.md` alone (the user, 2026-09-28). Built
 (2026-10-01): `sim/mcb_emulator/` ports MCBV3 `708b8d6`, and
 `e2e.launch.py stage:=e2` runs it on a pty against `dji_serial_bridge`
 and `mcb_relay` (`sim/README.md` "MCB emulator"). E2 scores nothing yet:
-the firmware refuses our 19-byte `CV_MSG` (its `CVData` is 40 bytes), so
-it only patrols, and `test_e2.py` is xfail. The thirteen gaps from
+the firmware refuses our 19-byte `CV_TARGET` (its `CVData` is 40 bytes),
+so it only patrols, and `test_e2.py` is xfail. MCBV3#74 takes the frame
+but doesn't aim yet. The thirteen gaps from
 `UART_PROTOCOL.md` are in `ros2_dji_serial_bridge/README.md` "Where the
 firmware stands"; each goes to the firmware side. Yaw holds within 2 deg
 over a match (the user).

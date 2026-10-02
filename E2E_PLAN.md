@@ -78,14 +78,14 @@ and the regular run (unit tests, then the match test) fits 10 minutes, and
 | Opponents | `target_driver` is a phantom; `actor_driver` spawns plain boxes | Spawn N `sentry_v2` copies, each with a team. One `opponent_driver` node moves them all along `target_driver`'s path profiles with chassis spin, aims each head at our panels from truth with added noise, and fires at a set rate |
 | An ally | None | One copy on our team, so the selector has to drop its panels and we must never fire at it |
 | Detector stand-in | Nothing publishes `/detections_output` in sim | For every panel on every other robot: look up its pose at the depth image's stamp, project the corners through `CameraInfo`, and keep it if it faces the camera (the 145 deg exposure cone), lands in the image, and the rendered depth at its centre agrees with its projected depth. The depth check gives occlusion by the field and other robots for free. Publishes the `Detection2DArray` YOLO would, in network space with the 640x640 letterbox `roi_depth_node` now undoes, class by team (blue 0-3, red 4-7), stamped with the image stamp. Pixel jitter and dropout are parameters, off at first |
-| MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | ROADMAP.md track I: a node on the other end of a pty from `dji_serial_bridge`, copied from the real firmware (`Thornbots/MCBV3`), where it and this row differ the firmware wins. Sends `POSE_MSG` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS_MSG` at 5 Hz from the referee emulator. Decodes `CV_MSG`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
+| MCB emulator | `pose_emulator` publishes `/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire | ROADMAP.md track I: a node on the other end of a pty from `dji_serial_bridge`, copied from the real firmware (`Thornbots/MCBV3`), where it and this row differ the firmware wins. Sends `POSE` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS` at 5 Hz from the referee emulator. Decodes `CV_TARGET`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
 | Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 2 m/s^2 (`drive(accel=)` in `drift_harness.py`; the user, 2026-09-28). The MCB holds yaw within 2 deg over a match |
-| Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `deltaAngleGotHitIn`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS_MSG` |
+| Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `delta_angle_got_hit_in`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS` |
 | Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. The aiming bench already scores the canted square (`off_face` in `shot_hit_harness.py`) |
 
-Driving comes from sim for now. `ROS_MSG` goals have no publisher in this
+Driving comes from sim for now. `NAV_GOAL` goals have no publisher in this
 workspace, and navigation comes after the Midwest competition. Once a
-planner exists, a later stage hands the route to it over `ROS_MSG`.
+planner exists, a later stage hands the route to it over `NAV_GOAL`.
 
 Opponents run a truth-fed aimer, not a copy of our stack, because two full
 stacks don't fit the compute budget. A red-against-blue run with two real
@@ -102,9 +102,9 @@ from stage to stage, so a drop belongs to the hops that stage added.
    tracker and `point_to_cv_target` feed `cv_head_aim`.
 2. E2, the wire. `dji_serial_bridge` and `mcb_relay` on a pty against the
    MCB emulator, which replaces `pose_emulator`, `cv_head_aim` and the team
-   stub. Tests the `CV_MSG` packing, the stamps both ways, the fire path,
-   and `REF_SYS_MSG` into the selector. `stage:=e2` runs it (2026-10-01);
-   it fires nothing until the firmware reads our `CV_MSG` (ROADMAP track I).
+   stub. Tests the `CV_TARGET` packing, the stamps both ways, the fire path,
+   and `REF_SYS` into the selector. `stage:=e2` runs it (2026-10-01);
+   it fires nothing until the firmware reads our `CV_TARGET` (ROADMAP track I).
 3. E3, driving while shooting. Our robot drives the scripted route: straight
    at 1 and 2 m/s, a 90 deg turn while driving, and spinning in place.
    Localization from gz lidar is in the loop, so its error at fire time
