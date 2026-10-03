@@ -202,6 +202,15 @@ automatic (the user, 2026-10-03), cheapest first:
   `PLATFORM_HOSTED` taproot's `Uart` reads nothing and writes nowhere
   (`uart.cpp`), so it needs a UART-to-pty shim; motors and IMU would come
   from taproot's `motorsim` wired to gz. Then each firmware commit runs as is.
+- A real Type C emulator (the user, 2026-10-03): emulate the board's
+  STM32F407 and run the same `.elf` we flash, not a host build. It's the
+  only way to catch what the host build hides: the real UART and DMA
+  drivers, interrupt timing, the 1 kHz loop's overruns, `-O` and float
+  behaviour. Candidates to check first: Renode (STM32F4 platforms, UART to
+  pty) and QEMU's STM32F405 board. Peripherals to model: the Jetson UART on a
+  pty, the referee UART, the remote's DBUS, the BMI088 IMU on SPI, and the
+  DJI motors on CAN, bridged to gz. Most work of the three; the hosted build
+  first.
 
 **Done when** the emulator runs the firmware's Jetson, aim-and-fire and
 auto-drive logic against `dji_serial_bridge` on a pty, and E2 scores
