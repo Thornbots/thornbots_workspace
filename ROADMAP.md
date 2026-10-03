@@ -58,6 +58,22 @@ CV:
   hurts, use the lidar to find robots and only turn the gun toward them
   instead of patrolling all the time.
 
+Tests:
+
+- T24: One name per test, for what it tests, used by its launch file,
+  test file and the docs alike (the user, 2026-10-03). After Sunday.
+  Each has three names today ("aiming bench" is `shot_hit.launch.py` and
+  `test_shot_hit.py`). New names:
+  - `localization_drift` (was `localization_tests.launch.py`, the drift suite)
+  - `ekf` (was `suite:=ekf`, `test_ekf_ground_truth.py`)
+  - `aim` (was `shot_hit`, the aiming bench)
+  - `tracking` (was `estimation`, the estimation bench)
+  - `cv_chain` (was `e2e.launch.py`'s E1, the match test)
+  - `firmware_link` (was `stage:=e2`)
+
+  E1-E4 in `E2E_PLAN.md` and the CV plan names go too. About 200 doc
+  references across 20 files, plus the isaac-ros-docker skill.
+
 Lidar:
 
 - T22: Can the RPLIDAR's points per scan and scan rate change, and would
