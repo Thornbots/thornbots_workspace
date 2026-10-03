@@ -115,9 +115,9 @@ Robot ops:
   bash install.sh` in `isaac-ros-startup` (the clock fix, T27), build the
   image on the sentry on wall power (T29), restart the service, and check
   `~/logs/latest/bag/` fills with `.mcap` files (the per-run bag, T20;
-  unproven on the robot image). Then one boot with Wi-Fi: expect one
-  `[clock] wall clock stepped` line and one restart in the journal, no
-  `negative time point` abort, the camera up after it.
+  unproven on the robot image). Then one boot air-gapped with Wi-Fi
+  turned on mid-run: no `[clock]` line, no restart, no `negative time
+  point` abort, `systemd-timesyncd` inactive until the service stops.
   Bring back `~/logs/thornbots-run<N>/` with each `.log`: its bag holds
   `/tf`, `/scan`, `/scan_odom`, `/localization/odom` and
   `/localization/map_odom`, so the map layer can be judged offline. A run
@@ -196,10 +196,11 @@ Robot ops:
   (`cannot store a negative time point in rclcpp::Time`). Air-gapped,
   no jump. `Realsense_ROI_Depth_Rectifier` `d6caa99` no longer throws on
   such stamps; `isaac-ros-startup` now restores timesyncd's saved time after
-  the RTC's hctosys and restarts the stack on any step over 1 s (README.md
-  "Clock steps restart the stack"). The restore, the watcher and
-  systemd's restart pass on `ts-nano-dev`'s host with `docker` stubbed
-  (2026-10-03; dev has no camera). Left: a sentry boot with Wi-Fi, T21.
+  the RTC's hctosys, stops timesyncd for each run so Wi-Fi mid-match
+  can't step the clock (it syncs between runs), and restarts the stack on
+  any step over 1 s anyway (README.md "Clock steps restart the stack").
+  Passes on `ts-nano-dev`'s host with `docker` stubbed (2026-10-03; dev
+  has no camera). Left: a sentry boot with Wi-Fi, T21.
 - T29: Each robot builds its own image, faster (the user, 2026-10-03).
   Building on the Mac mini is a stopgap, not the way forward. `ts-nano-dev`'s local
   `build_robot_image.sh` took 29 min with `isaac_ros` and `realsense`
