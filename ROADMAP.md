@@ -109,27 +109,26 @@ Robot ops:
 
   Shots on Sunday (the user, 2026-10-02). CV can't reach the gun: the
   firmware (MCBV3 `708b8d6`, `newMain` untouched since 2026-09-27) drops
-  our 19-byte `CV_TARGET` (the firmware's `CV_MSG`) on its size check; it
+  our 15-byte `CV_TARGET` (the firmware's `CV_MSG`) on its size check; it
   still expects the 40-byte `CVData` that `dji_serial_bridge` `1962841`
   (2026-07-28) dropped. New format only: the bridge doesn't fall back to
   the old one (the user, 2026-10-02), so the firmware has to take
   `CV_TARGET` as `UART_PROTOCOL.md` has it.
   - Done: with no team colour, `target_selector` shoots at all targets.
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
-  - Firmware: Thornbots/MCBV3#74 (open, 2026-10-02) takes our message
-    names and the 19- and 8-byte layouts, so `CV_TARGET` and `RELOCALIZE`
-    frames get through; it compiles (gcc 10, all three robots) but doesn't
-    aim or fire on CV yet. Thornbots/MCBV3#73 (open) lets the firmware
-    build on Linux. Left, MCB team: aiming and firing on `CV_TARGET`,
-    Thornbots/MCBV3#77 (bridge README "Where the firmware stands" items 2-4). Take the 19-byte payload; aim at `x/y/z`
+  - Firmware: Thornbots/MCBV3#74 closed 2026-10-03, done on
+    `position-based-cv`. Left, MCB team: aiming and firing on `CV_TARGET`,
+    Thornbots/MCBV3#77 (bridge README "Where the firmware stands" items 2-4). Take the 15-byte payload; aim at `x/y/z`
     as an `odom` point, not a camera-frame one; fire on the `fire` bit after
     `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
     for Sunday, aiming at the latest point every frame skips holding it.
   - The MCB team's `position-based-cv` (MCBV3 `f835be1`) aims at our
-    `odom` point and fires on the bit, but its `CvTarget` dropped
-    `stamp_ms` (15 bytes against our 19, all refused) and `delay_ms - 5`
-    wraps under 5 ms. Ported to the emulator with both fixed (track I),
+    `odom` point and fires on the bit, but `delay_ms - 5` wraps under
+    5 ms. Its `CvTarget` has no `stamp_ms`, so on 2026-10-03 the bridge
+    dropped it too (15 bytes): before that the sentry refused every frame
+    and the gun held still through patrol. Ported to the emulator with the
+    delay fixed (track I),
     E2 still hits nothing: the MCB's odometry and our `odom` differ by a
     turn. Check the axes on the robot before trusting a shot.
   - YOLO runs at about 58 fps (the user, 2026-10-02).
@@ -206,9 +205,8 @@ not from `UART_PROTOCOL.md` alone (the user, 2026-09-28).
 (2026-10-03), the MCB team's aim at our `odom` point, and
 `e2e.launch.py stage:=e2` runs it on a pty against `dji_serial_bridge`
 and `mcb_relay` (`sim/README.md` "MCB emulator"). `firmware_fixes`
-(default on) adds the two fixes asked of that branch: keep `stamp_ms`
-(the branch's `CvTarget` is 15 bytes, so it refuses all our frames) and
-clamp `delay_ms - 5` at 0. With them the frames get through but E2 hits
+(default on) adds the fix asked of that branch: clamp `delay_ms - 5`
+at 0. The frames get through (15 bytes both sides) but E2 hits
 nothing: the gun turns away, since `pose_translator` reads POSE's x right,
 y forward as REP-105 and `RELOCALIZE` moves the MCB's odometry into our
 `odom`'s numbers. `test_e2.py` stays xfail on that. The bridge README's
