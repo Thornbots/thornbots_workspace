@@ -19,7 +19,7 @@ never runs `isaac-ros activate` in any form (the rule at the top of
 ## Container lifecycle
 
 ```bash
-export ISAAC_ROS_WS=~/workspaces/isaac_ros-dev   # the workspace holding src/
+export ISAAC_ROS_WS=~/workspaces/isaac_ros-jazzy   # the workspace holding src/
 isaac-ros activate
 ```
 
@@ -298,6 +298,9 @@ the second was:
    to only the explicit `initialPeersList` peer. Already fixed previously; if
    it regresses, `ros2 topic hz`/`echo` hang with zero data despite `ros2
    topic info --verbose` showing a match.
+   (Since 2026-09-14 the profile sets `false` on purpose, redeclaring SHM +
+   UDPv4 as user transports for `maxInitialPeersRange`; it works because
+   `239.255.0.1` stays in the peers list.)
 2. **The bigger, sneakier one**: even with `useBuiltinTransports=true`, an
    explicit `<initialPeersList>` unicast peer that's unreachable (the real
    robot's tethered IP `192.168.55.1`, unreachable during any sim/dev session
@@ -308,6 +311,8 @@ the second was:
    `<initialPeersList>` from `fastdds_cable.xml` entirely; normal multicast
    discovery already reaches the real robot over the tethered link when it's
    actually connected.
+   (Superseded 2026-09-14: the list is back with `239.255.0.1` and the
+   robots' tailscale IPs; see "Cross-machine ROS 2 over Tailscale".)
 
 A red herring chased along the way: `RMW_FASTRTPS_PUBLICATION_MODE=ASYNCHRONOUS`
 (previously set in `/etc/bash.bashrc` via `Dockerfile.thornbots`) was removed
