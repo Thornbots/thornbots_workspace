@@ -168,6 +168,19 @@ Robot ops:
   (T20). Open: a fixed struct or tagged key/value fields, its rate, and
   the bandwidth left on the 115200-baud link. Spec it in
   `UART_PROTOCOL.md` and land it on both sides (bridge, MCBV3).
+- T26: Two types on `/pose` in mapping mode (2026-10-03, sentry run 16).
+  `dji_serial_bridge` publishes `RobotPose` there, and slam_toolbox's
+  `PoseWithCovarianceStamped` lands on it too, which
+  `localization.launch.py:151` reads. The bag refuses the topic ("more
+  than one type"). Rename one side.
+- T27: The camera container dies when NTP steps the clock (2026-10-03,
+  sentry). The RTC (`nvvrs-pseq-rtc`) resets the clock to 1970 at 10 s,
+  after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
+  at ~49 s, RealSense stamps go wild and `component_container_mt` aborts
+  (`cannot store a negative time point in rclcpp::Time`). Air-gapped,
+  no jump. Since `isaac-ros-startup` `beb8a3d` the service restarts after
+  it. Fix: keep the RTC from overwriting the restored time, or wait
+  briefly for sync before starting the camera.
 
 ## Tracks, in order of work
 
