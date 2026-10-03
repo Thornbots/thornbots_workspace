@@ -36,8 +36,12 @@ Repeatability:
   `staggered-speed4` 0.968-0.981. E1 isn't, and looks broken since
   2026-09-29: three runs failed 11, 10 and 8 of 12 cases, most firing no
   shots at all (both still radial and diagonal cells in every run), only
-  stationary-lateral hitting 95-100%. Find why before measuring its
-  spread. Left: drift and EKF runs, not yet measured.
+  stationary-lateral hitting 95-100%. 2026-10-03: every radial and
+  diagonal cell gets no valid `TargetState`, even run alone from a fresh
+  stack (a still target at (3.5, 0) gets 5 detections in 15 s, one at
+  (3.0, 0) hits 100%). So it's E1's sim, not the CV nodes: look at
+  `detector_standin`'s 0.1 m depth check against where the gz opponent
+  really is. Find why before measuring its spread. Left: drift and EKF runs, not yet measured.
 
 CV:
 
