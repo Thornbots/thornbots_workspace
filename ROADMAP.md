@@ -111,9 +111,13 @@ Robot ops:
   overlay. Bring back the maps and logs to judge the map layer:
   `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
   since sim's EKF barely drifts; real floors over 5-minute runs decide.
-  Before Sunday, on the sentry: pull `isaac-ros-startup`, `sudo bash
-  install.sh`, restart the service, and check `~/logs/latest/bag/` fills
-  with `.mcap` files (the per-run bag, T20; unproven on the robot image).
+  Before Sunday, on the sentry: pull `main` with its submodules, `sudo
+  bash install.sh` in `isaac-ros-startup` (the clock fix, T27), build the
+  image on the sentry on wall power (T29), restart the service, and check
+  `~/logs/latest/bag/` fills with `.mcap` files (the per-run bag, T20;
+  unproven on the robot image). Then one boot with Wi-Fi: expect one
+  `[clock] wall clock stepped` line and one restart in the journal, no
+  `negative time point` abort, the camera up after it.
   Bring back `~/logs/thornbots-run<N>/` with each `.log`: its bag holds
   `/tf`, `/scan`, `/scan_odom`, `/localization/odom` and
   `/localization/map_odom`, so the map layer can be judged offline. A run
@@ -155,9 +159,10 @@ Robot ops:
     `POSE`'s x/y axes (bridge README items 7-8): a panel straight
     ahead should land straight ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
-  - The rebuilt image carries both halves: on the Mac,
-    `isaac_ros_common/scripts/build_robot_image.sh ts-nano-sentry`, then
-    restart the service. With no referee, the selector logs `Team colour
+  - The rebuilt image carries both halves: on the sentry,
+    `isaac_ros_common/scripts/build_robot_image.sh` (no host args), then
+    restart the service. `ts-nano-dev` has one from `ff2c4ba`'s tree
+    (2026-10-03) if the sentry's build runs too long. With no referee, the selector logs `Team colour
     unknown (robot_id 0)`; `Team colour set to RED` means old code.
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
@@ -192,8 +197,21 @@ Robot ops:
   no jump. `Realsense_ROI_Depth_Rectifier` `d6caa99` no longer throws on
   such stamps; `isaac-ros-startup` now restores timesyncd's saved time after
   the RTC's hctosys and restarts the stack on any step over 1 s (README.md
-  "Clock steps restart the stack"). Untested on a robot: needs
-  `install.sh` on the sentry and a boot with Wi-Fi.
+  "Clock steps restart the stack"). The restore, the watcher and
+  systemd's restart pass on `ts-nano-dev`'s host with `docker` stubbed
+  (2026-10-03; dev has no camera). Left: a sentry boot with Wi-Fi, T21.
+- T29: Each robot builds its own image, faster (the user, 2026-10-03).
+  Building on the Mac mini is a stopgap, not the way forward. `ts-nano-dev`'s local
+  `build_robot_image.sh` took 29 min with `isaac_ros` and `realsense`
+  cached: apt layer 502 s (5.46 GB re-downloaded because one package
+  joined the `apt-get install` line), rosdep 84 s, colcon 172 s, and
+  888 s exporting, which is the containerd image store gzipping each new
+  layer on the CPU. To try: zstd or no compression on the local export;
+  new apt packages in a small layer of their own, plus an apt cache
+  mount; ccache in a cache mount for colcon; for code-only changes,
+  `USE_WS_OVERLAY=true` and an incremental `colcon build`, no image.
+  A robot with no BuildKit cache (image pulled, not built) rebuilds
+  librealsense once.
 
 ## Tracks, in order of work
 
