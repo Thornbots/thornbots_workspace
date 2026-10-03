@@ -61,7 +61,7 @@ Push anything the last block lists before going further. Keep
 ### 1.3 Files to copy off
 
 Models first. `yolo11s_fp16.plan` won't load on JetPack 7.2's TensorRT, so
-the ONNX is what matters (`JAZZY_PLAN.md`, Runtime and hardware). If no
+the ONNX is what matters (`JAZZY_PLAN.md`, What still has to be checked on hardware). If no
 `.onnx` turns up, stop and find it before flashing.
 
 ```bash
@@ -337,7 +337,7 @@ reconnect.
 
 ## 5. Kernel 6.8 hardware checks (host, no container)
 
-Compare each with `inventory.txt` (`JAZZY_PLAN.md`, Runtime and hardware).
+Compare each with `inventory.txt` (`JAZZY_PLAN.md`, What still has to be checked on hardware).
 
 ```bash
 # DJI serial bridge UART: same ttyTHS1 -> same *.serial address as before?
@@ -417,7 +417,7 @@ docker run --rm --gpus all ubuntu:24.04 bash -lc 'echo "NVIDIA runtime OK"'
 ```
 
 Initialise the CLI and a workspace. Jazzy machines use domain 1 until
-cutover (`JAZZY_PLAN.md`, Runtime and hardware):
+cutover (`JAZZY_PLAN.md`, What still has to be checked on hardware):
 
 ```bash
 sudo isaac-ros init docker

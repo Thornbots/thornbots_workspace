@@ -38,20 +38,10 @@ Dev status, priorities, and open work are not tracked here: each package's
 
 - **Holonomic chassis** (e.g. mecanum/omni wheels): can translate in any
   direction without changing heading.
-- **Does not turn/rotate its chassis heading during matches.** Heading stays
-  fixed; all repositioning is pure translation. Deliberate design choice,
-  likely so the gimbal/turret aims independently of chassis facing and
-  armor-panel orientation stays predictable toward expected threat
-  directions.
-- **Implication for SLAM/nav**: no need to plan or reason about heading
-  changes. The planner can treat orientation as constant and optimize
-  purely over (x, y) translation. Costmaps/footprints should still account
-  for the fixed heading's asymmetric footprint (if any) since it never
-  rotates to present a different profile.
-- **Implication for firing-timing (later)**: since chassis heading is fixed,
-  gimbal/turret aim is fully decoupled from chassis motion. There's no need to
-  coordinate "stop translating before firing" the way a differential-drive
-  robot might need to stop turning to stabilize aim.
+- **Spins its chassis while driving.** The firmware's route runs at -8 rad/s
+  moving and -12 at either end (`sim/README.md` Notes, "MCB emulator"), so the
+  head holds world yaw and CV aims at an `odom` point, not a chassis-relative
+  one. Don't plan on a fixed heading or footprint orientation.
 
 ## Battlefield geometry (§3.2): relevant to SLAM/nav
 

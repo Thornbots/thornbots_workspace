@@ -17,7 +17,7 @@ we move is the long work left.
   predicts to it; `camera_latency_s` backs capture time out of the
   detection stamp. Part 1 does no latency correction.
 - The estimation bench (`sim/launch/estimation.launch.py`, `bench_world`,
-  one C++ lockstep loop, no gz) runs ten cells in ~75 s. `LIMITS`
+  one C++ lockstep loop, no gz) runs 12 cells in ~30 s. `LIMITS`
   (`sim/test/cv/estimation_limits_data.py`, 2026-09-27) covers all 60
   cells at 2x the worst of three to six runs, floored at 0.02.
 - Results: stationary under 2 cm facing-panel p95; moving 0.08-0.19 m.
@@ -96,7 +96,7 @@ What it needs, in order:
 |---|---|---|
 | W.1 | `ros2_dji_serial_bridge`, firmware | `RobotPose` gains chassis yaw and yaw rate (ROS side done 2026-09-29, wire proposed), and a capture stamp (Stamps table below: first-byte time less wire time, later an MCB clock). The yaw is a joint under a heading-fixed `root`, not in `odom->root` |
 | W.2 | `thornbots_pkg` | Every TF lookup at the time the data was true: the camera at capture (Part 2 does this), our pose at the state's stamp in Part 1, carried to the fire horizon by our velocity (done 2026-09-29) |
-| W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CVData` to follow (`thornbots_pkg/AGENTS.md`) |
+| W.3 | `ros2_dji_serial_bridge`, firmware | `CVTarget` becomes a world-frame aim: the intercept point in `odom` (or gimbal yaw/pitch relative to the world) plus its stamp. The MCB holds it with its IMU and odometry while the chassis moves and turns, the usual RoboMaster split. Needs the firmware's `CvTarget` to follow (`thornbots_pkg/AGENTS.md`) |
 | W.4 | `sim` | Done 2026-09-29 on the estimation bench: `chassis_spin:=9` spins our chassis under a world-held head, with optional bearing drag. Every cell scores like its spin-0 twin. The aiming bench gets no spin: under a heading-fixed `root` its perfect point gimbal makes a spin a no-op |
 | W.5 | `sim` | Done 2026-09-29: `LIMITS` has the 12 `-chassis9` cells. Radial or diagonal with a moving shooter still has no aiming-bench floor (`sim/AGENTS.md`) |
 
@@ -109,7 +109,7 @@ W.3's open issues (our side switched 2026-09-27):
    in flight across a relocalize lands where the old origin was. Pick one
    frame both sides share, or send the aim relative to a pose the MCB also
    has. Without W.1's chassis yaw the rotations aren't shared either.
-2. **Firmware: `CVData`** treats `x/y/z` as `odom` and re-aims as the
+2. **Firmware: `CvTarget`** treats `x/y/z` as `odom` and re-aims as the
    chassis moves and turns. The layout doesn't change, so a mismatch fails
    no length check (`ros2_dji_serial_bridge/README.md`).
 
@@ -128,7 +128,7 @@ well as its node can. Audit of 2026-09-24. The CV chain mostly complies:
 
 | Where | Today | Best the node can do | When |
 |---|---|---|---|
-| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | Since 2026-09-29, the last byte's read time less the frame's wire time at the baud; USB-serial latency not taken off | An MCB millisecond clock on the wire, the mirror of `CV_TARGET`'s `stamp_ms`, mapped to ROS time by offset; until then, measure the USB latency on the robot | Before any field test of Part 1 while we move: `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
+| `dji_serial_bridge` → `RobotPose`, `RefSysStatus` | Since 2026-09-29, the last byte's read time less the frame's wire time at the baud; USB-serial latency not taken off | An MCB millisecond clock on the wire (`CV_TARGET` dropped its `stamp_ms` 2026-10-03), mapped to ROS time by offset; until then, measure the USB latency on the robot | Before any field test of Part 1 while we move: `odom->root` TF and our velocity both come from it. The MCB half is firmware work outside this workspace |
 | Camera → `Detection2DArray` | Image stamp carried through the YOLO chain, not verified end to end; its relation to capture unmeasured | Verify the stamp survives the chain, then measure capture latency | Estimation, on hardware |
 
 `/cmd_vel` stays a bare `Twist`: gz's diff-drive plugin and the harnesses expect
