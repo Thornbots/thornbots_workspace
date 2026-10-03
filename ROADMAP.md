@@ -189,9 +189,11 @@ Robot ops:
   after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
   at ~49 s, RealSense stamps go wild and `component_container_mt` aborts
   (`cannot store a negative time point in rclcpp::Time`). Air-gapped,
-  no jump. Since `isaac-ros-startup` `beb8a3d` the service restarts after
-  it. Fix: keep the RTC from overwriting the restored time, or wait
-  briefly for sync before starting the camera.
+  no jump. `Realsense_ROI_Depth_Rectifier` `d6caa99` no longer throws on
+  such stamps; `isaac-ros-startup` now restores timesyncd's saved time after
+  the RTC's hctosys and restarts the stack on any step over 1 s (README.md
+  "Clock steps restart the stack"). Untested on a robot: needs
+  `install.sh` on the sentry and a boot with Wi-Fi.
 
 ## Tracks, in order of work
 
