@@ -37,7 +37,7 @@ ok "$CONTAINER up"
 MAC=0
 [ "$(docker inspect -f '{{.Config.Image}}' "$CONTAINER")" = thornbots-mac ] && MAC=1
 if [ "$MAC" -eq 1 ]; then
-    ok "Mac image: no NVIDIA, gz and rviz on llvmpipe (VNC at vnc://localhost:5901)"
+    ok "Mac image: no NVIDIA, gz on llvmpipe, no display; watch in Foxglove"
 else
 # --gpus all through a stale /etc/cdi/nvidia.yaml mounts no driver libs.
 docker exec "$CONTAINER" sh -c 'ldconfig -p | grep -q "libcuda.so.1 " || ls /usr/lib/*/tegra/libcuda.so.1' >/dev/null 2>&1 \

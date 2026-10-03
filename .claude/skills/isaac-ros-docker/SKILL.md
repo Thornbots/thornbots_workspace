@@ -41,7 +41,7 @@ The name comes from `docker.run.container_name` in
 and ask the user to run, on the host:
 
 ```bash
-export ISAAC_ROS_WS=~/workspaces/isaac_ros-dev   # the workspace holding this src/
+export ISAAC_ROS_WS=~/workspaces/isaac_ros-jazzy   # the workspace holding this src/
 isaac-ros activate
 ```
 
@@ -62,8 +62,9 @@ the fastest way to see whether your edit is the code that will run; step 6
 refuses to launch on top of a session someone else started; `--sim` tears
 down with `kill_launch.sh`.
 
-`--sim` passes `gui:=false`, which still starts **rviz** (`sim.launch.py`
-starts rviz regardless), so a window opens on the user's display.
+`--sim` passes `gui:=false`, which drops only the gz window. **rviz** has its
+own `rviz:=` argument, on by default when a display is reachable, so a window
+still opens on the user's display.
 
 ## Key facts
 
@@ -154,7 +155,9 @@ most likely logind's `RemoveIPC=yes`: 10 s after the last ssh session of
 UID 1000 ends, logind deletes that UID's `/dev/shm` files, Fast DDS's
 segments included, and same-host nodes stop hearing each other, the
 localization lifecycle too. With `RemoveIPC=no` (`isaac-ros-startup`
-`install.sh`, 2026-10-01) a robot shell sees all 15 nodes. If it reappears,
+`install.sh`, 2026-10-01) a robot shell saw all 15 nodes; a process started by
+`docker exec` into the running stack still finds few or none, which
+`isaac-ros-startup/AGENTS.md` lists as open (2026-10-03). If it reappears,
 check `ls /dev/shm | grep -c fastrtps` against a node's
 `grep -c fastrtps /proc/<pid>/maps`: mapped but missing means deleted.
 
