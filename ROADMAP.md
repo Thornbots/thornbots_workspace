@@ -159,6 +159,15 @@ Robot ops:
   (`isaac-ros-startup` README.md "Per-run bag"), untested on a robot.
   Left: the bridge's per-frame logs at DEBUG or throttled, throttled
   CRC and rf2o per-scan WARNs, its DIAG stats on `/diagnostics`.
+- T25: Log any data from the MCB through a new message (the user,
+  2026-10-03). Today the Jetson sees only what `POSE` and `REF_SYS`
+  carry, so the MCB's own state (mode, setpoints, what it did with a
+  `CV_TARGET`, fire events, faults) is invisible after a run. Add a UART
+  message the firmware can fill with any data, and have
+  `dji_serial_bridge` publish it on a topic that the per-run bag records
+  (T20). Open: a fixed struct or tagged key/value fields, its rate, and
+  the bandwidth left on the 115200-baud link. Spec it in
+  `UART_PROTOCOL.md` and land it on both sides (bridge, MCBV3).
 
 ## Tracks, in order of work
 
