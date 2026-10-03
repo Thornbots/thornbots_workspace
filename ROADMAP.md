@@ -17,7 +17,7 @@ keep the record.
 | Localization drift suite (9 scenarios) | **9 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, legs ramped at 20 m/s^2, ~285 s (2026-09-28, three runs): drift_correction 0.16-0.18 m, with obstacle 0.15-0.18 m, moving obstacles 0.17-0.19 m, real_accel (1.2 m/s^2) 0.09-0.11 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
-| CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs over the wire against the MCB emulator but fires nothing: the firmware refuses our `CV_MSG` (track I) |
+| CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` over the wire: frames get through with two fixes, but the gun turns away (POSE axes, track I) |
 | Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; hardware checks, the sentry's image and hero and standard left (track C) |
 
 ## Short todos
@@ -126,9 +126,12 @@ Robot ops:
     `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
     for Sunday, aiming at the latest point every frame skips holding it.
-  - Our side: port the change into `sim`'s MCB emulator, then
-    `e2e.launch.py stage:=e2` and `test_e2.py` (xfail today) should score.
-    That checks the firmware change before it reaches the robot.
+  - The MCB team's `position-based-cv` (MCBV3 `f835be1`) aims at our
+    `odom` point and fires on the bit, but its `CvTarget` dropped
+    `stamp_ms` (15 bytes against our 19, all refused) and `delay_ms - 5`
+    wraps under 5 ms. Ported to the emulator with both fixed (track I),
+    E2 still hits nothing: the MCB's odometry and our `odom` differ by a
+    turn. Check the axes on the robot before trusting a shot.
   - YOLO runs at about 58 fps (the user, 2026-10-02).
   - Patrol: `point_to_cv_target` sweeps the gun with no target and faces
     hits off `ref_sys`, never firing (2026-10-02). Firmware that fires on
@@ -176,16 +179,29 @@ that shoot back.
 
 The MCB on the far end of track A's pty, copied from the real firmware,
 `Thornbots/MCBV3` (`MCB-project/src/subsystems/jetson/`, `robots/sentry/`),
-not from `UART_PROTOCOL.md` alone (the user, 2026-09-28). Built
-(2026-10-01): `sim/mcb_emulator/` ports MCBV3 `708b8d6`, and
+not from `UART_PROTOCOL.md` alone (the user, 2026-09-28).
+`sim/mcb_emulator/` ports MCBV3 `position-based-cv` at `f835be1`
+(2026-10-03), the MCB team's aim at our `odom` point, and
 `e2e.launch.py stage:=e2` runs it on a pty against `dji_serial_bridge`
-and `mcb_relay` (`sim/README.md` "MCB emulator"). E2 scores nothing yet:
-the firmware refuses our 19-byte `CV_TARGET` (its `CVData` is 40 bytes),
-so it only patrols, and `test_e2.py` is xfail. MCBV3#74 takes the frame
-but doesn't aim yet. The thirteen gaps from
-`UART_PROTOCOL.md` are in `ros2_dji_serial_bridge/README.md` "Where the
-firmware stands"; each goes to the firmware side. Yaw holds within 2 deg
-over a match (the user).
+and `mcb_relay` (`sim/README.md` "MCB emulator"). `firmware_fixes`
+(default on) adds the two fixes asked of that branch: keep `stamp_ms`
+(the branch's `CvTarget` is 15 bytes, so it refuses all our frames) and
+clamp `delay_ms - 5` at 0. With them the frames get through but E2 hits
+nothing: the gun turns away, since `pose_translator` reads POSE's x right,
+y forward as REP-105 and `RELOCALIZE` moves the MCB's odometry into our
+`odom`'s numbers. `test_e2.py` stays xfail on that. The bridge README's
+"Where the firmware stands" still describes `708b8d6`. Yaw holds within
+2 deg over a match (the user).
+
+Port by hand today, so it drifts each time the firmware moves. Make it
+automatic (the user, 2026-10-03), cheapest first:
+- A test that fails when MCBV3 changes a ported file after
+  `FIRMWARE_COMMIT` (`sim/mcb_emulator/__init__.py`), naming the files.
+- Run the real firmware instead of a port: MCBV3 already builds for the
+  host (`scons build-sim`, taproot `sim-modm/hosted-linux`). Missing: under
+  `PLATFORM_HOSTED` taproot's `Uart` reads nothing and writes nowhere
+  (`uart.cpp`), so it needs a UART-to-pty shim; motors and IMU would come
+  from taproot's `motorsim` wired to gz. Then each firmware commit runs as is.
 
 **Done when** the emulator runs the firmware's Jetson, aim-and-fire and
 auto-drive logic against `dji_serial_bridge` on a pty, and E2 scores
