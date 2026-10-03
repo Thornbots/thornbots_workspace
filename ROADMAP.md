@@ -18,7 +18,7 @@ keep the record.
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` over the wire: frames get through with two fixes, but the gun turns away (POSE axes, track I) |
-| Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; hardware checks, the sentry's image and hero and standard left (track C) |
+| Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; sentry and hero run Jazzy; standard left (track C, the user 2026-10-03) |
 
 ## Short todos
 
@@ -123,13 +123,11 @@ Robot ops:
   `/localization/map_odom`, so the map layer can be judged offline. A run
   ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
 
-  Shots on Sunday (the user, 2026-10-02). CV can't reach the gun: the
-  firmware (MCBV3 `708b8d6`, `newMain` untouched since 2026-09-27) drops
-  our 15-byte `CV_TARGET` (the firmware's `CV_MSG`) on its size check; it
-  still expects the 40-byte `CVData` that `dji_serial_bridge` `1962841`
-  (2026-07-28) dropped. New format only: the bridge doesn't fall back to
-  the old one (the user, 2026-10-02), so the firmware has to take
-  `CV_TARGET` as `UART_PROTOCOL.md` has it.
+  Shots on Sunday (the user, 2026-10-02). The firmware the team runs is
+  MCBV3 `position-based-cv` (`0885a69`, contains `newMain`): it takes our
+  15-byte `CV_TARGET` as `UART_PROTOCOL.md` has it, aims at x/y/z less its
+  own odometry and fires `delay_ms` after receipt. New format only: the
+  bridge doesn't fall back to the old one (the user, 2026-10-02).
   - Done: with no team colour, `target_selector` shoots at all targets.
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
   - Firmware: Thornbots/MCBV3#74 closed 2026-10-03, done on
@@ -156,7 +154,7 @@ Robot ops:
   - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `head_yaw`'s sign and
-    `POSE`'s x/y axes (bridge README items 7-8): a panel straight
+    `POSE`'s x/y axes (bridge README items 5-6): a panel straight
     ahead should land straight ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
   - The rebuilt image carries both halves: on the sentry,
@@ -177,7 +175,7 @@ Robot ops:
   CRC and rf2o per-scan WARNs, its DIAG stats on `/diagnostics`.
 - T25: Log any data from the MCB through a new message (the user,
   2026-10-03). Today the Jetson sees only what `POSE` and `REF_SYS`
-  carry, so the MCB's own state (mode, setpoints, what it did with a
+  carry (plus `BYTE`'s one raw byte, which the firmware's id-5 `PING` echoes back), so the MCB's own state (mode, setpoints, what it did with a
   `CV_TARGET`, fire events, faults) is invisible after a run. Add a UART
   message the firmware can fill with any data, and have
   `dji_serial_bridge` publish it on a topic that the per-run bag records
@@ -243,7 +241,7 @@ at 0. The frames get through (15 bytes both sides) but E2 hits
 nothing: the gun turns away, since `pose_translator` reads POSE's x right,
 y forward as REP-105 and `RELOCALIZE` moves the MCB's odometry into our
 `odom`'s numbers. `test_e2.py` stays xfail on that. The bridge README's
-"Where the firmware stands" still describes `708b8d6`. Yaw holds within
+"Where the firmware stands" describes `position-based-cv` `0885a69`. Yaw holds within
 2 deg over a match (the user).
 
 Port by hand today, so it drifts each time the firmware moves. Make it
@@ -283,7 +281,8 @@ with the firmware side first.
 
 [`JAZZY_PLAN.md`](JAZZY_PLAN.md) steps 1, 5 and 6 (runbook
 [`JAZZY_FLASH.md`](JAZZY_FLASH.md)). `ts-nano-dev` and `ts-nano-sentry`
-are on JetPack 7.2.1; hero and standard still run frozen Humble. Done when
+are on JetPack 7.2.1; sentry and hero run Jazzy, standard still runs
+frozen Humble (the user, 2026-10-03). Done when
 YOLO fps and detection latency on the Orin are no worse than on Humble.
 
 Boot time: power-on to a running ROS stack under 1 min on each robot (the

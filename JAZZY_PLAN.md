@@ -1,13 +1,15 @@
 # Plan: move from ROS 2 Humble to Jazzy
 
-ROADMAP.md track C. Covers this superproject, all nine submodules, the
+ROADMAP.md track C. Covers this superproject, every submodule, the
 laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 `ts-nano-standard`). The test box is `ts-nano-dev`.
 
 **`main` is Jazzy since 2026-09-27.** Every repo's default branch took its
 `jazzy`, the `jazzy` branches are deleted, and the `humble` branches hold
 the last Humble tree, **frozen**: no more work goes there.
-The robots stay on Humble, running that frozen tree, until step 6.
+Sentry and hero run Jazzy (the user, 2026-10-03); `ts-nano-sentry` since
+2026-10-01 (the boot service, ROADMAP.md T21). Standard is the last robot
+on Humble, running that frozen tree until its step 6 reflash.
 
 ## Where this stands (2026-09-30)
 
@@ -141,7 +143,7 @@ detection latency on the Orin are no worse than on Humble.
 | 4.6's Orin support is one release old; the JetPack 7.2 Orin Nano forum thread is still active | Step 5 runs on the spare box; the robots are untouched if it fails |
 | The aarch64 image hits the 128-layer cap | Count layers in step 1, before any hardware check |
 | A lost lifecycle reply stalls the robot's localization at boot | Seen only in sim so far, on Humble too. Watch for it in step 6's `auto.launch.py` runs |
-| A competition date lands mid-migration | Robots stay on Humble until step 6, each with an NVMe image and R36.5 firmware to roll back to |
+| A competition date lands mid-migration | Standard stays on Humble until its step 6 reflash, with an NVMe image and R36.5 firmware to roll back to |
 
 ## Sources
 
