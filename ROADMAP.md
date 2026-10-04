@@ -72,7 +72,7 @@ Robot ops:
     hits off `ref_sys`, never firing (2026-10-02). Firmware that fires on
     every frame would fire all through it: run `patrol_enabled:=false`
     unless the firmware fires on the bit alone. On the robot, check the
-    sweep direction and that a hit turns the gun toward it.
+    sweep direction. Turning toward a hit is firmware-only and works.
   - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `POSE`'s x/y axes
