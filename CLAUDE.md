@@ -9,10 +9,14 @@ Call out code that doesn't follow standard practice.
 
 ## Containers
 
-Ask before starting, restarting or stopping any container or container VM,
-on any machine: `docker run`/`start`, a script or service that starts one,
+Ask before starting, restarting or stopping any container or container VM
+on this laptop: `docker run`/`start`, a script or service that starts one,
 `colima start`/`stop`. One started wrong can die, or take a running one
 with it.
+
+On remote boxes (the robots, `ts-nano-*`), start, stop, build and remove
+containers and images when the user asks for it; no separate confirmation
+(the user, 2026-10-04). "dev" means `ts-nano-dev`, not this laptop.
 
 ## Priority
 
