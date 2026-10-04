@@ -43,7 +43,8 @@ Robot ops:
   bash install.sh` in `isaac-ros-startup` (the clock fix, T27), build the
   image on the sentry on wall power (T29), set `LOCALIZATION_MODE=mapping`
   in `/etc/thornbots/launch.env` (`none` since 2026-10-03 to dodge the
-  `/pose` clash, fixed on `main`), restart the service, and check
+  `/pose` clash, fixed on `main`) and drop `use_rf2o:=false` from its
+  `AUTO_LAUNCH_ARGS` (rf2o is best in every sim suite), restart the service, and check
   `~/logs/latest/bag/` fills with `.mcap` files (the per-run bag, T20;
   unproven on the robot image). Then one boot air-gapped with Wi-Fi
   turned on mid-run: no `[clock]` line, no restart, no `negative time
