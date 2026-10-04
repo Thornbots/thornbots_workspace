@@ -34,16 +34,13 @@ Robot ops:
   field. Our side: `auto.launch.py` defaults to `mapping` from a blank map
   at boot, `mcb_relay` keeps relocalizing from rf2o + EKF
   (`/localization/odom`), and `map_autosaver` saves the map every 30 s to
-  `maps/<boot time>/` on the workspace. The robot runs its image's
-  packages (`USE_WS_OVERLAY=false`), so it needs a rebuilt image or the
-  overlay. Bring back the maps and logs to judge the map layer:
+  `maps/<boot time>/` on the workspace. Bring back the maps and logs to judge the map layer:
   `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
   since sim's EKF barely drifts; real floors over 5-minute runs decide.
-  The sentry is on `main` (`c87c97f`) with `install.sh` run,
-  `LOCALIZATION_MODE=mapping` and `USE_WS_OVERLAY=false` (2026-10-04),
-  and builds its image (T29). Left: reboot on the new image and check
-  `~/logs/latest/bag/` fills with `.mcap` files (the per-run bag, T20;
-  unproven on the robot image). Then one boot air-gapped with Wi-Fi
+  The sentry boots `main`'s image (`8880173c`, built on it from
+  `c87c97f`) with its own packages (`USE_WS_OVERLAY=false`) and
+  `LOCALIZATION_MODE=mapping`, 2026-10-04 (run00051): stack up in 19.5 s,
+  no `/pose` clash, bag filling. Left: one boot air-gapped with Wi-Fi
   turned on mid-run: no `[clock]` line, no restart, no `negative time
   point` abort, `systemd-timesyncd` inactive until the service stops.
   Bring back `~/logs/thornbots-run<N>/` with each `.log`: its bag holds
@@ -76,11 +73,9 @@ Robot ops:
     (`head_yaw` is fixed): a panel straight ahead should land straight
     ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
-  - The rebuilt image carries both halves: on the sentry,
-    `isaac_ros_common/scripts/build_robot_image.sh` (no host args), then
-    restart the service. `ts-nano-dev` has one from `ff2c4ba`'s tree
-    (2026-10-03) if the sentry's build runs too long. With no referee, the selector logs `Team colour
-    unknown (robot_id 0)`; `Team colour set to RED` means old code.
+  - The MCB reports `robot_id` 3, red, with `hp` 100 and stage 0
+    (run00051), so the selector shoots blue only. Check that's the
+    field's referee and not a stale MCB value; robot_id 0 passes all.
 - T27: The camera container dies when NTP steps the clock (2026-10-03,
   sentry). The RTC (`nvvrs-pseq-rtc`) resets the clock to 1970 at 10 s,
   after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
