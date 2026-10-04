@@ -110,6 +110,14 @@ CV:
   a target we're shooting. The same rule should gate our own patrol's
   hit turn (`hit_turn_s`). Check the firmware ignores hits when the bit
   is clear before relying on it.
+- T32: Choose the right panel on a robot that isn't spinning (the user,
+  2026-10-04). Below `spin_exit_rad_s`, `plan_shot`
+  (`point_to_cv_target_core.py`) leads the panel whose yaw is nearest the
+  bearing to us, rounded per tick. Near 45 deg two panels face us about
+  equally and the pick can flip tick to tick, swinging the gun a panel's
+  width; it also leans on the tracker's yaw, weakest there (T15,
+  `stationary45`). Want: the most face-on panel, held with hysteresis
+  until another is clearly better. Measure on the aiming bench at 45 deg.
 
 ## Tracks, in order of work
 
