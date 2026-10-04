@@ -230,7 +230,11 @@ user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the
 `isaac_ros_common`'s `jetson_trim.sh` makes a robot headless. The sentry,
 trimmed and running the Jazzy boot service, measured 2026-10-01: 13.6 s to
 `multi-user.target`, both launches at 17.6 s, engine loaded about 21 s
-(kernel start, not power-on; `isaac-ros-startup` `AGENTS.md`). `robot_setup.sh`,
+(kernel start, not power-on; `isaac-ros-startup` `AGENTS.md`). 2026-10-04:
+`quiet` kernel, no RealSense reset on the first start: camera up at a
+median 19.6 s (was 29 s). Open: 1 of 12 `quiet` boots lost the GPU
+(`isaac-ros-startup` reboots on it), and the firmware time before the
+kernel. `robot_setup.sh`,
 the keyboard-free USB installer (`isaac_ros_common`) and the Jazzy boot
 service (`isaac-ros-startup`) moved to `main` on 2026-10-01, untested,
 because hero's stick (`make_installer_usb.sh --robot hero`) clones `main` on
