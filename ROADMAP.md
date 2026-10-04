@@ -41,7 +41,9 @@ Robot ops:
   since sim's EKF barely drifts; real floors over 5-minute runs decide.
   Before Sunday, on the sentry: pull `main` with its submodules, `sudo
   bash install.sh` in `isaac-ros-startup` (the clock fix, T27), build the
-  image on the sentry on wall power (T29), restart the service, and check
+  image on the sentry on wall power (T29), set `LOCALIZATION_MODE=mapping`
+  in `/etc/thornbots/launch.env` (`none` since 2026-10-03 to dodge the
+  `/pose` clash, fixed on `main`), restart the service, and check
   `~/logs/latest/bag/` fills with `.mcap` files (the per-run bag, T20;
   unproven on the robot image). Then one boot air-gapped with Wi-Fi
   turned on mid-run: no `[clock]` line, no restart, no `negative time
@@ -90,11 +92,6 @@ Robot ops:
     restart the service. `ts-nano-dev` has one from `ff2c4ba`'s tree
     (2026-10-03) if the sentry's build runs too long. With no referee, the selector logs `Team colour
     unknown (robot_id 0)`; `Team colour set to RED` means old code.
-- T26: Two types on `/pose` in mapping mode (2026-10-03, sentry run 16).
-  `dji_serial_bridge` publishes `RobotPose` there, and slam_toolbox's
-  `PoseWithCovarianceStamped` lands on it too, which
-  `localization.launch.py:151` reads. The bag refuses the topic ("more
-  than one type"). Rename one side.
 - T27: The camera container dies when NTP steps the clock (2026-10-03,
   sentry). The RTC (`nvvrs-pseq-rtc`) resets the clock to 1970 at 10 s,
   after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
