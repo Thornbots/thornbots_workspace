@@ -124,6 +124,14 @@ CV:
   today) set on every patrol point: `CVTarget.msg`, the bridge's packing,
   `UART_PROTOCOL.md`, `point_to_cv_target` and the MCB emulator. Ask the
   MCB team to adopt it with the bridge README's "Asked of the firmware".
+- T34: Look into boot time more (the user, 2026-10-04). Track C's one
+  measurement is the sentry on 2026-10-01: engine loaded about 21 s from
+  kernel start. Missing: power-on to kernel (UEFI, not in
+  `systemd-analyze`), time to the stack being useful (first detection,
+  first `CVTarget`, first `map->odom`), hero and standard, and the
+  rebuilt Jazzy image. Time it with a stopwatch from power-on alongside
+  the `[boot]` lines (`isaac-ros-startup` README.md "Boot time"), then
+  cut the longest stage. Target stays under 1 min.
 
 ## Tracks, in order of work
 
