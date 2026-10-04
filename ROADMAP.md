@@ -73,6 +73,17 @@ Robot ops:
     (`head_yaw` is fixed): a panel straight ahead should land straight
     ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
+  - First detections on the sentry on Jazzy (run00051, 2026-10-04):
+    none for 3 min, then 48 frames of class 1 (scores 0.65-0.82) over
+    9 s, tracked (`tracking robot 1`), 6 fire frames sent with
+    `delay_ms` 0, then ~60/s at 13:05:30. Whether it shot is the
+    MCB's side. Capture to tracker update 59 ms mean.
+  - Timing, after Sunday (the user, 2026-10-04): `delay_ms` runs from
+    MCB receipt but is computed at decision, transit not taken off
+    (`mcb_relay` takes off its RELOCALIZE latency); our
+    `firmware_latency_s` 0.05 and the firmware's 80 ms
+    `FIRING_LATENCY_TIME` both cover the indexer, so spinning-target
+    shots go ~50 ms early. Measure the indexer, then one side owns it.
   - The MCB reports `robot_id` 3, red, with `hp` 100 and stage 0
     (run00051), so the selector shoots blue only. Check that's the
     field's referee and not a stale MCB value; robot_id 0 passes all.
@@ -228,6 +239,12 @@ the workaround for standard). Check `journalctl -u robot-firstboot` on
   layers copied once from the Mac mini (`SEED_FROM`), about 22 min for
   the thornbots layer (2026-10-03); shipping from it over `ssh -R` is
   untested (`isaac_ros_common/docker/README.md` "On the x86 laptop").
+  The sentry built `8880173c` itself on 2026-10-04: 5.46 GB of apt
+  again at ~2.3 MB/s over its Wi-Fi (~35 min), colcon 4 min 57 s, export
+  ~10 min. Each robot is a USB device, so robots can't link to each
+  other; the laptop's USB link to the sentry ran ~200 MB/s idle (the
+  user), so carrying one robot's image to another via the laptop takes
+  minutes where a build takes most of an hour.
 
 ### G. Estimation accuracy
 
