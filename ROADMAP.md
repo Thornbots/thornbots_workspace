@@ -60,8 +60,9 @@ Robot ops:
     (2026-10-04; they build what we ask, the user 2026-10-03). The aim
     in one frame, REP-105 (its yaw already is, its odometry isn't), and
     pitch for `z` above the pivot (else every shot is 0.39 m high). The
-    emulator still ports `f835be1` (track I). On the robot, check the
-    axes before trusting a shot.
+    emulator still ports `f835be1` (track I). Until the first lands,
+    `thornbots_pkg`'s `mcb_x_right` converts the odometry on the Jetson
+    (2026-10-04); turn it off with the new firmware.
   - YOLO runs at about 58 fps (the user, 2026-10-02).
   - Patrol: `point_to_cv_target` sweeps the gun with no target, fire
     clear; the firmware fires on bit 0 alone (the user, 2026-10-04). On
@@ -69,9 +70,10 @@ Robot ops:
     firmware-only and works.
   - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
-    `odom` point rides on our TF, so check `POSE`'s x/y axes
-    (`head_yaw` is fixed): a panel straight ahead should land straight
-    ahead of `root`.
+    `odom` point rides on our TF, so check `POSE`'s x/y axes under
+    `mcb_x_right` (`head_yaw` is fixed): a panel straight ahead should
+    land straight ahead of `root`, and driving 1 m shouldn't fire a
+    RELOCALIZE every 0.3 s.
     First shots on a stand, eye protection on, e-stop in reach.
   - First detections on the sentry on Jazzy (run00051, 2026-10-04):
     none for 3 min, then 48 frames of class 1 (scores 0.65-0.82) over
