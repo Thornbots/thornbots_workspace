@@ -14,7 +14,7 @@ keep the record.
 
 | Thing | State |
 |---|---|
-| Localization drift suite (9 scenarios) | **9 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, legs ramped at 20 m/s^2, ~285 s (2026-09-28, three runs): drift_correction 0.16-0.18 m, with obstacle 0.15-0.18 m, moving obstacles 0.17-0.19 m, real_accel (1.2 m/s^2) 0.09-0.11 m, against 0.40 m. One gz session per run, `sentry_v2` with collision and sprung wheels |
+| Localization drift suite (9 scenarios) | **8 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, GUI on, 378 s, RTF 1.25 (archlinux, 2026-10-03): with obstacle 0.16 m, moving obstacles 0.16 m, real_accel 0.12 m, against 0.40 m; noise_correction growth 1.15, scan_degraded 0.45 m during. drift_correction failed bring-up, not drift: no `map->odom` in 45 s after the harness's one restart (T30). Last full pass 9 of 9, ~285 s, 2026-09-28 (drift_correction 0.16-0.18 m). One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` over the wire: frames get through with two fixes, but the gun turns away (POSE axes, track I) |
@@ -162,6 +162,13 @@ Robot ops:
     restart the service. `ts-nano-dev` has one from `ff2c4ba`'s tree
     (2026-10-03) if the sentry's build runs too long. With no referee, the selector logs `Team colour
     unknown (robot_id 0)`; `Team colour set to RED` means old code.
+- T30: The robot stack's bring-up race fails drift scenarios (2026-10-03
+  run, archlinux). 3 of 9 starts had no `map->root` after 30 s:
+  `rf2o` can't look up `root -> lidar`, `amcl` comes up active but drops
+  every scan as older than its TF. The harness's one restart
+  (`_wait_for_root_chain`) saved drift_correction_obstacle and odom_stuck,
+  not drift_correction. The robot can hit it at boot too. Find why the
+  `root` chain is missing at start, rather than restart around it.
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
   (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
