@@ -11,7 +11,11 @@ of every section below: the `isaac-ros` flag catalogue, where the CLI reads
 its config, the manual equivalents of the helper scripts, and the dated
 postmortems.
 
-> **Never create a container, and never build the image. Attach only.**
+> **On this laptop, never create a container, and never build the image.
+> Attach only.** Remote boxes (`ts-nano-*`) are exempt when the user asks:
+> there, start, stop, build and remove as asked (`../../../CLAUDE.md`
+> § Containers). The rest of this block is about the laptop.
+>
 > Run commands *inside* a container the user already started (`smoke.sh`,
 > `dexec.sh`, `kill_launch.sh`), and nothing else.
 >
