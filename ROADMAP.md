@@ -27,18 +27,6 @@ stay put when items are deleted or move to a track (T3 to H; T7, T8 and
 T15 to G; T17 to A; T20, T25 and T29 to C; T24 and T30 to E; T19, T22
 and T23 to J).
 
-High priority:
-
-- T28: `map_autosaver`'s `.pgm`/`.yaml` save fails on the sentry (the
-  user, 2026-10-03: high priority, before Sunday's maps). slam_toolbox's
-  `save_map` starts a `map_saver` that logs `Failed to spin map
-  subscription` about 2 s after `Saving map from 'map' topic`, then
-  `save_map failed (255)`. `serialize_map` (`.posegraph`/`.data`) works
-  every time. Of the last three runs in `~/workspaces/isaac_ros-dev/maps/`,
-  one has `map.pgm`/`map.yaml`. Find why it gets no `/map` in time (QoS,
-  timeout, or `/map` not published yet), and make every run leave a
-  viewable map.
-
 Robot ops:
 
 - T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
