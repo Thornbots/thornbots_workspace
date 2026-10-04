@@ -231,7 +231,10 @@ the workaround for standard). Check `journalctl -u robot-firstboot` on
   mount; ccache in a cache mount for colcon; for code-only changes,
   `USE_WS_OVERLAY=true` and an incremental `colcon build`, no image.
   A robot with no BuildKit cache (image pulled, not built) rebuilds
-  librealsense once.
+  librealsense once. Laptop path written 2026-10-03, untested: the
+  `archlinux` laptop builds under QEMU on base layers copied once from
+  the Mac mini (`SEED_FROM`), then ships over `ssh -R` like the Mac
+  (`isaac_ros_common/docker/README.md` "On the x86 laptop").
 
 ### G. Estimation accuracy
 
