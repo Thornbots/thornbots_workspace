@@ -17,7 +17,7 @@ keep the record.
 | Localization drift suite (9 scenarios) | **8 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, GUI on, 378 s, RTF 1.25 (archlinux, 2026-10-03): with obstacle 0.16 m, moving obstacles 0.16 m, real_accel 0.12 m, against 0.40 m; noise_correction growth 1.15, scan_degraded 0.45 m during. drift_correction failed bring-up, not drift: no `map->odom` in 45 s after the harness's one restart (T30). Last full pass 9 of 9, ~285 s, 2026-09-28 (drift_correction 0.16-0.18 m). One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
-| CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` over the wire with the three fixes asked of it: 28/40 hits on a clean still track, a few % when E1's tracking goes bad (T17) |
+| CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` `f835be1` over the wire with the three fixes asked of it: 28/40 hits on a clean still track, a few % when E1's tracking goes bad (T17) |
 | Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; sentry and hero run Jazzy; standard left (track C, the user 2026-10-03) |
 
 ## Short todos
@@ -39,12 +39,9 @@ Robot ops:
   overlay. Bring back the maps and logs to judge the map layer:
   `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
   since sim's EKF barely drifts; real floors over 5-minute runs decide.
-  Before Sunday, on the sentry: pull `main` with its submodules, `sudo
-  bash install.sh` in `isaac-ros-startup` (the clock fix, T27), build the
-  image on the sentry on wall power (T29), set `LOCALIZATION_MODE=mapping`
-  in `/etc/thornbots/launch.env` (`none` since 2026-10-03 to dodge the
-  `/pose` clash, fixed on `main`) and drop `use_rf2o:=false` from its
-  `AUTO_LAUNCH_ARGS` (rf2o is best in every sim suite), restart the service, and check
+  The sentry is on `main` (`c87c97f`) with `install.sh` run,
+  `LOCALIZATION_MODE=mapping` and `USE_WS_OVERLAY=false` (2026-10-04),
+  and builds its image (T29). Left: reboot on the new image and check
   `~/logs/latest/bag/` fills with `.mcap` files (the per-run bag, T20;
   unproven on the robot image). Then one boot air-gapped with Wi-Fi
   turned on mid-run: no `[clock]` line, no restart, no `negative time
@@ -61,18 +58,18 @@ Robot ops:
   bridge doesn't fall back to the old one (the user, 2026-10-02).
   - Done: with no team colour, `target_selector` shoots at all targets.
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
-  - Firmware, MCB team (Thornbots/MCBV3#77): the three fixes in the
-    bridge README "Asked of the firmware" (the user, 2026-10-03: they
-    build what we ask). The wire in REP-105 at `JetsonSubsystem`,
-    `delay_ms - 5` clamped at 0, pitch for `z` above the pivot. With
-    them the emulator hits 28/40 on a clean still track (track I). On
-    the robot, check the axes before trusting a shot.
+  - Firmware, MCB team (Thornbots/MCBV3#77): the two fixes in the
+    bridge README "Asked of the firmware", redone against `0885a69`
+    (2026-10-04; they build what we ask, the user 2026-10-03). The aim
+    in one frame, REP-105 (its yaw already is, its odometry isn't), and
+    pitch for `z` above the pivot (else every shot is 0.39 m high). The
+    emulator still ports `f835be1` (track I). On the robot, check the
+    axes before trusting a shot.
   - YOLO runs at about 58 fps (the user, 2026-10-02).
-  - Patrol: `point_to_cv_target` sweeps the gun with no target and faces
-    hits off `ref_sys`, never firing (2026-10-02). Firmware that fires on
-    every frame would fire all through it: run `patrol_enabled:=false`
-    unless the firmware fires on the bit alone. On the robot, check the
-    sweep direction. Turning toward a hit is firmware-only and works.
+  - Patrol: `point_to_cv_target` sweeps the gun with no target, fire
+    clear; the firmware fires on bit 0 alone (the user, 2026-10-04). On
+    the robot, check the sweep direction. Turning toward a hit is
+    firmware-only and works.
   - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `POSE`'s x/y axes
@@ -139,8 +136,9 @@ and `mcb_relay` (`sim/README.md` "MCB emulator"). `firmware_fixes`
 (default on) adds the three fixes asked of that branch (bridge README
 "Asked of the firmware"). With them E2's still cell hits 28/40 on a
 clean track and a few % on a bad one, so `test_e2.py` is xfail
-non-strict on E1's tracking (T17). The bridge README's
-"Where the firmware stands" describes `position-based-cv` `0885a69`. Yaw holds within
+non-strict on E1's tracking (T17). The sentry runs `0885a69`, which
+the port doesn't match: no `-PI/2` on the aim yaw, 80 ms
+`FIRING_LATENCY_TIME` (`sim/README.md` "MCB emulator"). Yaw holds within
 2 deg over a match (the user).
 
 Port by hand today, so it drifts each time the firmware moves. Make it
