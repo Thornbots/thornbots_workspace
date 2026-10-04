@@ -100,6 +100,17 @@ Robot ops:
   Passes on `ts-nano-dev`'s host with `docker` stubbed (2026-10-03; dev
   has no camera). Left: a sentry boot with Wi-Fi, T21.
 
+CV:
+
+- T31: Tell the Type C when not to turn toward a hit (the user,
+  2026-10-04). `turn_to_hit` (`CVTarget` bit 2) reaches the MCB with every
+  frame, but `point_to_cv_target` sends its `turn_to_hit` parameter
+  unchanged (default true). Decide it per frame instead. First rule: clear
+  it while we hold a valid `TargetState`, so a hit can't pull the gun off
+  a target we're shooting. The same rule should gate our own patrol's
+  hit turn (`hit_turn_s`). Check the firmware ignores hits when the bit
+  is clear before relying on it.
+
 ## Tracks, in order of work
 
 Finish the short todos first, then A-C in order, with I before A's E2,
