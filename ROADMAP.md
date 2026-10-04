@@ -75,9 +75,9 @@ Robot ops:
     sweep direction and that a hit turns the gun toward it.
   - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
-    `odom` point rides on our TF, so check `head_yaw`'s sign and
-    `POSE`'s x/y axes (bridge README items 3-4): a panel straight
-    ahead should land straight ahead of `root`.
+    `odom` point rides on our TF, so check `POSE`'s x/y axes
+    (`head_yaw` is fixed): a panel straight ahead should land straight
+    ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
   - The rebuilt image carries both halves: on the sentry,
     `isaac_ros_common/scripts/build_robot_image.sh` (no host args), then
