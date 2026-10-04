@@ -132,7 +132,7 @@ Robot ops:
     `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
   - Firmware: Thornbots/MCBV3#74 closed 2026-10-03, done on
     `position-based-cv`. Left, MCB team: aiming and firing on `CV_TARGET`,
-    Thornbots/MCBV3#77 (bridge README "Where the firmware stands" items 2-4). Take the 15-byte payload; aim at `x/y/z`
+    Thornbots/MCBV3#77 (bridge README "Where the firmware stands" items 1-3). Take the 15-byte payload; aim at `x/y/z`
     as an `odom` point, not a camera-frame one; fire on the `fire` bit after
     `delay_ms`, not on its 60 deg rule; don't lead when `FLAG_LEAD_APPLIED` is
     set. Which `odom` the MCB holds is open (`CV_SPLIT_PLAN.md` W.3 issue 1);
@@ -154,7 +154,7 @@ Robot ops:
   - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
     a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `head_yaw`'s sign and
-    `POSE`'s x/y axes (bridge README items 5-6): a panel straight
+    `POSE`'s x/y axes (bridge README items 3-4): a panel straight
     ahead should land straight ahead of `root`.
     First shots on a stand, eye protection on, e-stop in reach.
   - The rebuilt image carries both halves: on the sentry,
@@ -175,7 +175,7 @@ Robot ops:
   CRC and rf2o per-scan WARNs, its DIAG stats on `/diagnostics`.
 - T25: Log any data from the MCB through a new message (the user,
   2026-10-03). Today the Jetson sees only what `POSE` and `REF_SYS`
-  carry (plus `BYTE`'s one raw byte, which the firmware's id-5 `PING` echoes back), so the MCB's own state (mode, setpoints, what it did with a
+  carry (plus `PING`, id 5, which the MCB echoes back), so the MCB's own state (mode, setpoints, what it did with a
   `CV_TARGET`, fire events, faults) is invisible after a run. Add a UART
   message the firmware can fill with any data, and have
   `dji_serial_bridge` publish it on a topic that the per-run bag records
