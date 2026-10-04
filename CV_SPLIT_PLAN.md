@@ -102,16 +102,21 @@ What it needs, in order:
 
 W.3's open issues (our side switched 2026-09-27):
 
-1. **Which `odom` the MCB holds in.** The docs call it POSE's frame, but
-   the Jetson's `odom->root` is `/localization/odom` (EKF-fused with rf2o
-   when `use_rf2o`), not the MCB's raw odometry, and `mcb_relay`'s
-   RELOCALIZE resets the MCB's origin when the two drift apart. An aim point
-   in flight across a relocalize lands where the old origin was. Pick one
-   frame both sides share, or send the aim relative to a pose the MCB also
-   has. Without W.1's chassis yaw the rotations aren't shared either.
-2. **Firmware: `CvTarget`** treats `x/y/z` as `odom` and re-aims as the
-   chassis moves and turns. The layout doesn't change, so a mismatch fails
-   no length check (`ros2_dji_serial_bridge/README.md`).
+1. **Which `odom` the MCB holds in: ours, by RELOCALIZE** (read
+   2026-10-04, not measured). `mcb_relay` relocalizes the MCB onto
+   `/localization/odom`, the `odom->root` the aim point is built in, so
+   the gap is the MCB's drift since the last one: under ~6 cm while
+   localization is confident (5 cm, or 3 sigma with sigma <= 2 cm). A
+   relocalize during an aim moves the MCB toward the point's frame, so
+   it helps; the cost is the mailbox (a CV_TARGET in the same 1 ms is
+   lost). Chassis yaw isn't needed: `root` is heading-fixed and the
+   gimbal yaw is the IMU's world yaw on both sides.
+2. **Firmware: POSE's axes.** `0885a69` aims at `x/y/z` less its own
+   odometry, which is x right, y forward. Worked around on the Jetson
+   since 2026-10-04 (`thornbots_pkg` `mcb_x_right`, README.md "MCB
+   axes"), not yet on the robot; the bridge README's "Asked" item 1
+   retires it. The layout doesn't change, so no length check catches a
+   mismatch.
 
 W.1's wire half and W.3 change the wire protocol and the MCB firmware,
 which live outside this workspace; agree them with the firmware side
