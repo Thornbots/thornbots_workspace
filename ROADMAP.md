@@ -2,7 +2,7 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-01. Aiming is done, the estimation bench has
+end in sim. Updated 2026-10-03. Aiming is done, the estimation bench has
 limits on all 60 cells, the match test's E1 scores, and `main` has been
 Jazzy since 2026-09-27. Humble is frozen on the `humble` branches.
 
@@ -22,9 +22,10 @@ keep the record.
 
 ## Short todos
 
-Nearly finished work. Pointers lead to
-the detail, and numbers stay put when items are deleted or move to a
-track (T3 to H, T7, T8 and T15 to G).
+For Sunday 2026-10-04 (T21). Pointers lead to the detail, and numbers
+stay put when items are deleted or move to a track (T3 to H; T7, T8 and
+T15 to G; T17 to A; T20, T25 and T29 to C; T24 and T30 to E; T19, T22
+and T23 to J).
 
 High priority:
 
@@ -37,67 +38,6 @@ High priority:
   one has `map.pgm`/`map.yaml`. Find why it gets no `/map` in time (QoS,
   timeout, or `/map` not published yet), and make every run leave a
   viewable map.
-
-Repeatability:
-
-- T17: Runs with the same inputs should score nearly the same (the user,
-  2026-09-28). The estimation bench runs in lockstep now and every cell's
-  p95s repeat to 1.03x (five Mac runs, 2026-10-01), close enough that one
-  run is a benchmark; exact repeats aren't the goal. The aiming bench
-  already is: three Mac runs 2026-10-01, cells within 0.5 points, worst
-  `staggered-speed4` 0.968-0.981. E1 isn't, and looks broken since
-  2026-09-29: three runs failed 11, 10 and 8 of 12 cases, most firing no
-  shots at all (both still radial and diagonal cells in every run), only
-  stationary-lateral hitting 95-100%. 2026-10-03: every radial and
-  diagonal cell gets no valid `TargetState`, even run alone from a fresh
-  stack (a still target at (3.5, 0) gets 5 detections in 15 s, one at
-  (3.0, 0) hits 100%). So it's E1's sim, not the CV nodes: look at
-  `detector_standin`'s 0.1 m depth check against where the gz opponent
-  really is. Find why before measuring its spread. Left: drift and EKF runs, not yet measured.
-
-CV:
-
-- T19: See if the depth camera is actually needed (the user, 2026-10-01).
-  Today `roi_depth_node` ranges each detection off the D435's depth, and
-  the match test runs a gz depth camera for it (track D: an RGB-D camera
-  alone caps gz near RTF 2.2). Without it, range would have to come from
-  the colour image.
-- T23: Does the patrol hurt the lidar (the user, 2026-10-02)? The lidar
-  is on the head, so `point_to_cv_target`'s patrol (`thornbots_pkg`
-  README, 2026-10-02) turns it at 2 rad/s, about 0.2 rad per scan at
-  10 Hz, where a held head keeps it still in the world. Check rf2o, the EKF and
-  the map with the patrol on against off, in sim and on the robot. If it
-  hurts, use the lidar to find robots and only turn the gun toward them
-  instead of patrolling all the time.
-
-Tests:
-
-- T24: One name per test, for what it tests, used by its launch file,
-  test file and the docs alike (the user, 2026-10-03). After Sunday.
-  Each has three names today ("aiming bench" is `shot_hit.launch.py` and
-  `test_shot_hit.py`). New names:
-  - `localization_drift` (was `localization_tests.launch.py`, the drift suite)
-  - `ekf` (was `suite:=ekf`, `test_ekf_ground_truth.py`)
-  - `aim` (was `shot_hit`, the aiming bench)
-  - `tracking` (was `estimation`, the estimation bench)
-  - `cv_chain` (was `e2e.launch.py`'s E1, the match test)
-  - `firmware_link` (was `stage:=e2`)
-
-  E1-E4 in `E2E_PLAN.md` and the CV plan names go too. About 200 doc
-  references across 20 files, plus the isaac-ros-docker skill.
-
-Lidar:
-
-- T22: Can the RPLIDAR's points per scan and scan rate change, and would
-  it help (the user, 2026-10-02)? Questions, not answered yet:
-  - Which scan modes and rates does our model support, and does
-    `sllidar_node` (`auto.launch.py` sets only port, baud and frame) expose
-    them?
-  - What runs today: mode, points per scan, Hz?
-  - Would more points or a faster scan help rf2o, the EKF, amcl or the
-    map, and which matters more?
-  - What does it cost: range, noise, CPU on the Orin, USB bandwidth?
-  - Does a faster scan cut the skew while the head turns (T23)?
 
 Robot ops:
 
@@ -162,33 +102,6 @@ Robot ops:
     restart the service. `ts-nano-dev` has one from `ff2c4ba`'s tree
     (2026-10-03) if the sentry's build runs too long. With no referee, the selector logs `Team colour
     unknown (robot_id 0)`; `Team colour set to RED` means old code.
-- T30: The robot stack's bring-up race fails drift scenarios (2026-10-03
-  run, archlinux). 3 of 9 starts had no `map->root` after 30 s:
-  `rf2o` can't look up `root -> lidar`, `amcl` comes up active but drops
-  every scan as older than its TF. The harness's one restart
-  (`_wait_for_root_chain`) saved drift_correction_obstacle and odom_stuck,
-  not drift_correction. The robot can hit it at boot too. Find why the
-  `root` chain is missing at start, rather than restart around it.
-- T20: A better log format on the robots (the user, 2026-10-01). Today
-  each boot-service run is one text file of console output
-  (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
-  counter for a name). About 75% of its lines are `dji_serial_bridge`'s
-  per-frame `ref_sys RX` (10 Hz) and `relocalize TX` INFO lines
-  (`debug_log` defaults true). Done 2026-10-02: each run also records
-  an MCAP bag of `/rosout` plus the localization, lidar, referee and CV
-  topics, keeps the ROS node logs, and prunes old runs by free disk
-  (`isaac-ros-startup` README.md "Per-run bag"), untested on a robot.
-  Left: the bridge's per-frame logs at DEBUG or throttled, throttled
-  CRC and rf2o per-scan WARNs, its DIAG stats on `/diagnostics`.
-- T25: Log any data from the MCB through a new message (the user,
-  2026-10-03). Today the Jetson sees only what `POSE` and `REF_SYS`
-  carry (plus `PING`, id 5, which the MCB echoes back), so the MCB's own state (mode, setpoints, what it did with a
-  `CV_TARGET`, fire events, faults) is invisible after a run. Add a UART
-  message the firmware can fill with any data, and have
-  `dji_serial_bridge` publish it on a topic that the per-run bag records
-  (T20). Open: a fixed struct or tagged key/value fields, its rate, and
-  the bandwidth left on the 115200-baud link. Spec it in
-  `UART_PROTOCOL.md` and land it on both sides (bridge, MCBV3).
 - T26: Two types on `/pose` in mapping mode (2026-10-03, sentry run 16).
   `dji_serial_bridge` publishes `RobotPose` there, and slam_toolbox's
   `PoseWithCovarianceStamped` lands on it too, which
@@ -206,23 +119,11 @@ Robot ops:
   any step over 1 s anyway (README.md "Clock steps restart the stack").
   Passes on `ts-nano-dev`'s host with `docker` stubbed (2026-10-03; dev
   has no camera). Left: a sentry boot with Wi-Fi, T21.
-- T29: Each robot builds its own image, faster (the user, 2026-10-03).
-  Building on the Mac mini is a stopgap, not the way forward. `ts-nano-dev`'s local
-  `build_robot_image.sh` took 29 min with `isaac_ros` and `realsense`
-  cached: apt layer 502 s (5.46 GB re-downloaded because one package
-  joined the `apt-get install` line), rosdep 84 s, colcon 172 s, and
-  888 s exporting, which is the containerd image store gzipping each new
-  layer on the CPU. To try: zstd or no compression on the local export;
-  new apt packages in a small layer of their own, plus an apt cache
-  mount; ccache in a cache mount for colcon; for code-only changes,
-  `USE_WS_OVERLAY=true` and an incremental `colcon build`, no image.
-  A robot with no BuildKit cache (image pulled, not built) rebuilds
-  librealsense once.
 
 ## Tracks, in order of work
 
 Finish the short todos first, then A-C in order, with I before A's E2,
-then G. D runs alongside A, and E, F and H are unscheduled. Navigation comes after the Midwest competition;
+then G. D runs alongside A, and E, F, H and J are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
 ### A. The match test
@@ -233,6 +134,21 @@ shoots against other `sentry_v2` copies with the real code in between.
 Stages: the stand-in to the gimbal with our robot parked, then the serial
 link against an MCB emulator, then driving while shooting, then opponents
 that shoot back.
+
+- T17: Runs with the same inputs should score nearly the same (the user,
+  2026-09-28). The estimation bench runs in lockstep now and every cell's
+  p95s repeat to 1.03x (five Mac runs, 2026-10-01), close enough that one
+  run is a benchmark; exact repeats aren't the goal. The aiming bench
+  already is: three Mac runs 2026-10-01, cells within 0.5 points, worst
+  `staggered-speed4` 0.968-0.981. E1 isn't, and looks broken since
+  2026-09-29: three runs failed 11, 10 and 8 of 12 cases, most firing no
+  shots at all (both still radial and diagonal cells in every run), only
+  stationary-lateral hitting 95-100%. 2026-10-03: every radial and
+  diagonal cell gets no valid `TargetState`, even run alone from a fresh
+  stack (a still target at (3.5, 0) gets 5 detections in 15 s, one at
+  (3.0, 0) hits 100%). So it's E1's sim, not the CV nodes: look at
+  `detector_standin`'s 0.1 m depth check against where the gz opponent
+  really is. Find why before measuring its spread. Left: drift and EKF runs, not yet measured.
 
 ### I. MCB emulator
 
@@ -308,6 +224,39 @@ UEFI Shell instead, the install ran 2026-10-01 (`JAZZY_FLASH.md` step 3 has
 the workaround for standard). Check `journalctl -u robot-firstboot` on
 `ts-nano-hero`.
 
+- T20: A better log format on the robots (the user, 2026-10-01). Today
+  each boot-service run is one text file of console output
+  (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
+  counter for a name). About 75% of its lines are `dji_serial_bridge`'s
+  per-frame `ref_sys RX` (10 Hz) and `relocalize TX` INFO lines
+  (`debug_log` defaults true). Done 2026-10-02: each run also records
+  an MCAP bag of `/rosout` plus the localization, lidar, referee and CV
+  topics, keeps the ROS node logs, and prunes old runs by free disk
+  (`isaac-ros-startup` README.md "Per-run bag"), untested on a robot.
+  Left: the bridge's per-frame logs at DEBUG or throttled, throttled
+  CRC and rf2o per-scan WARNs, its DIAG stats on `/diagnostics`.
+- T25: Log any data from the MCB through a new message (the user,
+  2026-10-03). Today the Jetson sees only what `POSE` and `REF_SYS`
+  carry (plus `PING`, id 5, which the MCB echoes back), so the MCB's own state (mode, setpoints, what it did with a
+  `CV_TARGET`, fire events, faults) is invisible after a run. Add a UART
+  message the firmware can fill with any data, and have
+  `dji_serial_bridge` publish it on a topic that the per-run bag records
+  (T20). Open: a fixed struct or tagged key/value fields, its rate, and
+  the bandwidth left on the 115200-baud link. Spec it in
+  `UART_PROTOCOL.md` and land it on both sides (bridge, MCBV3).
+- T29: Each robot builds its own image, faster (the user, 2026-10-03).
+  Building on the Mac mini is a stopgap, not the way forward. `ts-nano-dev`'s local
+  `build_robot_image.sh` took 29 min with `isaac_ros` and `realsense`
+  cached: apt layer 502 s (5.46 GB re-downloaded because one package
+  joined the `apt-get install` line), rosdep 84 s, colcon 172 s, and
+  888 s exporting, which is the containerd image store gzipping each new
+  layer on the CPU. To try: zstd or no compression on the local export;
+  new apt packages in a small layer of their own, plus an apt cache
+  mount; ccache in a cache mount for colcon; for code-only changes,
+  `USE_WS_OVERLAY=true` and an incremental `colcon build`, no image.
+  A robot with no BuildKit cache (image pulled, not built) rebuilds
+  librealsense once.
+
 ### G. Estimation accuracy
 
 [`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Estimation accuracy", steps
@@ -353,6 +302,27 @@ boot doesn't. Ctrl-C prints a traceback from every Python node (bare
 **Done when:** each bench starts with one command, says if gz is missing,
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
 stops every node it started, with no tracebacks and no orphans.
+
+- T30: The robot stack's bring-up race fails drift scenarios (2026-10-03
+  run, archlinux). 3 of 9 starts had no `map->root` after 30 s:
+  `rf2o` can't look up `root -> lidar`, `amcl` comes up active but drops
+  every scan as older than its TF. The harness's one restart
+  (`_wait_for_root_chain`) saved drift_correction_obstacle and odom_stuck,
+  not drift_correction. The robot can hit it at boot too. Find why the
+  `root` chain is missing at start, rather than restart around it.
+- T24: One name per test, for what it tests, used by its launch file,
+  test file and the docs alike (the user, 2026-10-03). After Sunday.
+  Each has three names today ("aiming bench" is `shot_hit.launch.py` and
+  `test_shot_hit.py`). New names:
+  - `localization_drift` (was `localization_tests.launch.py`, the drift suite)
+  - `ekf` (was `suite:=ekf`, `test_ekf_ground_truth.py`)
+  - `aim` (was `shot_hit`, the aiming bench)
+  - `tracking` (was `estimation`, the estimation bench)
+  - `cv_chain` (was `e2e.launch.py`'s E1, the match test)
+  - `firmware_link` (was `stage:=e2`)
+
+  E1-E4 in `E2E_PLAN.md` and the CV plan names go too. About 200 doc
+  references across 20 files, plus the isaac-ros-docker skill.
 
 ### F. CV nodes into their own repo
 
@@ -409,6 +379,33 @@ each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on the
 game-like scenario too (run both there). Run that scenario as three games
 in a row on one carried-over map: the error must not grow from game to
 game, and the map must not collect robots or duplicate walls.
+
+### J. Lidar and camera
+
+What the sensors give, and whether we need them as they are.
+
+- T22: Can the RPLIDAR's points per scan and scan rate change, and would
+  it help (the user, 2026-10-02)? Questions, not answered yet:
+  - Which scan modes and rates does our model support, and does
+    `sllidar_node` (`auto.launch.py` sets only port, baud and frame) expose
+    them?
+  - What runs today: mode, points per scan, Hz?
+  - Would more points or a faster scan help rf2o, the EKF, amcl or the
+    map, and which matters more?
+  - What does it cost: range, noise, CPU on the Orin, USB bandwidth?
+  - Does a faster scan cut the skew while the head turns (T23)?
+- T23: Does the patrol hurt the lidar (the user, 2026-10-02)? The lidar
+  is on the head, so `point_to_cv_target`'s patrol (`thornbots_pkg`
+  README, 2026-10-02) turns it at 2 rad/s, about 0.2 rad per scan at
+  10 Hz, where a held head keeps it still in the world. Check rf2o, the EKF and
+  the map with the patrol on against off, in sim and on the robot. If it
+  hurts, use the lidar to find robots and only turn the gun toward them
+  instead of patrolling all the time.
+- T19: See if the depth camera is actually needed (the user, 2026-10-01).
+  Today `roi_depth_node` ranges each detection off the D435's depth, and
+  the match test runs a gz depth camera for it (track D: an RGB-D camera
+  alone caps gz near RTF 2.2). Without it, range would have to come from
+  the colour image.
 
 ## Caveats
 
