@@ -118,6 +118,12 @@ CV:
   width; it also leans on the tracker's yaw, weakest there (T15,
   `stationary45`). Want: the most face-on panel, held with hysteresis
   until another is clearly better. Measure on the aiming bench at 45 deg.
+- T33: A patrol flag on `CVTarget` (the user, 2026-10-04). Our patrol
+  points go out as aim points with `fire` clear, so the MCB can't tell a
+  sweep from a target we're holding fire on. Add a bit (bit 3, reserved
+  today) set on every patrol point: `CVTarget.msg`, the bridge's packing,
+  `UART_PROTOCOL.md`, `point_to_cv_target` and the MCB emulator. Ask the
+  MCB team to adopt it with the bridge README's "Asked of the firmware".
 
 ## Tracks, in order of work
 
