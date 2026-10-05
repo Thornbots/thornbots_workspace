@@ -26,6 +26,13 @@ to the same change, and a one-line package commit still earns its own. Push the
 package before you push here — a gitlink pointing at an unpushed commit fails
 everyone else's `git submodule update --init`.
 
+A change across packages can live on a branch of the same name in each, with
+this repo's branch bumping the gitlinks. Open one PR here into `main`; its
+check (`.github/workflows/advance-submodules.yml`) fails if a gitlink doesn't
+fast-forward its package's `.gitmodules` branch. Merging it pushes those
+fast-forwards, so the packages move with it. That push needs the
+`SUBMODULES_TOKEN` secret, a token with contents write on the package repos.
+
 | Path | Branch | Role |
 | --- | --- | --- |
 | `thornbots_pkg` | `main` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
@@ -38,7 +45,7 @@ everyone else's `git submodule update --init`.
 | `rf2o_laser_odometry` | `ros2` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `main` | Isaac ROS base, our Dockerfiles and container scripts |
 | `isaac-ros-startup` | `main` | systemd service that starts the robot stack at boot |
-| `firmware/MCBV3` | `newMain` | MCB firmware, opt-in: not cloned by default, see below |
+| `firmware/MCBV3` | `position-based-cv` | MCB firmware, opt-in: not cloned by default, see below |
 
 Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
 
