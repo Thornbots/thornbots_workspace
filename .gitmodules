@@ -1,15 +1,15 @@
 [submodule "thornbots_pkg"]
 	path = thornbots_pkg
 	url = https://github.com/Thornbots/thornbots_pkg.git
-	branch = rep-105
+	branch = main
 [submodule "sim"]
 	path = sim
 	url = https://github.com/Thornbots/sim.git
-	branch = rep-105
+	branch = main
 [submodule "sentry_localization"]
 	path = sentry_localization
 	url = https://github.com/Thornbots/sentry_localization.git
-	branch = rep-105
+	branch = main
 [submodule "rf2o_laser_odometry"]
 	path = rf2o_laser_odometry
 	url = https://github.com/Thornbots/rf2o_laser_odometry.git
@@ -17,7 +17,7 @@
 [submodule "ros2_dji_serial_bridge"]
 	path = ros2_dji_serial_bridge
 	url = https://github.com/Thornbots/ros2_dji_serial_bridge.git
-	branch = rep-105
+	branch = main
 [submodule "isaac_ros_common"]
 	path = isaac_ros_common
 	url = https://github.com/Thornbots/isaac_ros_common.git
@@ -41,5 +41,5 @@
 [submodule "firmware/MCBV3"]
 	path = firmware/MCBV3
 	url = https://github.com/Thornbots/MCBV3.git
-	branch = rep-105
+	branch = position-based-cv
 	update = none
