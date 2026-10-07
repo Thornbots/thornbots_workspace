@@ -18,7 +18,7 @@ keep the record.
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
 | CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` `f835be1` over the wire with the three fixes asked of it: 28/40 hits on a clean still track, a few % when E1's tracking goes bad (T17) |
-| Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; sentry and hero run Jazzy; standard left (track C, the user 2026-10-03) |
+| Jazzy | Laptop validation is recorded in [JAZZY_PLAN.md](JAZZY_PLAN.md#laptop-validation-2026-09-30); current machine and hardware-check status is in [Hardware status](JAZZY_PLAN.md#hardware-status) |
 
 ## Short todos
 
@@ -28,6 +28,9 @@ T15 to G; T17 to A; T20, T25 and T29 to C; T24 and T30 to E; T19, T22
 and T23 to J).
 
 Robot ops:
+
+Current deployment and validation status: [JAZZY_PLAN.md](JAZZY_PLAN.md#hardware-status).
+The dated boot/run observations below do not establish hardware acceptance.
 
 - T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
   user, 2026-10-02). The MCB team updates the auto-drive route for the
@@ -67,8 +70,8 @@ Robot ops:
     clear; the firmware fires on bit 0 alone (the user, 2026-10-04). On
     the robot, check the sweep direction. Turning toward a hit is
     firmware-only and works.
-  - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
-    a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
+  - Robot acceptance checks: depth on a lit panel, bridge diagnostics
+    `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `POSE`'s x/y axes
     (`head_yaw` is fixed): a panel straight ahead should land straight
     ahead of `root`.
@@ -215,11 +218,11 @@ with the firmware side first.
 
 ### C. Jazzy on the robots
 
-[`JAZZY_PLAN.md`](JAZZY_PLAN.md) steps 1, 5 and 6 (runbook
-[`JAZZY_FLASH.md`](JAZZY_FLASH.md)). `ts-nano-dev` and `ts-nano-sentry`
-are on JetPack 7.2.1; sentry and hero run Jazzy, standard still runs
-frozen Humble (the user, 2026-10-03). Done when
-YOLO fps and detection latency on the Orin are no worse than on Humble.
+Current migration state and unverified hardware checks live in
+[JAZZY_PLAN.md](JAZZY_PLAN.md#hardware-status); flashing instructions are
+in [JAZZY_FLASH.md](JAZZY_FLASH.md). Finish hardware checks and the
+remaining standard reflash. A Humble performance comparison needs a
+recorded baseline; none is recorded in the plan.
 
 Boot time: power-on to a running ROS stack under 1 min on each robot (the
 user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the

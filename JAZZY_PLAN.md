@@ -7,11 +7,31 @@ laptop and the three robots (`ts-nano-sentry`, `ts-nano-hero`,
 **`main` is Jazzy since 2026-09-27.** Every repo's default branch took its
 `jazzy`, the `jazzy` branches are deleted, and the `humble` branches hold
 the last Humble tree, **frozen**: no more work goes there.
-Sentry and hero run Jazzy (the user, 2026-10-03); `ts-nano-sentry` since
-2026-10-01 (the boot service, ROADMAP.md T21). Standard is the last robot
-on Humble, running that frozen tree until its step 6 reflash.
 
-## Where this stands (2026-09-30)
+## Hardware status
+
+Updated 2026-10-06 from the user's confirmation. Flashing is complete on
+sentry, hero and dev; only standard remains unflashed.
+
+| Machine | Migration state |
+| --- | --- |
+| `ts-nano-sentry` | Jazzy flash complete |
+| `ts-nano-hero` | Jazzy flash complete |
+| `ts-nano-dev` | Jazzy flash complete (test box) |
+| `ts-nano-standard` | Not yet flashed; frozen Humble tree |
+
+**No hardware checks have been run on the robot yet** (user, 2026-10-06).
+Camera/YOLO, ROI depth,
+tracking and aiming, serial link, lidar/localization, and firing are all
+unverified on the robot. Earlier boot logs, detections and timing samples
+in ROADMAP and package notes are historical observations, not acceptance
+results. No Humble FPS/latency baseline is recorded here; its availability
+is unconfirmed. Remaining setup problems have not been confirmed resolved.
+
+Next: run step 5's checks on the robot and record dated results here;
+reflash standard using [JAZZY_FLASH.md](JAZZY_FLASH.md).
+
+## Laptop validation (2026-09-30)
 
 The laptop half (steps 0, 2, 3 and 4) is done. `isaac_ros_common`'s `main`
 is upstream `release-4.6` plus our container files, and the image comes
@@ -28,22 +48,9 @@ the baseline step 5 and the robots compare against:
 | The aiming bench, 10 cells | 10/10 | 10/10, every score within 0.004 |
 | The estimation bench, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
 
-Step 1 is done (below). Left: step 5 (the hardware checks) and step 6
-(the robots). No Humble YOLO baseline is recorded, and dev and sentry
-are already wiped: take it on `ts-nano-hero` or `ts-nano-standard` before
-either is reflashed.
-
-2026-09-30: both `ts-nano-dev` and `ts-nano-sentry` run L4T R39.2.1.
-`ts-nano-dev` has our image built (36.4 GB). The sentry was reflashed
-ahead of step 6.1 and nothing records whether an NVMe image was taken
-first (none is in the laptop's `~/backups`). It rejoined tailscale as
-100.110.38.3 with Tailscale SSH on; its step 5 host checks pass (`ttyTHS1`
-at `3100000.serial`, lidar at `/dev/ttyUSB0` and `/dev/rplidar`, D435i on
-uvcvideo at 5000M; UART loopback not run). Its image isn't built yet.
-
 ## Target
 
-| | Today | After |
+| | Migration from | Migration to |
 | --- | --- | --- |
 | ROS 2 | Humble | Jazzy |
 | Isaac ROS | 3.2 (`nvcr.io/nvidia/isaac/ros:humble-3.2`) | 4.6.0, released 2026-08-18 |
@@ -65,7 +72,7 @@ Measured 2026-09-25: `ts-nano-dev` is an Orin Nano Super devkit (8 GB),
 JetPack 6.2.x (L4T R36.5), 70 GB used of a 456 GB NVMe. The laptop (RTX 1000
 Ada, driver 615.71) already meets 4.6's driver 595+ floor.
 
-## What still has to be checked on hardware
+## Hardware checklist
 
 - `yolo11s_fp16.plan` is tied to the TensorRT version. Rebuild it on each
   Orin from `best.onnx` in `Thornbots/trained-models` (LFS,
@@ -109,7 +116,8 @@ Ada, driver 615.71) already meets 4.6's driver 595+ floor.
 1. RealSense at 60 fps with our profiles (`docker/config/*_60fps.yaml`).
 2. Rebuild the TensorRT engine, run `isaac_ros_yolov8_realsense.launch.py`,
    and compare YOLO fps and camera-to-`TargetState` latency with the Humble
-   numbers taken before step 1.
+   baseline if one is available. Otherwise record a Jazzy baseline and
+   leave the Humble comparison unverified.
 3. Serial bridge on `/dev/ttyTHS1` and the RPLIDAR, if the parts fit on the
    dev box. Otherwise these move to the first robot in step 6.
 4. DDS: repeat the 2026-09-14 and 2026-09-20 measurements recorded in
@@ -119,15 +127,12 @@ Ada, driver 615.71) already meets 4.6's driver 595+ floor.
 
 ### 6. The robots
 
-The branches moved on 2026-09-27 (`main` is Jazzy, `humble` frozen).
-
-1. Reflash `ts-nano-sentry` first, with an NVMe image taken beforehand. Run
-   the step 5 checks and a full `auto.launch.py`.
-2. Then `ts-nano-hero` and `ts-nano-standard`. Every machine goes back to
-   `ROS_DOMAIN_ID=0` once the last Humble one is gone.
-3. Remove the Humble images from the robots, rewrite every `humble`
-   reference but the README's pointer to the `humble` branch, and delete
-   track C from ROADMAP.md.
+1. Finish hardware validation on the flashed robots (step 5). Their
+   migration state is in [Hardware status](#hardware-status).
+2. Reflash `ts-nano-standard` using the runbook, then repeat the checks.
+   Every machine goes back to `ROS_DOMAIN_ID=0` once the last Humble one
+   is gone.
+3. Remove unused Humble images and retire track C once validation passes.
 
 ## Done when
 
@@ -140,7 +145,7 @@ detection latency on the Orin are no worse than on Humble.
 
 | Risk | Answer |
 | --- | --- |
-| 4.6's Orin support is one release old; the JetPack 7.2 Orin Nano forum thread is still active | Step 5 runs on the spare box; the robots are untouched if it fails |
+| 4.6's Orin support is one release old; the JetPack 7.2 Orin Nano forum thread is still active | Validate on the spare box before further deployment; see hardware status for completed flashes |
 | The aarch64 image hits the 128-layer cap | Count layers in step 1, before any hardware check |
 | A lost lifecycle reply stalls the robot's localization at boot | Seen only in sim so far, on Humble too. Watch for it in step 6's `auto.launch.py` runs |
 | A competition date lands mid-migration | Standard stays on Humble until its step 6 reflash, with an NVMe image and R36.5 firmware to roll back to |

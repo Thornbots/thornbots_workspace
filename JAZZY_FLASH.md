@@ -26,8 +26,9 @@ Everything here runs from the laptop over ssh while the board is up.
 
 If the RealSense is on this board, first record the Humble numbers step 5
 compares against: YOLO fps and camera-to-`TargetState` latency from
-`isaac_ros_yolov8_realsense.launch.py` in the Humble container. Without a
-camera here, take them on `ts-nano-sentry` before its reflash instead.
+`isaac_ros_yolov8_realsense.launch.py` in the Humble container. Use a board still on Humble; see
+[current machine status](JAZZY_PLAN.md#hardware-status). If no baseline can
+be captured, leave the Humble comparison unverified.
 
 ### 1.1 Temporary passwordless sudo for the backup tools
 
