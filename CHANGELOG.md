@@ -35,6 +35,10 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Estimation bench lockstep pacing now expects the aim node's existing 40 Hz
+  timer, restoring unthrottled runs without clock synchronization timeouts.
+  See [sim 4a8d92d](https://github.com/Thornbots/sim/commit/4a8d92d).
+
 - Hosted MCB fixture Python files pass the sim package's copyright, import,
   formatting and docstring checks. See [sim 1c5e4c5](https://github.com/Thornbots/sim/commit/1c5e4c5).
 
