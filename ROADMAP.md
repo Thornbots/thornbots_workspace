@@ -180,7 +180,12 @@ the real ROS bridge; `e2e.launch.py stage:=e2` uses the same executable.
 
 Native control and real-bridge tests cover pose/referee output, ping,
 aim/fire, relocalize, malformed frames, stage gating and both drive modes.
-E2 scoring stays blocked on its invalid opponent paths. Motor feedback and
+E1/E2 now score on field-safe paths, with no blanket skips or xfail. The
+Odometry twist uses the child frame throughout sim; consumers rotate it
+into their parent frame. E3/E4 run spawn-to-center routes and record
+localization, head-TF and tracking failures alongside combat scores.
+Moving accuracy, repeated-run floors and E4 segment equivalence remain open.
+Motor feedback and
 MCU timing remain models; next steps:
 - Wire physical CAN motor feedback and dynamics to gz instead of applying
   firmware setpoints through gz's existing controllers.

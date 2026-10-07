@@ -1,0 +1,42 @@
+[
+  {
+    "segment": "approach_2",
+    "shots": 13,
+    "hit_rate": 0.0,
+    "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+    "route_p95_m": 0.14041946634684793,
+    "localization_p95_m": 0.4614579153247455
+  },
+  {
+    "segment": "parked",
+    "shots": 10,
+    "hit_rate": 0.0,
+    "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+    "route_p95_m": 0.14365418059043228,
+    "localization_p95_m": 0.6447988794482138
+  },
+  {
+    "segment": "straight_1",
+    "shots": 5,
+    "hit_rate": 0.0,
+    "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+    "route_p95_m": 0.033928093206042,
+    "localization_p95_m": 1.5355095461160042
+  },
+  {
+    "segment": "turn",
+    "shots": 5,
+    "hit_rate": 0.0,
+    "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+    "route_p95_m": 0.031134548130874545,
+    "localization_p95_m": 3.2449082331576937
+  },
+  {
+    "segment": "spin",
+    "shots": 0,
+    "hit_rate": 0.0,
+    "diagnosis": "target_tracker/point_to_cv_target: no firmware shots during this segment",
+    "route_p95_m": 0.010425602059532591,
+    "localization_p95_m": 3.3757911665038756
+  }
+]

@@ -75,13 +75,13 @@ and the regular run (unit tests, then the match test) fits 10 minutes, and
 
 | Piece | Today | Build |
 |---|---|---|
-| Opponents | One `sentry_v2` copy, `opponent_0` (`opponent_driver`, E1), moved along `target_driver`'s path by `OpponentMover`; no aiming or shooting back. `actor_driver` still spawns plain boxes | Spawn N `sentry_v2` copies, each with a team. One `opponent_driver` node moves them all along `target_driver`'s path profiles with chassis spin, aims each head at our panels from truth with added noise, and fires at a set rate |
-| An ally | None | One copy on our team, so the selector has to drop its panels and we must never fire at it |
+| Opponents | E1/E2 use one red ghost on field-safe diagnostic paths. E3 approaches center from red spawn. E4 has two red ghosts on separate routes, with truth-fed noisy aim and 2 Hz fire | Tune ghost aim realism and repeated-run spread |
+| An ally | E4 has one blue ghost, routed from blue spawn and firing at red panels. The selector drops its blue detections; first-impact scoring detects unintended intersections | Zero firmware shots intersecting the ally; intermittent failures remain |
 | Detector stand-in | `detector_standin` (`sim/src/detector_standin.cpp`) publishes `/cv/panel_detections` for E1 with no camera, in `roi_depth_node`'s place (the user, 2026-10-05) | Every 60 Hz sim tick: each panel on every other robot that faces the camera (the 145 deg exposure cone) and lands in the D435's image, its true centre and corners in `camera`, class by team (blue 0-3, red 4-7). Ray noise is a parameter, off by default. Occlusion by the field and other robots: not done (the depth check went with the camera) |
 | MCB emulator | E1 bypasses the wire. E2 and `mcb.launch.py` run the checked-out MCBV3 C++ hosted executable on a pty; fake IMU, pods, encoders, CAN and remote/referee interfaces supply hardware. The Python control port is removed | Physical motor dynamics and STM32 timing remain to model (ROADMAP track I). POSE/REF_SYS scheduling, CV_TARGET aiming/firing, RELOCALIZE and drive behaviour come directly from the firmware code; rebuild after firmware edits |
-| Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 2 m/s^2 (`drive(accel=)` in `drift_harness.py`; the user, 2026-09-28). The MCB holds yaw within 2 deg over a match |
-| Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `delta_angle_got_hit_in`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS` |
-| Shots | Only the Python harnesses fly shots | Every shot, ours or an opponent's, flies a straight line at 25 m/s from the gz muzzle at fire time. The first thing it crosses wins: a panel's canted square, a robot hull, or nothing. A panel hit counts only above 12 m/s normal speed and 50 ms after that panel's last hit, per the rules. The aiming bench already scores the canted square (`off_face` in `shot_hit_harness.py`) |
+| Driving | E3/E4 use `match_driver` scripted `/cmd_vel` at 2 m/s²; native firmware owns aim/fire. Provisional team spawn routes end in center maneuvers, with AMCL/rf2o/EKF active | Navigation publisher and native drive handoff remain later work |
+| Referee emulator | E4 tracks 400 HP per robot, 20 HP per hit. HP, team, stage, time and hurt panel enter the physical referee parser; HP and team are checked on returning UART `REF_SYS` | Verify `delta_angle_got_hit_in`; heat, ammo and respawn are not modeled |
+| Shots | E4 advances ballistic 25 m/s shots from truth muzzles. The first field, chassis hull or canted panel impact absorbs the shot. Damage needs >12 m/s relative normal speed, the exposure cone and 50 ms per-panel dead time | Non-chassis appendage blockers and detector occlusion remain unmodeled |
 
 Driving comes from sim for now. `NAV_GOAL` goals have no publisher in this
 workspace, and navigation comes after the Midwest competition. Once a
@@ -104,18 +104,27 @@ from stage to stage, so a drop belongs to the hops that stage added.
    MCB emulator, which replaces `pose_emulator`, `cv_head_aim` and the team
    stub. Tests the `CV_TARGET` packing, the stamps both ways, the fire path,
    and `REF_SYS` into the selector. `stage:=e2` runs it (2026-10-01);
-   it hits nothing yet: the MCB's odometry and our `odom` differ by a turn (ROADMAP track I).
+   it scores through the compiled MCB firmware on field-safe paths. The
+   stationary lateral cell passes; moving tracking accuracy remains open.
 3. E3, driving while shooting. Our robot drives the scripted route: straight
    at 1 and 2 m/s, a 90 deg turn while driving, and spinning in place.
    Localization from gz lidar is in the loop, so its error at fire time
    lands in the score. The aim is an `odom` point; `RobotPose.chassis_yaw`
-   reads 0 until the firmware sends it, which the turn and the spin measure.
+   comes from the hosted firmware. Robots start at their provisional team
+   spawns and travel around the south walls to center.
 4. E4, the match, 2v2: two opponents and one ally (the user, 2026-09-28),
    with opponents shooting back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
 The world-frame aim that follows E3 is ROADMAP.md track B
 (`CV_SPLIT_PLAN.md` W.1-W.5). Its done bar: each moving segment comes within
 10 points of the same target cell with our robot parked.
+
+E3 and E4 now run on nightly. E4 includes ballistic first impacts against
+the field, chassis hulls and armor, per-panel damage dead time, HP and
+referee UART feedback. `sim/README.md` documents commands and model limits.
+E3 diagnostic completion passes; moving combat accuracy does not. E4's
+strict zero-friendly-intersection assertion exposes intermittent failures.
+Repeated-run floors and standalone-versus-sequence equivalence remain open.
 
 ### Scoring
 
