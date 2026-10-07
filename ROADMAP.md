@@ -60,9 +60,12 @@ Robot ops:
     (2026-10-04; they build what we ask, the user 2026-10-03). The aim
     in one frame, REP-105 (its yaw already is, its odometry isn't), and
     pitch for `z` above the pivot (else every shot is 0.39 m high). The
-    emulator still ports `f835be1` (track I). Until the first lands,
-    `thornbots_pkg`'s `mcb_x_right` converts the odometry on the Jetson
-    (2026-10-04); turn it off with the new firmware.
+    pitch fix is in `position-based-cv` `023802c`. rep-105 (2026-10-04,
+    every repo) does the first and more: one field frame, (0, 0) at the
+    field centre, x toward blue's base, in the firmware, on the wire, in
+    `odom`, `map`, the maps and the sim world; `mcb_x_right` is gone. The
+    emulator ports rep-105 at `cf42375`, before the rebase onto `023802c`
+    (track I). Not on the robot, not flashed.
   - YOLO runs at about 58 fps (the user, 2026-10-02).
   - Patrol: `point_to_cv_target` sweeps the gun with no target, fire
     clear; the firmware fires on bit 0 alone (the user, 2026-10-04). On
