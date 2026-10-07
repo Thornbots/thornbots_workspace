@@ -87,7 +87,7 @@ Out of scope for now (user, 2026-10-06).
 
 Fix: match the table to .gitmodules. This finding is present on main and is independent of pending branch documentation updates.
 
-### 12. Hardware status has several conflicting copies
+### 12. Resolved — conflicting hardware status copies
 
 Fixed on the review branch: a dated hardware-status table in JAZZY_PLAN, linked from the roadmap and package notes. User confirmation on 2026-10-06: sentry, hero and dev flashed; standard pending; no checks run on the robot yet. Older run observations are explicitly historical.
 
@@ -142,3 +142,15 @@ its reflash is a clean install. No backup-verification work remains.
 ## Suggested order
 
 Items #2, #3 and #12 are resolved on the review branch. Next: the remaining interface and frame/timestamp contracts, then historical analysis and the selected #14 follow-ups. Firmware build instructions (#4) and firmware branch naming (#11) remain out of scope. Disk backup procedures (#1) were removed at the user’s request.
+
+## CV split plan retirement
+
+Removed the completed split plan at the user's request (2026-10-06).
+Unique open work and acceptance criteria moved to ROADMAP tracks B and G;
+the CV interface lives in thornbots_pkg's README, shared-frame coordination
+in the serial bridge README, and old measurements in
+[dated CV bench observations](sim/docs/cv-bench-results-2026-09-28.md).
+Updated incoming documentation and comment references. This also removes
+#9's obsolete claim in thornbots_pkg AGENTS that firmware still reads root;
+its separate README payload-growth claim remains open. #14f's broader
+simulation-document shortening remains open.

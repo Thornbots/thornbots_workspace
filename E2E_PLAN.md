@@ -113,9 +113,8 @@ from stage to stage, so a drop belongs to the hops that stage added.
 4. E4, the match, 2v2: two opponents and one ally (the user, 2026-09-28),
    with opponents shooting back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
-The world-frame aim that follows E3 is ROADMAP.md track B
-(`CV_SPLIT_PLAN.md` W.1-W.5). Its done bar: each moving segment comes within
-10 points of the same target cell with our robot parked.
+Remaining moving-shooter work and its acceptance bar are in
+[ROADMAP track B](ROADMAP.md#b-hit-while-we-move).
 
 ### Scoring
 
