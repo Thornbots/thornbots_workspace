@@ -68,7 +68,8 @@ jobs:
         if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'nightly' || github.event_name == 'workflow_dispatch')
         run: |
           docker push "$ROBOT_REGISTRY_TAG"
-          branch_tag="ghcr.io/thornbots/isaac-ros:${GITHUB_REF_NAME}-arm64-jetpack"
+          branch_name="${GITHUB_REF_NAME//\//-}"
+          branch_tag="ghcr.io/thornbots/isaac-ros:${branch_name}-arm64-jetpack"
           docker tag "$ROBOT_REGISTRY_TAG" "$branch_tag"
           docker push "$branch_tag"
           {
