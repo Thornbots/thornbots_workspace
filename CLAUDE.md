@@ -30,22 +30,42 @@ CV (target detection/tracking) comes first. Game rules and field geometry:
 
 ## Packages
 
-Each package dir is a submodule. Every package change needs a gitlink bump
-here, or everyone else builds old code. One logical change per bump, even if
-it moves several gitlinks or just one line.
+Follow the [submodule workflow](README.md#working-with-submodules) for
+package commits, gitlink updates and push order.
 
 Commit and push each logical change once it's tested, without being asked.
-Push the submodule before the superproject.
 
-`.gitmodules` records each package's branch. After a clone, run the one-liner
-in `README.md` to get off detached HEAD.
-
-Read a package's `AGENTS.md` before working there. Keep it short: current
-state, open questions, rules. Test runs and measurements go in commit messages.
+Read a package's `AGENTS.md` before working there. Keep it short: agent
+instructions and links to current state and open work.
 
 Write `README.md` for a human in a container terminal: plain `colcon` and
 `ros2`, no `dexec.sh`, `kill_launch.sh` or skills. Host-side equivalents go in
 `AGENTS.md`.
+
+## Documentation
+
+Give each fact, procedure or decision one maintained home. Other documents
+link directly to its section instead of copying it. Keep READMEs short:
+purpose, quickstart and links to details. AGENTS files add agent instructions
+and link to human documentation; they do not repeat it.
+
+| Information | Maintained home |
+| --- | --- |
+| Package usage and design rationale | The owning package's `README.md` |
+| Full robot launch recipe | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
+| Robot node/topic diagram | [thornbots_pkg README](thornbots_pkg/README.md#nodes) |
+| Machine migration and hardware validation status | [JAZZY_PLAN](JAZZY_PLAN.md#hardware-status) |
+| Open project work | [ROADMAP](ROADMAP.md); link to plans for implementation detail |
+| Wire format and timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
+| Parameter defaults and message fields | Their source declarations; link to them from explanatory docs |
+| Test runs, tuning history and measurements | Commit messages; longer investigations in dated historical documents |
+
+Before adding documentation, search for an existing home. Update it and
+replace overlapping copies with relative Markdown links. Add a row here only
+when a topic spans packages and its owner is unclear. When moving a section,
+update its incoming links in the same change. Date historical observations
+and link to current status so they cannot be mistaken for today's results.
+Verify changed local links and anchors before committing.
 
 ## Timestamps
 

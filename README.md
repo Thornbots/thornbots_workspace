@@ -6,6 +6,8 @@ The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace.
 every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
 more work, and stays only for robots not yet reflashed to JetPack 7.2.
 
+## Working with submodules
+
 Each package is a submodule:
 
 ```sh
@@ -40,7 +42,12 @@ everyone else's `git submodule update --init`.
 | `isaac-ros-startup` | `main` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `newMain` | MCB firmware, opt-in: not cloned by default, see below |
 
-Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+Start with [ROADMAP.md](ROADMAP.md) for open work and links to its plans,
+[hardware status](JAZZY_PLAN.md#hardware-status) for migration and robot checks,
+and [JAZZY_FLASH.md](JAZZY_FLASH.md) for reflashing.
+[ARCC_2026_SENTRY_CONTEXT.md](ARCC_2026_SENTRY_CONTEXT.md) covers competition
+rules and hardware context. The [documentation ownership map](CLAUDE.md#documentation)
+identifies where shared information belongs; link there instead of copying it.
 
 ### MCB firmware
 

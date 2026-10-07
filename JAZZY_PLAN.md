@@ -10,8 +10,7 @@ the last Humble tree, **frozen**: no more work goes there.
 
 ## Hardware status
 
-Updated 2026-10-06 from the user's confirmation. Flashing is complete on
-sentry, hero and dev; only standard remains unflashed.
+Updated 2026-10-06 from the user's confirmation.
 
 | Machine | Migration state |
 | --- | --- |
@@ -21,8 +20,7 @@ sentry, hero and dev; only standard remains unflashed.
 | `ts-nano-standard` | Not yet flashed; frozen Humble tree |
 
 **No hardware checks have been run on the robot yet** (user, 2026-10-06).
-Camera/YOLO, ROI depth,
-tracking and aiming, serial link, lidar/localization, and firing are all
+Camera/YOLO, ROI depth, tracking and aiming, serial link, lidar/localization, and firing are all
 unverified on the robot. Earlier boot logs, detections and timing samples
 in ROADMAP and package notes are historical observations, not acceptance
 results. No Humble FPS/latency baseline is recorded here; its availability
