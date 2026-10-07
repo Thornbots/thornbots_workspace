@@ -2,7 +2,7 @@ name: publish robot image
 
 on:
   push:
-    branches-ignore: [humble, 'humble/**']
+    branches: [main]
   pull_request:
     branches: [main, nightly]
   workflow_dispatch:

@@ -31,7 +31,7 @@ A package change takes two commits: one in the package, one here to bump the git
 
 [CI and validation](docs/CI.md) describes the repository checks, lint debt,
 branch protection, and robot image publishing. Tested robot images are
-published to `ghcr.io/thornbots/isaac-ros` after `main` and `nightly` updates;
+published to `ghcr.io/thornbots/isaac-ros` after `main` updates;
 the image revision follows this workspace's exact package pins.
 
 One logical change, one bump: a bump may move several gitlinks when they belong
@@ -58,7 +58,7 @@ fast-forwards, so the packages move with it. That push needs the
 | `rf2o_laser_odometry` | `main` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
-| `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
+| `firmware/MCBV3` | `main` | MCB firmware, opt-in: not cloned by default, see below |
 
 Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
 

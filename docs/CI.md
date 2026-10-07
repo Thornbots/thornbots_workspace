@@ -1,7 +1,8 @@
 # CI and robot images
 
-Every package repo and this workspace run GitHub quality checks on pushes
-and PRs outside frozen Humble branches. Package workflows pin shared tooling
+Every package repo and this workspace run GitHub quality checks on PRs and
+main pushes, with manual dispatch available. Feature/nightly commits do not
+trigger tests. Package workflows pin shared tooling
 to an immutable workspace commit. Update the reusable workflow reference and
 its input refs together when changing the tooling.
 
@@ -16,7 +17,10 @@ its input refs together when changing the tooling.
 
 The portable ROS repos are thornbots_pkg, sim, sentry_localization,
 rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
-and sllidar_ros2. CI explicitly initializes opt-in sim. The MCB fixture is
+and sllidar_ros2. CI explicitly initializes opt-in sim. MCB main now includes
+newMain and the CI changes, preserving main's radians-based IMU API and
+updated referee flags. The matching sim fixture defaults to the 2025 flag
+schema and retains explicit legacy support. The MCB fixture is
 pinned to a compatible sim revision; missing firmware or skipped UART tests
 fail its job. No CI job flashes firmware or deploys to a robot.
 
@@ -59,10 +63,10 @@ using a provisioned `isaac-ros-jazzy` self-hosted runner and the
 ## Robot registry
 
 `publish robot image` builds the existing Isaac ROS CLI layer chain natively
-on GitHub's arm64 runner and tests packages before publishing. Pushes to
-main/nightly publish `ghcr.io/thornbots/isaac-ros:<branch>-arm64-jetpack` and
+on GitHub's arm64 runner and tests packages before publishing. Main pushes
+publish `ghcr.io/thornbots/isaac-ros:main-arm64-jetpack` and
 `sha-<full workspace SHA>-arm64-jetpack`. PR/feature builds test without
-publishing. A manual dispatch can publish its selected revision. Simulation
+publishing. A manual dispatch can publish its selected branch revision. Simulation
 images are not published.
 
 Package source changes reach the image after updating their workspace
