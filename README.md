@@ -43,8 +43,7 @@ everyone else's `git submodule update --init`.
 | `firmware/MCBV3` | `newMain` | MCB firmware, opt-in: not cloned by default, see below |
 
 Start with [ROADMAP.md](ROADMAP.md) for open work and links to its plans,
-[hardware status](JAZZY_PLAN.md#hardware-status) for migration and robot checks,
-and [JAZZY_FLASH.md](JAZZY_FLASH.md) for reflashing.
+[JAZZY_FLASH.md](JAZZY_FLASH.md) for migration status, robot checks and reflashing.
 [ARCC_2026_SENTRY_CONTEXT.md](ARCC_2026_SENTRY_CONTEXT.md) covers competition
 rules and hardware context. The [documentation ownership map](CLAUDE.md#documentation)
 identifies where shared information belongs; link there instead of copying it.

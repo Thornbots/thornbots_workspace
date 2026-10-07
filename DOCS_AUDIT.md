@@ -89,9 +89,9 @@ Fix: match the table to .gitmodules. This finding is present on main and is inde
 
 ### 12. Resolved — conflicting hardware status copies
 
-Fixed on the review branch: a dated hardware-status table in JAZZY_PLAN, linked from the roadmap and package notes. User confirmation on 2026-10-06: sentry, hero and dev flashed; standard pending; no checks run on the robot yet. Older run observations are explicitly historical.
+Fixed on the review branch: a dated hardware-status table in JAZZY_FLASH, linked from the roadmap and package notes. User confirmation on 2026-10-06: sentry, hero and dev flashed; standard pending; no checks run on the robot yet. Older run observations are explicitly historical.
 
-JAZZY_PLAN says hero and sentry run Jazzy, then directs readers to capture a Humble baseline on hero before reflashing it, and says sentry's image is not built. ROADMAP records the built sentry image and live detections. The vision and ROI AGENTS still say no camera run; thornbots_pkg AGENTS says nothing has run on hardware.
+Original finding: the migration plan said hero and sentry ran Jazzy, then directed readers to capture a Humble baseline on hero before reflashing it, and said sentry's image was not built. ROADMAP recorded the built sentry image and live detections while package AGENTS retained conflicting hardware-status wording.
 
 Fix: keep one current machine/status table with dates and link to it. Mark older measurements as historical. Separate 'runs on hardware' from 'hardware acceptance checks still missing.' Do not infer new validation merely because a node has run.
 
@@ -154,3 +154,13 @@ Updated incoming documentation and comment references. This also removes
 #9's obsolete claim in thornbots_pkg AGENTS that firmware still reads root;
 its separate README payload-growth claim remains open. #14f's broader
 simulation-document shortening remains open.
+
+## Jazzy document consolidation
+
+Merged the migration plan into [JAZZY_FLASH.md](JAZZY_FLASH.md) and removed
+the separate plan (user, 2026-10-06). The first line and machine table make
+clear that only standard remains to be flashed. Flashing examples now use
+standard. Preserved the hardware checklist, dated laptop comparison,
+migration rationale and sources; removed duplicate step summaries.
+Updated package links, agent instructions and source-comment references.
+Hardware validation remains unverified, separately from flash completion.

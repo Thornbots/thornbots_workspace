@@ -18,7 +18,7 @@ keep the record.
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
 | Estimation bench | [Commands and behavior](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), and [remaining accuracy work](#g-estimation-accuracy) |
 | CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` `f835be1` over the wire with the three fixes asked of it: 28/40 hits on a clean still track, a few % when E1's tracking goes bad (T17) |
-| Jazzy | Laptop validation is recorded in [JAZZY_PLAN.md](JAZZY_PLAN.md#laptop-validation-2026-09-30); current machine and hardware-check status is in [Hardware status](JAZZY_PLAN.md#hardware-status) |
+| Jazzy | Laptop validation is recorded in [JAZZY_FLASH.md](JAZZY_FLASH.md#laptop-validation-2026-09-30); current machine and hardware-check status is in [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
 
@@ -29,7 +29,7 @@ and T23 to J).
 
 Robot ops:
 
-Current deployment and validation status: [JAZZY_PLAN.md](JAZZY_PLAN.md#hardware-status).
+Current deployment and validation status: [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status).
 The dated boot/run observations below do not establish hardware acceptance.
 
 - T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
@@ -228,15 +228,15 @@ implemented; hardware validation remains unverified.
 
 Done when each moving match-test segment comes within 10 percentage points
 of the same target cell with our robot parked. Record hardware results in
-[hardware status](JAZZY_PLAN.md#hardware-status).
+[hardware status](JAZZY_FLASH.md#hardware-status).
 
 ### C. Jazzy on the robots
 
 Current migration state and unverified hardware checks live in
-[JAZZY_PLAN.md](JAZZY_PLAN.md#hardware-status); flashing instructions are
-in [JAZZY_FLASH.md](JAZZY_FLASH.md). Finish hardware checks and the
-remaining standard reflash. A Humble performance comparison needs a
-recorded baseline; none is recorded in the plan.
+[JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status), alongside the flashing
+instructions. Finish the remaining reflash and hardware checks. A Humble
+performance comparison needs a recorded baseline; none is recorded in the
+migration document.
 
 Boot time: power-on to a running ROS stack under 1 min on each robot (the
 user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the

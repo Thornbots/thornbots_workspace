@@ -54,7 +54,7 @@ and link to human documentation; they do not repeat it.
 | Package usage and design rationale | The owning package's `README.md` |
 | Full robot launch recipe | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
 | Robot node/topic diagram | [thornbots_pkg README](thornbots_pkg/README.md#nodes) |
-| Machine migration and hardware validation status | [JAZZY_PLAN](JAZZY_PLAN.md#hardware-status) |
+| Machine migration and hardware validation status | [JAZZY_FLASH](JAZZY_FLASH.md#hardware-status) |
 | Open project work | [ROADMAP](ROADMAP.md); link to plans for implementation detail |
 | Wire format and timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
 | Parameter defaults and message fields | Their source declarations; link to them from explanatory docs |
