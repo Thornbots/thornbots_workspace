@@ -35,6 +35,9 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Hosted MCB fixture Python files pass the sim package's copyright, import,
+  formatting and docstring checks. See [sim 1c5e4c5](https://github.com/Thornbots/sim/commit/1c5e4c5).
+
 - MCB UI drawing waits for its container before use, preventing a null-pointer
   crash when referee data arrives before UI setup. This fix also applies to a
   normal real-robot firmware build.
