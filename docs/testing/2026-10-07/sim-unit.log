@@ -4,7 +4,7 @@ Parse Config file:/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
    Site: b6fafe83bf25
    Build name: (empty)
  Add coverage exclude regular expressions.
-Create new tag: 20261007-1836 - Experimental
+Create new tag: 20261007-1841 - Experimental
 UpdateCTestConfiguration  from :/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
 Parse Config file:/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
 Test project /workspaces/isaac_ros-dev/build/sim
@@ -114,22 +114,22 @@ test 3
 3:   Warning: Type google.protobuf.pyext._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
 3:
 3: test/test_flake8.py: 10 warnings
-3:   Warning: This process (pid=16086) is multi-threaded, use of fork() may lead to deadlocks in the child.
+3:   Warning: This process (pid=18073) is multi-threaded, use of fork() may lead to deadlocks in the child.
 3:
 3: -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 3: - generated xml file: /workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml -
-3: ================ 69 passed, 58 deselected, 12 warnings in 9.11s ================
+3: ================ 69 passed, 58 deselected, 12 warnings in 9.02s ================
 3: -- run_test.py: return code 0
 3: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml'
-3/3 Test #3: sim_pytest .......................   Passed    9.36 sec
+3/3 Test #3: sim_pytest .......................   Passed    9.27 sec
 
 100% tests passed, 0 tests failed out of 3
 
 Label Time Summary:
 gtest     =   0.05 sec*proc (2 tests)
-pytest    =   9.36 sec*proc (1 test)
+pytest    =   9.27 sec*proc (1 test)
 
-Total Test time (real) =   9.42 sec
-Finished <<< sim [9.45s]
+Total Test time (real) =   9.33 sec
+Finished <<< sim [9.36s]
 
-Summary: 1 package finished [9.56s]
+Summary: 1 package finished [9.47s]

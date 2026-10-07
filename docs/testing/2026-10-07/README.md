@@ -12,13 +12,16 @@ under `e2e-validation`; its original `rep-105` checkout was left alone.
 | Archlinux E2, stationary lateral, 10 sim seconds | Failed: 0/20 MCB shots hit, 50.44 s |
 | Mac E3, spawn-to-center | Diagnostic pass, 37.93 s; 0/33 shots hit |
 | Mac E4, latest 2v2 match | Diagnostic pass, 59.44 s; 0/36 MCB shots hit, zero ally intersections |
-| Mac sim unit tests | 69 Python cases and 8 gtest cases passed, 9.56 s |
+| Archlinux E4, 2v2 match | Diagnostic pass, 86.04 s; 0/35 MCB shots hit, zero ally intersections |
+| Mac sim unit tests | 69 Python cases and 8 gtest cases passed, 9.47 s |
+| Archlinux sim unit tests, after correction | Passed, 32.1 s; colcon reports 80 tests, zero failures |
 
 E3/E4 diagnostic passes mean routes completed with stamped localization
 data and a measured explanation for low hit rates. They are **not combat
 accuracy passes**. Latest E4 route p95 was at most 0.100 m, with 604 referee
 UART frames. Each ghost fired 37 times; one red robot lost 20 HP. The test
 checks our HP and team return through the compiled MCB's real UART path.
+Archlinux's E4 route p95 stayed below 0.096 m and received 360 referee frames.
 
 An earlier E4 run failed the strict zero-ally-intersection assertion: one
 parked-segment shot hit the ally hull. It caused no damage, but still counts
@@ -35,3 +38,6 @@ Remaining work: moving localization/head-TF/tracking accuracy, intermittent
 friendly intersections, Archlinux's E2 accuracy failure, repeated-run floors,
 standalone-versus-sequence equivalence, and hit-angle referee verification.
 See `sim/README.md` for model limits and runnable container commands.
+
+Archlinux's first unit run found D213 errors in two final docstring edits.
+The correction is in sim `33645a9`; both full unit suites pass after it.
