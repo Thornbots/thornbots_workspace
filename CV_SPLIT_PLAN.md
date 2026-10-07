@@ -114,11 +114,9 @@ W.3's open issues (our side switched 2026-09-27):
 2. **Firmware: POSE's axes.** `0885a69` aims at `x/y/z` less its own
    odometry, which is x right, y forward. Worked around on the Jetson
    since 2026-10-04 (`thornbots_pkg` `mcb_x_right`, README.md "MCB
-   axes"), not on the robot. rep-105 (here and in MCBV3, `thornbots_pkg`,
-   the bridge, `sentry_localization`, `sim`) retired it: one field frame
-   everywhere, REP-105, (0, 0) at the field centre, x
-   toward blue's base, the MCB starting at its team's start. The layout
-   doesn't change, so no length check catches a mismatch.
+   axes"), not yet on the robot; the bridge README's "Asked" item 1
+   retires it. The layout doesn't change, so no length check catches a
+   mismatch.
 
 W.1's wire half and W.3 change the wire protocol and the MCB firmware,
 which live outside this workspace; agree them with the firmware side

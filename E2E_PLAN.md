@@ -37,9 +37,9 @@ the estimation bench scores at ~20x with the C++ `target_tracker`.
 2. Find the RTF cap by bisecting the stack's nodes and bridges. Every gz
    suite, the match test included, gains from it.
 3. Render only what gets scored. Until a suite consumes camera images, the
-   camera stays off everywhere (`camera:=false`, the default), the match
-   test included: its stand-in reads truth and stands in for
-   `roi_depth_node` too (the user, 2026-10-05).
+   camera stays off everywhere (`camera:=false`, the default) but in the
+   match test, whose stand-in reads truth, so there the camera is a
+   depth-only sensor with no colour image.
    Only our robot carries a camera and a lidar; the other sentries carry
    neither. A subscribed 60 Hz
    RGB-D camera alone caps a bare server near RTF 2.2. Depth alone at 60 Hz
@@ -77,7 +77,7 @@ and the regular run (unit tests, then the match test) fits 10 minutes, and
 |---|---|---|
 | Opponents | One `sentry_v2` copy, `opponent_0` (`opponent_driver`, E1), moved along `target_driver`'s path by `OpponentMover`; no aiming or shooting back. `actor_driver` still spawns plain boxes | Spawn N `sentry_v2` copies, each with a team. One `opponent_driver` node moves them all along `target_driver`'s path profiles with chassis spin, aims each head at our panels from truth with added noise, and fires at a set rate |
 | An ally | None | One copy on our team, so the selector has to drop its panels and we must never fire at it |
-| Detector stand-in | `detector_standin` (`sim/src/detector_standin.cpp`) publishes `/cv/panel_detections` for E1 with no camera, in `roi_depth_node`'s place (the user, 2026-10-05) | Every 60 Hz sim tick: each panel on every other robot that faces the camera (the 145 deg exposure cone) and lands in the D435's image, its true centre and corners in `camera`, class by team (blue 0-3, red 4-7). Ray noise is a parameter, off by default. Occlusion by the field and other robots: not done (the depth check went with the camera) |
+| Detector stand-in | `detector_standin` (`sim/src/detector_standin.cpp`) publishes `/detections_output` for E1 | For every panel on every other robot: look up its pose at the depth image's stamp, project the corners through `CameraInfo`, and keep it if it faces the camera (the 145 deg exposure cone), lands in the image, and the rendered depth at its centre agrees with its projected depth. The depth check gives occlusion by the field and other robots for free. Publishes the `Detection2DArray` YOLO would, in network space with the 640x640 letterbox `roi_depth_node` now undoes, class by team (blue 0-3, red 4-7), stamped with the image stamp. Pixel jitter and dropout are parameters, off at first |
 | MCB emulator | E1: `pose_emulator` publishes `/dji_serial_bridge/pose` and `cv_head_aim` reads `/cv/target`, both skipping the wire. E2 (`stage:=e2`): `sim/mcb_emulator/`, a port of MCBV3 `position-based-cv`, on a pty | ROADMAP.md track I: a node on the other end of a pty from `dji_serial_bridge`, copied from the real firmware (`Thornbots/MCBV3`), where it and this row differ the firmware wins. Sends `POSE` at 100 Hz from gz wheel odometry with `pose_emulator`'s noise model, and `REF_SYS` at 5 Hz from the referee emulator. Decodes `CV_TARGET`, drives the gz head to the `odom` point from its own odometry, and fires on `fire` after `delay_ms`. Applies `RELOCALIZE` to its odometry origin. Replaces `pose_emulator` and `cv_head_aim` in this test |
 | Driving | The drift harness ramps `/cmd_vel` at 20 m/s^2 (`real_accel`: 1.2) | The test drives our chassis through the MCB emulator from a scripted route, ramped at 2 m/s^2 (`drive(accel=)` in `drift_harness.py`; the user, 2026-09-28). The MCB holds yaw within 2 deg over a match |
 | Referee emulator | No `RefSysStatus` in sim | Tracks every robot's HP. A scored hit costs 20 HP, and on our robot sets `delta_angle_got_hit_in`. Also sets team, game stage and time left. Feeds the MCB emulator's `REF_SYS` |
@@ -97,9 +97,9 @@ Each stage adds hops and is its own commit and bump. Scoring stays the same
 from stage to stage, so a drop belongs to the hops that stage added.
 
 1. E1, the stand-in to the gimbal, our robot parked. Panels on the URDF, one
-   opponent running the aiming bench's cells, the stand-in and a team
-   stub in place of the referee. The real selector, tracker and
-   `point_to_cv_target` feed `cv_head_aim`.
+   opponent running the aiming bench's cells, the stand-in, depth, extrinsics, and a team
+   stub in place of the referee. The real `roi_depth_node`, selector,
+   tracker and `point_to_cv_target` feed `cv_head_aim`.
 2. E2, the wire. `dji_serial_bridge` and `mcb_relay` on a pty against the
    MCB emulator, which replaces `pose_emulator`, `cv_head_aim` and the team
    stub. Tests the `CV_TARGET` packing, the stamps both ways, the fire path,
