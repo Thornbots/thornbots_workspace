@@ -1,8 +1,10 @@
-# Step 1 runbook: reflash `ts-nano-dev` to JetPack 7.2.1
+# Runbook: reflash a Jetson to JetPack 7.2.1
 
 Step 1 of `JAZZY_PLAN.md`. Target: Orin Nano Super 8 GB devkit, NVMe,
-JetPack 6.2.x / L4T R36.5 today, JetPack 7.2.1 / L4T R39.2.1 / kernel 6.8
-after. Laptop commands run on the Arch laptop, board commands on the Jetson.
+JetPack 6.2.x / L4T R36.5 to JetPack 7.2.1 / L4T R39.2.1 / kernel 6.8.
+Examples use `ts-nano-dev` / `nano-dev`; substitute the board and account
+you are flashing. See [hardware status](JAZZY_PLAN.md#hardware-status) for
+remaining migration work. Laptop commands run on Arch, board commands on the Jetson.
 Budget half a day. You need a DisplayPort monitor and a USB keyboard at the
 board (the devkit has no HDMI), a 16 GB+ USB stick and Ethernet.
 
@@ -20,133 +22,14 @@ cd ~/Downloads/jetpack-7.2.1 && sha1sum -c <(grep iso release_sha_hashes.txt)
 Sources: [JetPack 7.2.1 downloads](https://developer.nvidia.com/embedded/jetpack/downloads/archive-7.2.1),
 [hash list](https://developer.nvidia.com/downloads/embedded/L4T/r39_Release_v2.1/release/release_sha_hashes.txt).
 
-## 1. Before you wipe anything (board still on JetPack 6)
+## 1. Before flashing
 
-Everything here runs from the laptop over ssh while the board is up.
-
-If the RealSense is on this board, first record the Humble numbers step 5
-compares against: YOLO fps and camera-to-`TargetState` latency from
-`isaac_ros_yolov8_realsense.launch.py` in the Humble container. Use a board still on Humble; see
-[current machine status](JAZZY_PLAN.md#hardware-status). If no baseline can
-be captured, leave the Humble comparison unverified.
-
-### 1.1 Temporary passwordless sudo for the backup tools
-
-`sudo` over a non-tty ssh pipe can't prompt, and `ssh -t` corrupts binary
-output. The reflash removes this file. Skip this if the board already has
-section 4's `90-nano-dev-nopasswd` rule (`ssh ts-nano-dev sudo -n true`).
-
-```bash
-ssh -t ts-nano-dev 'echo "nano-dev ALL=(root) NOPASSWD: /usr/bin/dd, /usr/bin/tar, /usr/sbin/sfdisk, /usr/sbin/fstrim" | sudo tee /etc/sudoers.d/99-backup && sudo chmod 440 /etc/sudoers.d/99-backup'
-```
-
-### 1.2 Inventory and unpushed git work
-
-```bash
-B=~/backups/ts-nano-dev/$(date +%F); mkdir -p "$B"
-ssh ts-nano-dev 'hostname; uname -a; cat /etc/nv_tegra_release; cat /etc/nv_boot_control.conf
-  lsblk -f; df -h; sudo -n sfdisk -d /dev/nvme0n1; groups; nvpmodel -q
-  for t in /sys/class/tty/ttyTHS*; do echo "$t -> $(readlink -f $t/device)"; done
-  lsusb; lsusb -t; ls -l /dev/ttyUSB* /dev/rplidar /dev/video* 2>&1
-  docker ps -a; docker images; docker volume ls
-  ls /etc/NetworkManager/system-connections /etc/netplan; tailscale ip -4; crontab -l
-  cd ~/workspaces/isaac_ros-dev/src 2>/dev/null && git status --short && git log --branches --not --remotes --oneline &&
-  git submodule foreach --quiet "echo == \$name; git status --short; git log --branches --not --remotes --oneline"' \
-  > "$B/inventory.txt" 2>&1
-less "$B/inventory.txt"
-```
-
-Push anything the last block lists before going further. Keep
-`inventory.txt`: section 5 compares the kernel 6.8 board against it.
-
-### 1.3 Files to copy off
-
-Models first. `yolo11s_fp16.plan` won't load on JetPack 7.2's TensorRT, so
-the ONNX is what matters (`JAZZY_PLAN.md`, What still has to be checked on hardware). If no
-`.onnx` turns up, stop and find it before flashing.
-
-```bash
-ssh ts-nano-dev 'sudo -n find / -xdev \( -name "*.onnx" -o -name "*.plan" -o -name "*.engine" -o -name "*.pt" \) 2>/dev/null' | tee "$B/models.txt"
-```
-
-Home directory, which also picks up `~/workspaces/isaac_ros-dev/isaac_ros_assets`,
-`~/.ssh`, dotfiles and shell history. Build output is skipped:
-
-```bash
-rsync -aHX --info=progress2 \
-  --exclude .cache --exclude 'workspaces/*/build' --exclude 'workspaces/*/install' --exclude 'workspaces/*/log' \
-  ts-nano-dev:/home/nano-dev/ "$B/home/"
-```
-
-Then copy any model from `models.txt` that lives outside `/home/nano-dev`
-with `rsync ts-nano-dev:<path> "$B/models/"`.
-
-System state: Wi-Fi and wired profiles, netplan, ssh host keys (keeps the
-laptop's `known_hosts` entry valid), udev rules, Docker config, custom
-systemd units, cron and the tailscale node state (keeps the node's 100.x IP):
-
-```bash
-ssh ts-nano-dev 'sudo -n tar -C / --ignore-failed-read -czf - \
-  etc/NetworkManager/system-connections etc/netplan etc/hostname etc/hosts etc/ssh \
-  etc/udev/rules.d etc/docker etc/systemd/system etc/nvpmodel.conf var/spool/cron var/lib/tailscale' \
-  > "$B/system-state.tgz"
-tar -tzf "$B/system-state.tgz" | head -50
-```
-
-Docker volumes, only if `docker volume ls` in the inventory shows one worth
-keeping. Images are not worth saving: they are JetPack 6 images and the NVMe
-image already holds them for rollback.
-
-```bash
-ssh ts-nano-dev 'sudo -n tar -C /var/lib/docker/volumes -czf - .' > "$B/docker-volumes.tgz"
-```
-
-### 1.4 NVMe image (the rollback)
-
-A raw image of the ~500 GB drive (456 GB filesystem) won't fit in the laptop's ~272 GB free on
-`/home`, so it goes over compressed. Trim first so free blocks read back as
-zeros and compress to almost nothing. With 70 GB used, expect a 35 to 70 GB
-`.zst`. Check the space first and plan on 100 GB.
-
-The root filesystem is live while `dd` reads it, so the image is
-crash-consistent (ext4 replays its journal on restore). The file copies in
-1.3 are the safety net for that. Stop the busy writers first:
-
-```bash
-df -h /home   # need 100 GB free
-ssh -t ts-nano-dev 'sudo systemctl stop docker docker.socket; sudo fstrim -av; sync'
-mkdir -p ~/backups/ts-nano-dev
-ssh ts-nano-dev 'command -v zstd' || ssh -t ts-nano-dev 'sudo apt-get install -y zstd'
-ssh ts-nano-dev 'sudo -n dd if=/dev/nvme0n1 bs=4M status=progress | zstd -T0 -3' \
-  > ~/backups/ts-nano-dev/nvme0n1-r36.5-$(date +%F).img.zst
-```
-
-On gigabit Ethernet this takes about an hour and a half; over Wi-Fi or
-tailscale, several. Watch `ls -lh` on the output. If it is past 150 GB, the
-drive doesn't zero trimmed blocks: stop it, zero the free space
-(`ssh -t ts-nano-dev 'sudo dd if=/dev/zero of=/zero bs=4M status=progress; sudo rm /zero; sync'`)
-and run the image again.
-
-Verify:
-
-```bash
-zstd -t ~/backups/ts-nano-dev/nvme0n1-r36.5-*.img.zst
-zstd -dc ~/backups/ts-nano-dev/nvme0n1-r36.5-*.img.zst | head -c 1M > /tmp/nvme-head.img; sfdisk -d /tmp/nvme-head.img
-```
-
-Compare that partition table with the `sfdisk -d` output in
-`inventory.txt`. If you have a USB M.2 enclosure, pulling the NVMe and
-running the same `dd | zstd` on the laptop gives a clean image instead.
-
-Rollback caveat: the 7.2.1 installer moves the board's QSPI firmware from
-36.x to 39.x. Forum reports say an R36 NVMe no longer boots on 39.x
-firmware, so a rollback means restoring this image **and** reflashing R36.5
-QSPI from an Ubuntu 22.04 host in recovery mode (SDK Manager or
-`l4t_initrd_flash.sh`). Arch can't run SDK Manager natively. Sources: forum
-thread posts
-[#26](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/26)
-and
-[#112](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/112).
+No disk image or file backup is needed for standard: the user confirmed
+nothing important remains on it (2026-10-06). Flash it as a clean install.
+Models and source come from their repositories; see the
+[hardware checklist](JAZZY_PLAN.md#hardware-checklist) for the ONNX source
+and TensorRT rebuild. Any Humble performance comparison needs a recorded
+baseline; see [hardware status](JAZZY_PLAN.md#hardware-status).
 
 ## 2. Write the USB stick (laptop, Arch)
 
@@ -180,10 +63,8 @@ nothing about the stick.
 
 From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/quick_start.html).
 
-1. Firmware gate: `nv_tegra_release` in `inventory.txt` says R36.5, so the
-   QSPI firmware is 36.x and the 6.x update path isn't needed. To confirm,
-   press Esc at the NVIDIA splash and read the version line (must be 36.0
-   or later).
+1. Firmware gate: press Esc at the NVIDIA splash and read the version
+   line (must be 36.0 or later).
 2. Power off. Plug in the DP monitor, keyboard, Ethernet and the stick,
    leaving the NVMe in place. Apply power.
 3. Press Esc at the NVIDIA logo, then Boot Manager, then the USB disk. Pick
@@ -287,7 +168,7 @@ step 1. If it is, select it (top-bar power menu, or
 ## 4. Make it reachable again
 
 ```bash
-sudo apt update && sudo apt install -y openssh-server rsync zstd
+sudo apt update && sudo apt install -y openssh-server
 sudo systemctl enable --now ssh
 ```
 
@@ -301,47 +182,34 @@ echo "nano-dev ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/90-nano-dev-no
 sudo timedatectl set-timezone America/New_York && echo America/New_York | sudo tee /etc/timezone
 ```
 
-Restore from the laptop's backup (copy `system-state.tgz` and `home/.ssh`
-over the LAN by IP, or by stick):
+Add the laptop's public key to the new account with
+`ssh-copy-id <user>@<board-ip>` from the laptop.
 
-```bash
-mkdir -p ~/.ssh && cp /path/to/backup/home/.ssh/authorized_keys ~/.ssh/ && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
-sudo tar -C / -xzf system-state.tgz --wildcards 'etc/ssh/ssh_host_*'
-sudo systemctl restart ssh
-```
-
-Tailscale, restoring the old node state so the IP stays the same:
+Join Tailscale as a new node (substitute the board's hostname):
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo systemctl stop tailscaled
-sudo tar -C / -xzf system-state.tgz var/lib/tailscale
-sudo systemctl start tailscaled && tailscale ip -4   # compare with inventory.txt
+sudo tailscale up --hostname <name> --advertise-tags=tag:jetsons
+sudo tailscale set --ssh
+tailscale ip -4
 ```
 
-If that fails, run `sudo tailscale up --hostname ts-nano-dev` and log in
-again. `ts-nano-dev` is not in `fastdds_cable.xml`'s peer list today;
-step 5 of the plan adds it. Restore Wi-Fi profiles from
-`etc/NetworkManager/system-connections` only if you need Wi-Fi (files must
-stay `root:root 600`, then `sudo nmcli connection reload`).
-
-With no `system-state.tgz`, the node joins with a new IP: `sudo tailscale up
---hostname <name> --advertise-tags=tag:jetsons`, then `sudo tailscale set
---ssh`, and put the IP in `fastdds_cable.xml` and `fastdds_udp_only.xml`.
+Put the new IP in `fastdds_cable.xml` and `fastdds_udp_only.xml`, and
+configure Wi-Fi again if needed.
 Campus DNS registers the board's Wi-Fi hostname, so the short name can
 resolve to the Wi-Fi address, where port 22 is blocked. Give `~/.ssh/config`
 the tailscale IP as `HostName` (ts-nano-sentry, 2026-09-30).
 
 From the laptop: `ssh ts-nano-dev true`. If it warns about a changed host
-key, the host keys weren't restored; run `ssh-keygen -R ts-nano-dev` and
-reconnect.
+key after the reflash, confirm it is the intended board, then remove its
+old entry with `ssh-keygen -R ts-nano-dev` and reconnect.
 
 ## 5. Kernel 6.8 hardware checks (host, no container)
 
-Compare each with `inventory.txt` (`JAZZY_PLAN.md`, What still has to be checked on hardware).
+Record results in [hardware status](JAZZY_PLAN.md#hardware-status).
 
 ```bash
-# DJI serial bridge UART: same ttyTHS1 -> same *.serial address as before?
+# DJI serial bridge UART: check ttyTHS1 and its *.serial address
 for t in /sys/class/tty/ttyTHS*; do echo "$t -> $(readlink -f $t/device)"; done
 ls -l /dev/ttyTHS1; groups | grep -w dialout || sudo usermod -aG dialout $USER
 systemctl status nvgetty 2>/dev/null | head -3    # must not own the port
@@ -355,8 +223,7 @@ lsusb | grep -i 10c4:ea60; sudo dmesg | grep -i cp210x; ls -l /dev/ttyUSB*
 lsusb | grep -i 8086; lsusb -t | grep -B1 -i uvc; ls -l /dev/video*; sudo dmesg | grep -iE 'uvcvideo|realsense' | tail
 ```
 
-Pass: `ttyTHS1` points at the same `*.serial` device as on R36 and the
-loopback prints `ping`; the lidar appears as `/dev/ttyUSB0`; the RealSense
+Pass: `ttyTHS1` maps to the intended UART and the loopback prints `ping`; the lidar appears as `/dev/ttyUSB0`; the RealSense
 shows as a UVC device at 5000M. A full `rs-enumerate-devices` needs the
 realsense image layer, built in section 8.
 
@@ -428,7 +295,8 @@ echo 'export ROS_DOMAIN_ID=1' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Copy the ONNX (and old `.plan`, for reference) from the backup into
+Get the ONNX from the source linked in the
+[hardware checklist](JAZZY_PLAN.md#hardware-checklist) and place it in
 `~/workspaces/isaac_ros-dev/isaac_ros_assets/models/yolo11/`. Don't clone
 our repo or add image keys yet; that is section 8.
 

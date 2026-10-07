@@ -93,10 +93,7 @@ Ada, driver 615.71) already meets 4.6's driver 595+ floor.
 
 ### 1. Reflash `ts-nano-dev` to JetPack 7.2.1
 
-1. Back up anything on it that isn't in git. An NVMe image (`dd` to the
-   laptop, or a spare drive) is half the rollback: the installer moves QSPI
-   firmware to 39.x, and an R36 NVMe won't boot on it until R36.5 firmware
-   is reflashed from an Ubuntu 22.04 host in recovery mode.
+1. Follow [the runbook's preflight](JAZZY_FLASH.md#1-before-flashing).
 2. Flash from the unified ISO on a USB stick. JetPack 7 has no SD-card image
    for Orin Nano.
 3. Install Docker and the NVIDIA container toolkit, add the Isaac ROS apt
@@ -146,7 +143,7 @@ detection latency on the Orin are no worse than on Humble.
 | 4.6's Orin support is one release old; the JetPack 7.2 Orin Nano forum thread is still active | Validate on the spare box before further deployment; see hardware status for completed flashes |
 | The aarch64 image hits the 128-layer cap | Count layers in step 1, before any hardware check |
 | A lost lifecycle reply stalls the robot's localization at boot | Seen only in sim so far, on Humble too. Watch for it in step 6's `auto.launch.py` runs |
-| A competition date lands mid-migration | Standard stays on Humble until its step 6 reflash, with an NVMe image and R36.5 firmware to roll back to |
+| A competition date lands mid-migration | Standard stays on Humble until its step 6 reflash |
 
 ## Sources
 

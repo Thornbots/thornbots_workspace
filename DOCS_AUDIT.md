@@ -130,18 +130,14 @@ The simulation README is over 1,100 lines and its AGENTS over 300. Current comma
 
 The rules context mixes ARCC 2026, 2024 mounting specifications, 2018 hardware dimensions, user observations and RMUC rules while acknowledging the actual 2026 base building specification has not been extracted. Label each claim's authority and exact source/page; do not present older inferred rules as verified current requirements. This is a provenance finding, not a verdict that any individual rule is false.
 
-## Low-priority notes
+## Removed from scope
 
-### 1. Disk backup verification — low priority
+### 1. Disk backup verification
 
-User priority (2026-10-06): disk backups are not a big concern. Keep this as a documentation note; it does not block the other work.
-
-[JAZZY_FLASH.md:119](JAZZY_FLASH.md#14-nvme-image-the-rollback) pipes remote `dd` into `zstd` without enabling remote `pipefail`. A read failure can leave a valid compressed partial image and return success from the last command. The verification at line 132 checks compression integrity and the first megabyte's partition table, so a partial image containing that first megabyte can pass both checks. This precedes an erase/reflash.
-
-Fix: run the remote pipeline with explicit Bash `pipefail`, require a successful SSH exit, compare the decompressed byte count with the source disk's recorded size, and keep a failed output clearly marked incomplete. Compression integrity is not backup completeness. Verified the shell failure mode with a harmless `false | cat` pipeline, which returned 0.
-
-The temporary sudo rule at line 36 also permits only dd/tar/sfdisk/fstrim, while the model inventory at line 68 uses `sudo -n find`. Following that limited rule can make the inventory fail, suppress its error, and still return success through `tee`. Document the required privilege or remove the unnecessary privileged find.
+Removed the backup and restore procedures from the reflash runbook. The
+user confirmed on 2026-10-06 that nothing important remains on standard;
+its reflash is a clean install. No backup-verification work remains.
 
 ## Suggested order
 
-Fix the production launch recipe first; then the interface diagram and frame/timestamp contracts. Firmware build instructions (#4) are out of scope for the current work. Disk backup checks remain low priority at the user’s request. Consolidate machine status and historical analysis after those concrete errors. Keep one authoritative topic/frame diagram and one hardware-status table, and link the other docs to them.
+Fix the production launch recipe first; then the interface diagram and frame/timestamp contracts. Firmware build instructions (#4) are out of scope for the current work. Disk backup procedures were removed at the user’s request. Consolidate machine status and historical analysis after those concrete errors. Keep one authoritative topic/frame diagram and one hardware-status table, and link the other docs to them.
