@@ -1,0 +1,136 @@
+Starting >>> sim
+UpdateCTestConfiguration  from :/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+Parse Config file:/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+   Site: b6fafe83bf25
+   Build name: (empty)
+ Add coverage exclude regular expressions.
+Create new tag: 20261007-1912 - Experimental
+UpdateCTestConfiguration  from :/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+Parse Config file:/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+Test project /workspaces/isaac_ros-dev/build/sim
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: test_depth_mm
+
+1: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml" "--package-name" "sim" "--output-file" "/workspaces/isaac_ros-dev/build/sim/ament_cmake_gtest/test_depth_mm.txt" "--command" "/workspaces/isaac_ros-dev/build/sim/test_depth_mm" "--gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml"
+1: Working Directory: /workspaces/isaac_ros-dev/build/sim
+1: Test timeout computed to be: 60
+1: -- run_test.py: invoking following command in '/workspaces/isaac_ros-dev/build/sim':
+1:  - /workspaces/isaac_ros-dev/build/sim/test_depth_mm --gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml
+1: Running main() from /opt/ros/jazzy/src/gtest_vendor/src/gtest_main.cc
+1: [==========] Running 2 tests from 1 test suite.
+1: [----------] Global test environment set-up.
+1: [----------] 2 tests from DepthMm
+1: [ RUN      ] DepthMm.RoundsToMillimetres
+1: [       OK ] DepthMm.RoundsToMillimetres (0 ms)
+1: [ RUN      ] DepthMm.NoDataIsZero
+1: [       OK ] DepthMm.NoDataIsZero (0 ms)
+1: [----------] 2 tests from DepthMm (0 ms total)
+1:
+1: [----------] Global test environment tear-down
+1: [==========] 2 tests from 1 test suite ran. (0 ms total)
+1: [  PASSED  ] 2 tests.
+1: -- run_test.py: return code 0
+1: -- run_test.py: inject classname prefix into gtest result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml'
+1: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml'
+1/3 Test #1: test_depth_mm ....................   Passed    0.03 sec
+test 2
+    Start 2: test_panel_view
+
+2: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml" "--package-name" "sim" "--output-file" "/workspaces/isaac_ros-dev/build/sim/ament_cmake_gtest/test_panel_view.txt" "--command" "/workspaces/isaac_ros-dev/build/sim/test_panel_view" "--gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml"
+2: Working Directory: /workspaces/isaac_ros-dev/build/sim
+2: Test timeout computed to be: 60
+2: -- run_test.py: invoking following command in '/workspaces/isaac_ros-dev/build/sim':
+2:  - /workspaces/isaac_ros-dev/build/sim/test_panel_view --gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml
+2: Running main() from /opt/ros/jazzy/src/gtest_vendor/src/gtest_main.cc
+2: [==========] Running 6 tests from 1 test suite.
+2: [----------] Global test environment set-up.
+2: [----------] 6 tests from PanelView
+2: [ RUN      ] PanelView.FacingPanelAheadIsCentred
+2: [       OK ] PanelView.FacingPanelAheadIsCentred (0 ms)
+2: [ RUN      ] PanelView.LeftIsLowerU
+2: [       OK ] PanelView.LeftIsLowerU (0 ms)
+2: [ RUN      ] PanelView.PanelTurnedPastTheConeIsHidden
+2: [       OK ] PanelView.PanelTurnedPastTheConeIsHidden (0 ms)
+2: [ RUN      ] PanelView.BehindOrOffImageIsHidden
+2: [       OK ] PanelView.BehindOrOffImageIsHidden (0 ms)
+2: [ RUN      ] PanelView.CornersRunTopLeftClockwiseAsSeen
+2: [       OK ] PanelView.CornersRunTopLeftClockwiseAsSeen (0 ms)
+2: [ RUN      ] PanelView.InterpolatesHalfway
+2: [       OK ] PanelView.InterpolatesHalfway (0 ms)
+2: [----------] 6 tests from PanelView (0 ms total)
+2:
+2: [----------] Global test environment tear-down
+2: [==========] 6 tests from 1 test suite ran. (0 ms total)
+2: [  PASSED  ] 6 tests.
+2: -- run_test.py: return code 0
+2: -- run_test.py: inject classname prefix into gtest result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml'
+2: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml'
+2/3 Test #2: test_panel_view ..................   Passed    0.03 sec
+test 3
+    Start 3: sim_pytest
+
+3: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml" "--package-name" "sim" "--output-file" "/workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest.txt" "--env" "PYTEST_ADDOPTS=-p no:anyio" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/workspaces/isaac_ros-dev/src/sim/test" "-o" "cache_dir=/workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest/.cache" "--junit-xml=/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml" "--junit-prefix=sim"
+3: Working Directory: /workspaces/isaac_ros-dev/src/sim
+3: Test timeout computed to be: 600
+3: -- run_test.py: extra environment variables:
+3:  - PYTEST_ADDOPTS=-p no:anyio
+3: -- run_test.py: invoking following command in '/workspaces/isaac_ros-dev/src/sim':
+3:  - /usr/bin/python3 -u -m pytest /workspaces/isaac_ros-dev/src/sim/test -o cache_dir=/workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest/.cache --junit-xml=/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml --junit-prefix=sim
+3: ============================= test session starts ==============================
+3: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+3: cachedir: /workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest/.cache
+3: rootdir: /workspaces/isaac_ros-dev/src/sim
+3: configfile: setup.cfg
+3: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, colcon-core-0.21.2
+3: collected 130 items / 58 deselected / 72 selected
+3:
+3: test/test_copyright.py .                                                 [  1%]
+3: test/test_e2e_clock.py ...                                               [  5%]
+3: test/test_flake8.py .                                                    [  6%]
+3: test/test_foxglove_layouts.py .                                          [  8%]
+3: test/test_match_routes.py .........                                      [ 20%]
+3: test/test_pep257.py .                                                    [ 22%]
+3: test/test_suite_timing.py ...                                            [ 26%]
+3: test/test_target_odometry.py .....                                       [ 33%]
+3: test/cv/test_combat.py ......                                            [ 41%]
+3: test/cv/test_cv_head_aim.py .....                                        [ 48%]
+3: test/cv/test_estimation_metrics.py ........                              [ 59%]
+3: test/cv/test_shot_face.py ....                                           [ 65%]
+3: test/cv/test_urdf_constants.py ........                                  [ 76%]
+3: test/mcb/test_mcb_bridge_pty.py .                                        [ 77%]
+3: test/mcb/test_mcb_firmware.py ...........                                [ 93%]
+3: test/mcb/test_mcb_protocol.py .....                                      [100%]
+3:
+3: =============================== warnings summary ===============================
+3: <frozen importlib._bootstrap>:488
+3:   Warning: Type google.protobuf.pyext._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+3:
+3: <frozen importlib._bootstrap>:488
+3:   Warning: Type google.protobuf.pyext._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+3:
+3: test/test_flake8.py: 10 warnings
+3:   Warning: This process (pid=24015) is multi-threaded, use of fork() may lead to deadlocks in the child.
+3:
+3: -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3: - generated xml file: /workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml -
+3: ================ 72 passed, 58 deselected, 12 warnings in 9.02s ================
+3: -- run_test.py: return code 0
+3: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml'
+3/3 Test #3: sim_pytest .......................   Passed    9.27 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Label Time Summary:
+gtest     =   0.05 sec*proc (2 tests)
+pytest    =   9.27 sec*proc (1 test)
+
+Total Test time (real) =   9.33 sec
+Finished <<< sim [9.36s]
+
+Summary: 1 package finished [9.47s]

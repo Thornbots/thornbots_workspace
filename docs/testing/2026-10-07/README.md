@@ -41,3 +41,7 @@ See `sim/README.md` for model limits and runnable container commands.
 
 Archlinux's first unit run found D213 errors in two final docstring edits.
 The correction is in sim `33645a9`; both full unit suites pass after it.
+
+[E2 follow-up](e2-investigation/README.md) fixes real-time-factor forwarding
+and the false slow-clock stall. Later stationary repeats hit 40/40 on both
+machines; intermittent acquisition failures remain open.
