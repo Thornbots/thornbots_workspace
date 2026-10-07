@@ -55,12 +55,16 @@ def main():
     args = parser.parse_args()
     failed = False
     for repo in args.repo or REPOS:
-        branch = 'ros2' if repo == 'rf2o_laser_odometry' else 'main'
+        branch = 'main'
         endpoint = f'repos/Thornbots/{repo}/branches/{branch}/protection'
         if not args.apply:
             print(json.dumps({'endpoint': endpoint, 'policy': policy(repo)}))
             continue
         try:
+            metadata = api(f'repos/Thornbots/{repo}')
+            if not metadata.get('permissions', {}).get('admin'):
+                print(f'{repo}/{branch}: skipped; no admin access')
+                continue
             api(endpoint, policy(repo))
             actual = api(endpoint)
             assert actual['required_status_checks']['contexts'] == policy(repo)['required_status_checks']['contexts']

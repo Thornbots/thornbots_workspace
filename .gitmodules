@@ -14,7 +14,7 @@
 [submodule "rf2o_laser_odometry"]
 	path = rf2o_laser_odometry
 	url = https://github.com/Thornbots/rf2o_laser_odometry.git
-	branch = nightly
+	branch = main
 [submodule "ros2_dji_serial_bridge"]
 	path = ros2_dji_serial_bridge
 	url = https://github.com/Thornbots/ros2_dji_serial_bridge.git

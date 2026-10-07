@@ -13,7 +13,7 @@ impact, and link the corresponding package changes.
   MCB ARM/control/UART checks, portable Jazzy builds, and robot-only GHCR
   build/test/publishing tied to exact workspace revisions. Simulation is now
   an opt-in submodule. Mainline protection requires CI with zero reviews;
-  seven repositories still require an administrator to apply the policy.
+  seven repositories remain unchanged because this account lacks admin access.
 
 - A coordinated `nightly` branch in the workspace and all eleven top-level
   submodule repositories. The nightly workspace tracks those branches in

@@ -85,9 +85,11 @@ It permits tested fast-forward pushes so the existing coordinated submodule
 promotion workflow still works. It does not enforce linear history.
 
 Applied and verified: workspace/main, thornbots_pkg/main, sim/main,
-sentry_localization/main, rf2o_laser_odometry/ros2. The latter has no main.
-This account has write-only access to the other seven repos; their protection
-updates returned HTTP 404. An administrator can run the prepared script.
+sentry_localization/main, rf2o_laser_odometry/main. The latter now uses main
+as its default branch instead of ros2.
+This account has write-only access to the other seven repos; protection
+updates returned HTTP 404. Their protections are intentionally left unchanged
+as requested. The script skips repositories without admin access.
 For MCBV3 it targets **only main**, never newMain, nightly, or another branch.
 
 The initial policy has no pre-existing settings to preserve. If adapting it

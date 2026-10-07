@@ -55,7 +55,7 @@ fast-forwards, so the packages move with it. That push needs the
 | `Realsense_ROI_Depth_Rectifier` | `nightly` | Depth rectification for detection ROIs |
 | `ros2_dji_serial_bridge` | `nightly` | Serial link to the DJI Type-C board |
 | `sllidar_ros2` | `nightly` | RPLIDAR driver (fork) |
-| `rf2o_laser_odometry` | `nightly` | Scan-matched odometry (fork) |
+| `rf2o_laser_odometry` | `main` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
