@@ -6,19 +6,20 @@ Read the 66 available documentation files, including Markdown and the world-mesh
 
 The main problem is maintenance: useful explanations are copied into several documents, then one copy gets updated while the others retain incompatible instructions. The technical rationale is often good, especially the timestamp contracts and explicit benchmark limitations, but the reader cannot consistently distinguish today's operating instructions from historical observations.
 
-## Fix first
+## Production launch findings
 
-### 2. The documented full production launch does not start the full CV chain
+### 2. Resolved — full production launch recipe
 
-Fix prepared on `docs/fix-production-launch`: one short recipe near the top of the YOLO README, linked from the ROI README, with the YOLO serial bridge disabled.
+Committed and pushed: ROI `0e3d21b`, YOLO `f7fdb3f`, workspace `fc3c080`.
+One short recipe near the top of the [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline), linked from the ROI README, starts both launches with the YOLO serial bridge disabled. Resolved on the review branch; not yet merged into main.
 
-[Realsense_ROI_Depth_Rectifier/README.md:112](Realsense_ROI_Depth_Rectifier/README.md#launch) directs readers to the YOLO launch for a production pipeline through target selection and the bridge. But [the YOLO launch](realsense-yolov8-nitros-bridge/launch/isaac_ros_yolov8_realsense.launch.py) returns the camera container, encoder, extrinsics relay, optional visualizer and optional serial bridge. It does not start selector, tracker, aimer, or mcb_relay.
+Original finding: the ROI README directed readers to the YOLO launch for a full production pipeline, but that launch does not start selector, tracker, aimer, or mcb_relay.
 
 Starting `auto.launch.py` alongside that example without changing defaults starts a second serial bridge on the same device. The boot service correctly uses two launches and sets `enable_serial_bridge:=False` on the YOLO half.
 
-Fix: give one explicit two-terminal recipe matching the boot service: auto launch for robot/CV nodes, YOLO launch with its serial bridge disabled for perception. State where each launch stops.
+Validation: launch arguments, shell syntax, local links and whitespace checks passed. No hardware launch was run.
 
-### 3. The inference diagram describes the wrong topics, frame and publisher
+### 3. Resolved — obsolete inference diagram
 
 Addressed with #2: removed the obsolete graph and linked to the maintained node diagram.
 
@@ -140,4 +141,4 @@ its reflash is a clean install. No backup-verification work remains.
 
 ## Suggested order
 
-Fix the production launch recipe first; then the interface diagram and frame/timestamp contracts. Firmware build instructions (#4) are out of scope for the current work. Disk backup procedures were removed at the user’s request. Consolidate machine status and historical analysis after those concrete errors. Keep one authoritative topic/frame diagram and one hardware-status table, and link the other docs to them.
+Items #2, #3 and #12 are resolved on the review branch. Next: the remaining interface and frame/timestamp contracts, then historical analysis and the selected #14 follow-ups. Firmware build instructions (#4) and firmware branch naming (#11) remain out of scope. Disk backup procedures (#1) were removed at the user’s request.
