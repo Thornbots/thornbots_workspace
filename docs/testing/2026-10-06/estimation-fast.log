@@ -1,0 +1,606 @@
+[INFO] [launch]: All log files can be found below /root/.ros/log/2026-10-07-00-48-34-237813-b6fafe83bf25-11324
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [bench_world-1]: process started with pid [11328]
+[INFO] [lidar_self_filter-2]: process started with pid [11329]
+[INFO] [pose_translator-3]: process started with pid [11330]
+[INFO] [odom_tf_broadcaster-4]: process started with pid [11331]
+[INFO] [robot_state_publisher-5]: process started with pid [11332]
+[INFO] [passthrough_odom_publisher-6]: process started with pid [11333]
+[INFO] [target_selector-7]: process started with pid [11334]
+[INFO] [target_tracker-8]: process started with pid [11335]
+[INFO] [point_to_cv_target-9]: process started with pid [11336]
+[INFO] [target_state_markers-10]: process started with pid [11337]
+[INFO] [rviz2-11]: process started with pid [11338]
+[INFO] [estimation_tests-12]: process started with pid [11339]
+[INFO] [latch_holder-13]: process started with pid [11340]
+[INFO] [foxglove_bridge-14]: process started with pid [11341]
+[robot_state_publisher-5] [INFO] [1791334114.378847004] [robot_state_publisher]: Robot initialized
+[target_tracker-8] [INFO] [1791334114.380385176] [target_tracker]: target_tracker ready (C++)
+[target_tracker-8]   /cv/robot_panels -> /cv/target_state (frame=odom)
+[target_tracker-8]   pose_latency_s=0.000 camera_latency_s=0.000 track_max_gap_s=0.50 tf_max_wait_s=0.25
+[target_tracker-8]   panel_radius_m=0.27
+[bench_world-1] [INFO] [1791334114.383958814] [bench_world]: bench_world: lockstep with the nodes under test, physics 1 ms, /clock every 5 ms
+[rviz2-11] QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+[foxglove_bridge-14] [INFO] [1791334114.385187944] [foxglove_bridge]: Starting foxglove_bridge (jazzy, 3.5.0@)
+[foxglove_bridge-14] [2026-10-07T00:48:34Z INFO  foxglove::websocket::server] Started server on 0.0.0.0:8765
+[foxglove_bridge-14] [INFO] [1791334114.386066030] [foxglove_bridge]: Server listening on port 8765
+[foxglove_bridge-14] [INFO] [1791334114.388546872] [foxglove_bridge]: Advertising new channel 2 for topic "/rosout"
+[foxglove_bridge-14] [INFO] [1791334114.398716742] [foxglove_bridge]: Advertising new channel 3 for topic "/parameter_events"
+[foxglove_bridge-14] [INFO] [1791334114.401663044] [foxglove_bridge]: Advertising new channel 4 for topic "/clock"
+[rviz2-11] [INFO] [1791334114.487886396] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-11] [INFO] [1791334114.487962105] [rviz2]: OpenGl version: 4.5 (GLSL 4.5)
+[estimation_tests-12] ============================= test session starts ==============================
+[estimation_tests-12] platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+[estimation_tests-12] cachedir: .pytest_cache
+[estimation_tests-12] rootdir: /workspaces/isaac_ros-dev/src/sim
+[estimation_tests-12] configfile: setup.cfg
+[estimation_tests-12] plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, colcon-core-0.21.2
+[rviz2-11] [INFO] [1791334114.498785560] [rviz2]: Stereo is NOT SUPPORTED
+[target_selector-7] [INFO] [1791334114.501706696] [target_selector]: target_selector ready
+[target_selector-7]   /cv/panel_detections -> /cv/panel_detection, /cv/robot_panels, /cv/panel_polygon
+[target_selector-7]   score = conf + 1.0*centrality + 0.5 if class in [2, 6]  (min_score=0.0 gates on raw confidence only)
+[target_selector-7]   panel_group_radius_m=0.5
+[target_selector-7]   team source: /dji_serial_bridge/ref_sys
+[point_to_cv_target-9] [INFO] [1791334114.520436846] [point_to_cv_target]: point_to_cv_target ready
+[point_to_cv_target-9]   /cv/target_state + /dji_serial_bridge/pose
+[point_to_cv_target-9]   -> /cv/target (CVTarget, odom frame, aim + fire, @ 40.0Hz)
+[point_to_cv_target-9]   lead_enabled=True v_muzzle=25.0 firmware_latency_s=0.05 gimbal_lag_s=0.05
+[point_to_cv_target-9]   target_timeout_s=0.50
+[point_to_cv_target-9]   fire <= 2.00Hz, spin-timed above 3.0 rad/s, confidence >= 0.5
+[point_to_cv_target-9]   patrol: off
+[estimation_tests-12] collecting ... collected 12 items
+[estimation_tests-12] 
+[foxglove_bridge-14] [INFO] [1791334114.904193850] [foxglove_bridge]: Advertising new channel 5 for topic "/tf"
+[foxglove_bridge-14] [INFO] [1791334114.906002606] [foxglove_bridge]: Advertising new channel 6 for topic "/sim/raw_odom"
+[foxglove_bridge-14] [INFO] [1791334114.906016398] [foxglove_bridge]: Advertising new channel 7 for topic "/localization/odom"
+[foxglove_bridge-14] [INFO] [1791334114.906323816] [foxglove_bridge]: Advertising new channel 8 for topic "/head_pitch_cmd"
+[foxglove_bridge-14] [INFO] [1791334114.906331357] [foxglove_bridge]: Advertising new channel 9 for topic "/head_pan_cmd"
+[foxglove_bridge-14] [INFO] [1791334114.907548070] [foxglove_bridge]: Advertising new channel 10 for topic "/dji_serial_bridge/pose"
+[foxglove_bridge-14] [INFO] [1791334114.908004280] [foxglove_bridge]: Advertising new channel 11 for topic "/scan"
+[foxglove_bridge-14] [INFO] [1791334114.908783033] [foxglove_bridge]: Advertising new channel 12 for topic "/dji_serial_bridge/ref_sys"
+[foxglove_bridge-14] [INFO] [1791334114.912569005] [foxglove_bridge]: Advertising new channel 13 for topic "/cv/target_state_markers"
+[foxglove_bridge-14] [INFO] [1791334114.912976131] [foxglove_bridge]: Advertising new channel 14 for topic "/robot_description"
+[foxglove_bridge-14] [INFO] [1791334114.913855384] [foxglove_bridge]: Advertising new channel 15 for topic "/cv/target_state"
+[foxglove_bridge-14] [INFO] [1791334114.913867926] [foxglove_bridge]: Advertising new channel 16 for topic "/tf_static"
+[foxglove_bridge-14] [INFO] [1791334114.914270428] [foxglove_bridge]: Advertising new channel 17 for topic "/cv/tracker/clock_ack"
+[foxglove_bridge-14] [INFO] [1791334114.914284011] [foxglove_bridge]: Advertising new channel 18 for topic "/cv/target/tick"
+[foxglove_bridge-14] [INFO] [1791334114.915055555] [foxglove_bridge]: Advertising new channel 19 for topic "/cv/target"
+[foxglove_bridge-14] [INFO] [1791334114.915069180] [foxglove_bridge]: Advertising new channel 20 for topic "/target/ground_truth_odom"
+[foxglove_bridge-14] [INFO] [1791334114.915897683] [foxglove_bridge]: Advertising new channel 21 for topic "/map"
+[foxglove_bridge-14] [INFO] [1791334114.917648898] [foxglove_bridge]: Advertising new channel 22 for topic "/cv/robot_panels"
+[foxglove_bridge-14] [INFO] [1791334114.917664981] [foxglove_bridge]: Advertising new channel 23 for topic "/target_markers"
+[foxglove_bridge-14] [INFO] [1791334114.918238775] [foxglove_bridge]: Advertising new channel 24 for topic "/cv/panel_polygon"
+[foxglove_bridge-14] [INFO] [1791334114.918246984] [foxglove_bridge]: Advertising new channel 25 for topic "/cv/tracker/measurement"
+[foxglove_bridge-14] [INFO] [1791334114.918753319] [foxglove_bridge]: Advertising new channel 26 for topic "/cv/panel_detection"
+[foxglove_bridge-14] [INFO] [1791334114.918762694] [foxglove_bridge]: Advertising new channel 27 for topic "/scan_raw"
+[foxglove_bridge-14] [INFO] [1791334114.919181404] [foxglove_bridge]: Advertising new channel 28 for topic "/joint_states"
+[foxglove_bridge-14] [INFO] [1791334114.919193779] [foxglove_bridge]: Advertising new channel 29 for topic "/cv/panel_detections"
+[foxglove_bridge-14] [INFO] [1791334114.919507196] [foxglove_bridge]: Advertising new channel 30 for topic "/cmd_vel"
+[foxglove_bridge-14] [INFO] [1791334114.919516113] [foxglove_bridge]: Advertising new channel 31 for topic "/sim/raw_joint_states"
+[foxglove_bridge-14] [INFO] [1791334114.919519405] [foxglove_bridge]: Advertising new channel 32 for topic "/odom"
+[foxglove_bridge-14] [INFO] [1791334114.919522280] [foxglove_bridge]: Advertising new channel 33 for topic "/bench/progress"
+[foxglove_bridge-14] [INFO] [1791334114.919525155] [foxglove_bridge]: Advertising new channel 34 for topic "/bench/case"
+[point_to_cv_target-9] [INFO] [1791334115.701903879] [point_to_cv_target]: target_state: tracking robot 1
+[point_to_cv_target-9] [INFO] [1791334115.702209172] [point_to_cv_target]: target_state age on arrival: 5.0 ms now, 5.0 ms mean over 1 samples
+[target_tracker-8] [INFO] [1791334116.058861743] [target_tracker]: camera TF wait over 224 detections: mean 0.000 s, max 0.000 s; dropped 2; capture to update mean 0.056 s, max 0.070 s
+[target_tracker-8] [INFO] [1791334116.557739990] [target_tracker]: camera TF wait over 289 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[rviz2-11] [INFO] [1791334116.562219923] [rviz2]: Message Filter dropping message: frame 'camera' at time 0.017 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[target_tracker-8] [INFO] [1791334117.090035772] [target_tracker]: camera TF wait over 292 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334117.658966059] [target_tracker]: camera TF wait over 290 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334118.335185938] [target_tracker]: camera TF wait over 291 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334118.801211604] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary] 
+[estimation_tests-12] === flat-stationary-lateral-shooter0, spin=0.00 Hz ===
+[estimation_tests-12] flat-stationary-lateral-shooter0: 1922 states, 100% valid, converged in 0.005 s, age on arrival 0.0004 s
+[estimation_tests-12]     facing_panel_m   mean 0.0040  p95 0.0076
+[estimation_tests-12]     panel_m          mean 0.0162  p95 0.0182
+[estimation_tests-12]     center_m         mean 0.0095  p95 0.0131
+[estimation_tests-12]     center_along_m   mean 0.0086  p95 0.0122
+[estimation_tests-12]     center_across_m  mean 0.0012  p95 0.0032
+[estimation_tests-12]     velocity_m_s     mean 0.0000  p95 0.0000
+[estimation_tests-12]     yaw_rad          mean 0.0022  p95 0.0042
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.0000  p95 0.0000
+[estimation_tests-12]     radius_m         mean 0.0180  p95 0.0180
+[estimation_tests-12]     z_offset_m       mean 0.0036  p95 0.0037
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334119.265429014] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334119.271622036] [target_tracker]: camera TF wait over 259 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334119.745649188] [target_tracker]: camera TF wait over 272 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334120.245373597] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334120.752623032] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334121.227888186] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334121.677337871] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334122.127946352] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary45] 
+[estimation_tests-12] === flat-stationary45-lateral-shooter0, spin=0.00 Hz ===
+[estimation_tests-12] flat-stationary45-lateral-shooter0: 1974 states, 100% valid, converged in 0.47 s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0062  p95 0.0145
+[estimation_tests-12]     panel_m          mean 0.0171  p95 0.0247
+[estimation_tests-12]     center_m         mean 0.0143  p95 0.0213
+[estimation_tests-12]     center_along_m   mean 0.0024  p95 0.0063
+[estimation_tests-12]     center_across_m  mean 0.0138  p95 0.0209
+[estimation_tests-12]     velocity_m_s     mean 0.0000  p95 0.0000
+[estimation_tests-12]     yaw_rad          mean 0.0362  p95 0.0754
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.0000  p95 0.0000
+[estimation_tests-12]     radius_m         mean 0.0118  p95 0.0155
+[estimation_tests-12]     z_offset_m       mean 0.0006  p95 0.0015
+[estimation_tests-12] flat-stationary45-lateral-shooter0: no limits yet, reporting only
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334122.505469946] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334122.552490072] [target_tracker]: camera TF wait over 236 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334123.014567009] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334123.470106046] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334123.931453562] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334124.380465407] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[bench_world-1] [INFO] [1791334124.385265966] [bench_world]: bench_world: 9.0x, 0 lockstep timeouts
+[target_tracker-8] [INFO] [1791334124.839979290] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334125.293690567] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed0.5] 
+[estimation_tests-12] === flat-speed0.5-lateral-shooter0, spin=2.00 Hz ===
+[estimation_tests-12] flat-speed0.5-lateral-shooter0: 1959 states, 100% valid, converged in None s, age on arrival 0.0002 s
+[estimation_tests-12]     facing_panel_m   mean 0.0264  p95 0.0499
+[estimation_tests-12]     panel_m          mean 0.0305  p95 0.0546
+[estimation_tests-12]     center_m         mean 0.0269  p95 0.0522
+[estimation_tests-12]     center_along_m   mean 0.0129  p95 0.0315
+[estimation_tests-12]     center_across_m  mean 0.0195  p95 0.0469
+[estimation_tests-12]     velocity_m_s     mean 0.1668  p95 0.3481
+[estimation_tests-12]     yaw_rad          mean 0.0465  p95 0.1253
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1000  p95 0.2887
+[estimation_tests-12]     radius_m         mean 0.0080  p95 0.0165
+[estimation_tests-12]     z_offset_m       mean 0.0007  p95 0.0018
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334125.604754130] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334125.696056912] [target_tracker]: track 1: 3 outliers in a row, re-seeding position (spin estimate kept)
+[point_to_cv_target-9] [INFO] [1791334125.703284188] [point_to_cv_target]: target_state age on arrival: 0.0 ms now, 0.5 ms mean over 5951 samples
+[target_tracker-8] [INFO] [1791334125.726358395] [target_tracker]: camera TF wait over 235 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334126.244945359] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334126.692854197] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334127.141096036] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334127.580910718] [target_tracker]: camera TF wait over 293 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334128.030407226] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334128.474642256] [target_tracker]: camera TF wait over 291 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed1.0] 
+[estimation_tests-12] === flat-speed1-lateral-shooter0, spin=1.86 Hz ===
+[estimation_tests-12] flat-speed1-lateral-shooter0: 1945 states, 100% valid, converged in 32.02 s, age on arrival 0.0004 s
+[estimation_tests-12]     facing_panel_m   mean 0.0315  p95 0.0758
+[estimation_tests-12]     panel_m          mean 0.0352  p95 0.0801
+[estimation_tests-12]     center_m         mean 0.0318  p95 0.0770
+[estimation_tests-12]     center_along_m   mean 0.0179  p95 0.0633
+[estimation_tests-12]     center_across_m  mean 0.0211  p95 0.0548
+[estimation_tests-12]     velocity_m_s     mean 0.2251  p95 0.7198
+[estimation_tests-12]     yaw_rad          mean 0.0482  p95 0.1287
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1034  p95 0.2834
+[estimation_tests-12]     radius_m         mean 0.0073  p95 0.0140
+[estimation_tests-12]     z_offset_m       mean 0.0007  p95 0.0015
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334128.716607529] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334128.789024785] [target_tracker]: track 1: 3 outliers in a row, re-seeding position (spin estimate kept)
+[target_tracker-8] [INFO] [1791334128.893275445] [target_tracker]: camera TF wait over 237 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334129.345536544] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334129.808645722] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334130.264761083] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334130.718969894] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334131.182434696] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334131.636502755] [target_tracker]: camera TF wait over 293 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed2.0] 
+[estimation_tests-12] === flat-speed2-lateral-shooter0, spin=1.57 Hz ===
+[estimation_tests-12] flat-speed2-lateral-shooter0: 1954 states, 100% valid, converged in None s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0399  p95 0.0943
+[estimation_tests-12]     panel_m          mean 0.0449  p95 0.0990
+[estimation_tests-12]     center_m         mean 0.0416  p95 0.0984
+[estimation_tests-12]     center_along_m   mean 0.0261  p95 0.0847
+[estimation_tests-12]     center_across_m  mean 0.0261  p95 0.0662
+[estimation_tests-12]     velocity_m_s     mean 0.3467  p95 0.9453
+[estimation_tests-12]     yaw_rad          mean 0.0517  p95 0.1289
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1091  p95 0.2838
+[estimation_tests-12]     radius_m         mean 0.0087  p95 0.0188
+[estimation_tests-12]     z_offset_m       mean 0.0009  p95 0.0020
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334131.820117653] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334132.056008234] [target_tracker]: camera TF wait over 234 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334132.502375181] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334132.985471216] [target_tracker]: camera TF wait over 293 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334133.434419087] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334133.899177222] [target_tracker]: camera TF wait over 293 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334134.353622361] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[bench_world-1] [INFO] [1791334134.385299598] [bench_world]: bench_world: 11.0x, 0 lockstep timeouts
+[target_tracker-8] [INFO] [1791334134.876642783] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed4.0] 
+[estimation_tests-12] === flat-speed4-lateral-shooter0, spin=1.00 Hz ===
+[estimation_tests-12] flat-speed4-lateral-shooter0: 1945 states, 100% valid, converged in 32.785 s, age on arrival 0.0004 s
+[estimation_tests-12]     facing_panel_m   mean 0.0489  p95 0.0993
+[estimation_tests-12]     panel_m          mean 0.0524  p95 0.1001
+[estimation_tests-12]     center_m         mean 0.0497  p95 0.0986
+[estimation_tests-12]     center_along_m   mean 0.0305  p95 0.0833
+[estimation_tests-12]     center_across_m  mean 0.0319  p95 0.0741
+[estimation_tests-12]     velocity_m_s     mean 0.4732  p95 0.9269
+[estimation_tests-12]     yaw_rad          mean 0.0531  p95 0.1419
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1213  p95 0.3026
+[estimation_tests-12]     radius_m         mean 0.0099  p95 0.0228
+[estimation_tests-12]     z_offset_m       mean 0.0007  p95 0.0018
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334134.997261373] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334135.299580685] [target_tracker]: camera TF wait over 222 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[point_to_cv_target-9] [INFO] [1791334135.704362189] [point_to_cv_target]: target_state age on arrival: 0.0 ms now, 0.5 ms mean over 12247 samples
+[target_tracker-8] [INFO] [1791334135.737931974] [target_tracker]: camera TF wait over 292 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334136.189053890] [target_tracker]: camera TF wait over 290 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334136.633488990] [target_tracker]: camera TF wait over 290 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334137.074784120] [target_tracker]: camera TF wait over 288 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334137.527933208] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334137.971541137] [target_tracker]: camera TF wait over 289 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary] 
+[estimation_tests-12] === staggered-stationary-lateral-shooter0, spin=0.00 Hz ===
+[estimation_tests-12] staggered-stationary-lateral-shooter0: 1910 states, 100% valid, converged in 0.785 s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0043  p95 0.0084
+[estimation_tests-12]     panel_m          mean 0.0885  p95 0.0911
+[estimation_tests-12]     center_m         mean 0.0767  p95 0.0805
+[estimation_tests-12]     center_along_m   mean 0.0581  p95 0.0628
+[estimation_tests-12]     center_across_m  mean 0.0013  p95 0.0031
+[estimation_tests-12]     velocity_m_s     mean 0.0000  p95 0.0000
+[estimation_tests-12]     yaw_rad          mean 0.0023  p95 0.0048
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.0000  p95 0.0000
+[estimation_tests-12]     radius_m         mean 0.0592  p95 0.0636
+[estimation_tests-12]     z_offset_m       mean 0.0497  p95 0.0499
+[estimation_tests-12] FAILED
+[point_to_cv_target-9] [INFO] [1791334138.041938758] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334138.401917476] [target_tracker]: camera TF wait over 236 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334138.851348507] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334139.310692571] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334139.768905548] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334140.219525164] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334140.668438689] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary45] 
+[estimation_tests-12] === staggered-stationary45-lateral-shooter0, spin=0.00 Hz ===
+[estimation_tests-12] staggered-stationary45-lateral-shooter0: 1976 states, 100% valid, converged in 0.37 s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0051  p95 0.0107
+[estimation_tests-12]     panel_m          mean 0.0335  p95 0.0445
+[estimation_tests-12]     center_m         mean 0.0309  p95 0.0397
+[estimation_tests-12]     center_along_m   mean 0.0044  p95 0.0084
+[estimation_tests-12]     center_across_m  mean 0.0305  p95 0.0392
+[estimation_tests-12]     velocity_m_s     mean 0.0000  p95 0.0000
+[estimation_tests-12]     yaw_rad          mean 0.0888  p95 0.1358
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.0000  p95 0.0000
+[estimation_tests-12]     radius_m         mean 0.0223  p95 0.0257
+[estimation_tests-12]     z_offset_m       mean 0.0006  p95 0.0016
+[estimation_tests-12] staggered-stationary45-lateral-shooter0: no limits yet, reporting only
+[estimation_tests-12] PASSED
+[target_tracker-8] [INFO] [1791334141.121433271] [target_tracker]: camera TF wait over 270 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[point_to_cv_target-9] [INFO] [1791334141.121857480] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334141.540616858] [target_tracker]: camera TF wait over 260 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334142.001861758] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334142.454673544] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334142.904425861] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334143.351694918] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334143.809405011] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed0.5] 
+[estimation_tests-12] === staggered-speed0.5-lateral-shooter0, spin=2.00 Hz ===
+[estimation_tests-12] staggered-speed0.5-lateral-shooter0: 1958 states, 100% valid, converged in None s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0327  p95 0.0590
+[estimation_tests-12]     panel_m          mean 0.0373  p95 0.0675
+[estimation_tests-12]     center_m         mean 0.0336  p95 0.0646
+[estimation_tests-12]     center_along_m   mean 0.0132  p95 0.0338
+[estimation_tests-12]     center_across_m  mean 0.0222  p95 0.0559
+[estimation_tests-12]     velocity_m_s     mean 0.2124  p95 0.4056
+[estimation_tests-12]     yaw_rad          mean 0.0515  p95 0.1323
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1005  p95 0.2602
+[estimation_tests-12]     radius_m         mean 0.0092  p95 0.0169
+[estimation_tests-12]     z_offset_m       mean 0.0007  p95 0.0017
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334144.193548430] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334144.233741445] [target_tracker]: track 1: 3 outliers in a row, re-seeding position (spin estimate kept)
+[target_tracker-8] [INFO] [1791334144.235377034] [target_tracker]: camera TF wait over 236 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334144.352679733] [target_tracker]: track 1: 3 outliers in a row, re-seeding position (spin estimate kept)
+[bench_world-1] [INFO] [1791334144.387586688] [bench_world]: bench_world: 11.1x, 0 lockstep timeouts
+[target_tracker-8] [INFO] [1791334144.684275594] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334145.141493975] [target_tracker]: camera TF wait over 294 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334145.596625222] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[point_to_cv_target-9] [INFO] [1791334145.704621556] [point_to_cv_target]: target_state age on arrival: 0.0 ms now, 0.5 ms mean over 18668 samples
+[target_tracker-8] [INFO] [1791334146.049459753] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334146.501238028] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334146.954076766] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed1.0] 
+[estimation_tests-12] === staggered-speed1-lateral-shooter0, spin=1.86 Hz ===
+[estimation_tests-12] staggered-speed1-lateral-shooter0: 1952 states, 100% valid, converged in 32.77 s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0361  p95 0.0777
+[estimation_tests-12]     panel_m          mean 0.0399  p95 0.0838
+[estimation_tests-12]     center_m         mean 0.0369  p95 0.0824
+[estimation_tests-12]     center_along_m   mean 0.0171  p95 0.0539
+[estimation_tests-12]     center_across_m  mean 0.0229  p95 0.0606
+[estimation_tests-12]     velocity_m_s     mean 0.2631  p95 0.7160
+[estimation_tests-12]     yaw_rad          mean 0.0478  p95 0.1245
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1074  p95 0.2717
+[estimation_tests-12]     radius_m         mean 0.0081  p95 0.0158
+[estimation_tests-12]     z_offset_m       mean 0.0008  p95 0.0021
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334147.278513182] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334147.381732248] [target_tracker]: camera TF wait over 233 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334147.852296962] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334148.301890852] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334148.747162977] [target_tracker]: camera TF wait over 294 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334149.199354249] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334149.715831077] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334150.175523666] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed2.0] 
+[estimation_tests-12] === staggered-speed2-lateral-shooter0, spin=1.57 Hz ===
+[estimation_tests-12] staggered-speed2-lateral-shooter0: 1950 states, 100% valid, converged in 31.3 s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0427  p95 0.0965
+[estimation_tests-12]     panel_m          mean 0.0470  p95 0.0993
+[estimation_tests-12]     center_m         mean 0.0440  p95 0.0985
+[estimation_tests-12]     center_along_m   mean 0.0264  p95 0.0837
+[estimation_tests-12]     center_across_m  mean 0.0270  p95 0.0663
+[estimation_tests-12]     velocity_m_s     mean 0.3592  p95 0.9394
+[estimation_tests-12]     yaw_rad          mean 0.0537  p95 0.1371
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1194  p95 0.3056
+[estimation_tests-12]     radius_m         mean 0.0074  p95 0.0140
+[estimation_tests-12]     z_offset_m       mean 0.0007  p95 0.0017
+[estimation_tests-12] PASSED
+[point_to_cv_target-9] [INFO] [1791334150.429934753] [point_to_cv_target]: Newest '/cv/target_state' is 0.51 s old - publishing no CVTarget until the next one arrives.
+[target_tracker-8] [INFO] [1791334150.478553921] [target_tracker]: track 1: 3 outliers in a row, re-seeding position (spin estimate kept)
+[target_tracker-8] [INFO] [1791334150.600406300] [target_tracker]: camera TF wait over 234 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334151.048606015] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334151.497115687] [target_tracker]: camera TF wait over 290 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334151.952554050] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334152.407810328] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334152.855983747] [target_tracker]: camera TF wait over 294 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[target_tracker-8] [INFO] [1791334153.325427406] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed4.0] 
+[estimation_tests-12] === staggered-speed4-lateral-shooter0, spin=1.00 Hz ===
+[estimation_tests-12] staggered-speed4-lateral-shooter0: 1950 states, 100% valid, converged in 32.87 s, age on arrival 0.0003 s
+[estimation_tests-12]     facing_panel_m   mean 0.0554  p95 0.1073
+[estimation_tests-12]     panel_m          mean 0.0587  p95 0.1068
+[estimation_tests-12]     center_m         mean 0.0548  p95 0.1048
+[estimation_tests-12]     center_along_m   mean 0.0318  p95 0.0847
+[estimation_tests-12]     center_across_m  mean 0.0357  p95 0.0850
+[estimation_tests-12]     velocity_m_s     mean 0.4809  p95 0.9286
+[estimation_tests-12]     yaw_rad          mean 0.0513  p95 0.1387
+[estimation_tests-12]     yaw_rate_rad_s   mean 0.1237  p95 0.3168
+[estimation_tests-12]     radius_m         mean 0.0159  p95 0.0329
+[estimation_tests-12]     z_offset_m       mean 0.0010  p95 0.0023
+[estimation_tests-12] PASSED
+[estimation_tests-12] 
+[estimation_tests-12] =================================== FAILURES ===================================
+[estimation_tests-12] ____________________ test_estimation[staggered-stationary] _____________________
+[estimation_tests-12] 
+[estimation_tests-12] layout = 'staggered', case = 'stationary'
+[estimation_tests-12] request = <FixtureRequest for <Function test_estimation[staggered-stationary]>>
+[estimation_tests-12] est_stack = <estimation_harness.EstimationStack object at 0xfb93f364d220>
+[estimation_tests-12] 
+[estimation_tests-12]     def test_estimation(layout, case, request, est_stack):
+[estimation_tests-12]         config = request.config
+[estimation_tests-12]         speeds = _speeds(config)
+[estimation_tests-12]         duration = config.getoption('--shot-duration') or harness.DEFAULT_DURATION
+[estimation_tests-12]         path = config.getoption('--target-path')
+[estimation_tests-12]         shooter_speed = config.getoption('--shooter-speed')
+[estimation_tests-12]         blackout = config.getoption('--blackout')
+[estimation_tests-12]         chassis_spin = config.getoption('--chassis-spin')
+[estimation_tests-12]         yaw_deg = ANGLED_YAW_DEG if case == STATIONARY_ANGLED else 0.0
+[estimation_tests-12]         if isinstance(case, str):
+[estimation_tests-12]             speed, spin_hz = 0.0, 0.0
+[estimation_tests-12]         else:
+[estimation_tests-12]             speed = case
+[estimation_tests-12]             spin_hz = shot_hit_harness.spin_hz_for_speed(speed, min(speeds), max(speeds))
+[estimation_tests-12]         cell = cell_id(layout, speed, path, shooter_speed, blackout,
+[estimation_tests-12]                        config.getoption('--camera-latency'), yaw_deg, chassis_spin)
+[estimation_tests-12]         print(f'\n=== {cell}, spin={spin_hz:.2f} Hz ===')
+[estimation_tests-12]     
+[estimation_tests-12]         summary = harness.run_case(est_stack, cell, speed, spin_hz, duration,
+[estimation_tests-12]                                    stagger=LAYOUTS[layout], path=path, blackout=blackout,
+[estimation_tests-12]                                    shooter_speed=shooter_speed,
+[estimation_tests-12]                                    target_yaw=math.radians(yaw_deg), chassis_spin=chassis_spin)
+[estimation_tests-12]         harness.print_summary(cell, summary)
+[estimation_tests-12]     
+[estimation_tests-12]         assert summary['states'] > 0, (
+[estimation_tests-12]             f'no TargetState scored in {cell}: check target_tracker and the emulator '
+[estimation_tests-12]             '(stack.log in --log-dir, or the launch log)')
+[estimation_tests-12]         assert summary['valid_fraction'] >= MIN_VALID_FRACTION, (
+[estimation_tests-12]             f'{cell}: only {summary["valid_fraction"]:.0%} of states valid')
+[estimation_tests-12]         limits = harness.LIMITS.get(cell)
+[estimation_tests-12]         if limits is None:
+[estimation_tests-12]             print(f'{cell}: no limits yet, reporting only')
+[estimation_tests-12]             return
+[estimation_tests-12]         over = {k: (summary[k]['p95'], lim) for k, lim in limits.items()
+[estimation_tests-12]                 if summary.get(k) and summary[k]['p95'] > lim}
+[estimation_tests-12] >       assert not over, f'{cell}: p95 over LIMITS (value, limit): {over}'
+[estimation_tests-12] E       AssertionError: staggered-stationary-lateral-shooter0: p95 over LIMITS (value, limit): {'center_along_m': (0.0628, 0.0594)}
+[estimation_tests-12] E       assert not {'center_along_m': (0.0628, 0.0594)}
+[estimation_tests-12] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py:119: AssertionError
+[estimation_tests-12] ================================= suite timing =================================
+[estimation_tests-12] test_estimation: wall seconds per phase; RTF over sim-timed spans
+[estimation_tests-12]   case                                    sim_start   bringup     reset    settle    scored  teardown    total    RTF
+[estimation_tests-12]   (setup)                                                 1.0                                     0.0      1.0      -
+[estimation_tests-12]   test_estimation[flat-stationary]                                  0.1       0.3       3.3                3.6   9.45
+[estimation_tests-12]   test_estimation[flat-stationary45]                                0.1       0.3       2.9                3.2  10.64
+[estimation_tests-12]   test_estimation[flat-speed0.5]                                    0.1       0.3       2.8                3.1  11.11
+[estimation_tests-12]   test_estimation[flat-speed1.0]                                    0.1       0.3       2.7                3.1  11.09
+[estimation_tests-12]   test_estimation[flat-speed2.0]                                    0.1       0.3       2.8                3.1  11.10
+[estimation_tests-12]   test_estimation[flat-speed4.0]                                    0.1       0.3       2.9                3.2  10.85
+[estimation_tests-12]   test_estimation[staggered-stationary]                             0.1       0.3       2.7                3.0  11.37
+[estimation_tests-12]   test_estimation[staggered-stationary45]                           0.1       0.3       2.8                3.1  11.20
+[estimation_tests-12]   test_estimation[staggered-speed0.5]                               0.1       0.3       2.8                3.1  11.22
+[estimation_tests-12]   test_estimation[staggered-speed1.0]                               0.1       0.3       2.8                3.1  11.18
+[estimation_tests-12]   test_estimation[staggered-speed2.0]                               0.1       0.3       2.8                3.1  10.94
+[estimation_tests-12]   test_estimation[staggered-speed4.0]                               0.1       0.3       2.8                3.1  11.18
+[estimation_tests-12]   total                                                   1.0       0.7       3.3      33.9       0.0     38.9  10.92
+[estimation_tests-12] =========================== short test summary info ============================
+[estimation_tests-12] FAILED src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary]
+[estimation_tests-12] ======================== 1 failed, 11 passed in 39.00s =========================
+[ERROR] [estimation_tests-12]: process has died [pid 11339, exit code 1, cmd '/usr/bin/python3 -m pytest /workspaces/isaac_ros-dev/src/sim/test/cv/test_estimation.py -m integration -v -s --external-stack --panel-layout both --target-path lateral --shooter-speed 0.0 --chassis-spin 0.0 --camera-latency 0.0 --log-dir /workspaces/isaac_ros-dev/nightly-validation-2026-10-06/estimation-fast-fixed'].
+[INFO] [launch.user]: estimation tests exited with code 1
+[INFO] [foxglove_bridge-14]: sending signal 'SIGINT' to process[foxglove_bridge-14]
+[INFO] [latch_holder-13]: sending signal 'SIGINT' to process[latch_holder-13]
+[INFO] [rviz2-11]: sending signal 'SIGINT' to process[rviz2-11]
+[INFO] [target_state_markers-10]: sending signal 'SIGINT' to process[target_state_markers-10]
+[INFO] [point_to_cv_target-9]: sending signal 'SIGINT' to process[point_to_cv_target-9]
+[INFO] [target_tracker-8]: sending signal 'SIGINT' to process[target_tracker-8]
+[INFO] [target_selector-7]: sending signal 'SIGINT' to process[target_selector-7]
+[INFO] [passthrough_odom_publisher-6]: sending signal 'SIGINT' to process[passthrough_odom_publisher-6]
+[INFO] [robot_state_publisher-5]: sending signal 'SIGINT' to process[robot_state_publisher-5]
+[INFO] [odom_tf_broadcaster-4]: sending signal 'SIGINT' to process[odom_tf_broadcaster-4]
+[INFO] [pose_translator-3]: sending signal 'SIGINT' to process[pose_translator-3]
+[INFO] [lidar_self_filter-2]: sending signal 'SIGINT' to process[lidar_self_filter-2]
+[INFO] [bench_world-1]: sending signal 'SIGINT' to process[bench_world-1]
+[foxglove_bridge-14] [INFO] [1791334153.627918114] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[foxglove_bridge-14] [INFO] [1791334153.628251907] [foxglove_bridge]: Shutting down foxglove_bridge
+[rviz2-11] [INFO] [1791334153.629096910] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[target_state_markers-10] Traceback (most recent call last):
+[target_state_markers-10]   File "/workspaces/isaac_ros-dev/install/sim/lib/sim/target_state_markers", line 20, in <module>
+[point_to_cv_target-9] Traceback (most recent call last):
+[point_to_cv_target-9]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/point_to_cv_target", line 20, in <module>
+[target_state_markers-10]     main()
+[target_state_markers-10]   File "/workspaces/isaac_ros-dev/install/sim/lib/python3.12/site-packages/sim/target_state_markers.py", line 118, in main
+[target_tracker-8] [INFO] [1791334153.630452998] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[point_to_cv_target-9]     main()
+[point_to_cv_target-9]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/point_to_cv_target.py", line 372, in main
+[target_selector-7] Traceback (most recent call last):
+[target_selector-7]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/target_selector", line 20, in <module>
+[target_state_markers-10]     rclpy.spin(node)
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[target_state_markers-10]     executor.spin_once()
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[target_state_markers-10]     self._spin_once_impl(timeout_sec)
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[target_state_markers-10]     handler, entity, node = self.wait_for_ready_callbacks(
+[target_state_markers-10]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[target_state_markers-10]     return next(self._cb_iter)
+[target_state_markers-10]            ^^^^^^^^^^^^^^^^^^^
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[passthrough_odom_publisher-6] Traceback (most recent call last):
+[passthrough_odom_publisher-6]   File "/workspaces/isaac_ros-dev/install/sentry_localization/lib/sentry_localization/passthrough_odom_publisher", line 33, in <module>
+[point_to_cv_target-9]     rclpy.spin(node)
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[point_to_cv_target-9]     executor.spin_once()
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[point_to_cv_target-9]     self._spin_once_impl(timeout_sec)
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[target_state_markers-10]     wait_set.wait(timeout_nsec)
+[target_state_markers-10] KeyboardInterrupt
+[point_to_cv_target-9]     handler, entity, node = self.wait_for_ready_callbacks(
+[point_to_cv_target-9]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[point_to_cv_target-9]     return next(self._cb_iter)
+[point_to_cv_target-9]            ^^^^^^^^^^^^^^^^^^^
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[point_to_cv_target-9]     wait_set.wait(timeout_nsec)
+[point_to_cv_target-9] KeyboardInterrupt
+[target_selector-7]     main()
+[target_selector-7]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/target_selector.py", line 189, in main
+[target_selector-7]     rclpy.spin(node)
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[target_selector-7]     executor.spin_once()
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[target_selector-7]     self._spin_once_impl(timeout_sec)
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[target_selector-7]     handler, entity, node = self.wait_for_ready_callbacks(
+[target_selector-7]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[target_selector-7]     return next(self._cb_iter)
+[target_selector-7]            ^^^^^^^^^^^^^^^^^^^
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 687, in _wait_for_ready_callbacks
+[target_selector-7]     waitables.extend(filter(self.can_execute, node.waitables))
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 621, in can_execute
+[target_selector-7]     return not entity._executor_event and entity.callback_group.can_execute(entity)
+[target_selector-7]                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/callback_groups.py", line 102, in can_execute
+[pose_translator-3] Traceback (most recent call last):
+[pose_translator-3]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/pose_translator", line 20, in <module>
+[lidar_self_filter-2] Traceback (most recent call last):
+[lidar_self_filter-2]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/lidar_self_filter", line 20, in <module>
+[pose_translator-3]     main()
+[pose_translator-3]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/pose_translator.py", line 124, in main
+[lidar_self_filter-2]     main()
+[lidar_self_filter-2]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/lidar_self_filter.py", line 84, in main
+[pose_translator-3]     rclpy.spin(node)
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[pose_translator-3]     executor.spin_once()
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[passthrough_odom_publisher-6]     sys.exit(load_entry_point('sentry-localization', 'console_scripts', 'passthrough_odom_publisher')())
+[passthrough_odom_publisher-6]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[passthrough_odom_publisher-6]   File "/workspaces/isaac_ros-dev/build/sentry_localization/sentry_localization/passthrough_odom_publisher.py", line 42, in main
+[lidar_self_filter-2]     rclpy.spin(node)
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[lidar_self_filter-2]     executor.spin_once()
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[lidar_self_filter-2]     self._spin_once_impl(timeout_sec)
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[pose_translator-3]     self._spin_once_impl(timeout_sec)
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[lidar_self_filter-2]     handler, entity, node = self.wait_for_ready_callbacks(
+[lidar_self_filter-2]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[lidar_self_filter-2]     return next(self._cb_iter)
+[lidar_self_filter-2]            ^^^^^^^^^^^^^^^^^^^
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[lidar_self_filter-2]     wait_set.wait(timeout_nsec)
+[pose_translator-3]     handler, entity, node = self.wait_for_ready_callbacks(
+[lidar_self_filter-2] KeyboardInterrupt
+[pose_translator-3]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[pose_translator-3]     return next(self._cb_iter)
+[pose_translator-3]            ^^^^^^^^^^^^^^^^^^^
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[passthrough_odom_publisher-6]     rclpy.spin(node)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[robot_state_publisher-5] [INFO] [1791334153.634774929] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pose_translator-3]     wait_set.wait(timeout_nsec)
+[pose_translator-3] KeyboardInterrupt
+[passthrough_odom_publisher-6]     executor.spin_once()
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[passthrough_odom_publisher-6]     self._spin_once_impl(timeout_sec)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 916, in _spin_once_impl
+[passthrough_odom_publisher-6]     handler()
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/task.py", line 270, in __call__
+[passthrough_odom_publisher-6]     self._execute_coroutine_step(self._handler)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/task.py", line 286, in _execute_coroutine_step
+[passthrough_odom_publisher-6]     result = coro.send(None)
+[passthrough_odom_publisher-6]              ^^^^^^^^^^^^^^^
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 592, in handler
+[passthrough_odom_publisher-6]     await call_coroutine()
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 480, in _execute
+[passthrough_odom_publisher-6]     await await_or_execute(sub.callback, *msg_tuple)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 115, in await_or_execute
+[bench_world-1] [INFO] [1791334153.635290431] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[passthrough_odom_publisher-6]     return callback(*args)
+[passthrough_odom_publisher-6]            ^^^^^^^^^^^^^^^
+[passthrough_odom_publisher-6]   File "/workspaces/isaac_ros-dev/build/sentry_localization/sentry_localization/passthrough_odom_publisher.py", line 36, in _odom_cb
+[passthrough_odom_publisher-6]     self._pub.publish(msg)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/publisher.py", line 70, in publish
+[target_selector-7]     with self._lock:
+[target_selector-7] KeyboardInterrupt
+[odom_tf_broadcaster-4] Traceback (most recent call last):
+[odom_tf_broadcaster-4]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/odom_tf_broadcaster", line 20, in <module>
+[odom_tf_broadcaster-4]     main()
+[odom_tf_broadcaster-4]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/odom_tf_broadcaster.py", line 60, in main
+[odom_tf_broadcaster-4]     rclpy.spin(node)
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[odom_tf_broadcaster-4]     executor.spin_once()
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[odom_tf_broadcaster-4]     self._spin_once_impl(timeout_sec)
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[odom_tf_broadcaster-4]     handler, entity, node = self.wait_for_ready_callbacks(
+[odom_tf_broadcaster-4]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[odom_tf_broadcaster-4]     return next(self._cb_iter)
+[odom_tf_broadcaster-4]            ^^^^^^^^^^^^^^^^^^^
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[odom_tf_broadcaster-4]     wait_set.wait(timeout_nsec)
+[odom_tf_broadcaster-4] KeyboardInterrupt
+[passthrough_odom_publisher-6]     self.__publisher.publish(msg)
+[passthrough_odom_publisher-6] KeyboardInterrupt
+[ERROR] [passthrough_odom_publisher-6]: process has died [pid 11333, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sentry_localization/lib/sentry_localization/passthrough_odom_publisher --ros-args -r __node:=passthrough_odom_publisher --params-file /tmp/launch_params_jrbs7w5j'].
+[ERROR] [target_state_markers-10]: process has died [pid 11337, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sim/lib/sim/target_state_markers --ros-args -r __node:=target_state_markers --params-file /tmp/launch_params_oz3jj10_'].
+[ERROR] [point_to_cv_target-9]: process has died [pid 11336, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/point_to_cv_target --ros-args -r __node:=point_to_cv_target --params-file /tmp/launch_params_8li_l55p'].
+[ERROR] [target_selector-7]: process has died [pid 11334, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/target_selector --ros-args -r __node:=target_selector --params-file /tmp/launch_params_ottz74xy'].
+[ERROR] [pose_translator-3]: process has died [pid 11330, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/pose_translator --ros-args -r __node:=pose_translator --params-file /tmp/launch_params_vkmjlez3'].
+[ERROR] [lidar_self_filter-2]: process has died [pid 11329, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/lidar_self_filter --ros-args -r __node:=lidar_self_filter --params-file /tmp/launch_params_uub2f_9s'].
+[ERROR] [odom_tf_broadcaster-4]: process has died [pid 11331, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/odom_tf_broadcaster --ros-args -r __node:=odom_tf_broadcaster --params-file /tmp/launch_params_w41dprgk'].
+[INFO] [target_tracker-8]: process has finished cleanly [pid 11335]
+[INFO] [robot_state_publisher-5]: process has finished cleanly [pid 11332]
+[INFO] [bench_world-1]: process has finished cleanly [pid 11328]
+[INFO] [rviz2-11]: process has finished cleanly [pid 11338]
+[INFO] [latch_holder-13]: process has finished cleanly [pid 11340]
+[foxglove_bridge-14] [2026-10-07T00:49:13Z INFO  foxglove::websocket::server] Shutting down
+[foxglove_bridge-14] [2026-10-07T00:49:13Z INFO  foxglove::websocket::server] Shutdown complete
+[foxglove_bridge-14] [INFO] [1791334153.986866350] [foxglove_bridge]: Shutdown complete
+[INFO] [foxglove_bridge-14]: process has finished cleanly [pid 11341]

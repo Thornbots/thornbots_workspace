@@ -48,6 +48,11 @@ impact, and link the corresponding package changes.
 
 ### Validation and limits
 
+- [Nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md): seven
+  ROS packages build; 234 unit checks pass and eight cppcheck checks skip.
+  Unthrottled aiming passes 10/10, estimation 11/12, localization 8/9.
+  Remaining failures exceed unchanged accuracy limits; the report includes
+  measurements, logs, tested revisions, and reproduction commands.
 - Hosted release build with GCC 11; 16 native control, wire-format, and real ROS
   bridge tests passed. Gazebo smoke verified position within 0.01 m of truth,
   commanded gimbal bearing (0.0000 rad error), and 99 native indexer requests;

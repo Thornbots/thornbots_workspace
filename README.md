@@ -11,6 +11,9 @@ On this branch, `.gitmodules` tracks each package's `nightly` branch while
 keeping exact commit pins. [CHANGELOG.md](CHANGELOG.md) records unreleased
 changes to carry into `main`; update it when adding work to nightly.
 
+[Nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md) records
+the tested revisions, results, coverage limits, and commands to reproduce them.
+
 Each package is a submodule:
 
 ```sh
