@@ -2,6 +2,15 @@
 
 Call out code that doesn't follow standard practice.
 
+## Repository checks
+
+Install `.github/quality/requirements.txt` into a host Python 3.12 venv and
+run `python .github/quality/check.py` in each repo. Shared checker tests:
+`python -m unittest discover -s .github/quality -p 'test_*.py' -v`.
+`python .github/scripts/configure_branch_protection.py` prints the planned
+policy; `--apply` writes and verifies it (requires repo admin permission).
+The MCBV3 policy targets only `main`. See `docs/CI.md` for coverage and debt.
+
 ## Skills
 
 - [`isaac-ros-docker`](.claude/skills/isaac-ros-docker/): every docker command,

@@ -54,4 +54,4 @@ jobs:
         working-directory: source
         env:
           PYTHONPATH: isaac_common_py
-        run: python -m pytest isaac_common_py/tests -q
+        run: python -m pytest isaac_common_py/tests tests -q

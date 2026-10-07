@@ -29,6 +29,11 @@ git submodule foreach --recursive \
 
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
+[CI and validation](docs/CI.md) describes the repository checks, lint debt,
+branch protection, and robot image publishing. Tested robot images are
+published to `ghcr.io/thornbots/isaac-ros` after `main` and `nightly` updates;
+the image revision follows this workspace's exact package pins.
+
 One logical change, one bump: a bump may move several gitlinks when they belong
 to the same change, and a one-line package commit still earns its own. Push the
 package before you push here — a gitlink pointing at an unpushed commit fails
