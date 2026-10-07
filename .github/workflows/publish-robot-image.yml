@@ -1,0 +1,66 @@
+name: publish robot image
+
+on:
+  push:
+    branches: [main, nightly]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: robot-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: ws/src
+          submodules: true
+      - name: Install the pinned Isaac ROS CLI
+        env:
+          ISAAC_ROS_CLI_REF: release-4.6
+        run: |
+          python3 -m pip install uv==0.9.3
+          bash ws/src/isaac_ros_common/scripts/install_isaac_ros_cli.sh
+      - name: Build native JetPack image
+        working-directory: ws/src
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          bash isaac_ros_common/scripts/build_robot_image.sh
+          source_tag=$(DRY_RUN=1 bash isaac_ros_common/scripts/build_robot_image.sh | head -n 1)
+          docker image inspect "$source_tag" >/dev/null
+          registry_tag="ghcr.io/thornbots/isaac-ros:sha-${GITHUB_SHA}-arm64-jetpack"
+          docker tag "$source_tag" "$registry_tag"
+          echo "ROBOT_REGISTRY_TAG=$registry_tag" >> "$GITHUB_ENV"
+          echo "ROBOT_SOURCE_TAG=$source_tag" >> "$GITHUB_ENV"
+      - name: Test the built ROS packages
+        run: |
+          docker run --rm --entrypoint /bin/bash "$ROBOT_REGISTRY_TAG" -c '
+            set -eo pipefail
+            source /opt/ros/jazzy/setup.bash
+            source /workspaces/ros2_ws/install/setup.bash
+            cd /workspaces/ros2_ws
+            colcon test --return-code-on-test-failure --event-handlers console_direct+
+            colcon test-result --verbose'
+      - uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish immutable and branch tags
+        run: |
+          docker push "$ROBOT_REGISTRY_TAG"
+          branch_tag="ghcr.io/thornbots/isaac-ros:${GITHUB_REF_NAME}-arm64-jetpack"
+          docker tag "$ROBOT_REGISTRY_TAG" "$branch_tag"
+          docker push "$branch_tag"
+          {
+            echo "Robot image: \`$ROBOT_REGISTRY_TAG\`"
+            echo "CLI image: \`$ROBOT_SOURCE_TAG\`"
+            echo "Source: \`$GITHUB_SHA\` (exact package gitlinks)"
+          } >> "$GITHUB_STEP_SUMMARY"

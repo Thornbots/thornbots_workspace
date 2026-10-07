@@ -6,6 +6,7 @@
 	path = sim
 	url = https://github.com/Thornbots/sim.git
 	branch = nightly
+	update = none
 [submodule "sentry_localization"]
 	path = sentry_localization
 	url = https://github.com/Thornbots/sentry_localization.git

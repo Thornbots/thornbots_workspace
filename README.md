@@ -45,7 +45,7 @@ fast-forwards, so the packages move with it. That push needs the
 | --- | --- | --- |
 | `thornbots_pkg` | `nightly` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
 | `sentry_localization` | `nightly` | SLAM / AMCL / EKF backends |
-| `sim` | `nightly` | gz-sim worlds and the localization test suite |
+| `sim` | `nightly` | gz-sim worlds and tests, opt-in: not cloned by default |
 | `realsense-yolov8-nitros-bridge` | `nightly` | YOLOv8 detection on the RealSense stream |
 | `Realsense_ROI_Depth_Rectifier` | `nightly` | Depth rectification for detection ROIs |
 | `ros2_dji_serial_bridge` | `nightly` | Serial link to the DJI Type-C board |
@@ -56,6 +56,17 @@ fast-forwards, so the packages move with it. That push needs the
 | `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
 Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+
+### Optional simulation
+
+`sim` has `update = none`: normal recursive clones and updates skip it,
+just as they skip MCB firmware. Initialize it when developing simulation:
+
+```sh
+git submodule update --init --checkout sim
+```
+
+CI initializes it explicitly when building and testing the portable stack.
 
 ### MCB firmware
 
