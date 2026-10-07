@@ -6,6 +6,11 @@ The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace.
 every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
 more work, and stays only for robots not yet reflashed to JetPack 7.2.
 
+`nightly` integrates changes across the workspace and all eleven package repos.
+On this branch, `.gitmodules` tracks each package's `nightly` branch while
+keeping exact commit pins. [CHANGELOG.md](CHANGELOG.md) records unreleased
+changes to carry into `main`; update it when adding work to nightly.
+
 Each package is a submodule:
 
 ```sh
@@ -35,17 +40,17 @@ fast-forwards, so the packages move with it. That push needs the
 
 | Path | Branch | Role |
 | --- | --- | --- |
-| `thornbots_pkg` | `main` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
-| `sentry_localization` | `main` | SLAM / AMCL / EKF backends |
-| `sim` | `main` | gz-sim worlds and the localization test suite |
-| `realsense-yolov8-nitros-bridge` | `main` | YOLOv8 detection on the RealSense stream |
-| `Realsense_ROI_Depth_Rectifier` | `main` | Depth rectification for detection ROIs |
-| `ros2_dji_serial_bridge` | `main` | Serial link to the DJI Type-C board |
-| `sllidar_ros2` | `main` | RPLIDAR driver (fork) |
-| `rf2o_laser_odometry` | `ros2` | Scan-matched odometry (fork) |
-| `isaac_ros_common` | `main` | Isaac ROS base, our Dockerfiles and container scripts |
-| `isaac-ros-startup` | `main` | systemd service that starts the robot stack at boot |
-| `firmware/MCBV3` | `position-based-cv` | MCB firmware, opt-in: not cloned by default, see below |
+| `thornbots_pkg` | `nightly` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
+| `sentry_localization` | `nightly` | SLAM / AMCL / EKF backends |
+| `sim` | `nightly` | gz-sim worlds and the localization test suite |
+| `realsense-yolov8-nitros-bridge` | `nightly` | YOLOv8 detection on the RealSense stream |
+| `Realsense_ROI_Depth_Rectifier` | `nightly` | Depth rectification for detection ROIs |
+| `ros2_dji_serial_bridge` | `nightly` | Serial link to the DJI Type-C board |
+| `sllidar_ros2` | `nightly` | RPLIDAR driver (fork) |
+| `rf2o_laser_odometry` | `nightly` | Scan-matched odometry (fork) |
+| `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
+| `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
+| `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
 Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
 
