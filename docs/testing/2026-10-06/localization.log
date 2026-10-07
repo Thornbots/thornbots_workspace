@@ -16,7 +16,7 @@
 [localization_tests-1] configfile: setup.cfg
 [localization_tests-1] plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, colcon-core-0.21.2
 [localization_tests-1] collecting ... collected 9 items
-[localization_tests-1] 
+[localization_tests-1]
 [foxglove_bridge-3] [INFO] [1791334167.439881022] [foxglove_bridge]: Advertising new channel 5 for topic "/tf_static"
 [foxglove_bridge-3] [INFO] [1791334167.439913272] [foxglove_bridge]: Advertising new channel 6 for topic "/tf"
 [foxglove_bridge-3] [INFO] [1791334167.443527284] [foxglove_bridge]: Advertising new channel 7 for topic "/sim/raw_odom"
@@ -52,7 +52,7 @@
 [foxglove_bridge-3] [INFO] [1791334181.307027928] [foxglove_bridge]: Removing channel 24 for topic "/scan_odom" (nav_msgs/msg/Odometry)
 [foxglove_bridge-3] [INFO] [1791334181.307030428] [foxglove_bridge]: Removing channel 26 for topic "/scan_odom/quality" (diagnostic_msgs/msg/DiagnosticArray)
 [localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[baseline] [pre-flight] host load average: 2.86 1.75 0.96 (10 CPUs) -- heavy unrelated CPU load (e.g. a leftover rviz2/other interactive process from earlier manual testing) can slow scan-matching enough to make timing-sensitive scenarios (jerk_with_motion especially) look like false failures; check `ps aux --sort=-%cpu` if a run fails unexpectedly.
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1] === Running scenario: baseline (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [sim] started pid=12049 log=/tmp/localization_drift_tests/sim.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false part:=sim headless:=false real_time_factor:=0
 [localization_tests-1] [robot] started pid=12453 log=/tmp/localization_drift_tests/robot_1.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
@@ -75,7 +75,7 @@
 [foxglove_bridge-3] [INFO] [1791334186.055350347] [foxglove_bridge]: Advertising new channel 39 for topic "/scan_odom"
 [foxglove_bridge-3] [INFO] [1791334186.055355722] [foxglove_bridge]: Advertising new channel 40 for topic "/set_pose"
 [foxglove_bridge-3] [INFO] [1791334187.062632321] [foxglove_bridge]: Advertising new channel 41 for topic "/map_server/transition_event"
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[noise_correction] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[noise_correction]
 [localization_tests-1] === Running scenario: noise_correction (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=12657 log=/tmp/localization_drift_tests/robot_2.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -128,7 +128,7 @@
 [foxglove_bridge-3] [INFO] [1791334206.600965682] [foxglove_bridge]: Advertising new channel 47 for topic "/bond"
 [foxglove_bridge-3] [INFO] [1791334206.600970849] [foxglove_bridge]: Advertising new channel 48 for topic "/amcl/transition_event"
 [foxglove_bridge-3] [INFO] [1791334207.101370187] [foxglove_bridge]: Advertising new channel 49 for topic "/set_pose"
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[drift_correction] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[drift_correction]
 [localization_tests-1] === Running scenario: drift_correction (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=12904 log=/tmp/localization_drift_tests/robot_3.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -165,7 +165,7 @@
 [foxglove_bridge-3] [INFO] [1791334232.157266933] [foxglove_bridge]: Advertising new channel 52 for topic "/particle_cloud"
 [foxglove_bridge-3] [INFO] [1791334232.157309975] [foxglove_bridge]: Advertising new channel 53 for topic "/bond"
 [foxglove_bridge-3] [INFO] [1791334233.773915686] [foxglove_bridge]: Advertising new channel 54 for topic "/scan_odom/quality"
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[drift_correction_obstacle] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[drift_correction_obstacle]
 [localization_tests-1] === Running scenario: drift_correction_obstacle (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=13149 log=/tmp/localization_drift_tests/robot_4.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -211,7 +211,7 @@
 [foxglove_bridge-3] [INFO] [1791334258.067937799] [foxglove_bridge]: Advertising new channel 61 for topic "/scan_odom"
 [foxglove_bridge-3] [INFO] [1791334258.067945216] [foxglove_bridge]: Advertising new channel 62 for topic "/map_server/transition_event"
 [foxglove_bridge-3] [INFO] [1791334258.067951341] [foxglove_bridge]: Advertising new channel 63 for topic "/set_pose"
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[moving_obstacles] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[moving_obstacles]
 [localization_tests-1] === Running scenario: moving_obstacles (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=13309 log=/tmp/localization_drift_tests/robot_5.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -255,7 +255,7 @@
 [foxglove_bridge-3] [INFO] [1791334307.989166223] [foxglove_bridge]: Removing channel 64 for topic "/scan_odom/quality" (diagnostic_msgs/msg/DiagnosticArray)
 [foxglove_bridge-3] [INFO] [1791334309.005331971] [foxglove_bridge]: Removing channel 68 for topic "/map_server/transition_event" (lifecycle_msgs/msg/TransitionEvent)
 [foxglove_bridge-3] [INFO] [1791334309.005378304] [foxglove_bridge]: Removing channel 61 for topic "/scan_odom" (nav_msgs/msg/Odometry)
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[real_accel] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[real_accel]
 [localization_tests-1] === Running scenario: real_accel (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=13620 log=/tmp/localization_drift_tests/robot_6.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -294,7 +294,7 @@
 [foxglove_bridge-3] [INFO] [1791334337.089065222] [foxglove_bridge]: Removing channel 70 for topic "/map_server/transition_event" (lifecycle_msgs/msg/TransitionEvent)
 [foxglove_bridge-3] [INFO] [1791334337.089069264] [foxglove_bridge]: Removing channel 69 for topic "/scan_odom" (nav_msgs/msg/Odometry)
 [foxglove_bridge-3] [INFO] [1791334337.089075847] [foxglove_bridge]: Removing channel 74 for topic "/scan_odom/quality" (diagnostic_msgs/msg/DiagnosticArray)
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[jerk_with_motion] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[jerk_with_motion]
 [localization_tests-1] === Running scenario: jerk_with_motion (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=13823 log=/tmp/localization_drift_tests/robot_7.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -346,7 +346,7 @@
 [foxglove_bridge-3] [INFO] [1791334338.827700465] [foxglove_bridge]: Advertising new channel 80 for topic "/particle_cloud"
 [foxglove_bridge-3] [INFO] [1791334338.827708757] [foxglove_bridge]: Advertising new channel 81 for topic "/bond"
 [foxglove_bridge-3] [INFO] [1791334338.827715174] [foxglove_bridge]: Advertising new channel 82 for topic "/amcl/transition_event"
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[odom_stuck] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[odom_stuck]
 [localization_tests-1] === Running scenario: odom_stuck (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=14069 log=/tmp/localization_drift_tests/robot_8.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -398,7 +398,7 @@
 [foxglove_bridge-3] [INFO] [1791334366.120469889] [foxglove_bridge]: Advertising new channel 86 for topic "/scan_odom/quality"
 [foxglove_bridge-3] [INFO] [1791334366.120504014] [foxglove_bridge]: Advertising new channel 87 for topic "/scan_odom"
 [foxglove_bridge-3] [INFO] [1791334366.120511306] [foxglove_bridge]: Advertising new channel 88 for topic "/map_server/transition_event"
-[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[scan_degraded] 
+[localization_tests-1] src/sim/test/localization/test_localization_drift.py::test_scenario[scan_degraded]
 [localization_tests-1] === Running scenario: scan_degraded (backend=amcl, use_rf2o=True) ===
 [localization_tests-1] [robot] started pid=14234 log=/tmp/localization_drift_tests/robot_9.log cmd=ros2 launch sim localization_tests.launch.py run_tests:=false headless:=false real_time_factor:=0 backend:=amcl use_rf2o:=true part:=robot
 [localization_tests-1]     stack ready: >= 10 /scan messages received
@@ -440,21 +440,21 @@
 [localization_tests-1] [sim] exited cleanly.
 [localization_tests-1] [sim] processes outlived the launch in group 12049; SIGKILLing them.
 [localization_tests-1] [post-flight (should be empty if teardown worked)] host load average: 22.37 12.35 5.39 (10 CPUs) -- heavy unrelated CPU load (e.g. a leftover rviz2/other interactive process from earlier manual testing) can slow scan-matching enough to make timing-sensitive scenarios (jerk_with_motion especially) look like false failures; check `ps aux --sort=-%cpu` if a run fails unexpectedly.
-[localization_tests-1] 
-[localization_tests-1] 
+[localization_tests-1]
+[localization_tests-1]
 [localization_tests-1] =================================== FAILURES ===================================
 [localization_tests-1] _________________________ test_scenario[scan_degraded] _________________________
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1] scenario_name = 'scan_degraded'
 [localization_tests-1] request = <FixtureRequest for <Function test_scenario[scan_degraded]>>
 [localization_tests-1] gui = True, ros_context = None
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1]     def test_scenario(scenario_name, request, gui, ros_context):
 [localization_tests-1]         backend = request.config.getoption('--backend')
 [localization_tests-1]         use_rf2o = request.config.getoption('--use-rf2o')
-[localization_tests-1]     
+[localization_tests-1]
 [localization_tests-1]         sc = drift_harness.run_scenario(scenario_name, gui, backend, use_rf2o)
-[localization_tests-1]     
+[localization_tests-1]
 [localization_tests-1]         detail = '\n'.join(sc.details)
 [localization_tests-1]         if sc.skipped:
 [localization_tests-1]             pytest.skip(detail)
@@ -481,18 +481,18 @@
 [localization_tests-1] E         FAIL: max truth error before 0.2615 m (< 0.4), during 0.5010 m (< 0.5), after 0.3204 m (< 0.4), log_errors=0
 [localization_tests-1] E       assert False
 [localization_tests-1] E        +  where False = <drift_harness.Scenario object at 0xffaba5b4ad50>.passed
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1] src/sim/test/localization/test_localization_drift.py:95: AssertionError
 [localization_tests-1] =============================== warnings summary ===============================
 [localization_tests-1] <frozen importlib._bootstrap>:488
 [localization_tests-1]   Warning: Type google.protobuf.pyext._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1] <frozen importlib._bootstrap>:488
 [localization_tests-1]   Warning: Type google.protobuf.pyext._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1] test/localization/test_localization_drift.py::test_scenario[baseline]
 [localization_tests-1]   Warning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
-[localization_tests-1] 
+[localization_tests-1]
 [localization_tests-1] -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 [localization_tests-1] ================================= suite timing =================================
 [localization_tests-1] test_localization_drift: wall seconds per phase; RTF over sim-timed spans

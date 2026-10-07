@@ -49,7 +49,7 @@
 [point_to_cv_target-9]   fire <= 2.00Hz, spin-timed above 3.0 rad/s, confidence >= 0.5
 [point_to_cv_target-9]   patrol: off
 [estimation_tests-12] collecting ... collected 12 items
-[estimation_tests-12] 
+[estimation_tests-12]
 [foxglove_bridge-14] [INFO] [1791334114.904193850] [foxglove_bridge]: Advertising new channel 5 for topic "/tf"
 [foxglove_bridge-14] [INFO] [1791334114.906002606] [foxglove_bridge]: Advertising new channel 6 for topic "/sim/raw_odom"
 [foxglove_bridge-14] [INFO] [1791334114.906016398] [foxglove_bridge]: Advertising new channel 7 for topic "/localization/odom"
@@ -89,7 +89,7 @@
 [target_tracker-8] [INFO] [1791334117.658966059] [target_tracker]: camera TF wait over 290 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334118.335185938] [target_tracker]: camera TF wait over 291 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334118.801211604] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary]
 [estimation_tests-12] === flat-stationary-lateral-shooter0, spin=0.00 Hz ===
 [estimation_tests-12] flat-stationary-lateral-shooter0: 1922 states, 100% valid, converged in 0.005 s, age on arrival 0.0004 s
 [estimation_tests-12]     facing_panel_m   mean 0.0040  p95 0.0076
@@ -111,7 +111,7 @@
 [target_tracker-8] [INFO] [1791334121.227888186] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334121.677337871] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334122.127946352] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary45] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary45]
 [estimation_tests-12] === flat-stationary45-lateral-shooter0, spin=0.00 Hz ===
 [estimation_tests-12] flat-stationary45-lateral-shooter0: 1974 states, 100% valid, converged in 0.47 s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0062  p95 0.0145
@@ -135,7 +135,7 @@
 [bench_world-1] [INFO] [1791334124.385265966] [bench_world]: bench_world: 9.0x, 0 lockstep timeouts
 [target_tracker-8] [INFO] [1791334124.839979290] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334125.293690567] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed0.5] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed0.5]
 [estimation_tests-12] === flat-speed0.5-lateral-shooter0, spin=2.00 Hz ===
 [estimation_tests-12] flat-speed0.5-lateral-shooter0: 1959 states, 100% valid, converged in None s, age on arrival 0.0002 s
 [estimation_tests-12]     facing_panel_m   mean 0.0264  p95 0.0499
@@ -159,7 +159,7 @@
 [target_tracker-8] [INFO] [1791334127.580910718] [target_tracker]: camera TF wait over 293 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334128.030407226] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334128.474642256] [target_tracker]: camera TF wait over 291 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed1.0] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed1.0]
 [estimation_tests-12] === flat-speed1-lateral-shooter0, spin=1.86 Hz ===
 [estimation_tests-12] flat-speed1-lateral-shooter0: 1945 states, 100% valid, converged in 32.02 s, age on arrival 0.0004 s
 [estimation_tests-12]     facing_panel_m   mean 0.0315  p95 0.0758
@@ -182,7 +182,7 @@
 [target_tracker-8] [INFO] [1791334130.718969894] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334131.182434696] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334131.636502755] [target_tracker]: camera TF wait over 293 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed2.0] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed2.0]
 [estimation_tests-12] === flat-speed2-lateral-shooter0, spin=1.57 Hz ===
 [estimation_tests-12] flat-speed2-lateral-shooter0: 1954 states, 100% valid, converged in None s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0399  p95 0.0943
@@ -205,7 +205,7 @@
 [target_tracker-8] [INFO] [1791334134.353622361] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [bench_world-1] [INFO] [1791334134.385299598] [bench_world]: bench_world: 11.0x, 0 lockstep timeouts
 [target_tracker-8] [INFO] [1791334134.876642783] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed4.0] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-speed4.0]
 [estimation_tests-12] === flat-speed4-lateral-shooter0, spin=1.00 Hz ===
 [estimation_tests-12] flat-speed4-lateral-shooter0: 1945 states, 100% valid, converged in 32.785 s, age on arrival 0.0004 s
 [estimation_tests-12]     facing_panel_m   mean 0.0489  p95 0.0993
@@ -228,7 +228,7 @@
 [target_tracker-8] [INFO] [1791334137.074784120] [target_tracker]: camera TF wait over 288 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334137.527933208] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334137.971541137] [target_tracker]: camera TF wait over 289 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary]
 [estimation_tests-12] === staggered-stationary-lateral-shooter0, spin=0.00 Hz ===
 [estimation_tests-12] staggered-stationary-lateral-shooter0: 1910 states, 100% valid, converged in 0.785 s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0043  p95 0.0084
@@ -249,7 +249,7 @@
 [target_tracker-8] [INFO] [1791334139.768905548] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334140.219525164] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334140.668438689] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary45] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-stationary45]
 [estimation_tests-12] === staggered-stationary45-lateral-shooter0, spin=0.00 Hz ===
 [estimation_tests-12] staggered-stationary45-lateral-shooter0: 1976 states, 100% valid, converged in 0.37 s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0051  p95 0.0107
@@ -272,7 +272,7 @@
 [target_tracker-8] [INFO] [1791334142.904425861] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334143.351694918] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334143.809405011] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed0.5] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed0.5]
 [estimation_tests-12] === staggered-speed0.5-lateral-shooter0, spin=2.00 Hz ===
 [estimation_tests-12] staggered-speed0.5-lateral-shooter0: 1958 states, 100% valid, converged in None s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0327  p95 0.0590
@@ -298,7 +298,7 @@
 [target_tracker-8] [INFO] [1791334146.049459753] [target_tracker]: camera TF wait over 296 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334146.501238028] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334146.954076766] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed1.0] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed1.0]
 [estimation_tests-12] === staggered-speed1-lateral-shooter0, spin=1.86 Hz ===
 [estimation_tests-12] staggered-speed1-lateral-shooter0: 1952 states, 100% valid, converged in 32.77 s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0361  p95 0.0777
@@ -320,7 +320,7 @@
 [target_tracker-8] [INFO] [1791334149.199354249] [target_tracker]: camera TF wait over 298 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334149.715831077] [target_tracker]: camera TF wait over 295 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334150.175523666] [target_tracker]: camera TF wait over 297 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed2.0] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed2.0]
 [estimation_tests-12] === staggered-speed2-lateral-shooter0, spin=1.57 Hz ===
 [estimation_tests-12] staggered-speed2-lateral-shooter0: 1950 states, 100% valid, converged in 31.3 s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0427  p95 0.0965
@@ -343,7 +343,7 @@
 [target_tracker-8] [INFO] [1791334152.407810328] [target_tracker]: camera TF wait over 300 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334152.855983747] [target_tracker]: camera TF wait over 294 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
 [target_tracker-8] [INFO] [1791334153.325427406] [target_tracker]: camera TF wait over 299 detections: mean 0.000 s, max 0.000 s; dropped 0; capture to update mean 0.056 s, max 0.058 s
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed4.0] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[staggered-speed4.0]
 [estimation_tests-12] === staggered-speed4-lateral-shooter0, spin=1.00 Hz ===
 [estimation_tests-12] staggered-speed4-lateral-shooter0: 1950 states, 100% valid, converged in 32.87 s, age on arrival 0.0003 s
 [estimation_tests-12]     facing_panel_m   mean 0.0554  p95 0.1073
@@ -357,14 +357,14 @@
 [estimation_tests-12]     radius_m         mean 0.0159  p95 0.0329
 [estimation_tests-12]     z_offset_m       mean 0.0010  p95 0.0023
 [estimation_tests-12] PASSED
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] =================================== FAILURES ===================================
 [estimation_tests-12] ____________________ test_estimation[staggered-stationary] _____________________
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] layout = 'staggered', case = 'stationary'
 [estimation_tests-12] request = <FixtureRequest for <Function test_estimation[staggered-stationary]>>
 [estimation_tests-12] est_stack = <estimation_harness.EstimationStack object at 0xfb93f364d220>
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12]     def test_estimation(layout, case, request, est_stack):
 [estimation_tests-12]         config = request.config
 [estimation_tests-12]         speeds = _speeds(config)
@@ -382,13 +382,13 @@
 [estimation_tests-12]         cell = cell_id(layout, speed, path, shooter_speed, blackout,
 [estimation_tests-12]                        config.getoption('--camera-latency'), yaw_deg, chassis_spin)
 [estimation_tests-12]         print(f'\n=== {cell}, spin={spin_hz:.2f} Hz ===')
-[estimation_tests-12]     
+[estimation_tests-12]
 [estimation_tests-12]         summary = harness.run_case(est_stack, cell, speed, spin_hz, duration,
 [estimation_tests-12]                                    stagger=LAYOUTS[layout], path=path, blackout=blackout,
 [estimation_tests-12]                                    shooter_speed=shooter_speed,
 [estimation_tests-12]                                    target_yaw=math.radians(yaw_deg), chassis_spin=chassis_spin)
 [estimation_tests-12]         harness.print_summary(cell, summary)
-[estimation_tests-12]     
+[estimation_tests-12]
 [estimation_tests-12]         assert summary['states'] > 0, (
 [estimation_tests-12]             f'no TargetState scored in {cell}: check target_tracker and the emulator '
 [estimation_tests-12]             '(stack.log in --log-dir, or the launch log)')
@@ -403,7 +403,7 @@
 [estimation_tests-12] >       assert not over, f'{cell}: p95 over LIMITS (value, limit): {over}'
 [estimation_tests-12] E       AssertionError: staggered-stationary-lateral-shooter0: p95 over LIMITS (value, limit): {'center_along_m': (0.0628, 0.0594)}
 [estimation_tests-12] E       assert not {'center_along_m': (0.0628, 0.0594)}
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] src/sim/test/cv/test_estimation.py:119: AssertionError
 [estimation_tests-12] ================================= suite timing =================================
 [estimation_tests-12] test_estimation: wall seconds per phase; RTF over sim-timed spans

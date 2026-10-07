@@ -32,7 +32,7 @@ test 1
 1: [ RUN      ] DepthMm.NoDataIsZero
 1: [       OK ] DepthMm.NoDataIsZero (0 ms)
 1: [----------] 2 tests from DepthMm (0 ms total)
-1: 
+1:
 1: [----------] Global test environment tear-down
 1: [==========] 2 tests from 1 test suite ran. (0 ms total)
 1: [  PASSED  ] 2 tests.
@@ -65,7 +65,7 @@ test 2
 2: [ RUN      ] PanelView.InterpolatesHalfway
 2: [       OK ] PanelView.InterpolatesHalfway (0 ms)
 2: [----------] 6 tests from PanelView (0 ms total)
-2: 
+2:
 2: [----------] Global test environment tear-down
 2: [==========] 6 tests from 1 test suite ran. (0 ms total)
 2: [  PASSED  ] 6 tests.
@@ -90,7 +90,7 @@ test 3
 3: configfile: setup.cfg
 3: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, colcon-core-0.21.2
 3: collected 104 items / 56 deselected / 48 selected
-3: 
+3:
 3: test/test_copyright.py .                                                 [  2%]
 3: test/test_flake8.py .                                                    [  4%]
 3: test/test_foxglove_layouts.py .                                          [  6%]
@@ -103,17 +103,17 @@ test 3
 3: test/mcb/test_mcb_bridge_pty.py .                                        [ 68%]
 3: test/mcb/test_mcb_firmware.py ..........                                 [ 89%]
 3: test/mcb/test_mcb_protocol.py .....                                      [100%]
-3: 
+3:
 3: =============================== warnings summary ===============================
 3: <frozen importlib._bootstrap>:488
 3:   Warning: Type google.protobuf.pyext._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
-3: 
+3:
 3: <frozen importlib._bootstrap>:488
 3:   Warning: Type google.protobuf.pyext._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
-3: 
+3:
 3: test/test_flake8.py: 10 warnings
 3:   Warning: This process (pid=11644) is multi-threaded, use of fork() may lead to deadlocks in the child.
-3: 
+3:
 3: -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 3: - generated xml file: /workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml -
 3: ================ 48 passed, 56 deselected, 12 warnings in 2.56s ================

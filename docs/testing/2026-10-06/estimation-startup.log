@@ -49,7 +49,7 @@
 [rviz2-11] [INFO] [1791333883.377014383] [rviz2]: OpenGl version: 4.5 (GLSL 4.5)
 [rviz2-11] [INFO] [1791333883.389230774] [rviz2]: Stereo is NOT SUPPORTED
 [estimation_tests-12] collecting ... collected 12 items
-[estimation_tests-12] 
+[estimation_tests-12]
 [foxglove_bridge-14] [INFO] [1791333883.770901756] [foxglove_bridge]: Advertising new channel 5 for topic "/tf"
 [foxglove_bridge-14] [INFO] [1791333883.772707973] [foxglove_bridge]: Advertising new channel 6 for topic "/sim/raw_odom"
 [foxglove_bridge-14] [INFO] [1791333883.772718181] [foxglove_bridge]: Advertising new channel 7 for topic "/localization/odom"
@@ -383,9 +383,9 @@
 [estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
 [estimation_tests-12]     wait_set.wait(timeout_nsec)
 [estimation_tests-12] KeyboardInterrupt
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] During handling of the above exception, another exception occurred:
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] Traceback (most recent call last):
 [estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 285, in wrap_session
 [estimation_tests-12]     config.hook.pytest_keyboard_interrupt(excinfo=excinfo)
@@ -435,9 +435,9 @@
 [estimation_tests-12]   File "<frozen posixpath>", line 432, in realpath
 [estimation_tests-12]   File "<frozen posixpath>", line 476, in _joinrealpath
 [estimation_tests-12] KeyboardInterrupt
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] During handling of the above exception, another exception occurred:
-[estimation_tests-12] 
+[estimation_tests-12]
 [estimation_tests-12] Traceback (most recent call last):
 [estimation_tests-12]   File "<frozen runpy>", line 198, in _run_module_as_main
 [estimation_tests-12]   File "<frozen runpy>", line 88, in _run_code
@@ -505,7 +505,7 @@
 [estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
 [estimation_tests-12]     self.__context.shutdown()
 [estimation_tests-12] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
-[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary] 
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary]
 [estimation_tests-12] === flat-stationary-lateral-shooter0, spin=0.00 Hz ===
 [ERROR] [latch_holder-13]: process has died [pid 9110, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sim/lib/sim/latch_holder --ros-args'].
 [INFO] [target_tracker-8]: process has finished cleanly [pid 9105]
