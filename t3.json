@@ -3,6 +3,11 @@
   "defaultThreadEnvMode": "local",
   "scripts": [
     {
+      "name": "MCB: run firmware",
+      "command": "sim/tools/run_mcb_firmware.sh",
+      "icon": "debug"
+    },
+    {
       "name": "Smoke",
       "command": ".claude/skills/isaac-ros-docker/smoke.sh",
       "icon": "test"

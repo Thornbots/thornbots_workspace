@@ -170,30 +170,20 @@ that shoot back.
 
 ### I. MCB emulator
 
-The MCB on the far end of track A's pty, copied from the real firmware,
-`Thornbots/MCBV3` (`MCB-project/src/subsystems/jetson/`, `robots/sentry/`),
-not from `UART_PROTOCOL.md` alone (the user, 2026-09-28).
-`sim/mcb_emulator/` ports MCBV3 `position-based-cv` at `f835be1`
-(2026-10-03), the MCB team's aim at our `odom` point, and
-`e2e.launch.py stage:=e2` runs it on a pty against `dji_serial_bridge`
-and `mcb_relay` (`sim/README.md` "MCB emulator"). `firmware_fixes`
-(default on) adds the three fixes asked of that branch (bridge README
-"Asked of the firmware"). With them E2's still cell hits 28/40 on a
-clean track and a few % on a bad one, so `test_e2.py` is xfail
-non-strict on E1's tracking (T17). The sentry runs `0885a69`, which
-the port doesn't match: no `-PI/2` on the aim yaw, 80 ms
-`FIRING_LATENCY_TIME` (`sim/README.md` "MCB emulator"). Yaw holds within
-2 deg over a match (the user).
+The emulator now compiles the checked-out MCBV3 C++ code and supplies fake
+hardware interfaces (the user, 2026-10-06). The Python control port is removed.
+`MCB-project/src/hosted/` supplies lockstep time, sensor readings, CAN feedback
+and UART-to-pty plumbing; the actual SentryControl, scheduler, parsers,
+aim/fire and drive commands run. `sim mcb.launch.py` runs it against gz and
+the real ROS bridge; `e2e.launch.py stage:=e2` uses the same executable.
+`sim/README.md` documents the build, tests and hardware-model limits.
 
-Port by hand today, so it drifts each time the firmware moves. Make it
-automatic (the user, 2026-10-03), cheapest first:
-- A test that fails when MCBV3 changes a ported file after
-  `FIRMWARE_COMMIT` (`sim/mcb_emulator/__init__.py`), naming the files.
-- Run the real firmware instead of a port: MCBV3 already builds for the
-  host (`scons build-sim`, taproot `sim-modm/hosted-linux`). Missing: under
-  `PLATFORM_HOSTED` taproot's `Uart` reads nothing and writes nowhere
-  (`uart.cpp`), so it needs a UART-to-pty shim; motors and IMU would come
-  from taproot's `motorsim` wired to gz. Then each firmware commit runs as is.
+Native control and real-bridge tests cover pose/referee output, ping,
+aim/fire, relocalize, malformed frames, stage gating and both drive modes.
+E2 scoring stays blocked on its invalid opponent paths. Motor feedback and
+MCU timing remain models; next steps:
+- Wire physical CAN motor feedback and dynamics to gz instead of applying
+  firmware setpoints through gz's existing controllers.
 - A real Type C emulator (the user, 2026-10-03): emulate the board's
   STM32F407 and run the same `.elf` we flash, not a host build. It's the
   only way to catch what the host build hides: the real UART and DMA
@@ -201,8 +191,7 @@ automatic (the user, 2026-10-03), cheapest first:
   behaviour. Candidates to check first: Renode (STM32F4 platforms, UART to
   pty) and QEMU's STM32F405 board. Peripherals to model: the Jetson UART on a
   pty, the referee UART, the remote's DBUS, the BMI088 IMU on SPI, and the
-  DJI motors on CAN, bridged to gz. Most work of the three; the hosted build
-  first.
+  DJI motors on CAN, bridged to gz. The hosted build is now in place.
 
 **Done when** the emulator runs the firmware's Jetson, aim-and-fire and
 auto-drive logic against `dji_serial_bridge` on a pty, and E2 scores
