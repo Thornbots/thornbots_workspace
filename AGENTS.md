@@ -46,6 +46,9 @@ Claude attribution is disabled in `.claude/settings.json`; keep it disabled.
 `.gitmodules` records each package's branch. After a clone, run the one-liner
 in `README.md` to get off detached HEAD.
 
+Instructions go in `AGENTS.md`, since more than Claude works here. Every
+`CLAUDE.md`, root and package, is just `@AGENTS.md`.
+
 Read a package's `AGENTS.md` before working there. Keep it short: current
 state, open questions, rules. Test runs and measurements go in commit messages.
 
