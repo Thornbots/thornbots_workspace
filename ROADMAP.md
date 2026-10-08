@@ -22,21 +22,20 @@ keep the record.
 
 ## Short todos
 
-For Sunday 2026-10-04 (T21). Pointers lead to the detail, and numbers
-stay put when items are deleted or move to a track (T3 to H; T7, T8 and
-T15 to G; T17 to A; T20, T25 and T29 to C; T24 and T30 to E; T19, T22
-and T23 to J).
+Pointers lead to the detail, and numbers stay put when items are deleted
+or move to a track (T3 to H; T7, T8 and T15 to G; T17 to A; T20, T25
+and T29 to C; T24 and T30 to E; T19, T22 and T23 to J).
 
 Robot ops:
 
 Current deployment and validation status: [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status).
 The dated boot/run observations below do not establish hardware acceptance.
 
-- T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
-  user, 2026-10-02). The MCB team updates the auto-drive route for the
-  field. Our side: `auto.launch.py` defaults to `mapping` from a blank map
-  at boot, `mcb_relay` keeps relocalizing from rf2o + EKF
-  (`/localization/odom`), and `map_autosaver` saves the map every 30 s to
+- T21: The sentry's real-floor runs. Sunday 2026-10-04's practice field
+  went well, but no localization runs happened (the user, 2026-10-08), so
+  the map layer is still unjudged. Our side: `auto.launch.py` defaults to
+  `mapping` from a blank map at boot, `mcb_relay` keeps relocalizing from
+  rf2o + EKF (`/localization/odom`), and `map_autosaver` saves the map every 30 s to
   `maps/<boot time>/` on the workspace. Bring back the maps and logs to judge the map layer:
   `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
   since sim's EKF barely drifts; real floors over 5-minute runs decide.
@@ -51,13 +50,11 @@ The dated boot/run observations below do not establish hardware acceptance.
   `/localization/map_odom`, so the map layer can be judged offline. A run
   ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
 
-  Shots on Sunday (the user, 2026-10-02). The firmware the team runs is
-  MCBV3 `position-based-cv` (`0885a69`, contains `newMain`): it takes our
+  Shots (the user, 2026-10-02). The firmware the team runs is MCBV3
+  `position-based-cv` (`0885a69`, contains `newMain`): it takes our
   15-byte `CV_TARGET` as `UART_PROTOCOL.md` has it, aims at x/y/z less its
   own odometry and fires `delay_ms` after receipt. New format only: the
   bridge doesn't fall back to the old one (the user, 2026-10-02).
-  - Done: with no team colour, `target_selector` shoots at all targets.
-    `robot_id` 0 (no referee) used to read as red (`thornbots_pkg` `ba37481`).
   - Firmware, MCB team (Thornbots/MCBV3#77): the two fixes in the
     bridge README "Asked of the firmware", redone against `0885a69`
     (2026-10-04; they build what we ask, the user 2026-10-03). The aim
@@ -71,8 +68,8 @@ The dated boot/run observations below do not establish hardware acceptance.
     (track I). Not on the robot, not flashed.
   - YOLO runs at about 58 fps (the user, 2026-10-02).
   - Patrol: `point_to_cv_target` sweeps the gun with no target, fire
-    clear; the firmware fires on bit 0 alone (the user, 2026-10-04). On
-    the robot, check the sweep direction. Turning toward a hit is
+    clear; the firmware fires on bit 0 alone (the user, 2026-10-04). Sweep
+    direction checked on the robot 2026-10-04. Turning toward a hit is
     firmware-only and works.
   - Robot acceptance checks: depth on a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `POSE`'s x/y axes under
@@ -85,15 +82,12 @@ The dated boot/run observations below do not establish hardware acceptance.
     9 s, tracked (`tracking robot 1`), 6 fire frames sent with
     `delay_ms` 0, then ~60/s at 13:05:30. Whether it shot is the
     MCB's side. Capture to tracker update 59 ms mean.
-  - Timing, after Sunday (the user, 2026-10-04): `delay_ms` runs from
+  - Timing (the user, 2026-10-04): `delay_ms` runs from
     MCB receipt but is computed at decision, transit not taken off
     (`mcb_relay` takes off its RELOCALIZE latency); our
     `firmware_latency_s` 0.05 and the firmware's 80 ms
     `FIRING_LATENCY_TIME` both cover the indexer, so spinning-target
     shots go ~50 ms early. Measure the indexer, then one side owns it.
-  - The MCB reports `robot_id` 3, red, with `hp` 100 and stage 0
-    (run00051), so the selector shoots blue only. Check that's the
-    field's referee and not a stale MCB value; robot_id 0 passes all.
 - T27: The camera container dies when NTP steps the clock (2026-10-03,
   sentry). The RTC (`nvvrs-pseq-rtc`) resets the clock to 1970 at 10 s,
   after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
@@ -361,7 +355,7 @@ stops every node it started, with no tracebacks and no orphans.
   not drift_correction. The robot can hit it at boot too. Find why the
   `root` chain is missing at start, rather than restart around it.
 - T24: One name per test, for what it tests, used by its launch file,
-  test file and the docs alike (the user, 2026-10-03). After Sunday.
+  test file and the docs alike (the user, 2026-10-03).
   Each has three names today ("aiming bench" is `shot_hit.launch.py` and
   `test_shot_hit.py`). New names:
   - `localization_drift` (was `localization_tests.launch.py`, the drift suite)
@@ -376,7 +370,7 @@ stops every node it started, with no tracebacks and no orphans.
 
 ### F. CV nodes into their own repo
 
-Later, not before Sunday (the user, 2026-10-02). Move most of the CV
+Later (the user, 2026-10-02). Move most of the CV
 aiming code, `target_selector`, `target_tracker` and `point_to_cv_target`
 with its patrol, their `*_core.py` and tests, from `thornbots_pkg` to a new
 `thornbots_cv` package in its own repo.

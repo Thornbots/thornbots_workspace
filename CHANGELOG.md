@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Repository quality checks and portable Jazzy CI on PRs and pushes to
+  `nightly` and `main`; tested arm64 robot images published to GHCR with
+  branch and exact workspace revision tags and cached base layers. Package
+  CI changes build on their nightly tips, retaining current wire encoding.
+  The workspace fast-forward check and post-merge package updater remain
+  enabled on both branches; sim stays part of normal submodule checkout.
+
 - A coordinated `nightly` branch in the workspace and all eleven top-level
   submodule repositories. The nightly workspace tracks those branches in
   `.gitmodules` and pins their integrated commits.
@@ -39,6 +46,10 @@ impact, and link the corresponding package changes.
   because the current opponent paths cross field obstacles.
 
 ### Fixed
+
+- Estimation pacing waits for model and aim consumption; seeded noise draws
+  have explicit order. Suite launches and log checks propagate failed tests
+  and pacing timeouts. Full Gazebo lockstep remains unfinished.
 
 - Estimation bench lockstep pacing now expects the aim node's existing 40 Hz
   timer, restoring unthrottled runs without clock synchronization timeouts.

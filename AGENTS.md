@@ -2,6 +2,14 @@
 
 Call out code that doesn't follow standard practice.
 
+## Repository checks
+
+Use a host Python 3.12 venv with `.github/quality/requirements.txt`. Run
+`python .github/quality/check.py` in each repo and `actionlint -shellcheck=""`.
+Checker tests: `python -m unittest discover -s .github/quality -v`.
+Branch protection is opt-in: the script prints policy unless `--apply` is
+passed. MCBV3 policy targets only `main`. Coverage: [docs/CI.md](docs/CI.md).
+
 ## Skills
 
 - [`isaac-ros-docker`](.claude/skills/isaac-ros-docker/): every docker command,
@@ -18,13 +26,6 @@ On remote boxes (the robots, `ts-nano-*`), start, stop, build and remove
 containers and images when the user asks for it; no separate confirmation
 (the user, 2026-10-04). "dev" means `ts-nano-dev`, not this laptop.
 
-Inside the Mac's `isaac_ros_jazzy_container`, agents may clean up their own
-stale launches and orphaned nodes without asking. Only agents use that
-container (the user, 2026-09-29). This exception covers processes inside it;
-starting sim test runs or starting, restarting, or stopping the container
-or its VM still requires confirmation. It overrides `sim/AGENTS.md`'s
-general ask-before-killing rule for those stale agent processes.
-
 ## Priority
 
 CV (target detection/tracking) comes first. Game rules and field geometry:
@@ -32,7 +33,8 @@ CV (target detection/tracking) comes first. Game rules and field geometry:
 
 ## Branches
 
-`main` is Jazzy (`isaac_ros_jazzy_container`). Humble is frozen: no work on
+`nightly` integrates Jazzy changes; `main` is the promoted release
+(`isaac_ros_jazzy_container`). Humble is frozen: no work on
 `humble` branches or in `isaac_ros_dev-x86_64-container`.
 
 ## Packages
@@ -55,6 +57,9 @@ signing or substitute an agent identity. Do not add Claude or other AI
 co-author trailers or generated-by attribution to commit messages.
 Claude attribution is disabled in `.claude/settings.json`; keep it disabled.
 
+`nightly` keeps `.gitmodules` on package `nightly` branches. Workspace PRs
+check fast-forward ancestry; the merge pushes package fast-forwards through
+`advance-submodules.yml` using `SUBMODULES_TOKEN`.
 `.gitmodules` records each package's branch. After a clone, run the one-liner
 in `README.md` to get off detached HEAD.
 

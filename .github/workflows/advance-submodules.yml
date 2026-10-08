@@ -1,4 +1,4 @@
-# A workspace PR into main checks that every gitlink fast-forwards its
+# A workspace PR into main or nightly checks that every gitlink fast-forwards its
 # package's .gitmodules branch; the merge then pushes those fast-forwards.
 # The push needs the SUBMODULES_TOKEN secret: a fine-grained token with
 # contents read/write on the Thornbots package repos.
@@ -6,10 +6,13 @@ name: advance submodules
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, nightly]
   push:
-    branches: [main]
+    branches: [main, nightly]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: advance-submodules-${{ github.ref }}
