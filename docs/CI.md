@@ -85,8 +85,7 @@ for isaac-ros-cli. It does not build or start a container. Usage is in
 
 The policy requires passing named CI checks and an up-to-date branch, blocks
 force pushes/deletion, applies to administrators, and requires zero reviews.
-It permits tested fast-forward pushes so the existing coordinated submodule
-promotion workflow still works. It does not enforce linear history.
+It does not enforce linear history.
 
 Applied and verified: workspace/main, thornbots_pkg/main, sim/main,
 sentry_localization/main, rf2o_laser_odometry/main. The latter now uses main

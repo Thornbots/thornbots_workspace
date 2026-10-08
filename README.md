@@ -40,11 +40,9 @@ package before you push here — a gitlink pointing at an unpushed commit fails
 everyone else's `git submodule update --init`.
 
 A change across packages can live on a branch of the same name in each, with
-this repo's branch bumping the gitlinks. Open one PR here into `main`; its
-check (`.github/workflows/advance-submodules.yml`) fails if a gitlink doesn't
-fast-forward its package's `.gitmodules` branch. Merging it pushes those
-fast-forwards, so the packages move with it. That push needs the
-`SUBMODULES_TOKEN` secret, a token with contents write on the package repos.
+this repo's branch bumping the gitlinks. Open one PR here into `main`.
+Merging it doesn't move the packages: merge each package branch into that
+package's `.gitmodules` branch too, so the gitlink stays on it.
 
 | Path | Branch | Role |
 | --- | --- | --- |
