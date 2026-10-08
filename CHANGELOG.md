@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Repository quality checks and portable Jazzy CI on PRs and pushes to
+  `nightly` and `main`; tested arm64 robot images published to GHCR with
+  branch and exact workspace revision tags and cached base layers. Package
+  CI changes build on their nightly tips, retaining current wire encoding.
+  The workspace fast-forward check and post-merge package updater remain
+  enabled on both branches; sim stays part of normal submodule checkout.
+
 - A coordinated `nightly` branch in the workspace and all eleven top-level
   submodule repositories. The nightly workspace tracks those branches in
   `.gitmodules` and pins their integrated commits.

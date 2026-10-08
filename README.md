@@ -30,13 +30,17 @@ git submodule foreach --recursive \
 
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
+[CI and validation](docs/CI.md) covers repository checks, lint debt, and
+robot images. PRs into `nightly` or `main` run CI; pushes to either branch
+publish tested images to `ghcr.io/thornbots/isaac-ros`, using exact gitlinks.
+
 One logical change, one bump: a bump may move several gitlinks when they belong
 to the same change, and a one-line package commit still earns its own. Push the
 package before you push here — a gitlink pointing at an unpushed commit fails
 everyone else's `git submodule update --init`.
 
 A change across packages can live on a branch of the same name in each, with
-this repo's branch bumping the gitlinks. Open one PR here into `main`; its
+this repo's branch bumping the gitlinks. Open a draft PR here into `nightly`; its
 check (`.github/workflows/advance-submodules.yml`) fails if a gitlink doesn't
 fast-forward its package's `.gitmodules` branch. Merging it pushes those
 fast-forwards, so the packages move with it. That push needs the
