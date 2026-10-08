@@ -18,6 +18,13 @@ On remote boxes (the robots, `ts-nano-*`), start, stop, build and remove
 containers and images when the user asks for it; no separate confirmation
 (the user, 2026-10-04). "dev" means `ts-nano-dev`, not this laptop.
 
+Inside the Mac's `isaac_ros_jazzy_container`, agents may clean up their own
+stale launches and orphaned nodes without asking. Only agents use that
+container (the user, 2026-09-29). This exception covers processes inside it;
+starting sim test runs or starting, restarting, or stopping the container
+or its VM still requires confirmation. It overrides `sim/AGENTS.md`'s
+general ask-before-killing rule for those stale agent processes.
+
 ## Priority
 
 CV (target detection/tracking) comes first. Game rules and field geometry:
@@ -36,6 +43,11 @@ it moves several gitlinks or just one line.
 
 Commit and push each logical change once it's tested, without being asked.
 Push the submodule before the superproject.
+
+Stage superproject files by explicit path; never use `git commit -a`.
+Inspect `git diff --cached --stat` before committing. Include only gitlink
+changes you deliberately intend; stale submodule checkouts must not revert
+other people's gitlink updates (the user, 2026-10-04).
 
 Author and commit changes as `Blaise Baptist <blaise.baptist@gmail.com>`.
 Sign every commit with Blaise's configured Git signing key; never disable
@@ -80,6 +92,19 @@ when a topic spans packages and its owner is unclear. When moving a section,
 update its incoming links in the same change. Date historical observations
 and link to current status so they cannot be mistaken for today's results.
 Verify changed local links and anchors before committing.
+
+## Wire compatibility
+
+Use the current UART/wire format only
+([UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md)). Do not add an
+old-format fallback, including the former 40-byte `CVData` payload. When
+firmware and protocol disagree, update the MCB firmware and `sim` MCB
+emulator rather than downgrading the bridge (the user, 2026-10-02).
+
+## Responses
+
+Use terse bullet lists for checklists, status, and to-do summaries: one
+action or fact per item. Give rationale when asked (the user, 2026-10-03).
 
 ## Timestamps
 
