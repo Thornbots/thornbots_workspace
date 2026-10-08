@@ -58,6 +58,10 @@ the estimation bench scores at ~20x with the C++ `target_tracker`.
 7. `target_tracker` is C++ (2026-09-28): the estimation bench scores at
    ~20x, up from ~14x, and the tracker is no longer the ceiling.
 
+8. Lockstep the gz stack so results don't depend on machine speed:
+   [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md) (the user, 2026-10-08).
+   Unfinished: its done bar isn't met and the code is WIP off nightly.
+
 Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits 10 minutes, and
 5 without the match test (the user, 2026-09-28).
