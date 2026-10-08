@@ -238,9 +238,7 @@ Only then take three runs per cell for `FLOORS` (`E2E_PLAN.md` Scoring).
 
 ## Running it
 
-- **Mac mini (`blaises-mini`, container `isaac_ros_jazzy_container`,
-  workspace `~/ros2_ws`):** the user allowed runs there when it's idle,
-  installing sim and starting the container if missing (2026-10-08).
-  Check for a live session first.
-- **This laptop:** ask before any sim run (`sim/AGENTS.md`).
+- Container lifecycle approval follows [AGENTS.md](AGENTS.md#containers).
+- Simulation and bench approval follows [sim/AGENTS.md](sim/AGENTS.md#standing-rules).
+  Check for a live session before an approved run.
 - **Firmware:** rebuild it after edits with `sim/tools/build_mcb_firmware.sh`.
