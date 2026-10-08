@@ -26,89 +26,6 @@ Pointers lead to the detail, and numbers stay put when items are deleted
 or move to a track (T3 to H; T7, T8 and T15 to G; T17 to A; T20, T25
 and T29 to C; T24 and T30 to E; T19, T22 and T23 to J).
 
-Robot ops:
-
-Current deployment and validation status: [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status).
-The dated boot/run observations below do not establish hardware acceptance.
-
-- T21: The sentry's real-floor runs. Sunday 2026-10-04's practice field
-  went well, but no localization runs happened (the user, 2026-10-08), so
-  the map layer is still unjudged. Our side: `auto.launch.py` defaults to
-  `mapping` from a blank map at boot, `mcb_relay` keeps relocalizing from
-  rf2o + EKF (`/localization/odom`), and `map_autosaver` saves the map every 30 s to
-  `maps/<boot time>/` on the workspace. Bring back the maps and logs to judge the map layer:
-  `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
-  since sim's EKF barely drifts; real floors over 5-minute runs decide.
-  The sentry boots `main`'s image (`8880173c`, built on it from
-  `c87c97f`) with its own packages (`USE_WS_OVERLAY=false`) and
-  `LOCALIZATION_MODE=mapping`, 2026-10-04 (run00051): stack up in 19.5 s,
-  no `/pose` clash, bag filling. Left: one boot air-gapped with Wi-Fi
-  turned on mid-run: no `[clock]` line, no restart, no `negative time
-  point` abort, `systemd-timesyncd` inactive until the service stops.
-  Bring back `~/logs/thornbots-run<N>/` with each `.log`: its bag holds
-  `/tf`, `/scan`, `/scan_odom`, `/localization/odom` and
-  `/localization/map_odom`, so the map layer can be judged offline. A run
-  ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
-
-  Shots (the user, 2026-10-02). The firmware the team runs is MCBV3
-  `position-based-cv` (`0885a69`, contains `newMain`): it takes our
-  15-byte `CV_TARGET` as `UART_PROTOCOL.md` has it, aims at x/y/z less its
-  own odometry and fires `delay_ms` after receipt. New format only: the
-  bridge doesn't fall back to the old one (the user, 2026-10-02).
-  - Firmware, MCB team (Thornbots/MCBV3#77): the two fixes in the
-    bridge README "Asked of the firmware", redone against `0885a69`
-    (2026-10-04; they build what we ask, the user 2026-10-03). The aim
-    in one frame, REP-105 (its yaw already is, its odometry isn't), and
-    pitch for `z` above the pivot (else every shot is 0.39 m high). The
-    pitch fix is in `position-based-cv` `023802c`. rep-105 (2026-10-04,
-    every repo) does the first and more: one field frame, (0, 0) at the
-    field centre, x toward blue's base, in the firmware, on the wire, in
-    `odom`, `map`, the maps and the sim world; `mcb_x_right` is gone. The
-    emulator ports rep-105 at `cf42375`, before the rebase onto `023802c`
-    (track I). Not on the robot, not flashed.
-  - YOLO runs at about 58 fps (the user, 2026-10-02).
-  - Patrol: `point_to_cv_target` sweeps the gun with no target, fire
-    clear; the firmware fires on bit 0 alone (the user, 2026-10-04). Sweep
-    direction checked on the robot 2026-10-04. Turning toward a hit is
-    firmware-only and works.
-  - Robot acceptance checks: depth on a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
-    `odom` point rides on our TF, so check `POSE`'s x/y axes under
-    `mcb_x_right` (`head_yaw` is fixed): a panel straight ahead should
-    land straight ahead of `root`, and driving 1 m shouldn't fire a
-    RELOCALIZE every 0.3 s.
-    First shots on a stand, eye protection on, e-stop in reach.
-  - First detections on the sentry on Jazzy (run00051, 2026-10-04):
-    none for 3 min, then 48 frames of class 1 (scores 0.65-0.82) over
-    9 s, tracked (`tracking robot 1`), 6 fire frames sent with
-    `delay_ms` 0, then ~60/s at 13:05:30. Whether it shot is the
-    MCB's side. Capture to tracker update 59 ms mean.
-  - Timing (the user, 2026-10-04): `delay_ms` runs from
-    MCB receipt but is computed at decision, transit not taken off
-    (`mcb_relay` takes off its RELOCALIZE latency); our
-    `firmware_latency_s` 0.05 and the firmware's 80 ms
-    `FIRING_LATENCY_TIME` both cover the indexer, so spinning-target
-    shots go ~50 ms early. Measure the indexer, then one side owns it.
-- T27: The camera container dies when NTP steps the clock (2026-10-03,
-  sentry). The RTC (`nvvrs-pseq-rtc`) resets the clock to 1970 at 10 s,
-  after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
-  at ~49 s, RealSense stamps go wild and `component_container_mt` aborts
-  (`cannot store a negative time point in rclcpp::Time`). Air-gapped,
-  no jump. `Realsense_ROI_Depth_Rectifier` `d6caa99` no longer throws on
-  such stamps; `isaac-ros-startup` now restores timesyncd's saved time after
-  the RTC's hctosys, stops timesyncd for each run so Wi-Fi mid-match
-  can't step the clock (it syncs between runs), and restarts the stack on
-  any step over 1 s anyway (README.md "Clock steps restart the stack").
-  Passes on `ts-nano-dev`'s host with `docker` stubbed (2026-10-03; dev
-  has no camera). Left: a sentry boot with Wi-Fi, T21.
-- T34: Look into boot time more (the user, 2026-10-04). Track C's one
-  measurement is the sentry on 2026-10-01: engine loaded about 21 s from
-  kernel start. Missing: power-on to kernel (UEFI, not in
-  `systemd-analyze`), time to the stack being useful (first detection,
-  first `CVTarget`, first `map->odom`), hero and standard, and the
-  rebuilt Jazzy image. Time it with a stopwatch from power-on alongside
-  the `[boot]` lines (`isaac-ros-startup` README.md "Boot time"), then
-  cut the longest stage. Target stays under 1 min.
-
 CV:
 
 - T31: Tell the Type C when not to turn toward a hit (the user,
@@ -136,8 +53,10 @@ CV:
 
 ## Tracks, in order of work
 
-Finish the short todos first, then A-C in order, with I before A's E2,
-then G. D runs alongside A, and E, F, H and J are unscheduled. Navigation comes after the Midwest competition;
+Sim work first; robot work waits for [later](#later-needs-a-robot) (the
+user, 2026-10-08). Finish the short todos, then A with I before A's E2,
+then G, then the sim parts of B and C. D runs alongside A, and E, F, H, J
+and K are unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
 ### A. The match test
@@ -200,6 +119,9 @@ auto-drive logic against `dji_serial_bridge` on a pty, and every
 
 ### B. Hit while we move
 
+Later, needs a robot (the user, 2026-10-08), except the moving-shooter
+aiming-bench runs, which are sim.
+
 After track A's E3, agree the remaining wire and firmware work with the
 MCB team. The [CV interface](thornbots_pkg/README.md#cv-interface) is
 implemented; hardware validation remains unverified.
@@ -223,6 +145,10 @@ of the same target cell with our robot parked. Record hardware results in
 [hardware status](JAZZY_FLASH.md#hardware-status).
 
 ### C. Jazzy on the robots
+
+Later, needs a robot (the user, 2026-10-08): the reflash, hardware
+checks, boot time and T29. T20's bridge logging and T25's message can
+land first, tested in sim against the MCB emulator.
 
 Current migration state and unverified hardware checks live in
 [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status), alongside the flashing
@@ -426,6 +352,9 @@ game, and the map must not collect robots or duplicate walls.
 
 ### J. Lidar and camera
 
+T22 and T23's robot half are later, needing a robot (the user,
+2026-10-08).
+
 What the sensors give, and whether we need them as they are.
 
 - T22: Can the RPLIDAR's points per scan and scan rate change, and would
@@ -450,6 +379,103 @@ What the sensors give, and whether we need them as they are.
   the match test runs a gz depth camera for it (track D: an RGB-D camera
   alone caps gz near RTF 2.2). Without it, range would have to come from
   the colour image.
+
+### K. Move to C++
+
+Move as much as possible from Python to C++ (the user, 2026-10-08). Noted
+only, not yet scoped. Already C++: `target_tracker`, the serial bridge,
+rf2o and the ROI depth node. Still Python on the robot: `thornbots_pkg`'s
+`target_selector`, `point_to_cv_target`, `mcb_relay`, `pose_translator`,
+`odom_tf_broadcaster` and `lidar_self_filter`, and `sentry_localization`'s
+`map_pose_publisher`, `map_autosaver` and `passthrough_odom_publisher`;
+sim's nodes after. Open: what moves first, and how the `*_core.py` tests
+carry over.
+
+## Later: needs a robot
+
+Robot work waits; sim work goes first (the user, 2026-10-08). Tracks B,
+C and J mark their robot parts the same way.
+
+Current deployment and validation status: [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status).
+The dated boot/run observations below do not establish hardware acceptance.
+
+- T21: The sentry's real-floor runs. Sunday 2026-10-04's practice field
+  went well, but no localization runs happened (the user, 2026-10-08), so
+  the map layer is still unjudged. Our side: `auto.launch.py` defaults to
+  `mapping` from a blank map at boot, `mcb_relay` keeps relocalizing from
+  rf2o + EKF (`/localization/odom`), and `map_autosaver` saves the map every 30 s to
+  `maps/<boot time>/` on the workspace. Bring back the maps and logs to judge the map layer:
+  `map->odom` averaged over 10 s matched the EKF in sim but never beat it,
+  since sim's EKF barely drifts; real floors over 5-minute runs decide.
+  The sentry boots `main`'s image (`8880173c`, built on it from
+  `c87c97f`) with its own packages (`USE_WS_OVERLAY=false`) and
+  `LOCALIZATION_MODE=mapping`, 2026-10-04 (run00051): stack up in 19.5 s,
+  no `/pose` clash, bag filling. Left: one boot air-gapped with Wi-Fi
+  turned on mid-run: no `[clock]` line, no restart, no `negative time
+  point` abort, `systemd-timesyncd` inactive until the service stops.
+  Bring back `~/logs/thornbots-run<N>/` with each `.log`: its bag holds
+  `/tf`, `/scan`, `/scan_odom`, `/localization/odom` and
+  `/localization/map_odom`, so the map layer can be judged offline. A run
+  ended by a battery pull needs `ros2 bag reindex <dir>/bag -s mcap`.
+
+  Shots (the user, 2026-10-02). The firmware the team runs is MCBV3
+  `position-based-cv` (`0885a69`, contains `newMain`): it takes our
+  15-byte `CV_TARGET` as `UART_PROTOCOL.md` has it, aims at x/y/z less its
+  own odometry and fires `delay_ms` after receipt. New format only: the
+  bridge doesn't fall back to the old one (the user, 2026-10-02).
+  - Firmware, MCB team (Thornbots/MCBV3#77): the two fixes in the
+    bridge README "Asked of the firmware", redone against `0885a69`
+    (2026-10-04; they build what we ask, the user 2026-10-03). The aim
+    in one frame, REP-105 (its yaw already is, its odometry isn't), and
+    pitch for `z` above the pivot (else every shot is 0.39 m high). The
+    pitch fix is in `position-based-cv` `023802c`. rep-105 (2026-10-04,
+    every repo) does the first and more: one field frame, (0, 0) at the
+    field centre, x toward blue's base, in the firmware, on the wire, in
+    `odom`, `map`, the maps and the sim world; `mcb_x_right` is gone. The
+    emulator ports rep-105 at `cf42375`, before the rebase onto `023802c`
+    (track I). Not on the robot, not flashed.
+  - YOLO runs at about 58 fps (the user, 2026-10-02).
+  - Patrol: `point_to_cv_target` sweeps the gun with no target, fire
+    clear; the firmware fires on bit 0 alone (the user, 2026-10-04). Sweep
+    direction checked on the robot 2026-10-04. Turning toward a hit is
+    firmware-only and works.
+  - Robot acceptance checks: depth on a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
+    `odom` point rides on our TF, so check `POSE`'s x/y axes under
+    `mcb_x_right` (`head_yaw` is fixed): a panel straight ahead should
+    land straight ahead of `root`, and driving 1 m shouldn't fire a
+    RELOCALIZE every 0.3 s.
+    First shots on a stand, eye protection on, e-stop in reach.
+  - First detections on the sentry on Jazzy (run00051, 2026-10-04):
+    none for 3 min, then 48 frames of class 1 (scores 0.65-0.82) over
+    9 s, tracked (`tracking robot 1`), 6 fire frames sent with
+    `delay_ms` 0, then ~60/s at 13:05:30. Whether it shot is the
+    MCB's side. Capture to tracker update 59 ms mean.
+  - Timing (the user, 2026-10-04): `delay_ms` runs from
+    MCB receipt but is computed at decision, transit not taken off
+    (`mcb_relay` takes off its RELOCALIZE latency); our
+    `firmware_latency_s` 0.05 and the firmware's 80 ms
+    `FIRING_LATENCY_TIME` both cover the indexer, so spinning-target
+    shots go ~50 ms early. Measure the indexer, then one side owns it.
+- T27: The camera container dies when NTP steps the clock (2026-10-03,
+  sentry). The RTC (`nvvrs-pseq-rtc`) resets the clock to 1970 at 10 s,
+  after timesyncd restored it; with Wi-Fi, NTP steps it 56 years forward
+  at ~49 s, RealSense stamps go wild and `component_container_mt` aborts
+  (`cannot store a negative time point in rclcpp::Time`). Air-gapped,
+  no jump. `Realsense_ROI_Depth_Rectifier` `d6caa99` no longer throws on
+  such stamps; `isaac-ros-startup` now restores timesyncd's saved time after
+  the RTC's hctosys, stops timesyncd for each run so Wi-Fi mid-match
+  can't step the clock (it syncs between runs), and restarts the stack on
+  any step over 1 s anyway (README.md "Clock steps restart the stack").
+  Passes on `ts-nano-dev`'s host with `docker` stubbed (2026-10-03; dev
+  has no camera). Left: a sentry boot with Wi-Fi, T21.
+- T34: Look into boot time more (the user, 2026-10-04). Track C's one
+  measurement is the sentry on 2026-10-01: engine loaded about 21 s from
+  kernel start. Missing: power-on to kernel (UEFI, not in
+  `systemd-analyze`), time to the stack being useful (first detection,
+  first `CVTarget`, first `map->odom`), hero and standard, and the
+  rebuilt Jazzy image. Time it with a stopwatch from power-on alongside
+  the `[boot]` lines (`isaac-ros-startup` README.md "Boot time"), then
+  cut the longest stage. Target stays under 1 min.
 
 ## Caveats
 
