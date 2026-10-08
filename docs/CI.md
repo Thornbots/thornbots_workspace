@@ -69,6 +69,12 @@ publish `ghcr.io/thornbots/isaac-ros:main-arm64-jetpack` and
 publishing. A manual dispatch can publish its selected branch revision. Simulation
 images are not published.
 
+Base layers (isaac_ros, realsense) are cached as
+`isaac-ros:base-<layer>_<hash>-arm64-jetpack`, the hash covering their
+Dockerfiles and build args. A run that pulls them all builds only the
+thornbots layer; the first run after a base change builds and pushes it
+(~38 min). Fork PRs pull but don't push.
+
 Package source changes reach the image after updating their workspace
 gitlinks. A failed build keeps the preceding branch tag. The first image
 becomes available only after a successful publishing run. The package starts
