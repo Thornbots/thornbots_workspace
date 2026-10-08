@@ -37,6 +37,11 @@ it moves several gitlinks or just one line.
 Commit and push each logical change once it's tested, without being asked.
 Push the submodule before the superproject.
 
+Author and commit changes as `Blaise Baptist <blaise.baptist@gmail.com>`.
+Sign every commit with Blaise's configured Git signing key; never disable
+signing or substitute an agent identity. Do not add Claude or other AI
+co-author trailers or generated-by attribution to commit messages.
+
 `.gitmodules` records each package's branch. After a clone, run the one-liner
 in `README.md` to get off detached HEAD.
 
