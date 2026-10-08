@@ -16,9 +16,9 @@ keep the record.
 |---|---|
 | Localization drift suite (9 scenarios) | **8 of 9 pass** at `--backend amcl --use-rf2o`, unthrottled, GUI on, 378 s, RTF 1.25 (archlinux, 2026-10-03): with obstacle 0.16 m, moving obstacles 0.16 m, real_accel 0.12 m, against 0.40 m; noise_correction growth 1.15, scan_degraded 0.45 m during. drift_correction failed bring-up, not drift: no `map->odom` in 45 s after the harness's one restart (T30). Last full pass 9 of 9, ~285 s, 2026-09-28 (drift_correction 0.16-0.18 m). One gz session per run, `sentry_v2` with collision and sprung wheels |
 | EKF fusion | **90-95% better than raw `/odom`** (0.007-0.020 m vs 0.15-0.25 m mean, `suite:=ekf`, five runs 2026-09-28) |
-| Estimation bench (60 cells, no gz) | **Limits on every cell** (2026-09-27). Stationary under 2 cm facing-panel p95, moving 0.08-0.19 m. About a quarter of runs trip one limit on a spin-rate or radius outlier. `CV_SPLIT_PLAN.md` has the detail |
+| Estimation bench | [Commands and behavior](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), and [remaining accuracy work](#g-estimation-accuracy) |
 | CV end to end in sim | **E1 scores** (`ros2 launch sim e2e.launch.py`, 2026-09-29): stationary ~100% hits, 2 m/s 0-11%. The gimbal follows the aim within ~1 deg and `roi_depth_node` sits 2.7 cm from truth; `target_tracker`'s velocity is 0.86 m/s off at 2 m/s (`sim/AGENTS.md`). E2 runs `position-based-cv` `f835be1` over the wire with the three fixes asked of it: 28/40 hits on a clean still track, a few % when E1's tracking goes bad (T17) |
-| Jazzy | Laptop matches Humble on every suite and bench. `ts-nano-dev` and `ts-nano-sentry` on JetPack 7.2.1; sentry and hero run Jazzy; standard left (track C, the user 2026-10-03) |
+| Jazzy | Laptop validation is recorded in [JAZZY_FLASH.md](JAZZY_FLASH.md#laptop-validation-2026-09-30); current machine and hardware-check status is in [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
 
@@ -28,6 +28,9 @@ T15 to G; T17 to A; T20, T25 and T29 to C; T24 and T30 to E; T19, T22
 and T23 to J).
 
 Robot ops:
+
+Current deployment and validation status: [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status).
+The dated boot/run observations below do not establish hardware acceptance.
 
 - T21: Sunday 2026-10-04, the sentry on an unknown practice field (the
   user, 2026-10-02). The MCB team updates the auto-drive route for the
@@ -71,8 +74,7 @@ Robot ops:
     clear; the firmware fires on bit 0 alone (the user, 2026-10-04). On
     the robot, check the sweep direction. Turning toward a hit is
     firmware-only and works.
-  - On the sentry, the rest of CV hasn't run on Jazzy yet: depth on
-    a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
+  - Robot acceptance checks: depth on a lit panel, bridge diagnostics `pose>0`, muzzle under 25 m/s. The
     `odom` point rides on our TF, so check `POSE`'s x/y axes under
     `mcb_x_right` (`head_yaw` is fixed): a panel straight ahead should
     land straight ahead of `root`, and driving 1 m shouldn't fire a
@@ -204,21 +206,35 @@ auto-drive logic against `dji_serial_bridge` on a pty, and every
 
 ### B. Hit while we move
 
-[`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Hitting while we move", steps
-W.1-W.5, after track A's E3. Our side is done (2026-09-29): target, aim
-solve and `CVTarget`'s aim point in `odom`, `RobotPose` with chassis yaw and
-a send-start stamp, TF looked up at the state's stamp, and the estimation
-bench spinning our chassis. Left: W.1's wire half and W.3, a world-frame aim
-the MCB holds. Both change the wire protocol and firmware, so agree them
-with the firmware side first.
+After track A's E3, agree the remaining wire and firmware work with the
+MCB team. The [CV interface](thornbots_pkg/README.md#cv-interface) is
+implemented; hardware validation remains unverified.
+
+- Validate the [shared field frame](ros2_dji_serial_bridge/README.md#shared-aim-frame)
+  on hardware with matching firmware and ROS revisions, including RELOCALIZE
+  mailbox loss. The [POSE chassis-yaw proposal](ros2_dji_serial_bridge/UART_PROTOCOL.md#proposed-pose-chassis-yaw)
+  remains unapplied; current heading-fixed aiming does not require it.
+- Measure USB/read buffering and MCB sample-to-send delay before testing
+  aiming while moving. A future MCB clock on the wire would need mapping to
+  ROS time; it is a proposal, not the current stamp contract.
+- Verify camera stamps survive YOLO, measure stamp-to-capture latency using
+  metadata or a blinking LED, and set `camera_latency_s`.
+- Measure the gimbal's roughly 7-degree chase jump settling, then set
+  `chase_settle_s`.
+- Run radial and diagonal aiming-bench paths with a moving shooter and add
+  their missing floors.
+
+Done when each moving match-test segment comes within 10 percentage points
+of the same target cell with our robot parked. Record hardware results in
+[hardware status](JAZZY_FLASH.md#hardware-status).
 
 ### C. Jazzy on the robots
 
-[`JAZZY_PLAN.md`](JAZZY_PLAN.md) steps 1, 5 and 6 (runbook
-[`JAZZY_FLASH.md`](JAZZY_FLASH.md)). `ts-nano-dev` and `ts-nano-sentry`
-are on JetPack 7.2.1; sentry and hero run Jazzy, standard still runs
-frozen Humble (the user, 2026-10-03). Done when
-YOLO fps and detection latency on the Orin are no worse than on Humble.
+Current migration state and unverified hardware checks live in
+[JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status), alongside the flashing
+instructions. Finish the remaining reflash and hardware checks. A Humble
+performance comparison needs a recorded baseline; none is recorded in the
+migration document.
 
 Boot time: power-on to a running ROS stack under 1 min on each robot (the
 user, 2026-09-30). The Jetsons used to run a minimized Ubuntu for this; the
@@ -284,12 +300,21 @@ the workaround for standard). Check `journalctl -u robot-firstboot` on
 
 ### G. Estimation accuracy
 
-[`CV_SPLIT_PLAN.md`](CV_SPLIT_PLAN.md) "Estimation accuracy", steps
-G.1-G.3. The tracker's radius drifts on some 4 m/s runs, radial motion and
-detection blackouts cost 2-3x the usual error, and a fresh track is `valid`
-(so it can fire) up to 3 s before its estimate settles. Tuning waits until
-the stack works end to end (the user, 2026-09-29); the match test runs on
-today's tracker. Also from `CV_SPLIT_PLAN.md` "Todos":
+Tuning waits until the stack works end to end (the user, 2026-09-29);
+the match test runs on today's tracker. [Dated bench observations](sim/docs/cv-bench-results-2026-09-28.md)
+record the errors behind these tasks.
+
+| Step | Problem | Where to start |
+| --- | --- | --- |
+| G.1 | Radius and spin-rate outliers on some 4 m/s runs | Lower `process_noise_radius` and try an armor-radius prior; log innovations around spin misreads |
+| G.2 | Radial depth error and staggered-panel handoff after blackouts | Tune `meas_noise_base_m` / `meas_noise_range_coeff` with `ray_covariance`; check `dz` pair parity across gaps |
+| G.3 | Fresh tracks become `valid` before the estimate settles | Gate on track age or facing-panel predicted-versus-measured residual, rather than update count; check the aiming cost |
+
+Each accuracy step is its own commit, scored over three estimation-bench
+runs. Done when every cell passes limits tightened to the new worst runs,
+radial and blackout error is within 1.5x of default, and no fresh track is
+`valid` before facing-panel error settles under 5 cm. Include before/after
+numbers in the commit message and update this track in the workspace bump.
 
 - T15: A still target seen at an angle loses yaw and radius. The bench
   has `stationary45`, still at 45 deg with two panels in view (sim

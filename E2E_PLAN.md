@@ -119,9 +119,8 @@ keeps the E numbers.
 4. E4, the match, 2v2: two opponents and one ally (the user, 2026-09-28),
    with opponents shooting back and the referee emulator counting HP. One fixed-seed scenario of set
    length, split into scored segments.
-The world-frame aim that follows `mcb_drive` is ROADMAP.md track B
-(`CV_SPLIT_PLAN.md` W.1-W.5). Its done bar: each moving segment comes within
-10 points of the same target cell with our robot parked.
+Remaining moving-shooter work and its acceptance bar are in
+[ROADMAP track B](ROADMAP.md#b-hit-while-we-move).
 
 `mcb_drive` and `mcb_match` run on nightly. `mcb_match` includes ballistic first impacts against
 the field, chassis hulls and armor, per-panel damage dead time, HP and

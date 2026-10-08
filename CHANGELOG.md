@@ -22,6 +22,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Consolidated migration and hardware status in `JAZZY_FLASH.md`, CV interface
+  details in package READMEs, and remaining work in `ROADMAP.md`. Retired
+  duplicate plans while retaining nightly field-frame behavior and dated results.
+- Integrated rf2o repository CI with repaired immutable workspace workflow pins.
+
 - Removed the Python copy of MCB control logic; firmware edits are now exercised
   by rebuilding the hosted executable.
 - Integrated the matching field-frame changes from

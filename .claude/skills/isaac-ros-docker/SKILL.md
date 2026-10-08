@@ -146,7 +146,7 @@ uses SIMPLE discovery, so nodes on one machine find each other with no env
 changes, and lists the robots' tailscale IPs as unicast initial peers for
 cross-machine work. Don't unset it. Its recorded invariants were measured on
 Fast DDS 2.6 (Humble); Jazzy ships 2.14 and they are due a re-measure
-(JAZZY_PLAN.md step 5).
+(JAZZY_FLASH.md#hardware-checklist).
 
 Two things in that file look removable and aren't: the `239.255.0.1` peer
 (without it local discovery breaks, the 2026-07-20 postmortem) and

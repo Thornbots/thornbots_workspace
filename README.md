@@ -13,6 +13,7 @@ changes to carry into `main`; update it when adding work to nightly.
 
 [Nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md) records
 the tested revisions, results, coverage limits, and commands to reproduce them.
+## Working with submodules
 
 Each package is a submodule:
 
@@ -55,7 +56,11 @@ fast-forwards, so the packages move with it. That push needs the
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
-Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+Start with [ROADMAP.md](ROADMAP.md) for open work and links to its plans,
+[JAZZY_FLASH.md](JAZZY_FLASH.md) for migration status, robot checks and reflashing.
+[ARCC_2026_SENTRY_CONTEXT.md](ARCC_2026_SENTRY_CONTEXT.md) covers competition
+rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
+identifies where shared information belongs; link there instead of copying it.
 
 ### MCB firmware
 
