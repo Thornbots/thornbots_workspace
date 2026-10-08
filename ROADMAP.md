@@ -146,7 +146,7 @@ until then the match test drives our robot from sim.
 
 ### A. The match test
 
-[`E2E_PLAN.md`](E2E_PLAN.md), stages E1-E4. Sim plays only the MCB over a
+[`E2E_PLAN.md`](E2E_PLAN.md), stages `mcb_parked`, `mcb_drive` and `mcb_match` (were E1-E4). Sim plays only the MCB over a
 pty, a detector stand-in for YOLO, lidar and depth. Our robot drives and
 shoots against other `sentry_v2` copies with the real code in between.
 Stages: the stand-in to the gimbal with our robot parked, then the serial
@@ -175,16 +175,16 @@ hardware interfaces (the user, 2026-10-06). The Python control port is removed.
 `MCB-project/src/hosted/` supplies lockstep time, sensor readings, CAN feedback
 and UART-to-pty plumbing; the actual SentryControl, scheduler, parsers,
 aim/fire and drive commands run. `sim mcb.launch.py` runs it against gz and
-the real ROS bridge; `e2e.launch.py stage:=e2` uses the same executable.
+the real ROS bridge; every `e2e.launch.py` stage uses the same executable.
 `sim/README.md` documents the build, tests and hardware-model limits.
 
 Native control and real-bridge tests cover pose/referee output, ping,
 aim/fire, relocalize, malformed frames, stage gating and both drive modes.
-E1/E2 now score on field-safe paths, with no blanket skips or xfail. The
+`mcb_parked` scores on field-safe paths, with no blanket skips or xfail. The
 Odometry twist uses the child frame throughout sim; consumers rotate it
-into their parent frame. E3/E4 run spawn-to-center routes and record
+into their parent frame. `mcb_drive`/`mcb_match` run spawn-to-center routes and record
 localization, head-TF and tracking failures alongside combat scores.
-Moving accuracy, repeated-run floors and E4 segment equivalence remain open.
+Moving accuracy, repeated-run floors and `mcb_match` segment equivalence remain open.
 Motor feedback and
 MCU timing remain models; next steps:
 - Wire physical CAN motor feedback and dynamics to gz instead of applying
@@ -199,8 +199,8 @@ MCU timing remain models; next steps:
   DJI motors on CAN, bridged to gz. The hosted build is now in place.
 
 **Done when** the emulator runs the firmware's Jetson, aim-and-fire and
-auto-drive logic against `dji_serial_bridge` on a pty, and E2 scores
-through it.
+auto-drive logic against `dji_serial_bridge` on a pty, and every
+`e2e.launch.py` stage scores through it.
 
 ### B. Hit while we move
 
@@ -343,10 +343,10 @@ stops every node it started, with no tracebacks and no orphans.
   - `ekf` (was `suite:=ekf`, `test_ekf_ground_truth.py`)
   - `aim` (was `shot_hit`, the aiming bench)
   - `tracking` (was `estimation`, the estimation bench)
-  - `cv_chain` (was `e2e.launch.py`'s E1, the match test)
-  - `firmware_link` (was `stage:=e2`)
+  - `mcb_parked`, `mcb_drive`, `mcb_match` (were E1/E2, E3, E4; done
+    2026-10-08: every stage runs the MCB emulator, E1's stand-in is gone)
 
-  E1-E4 in `E2E_PLAN.md` and the CV plan names go too. About 200 doc
+  The CV plan names go too. About 200 doc
   references across 20 files, plus the isaac-ros-docker skill.
 
 ### F. CV nodes into their own repo
