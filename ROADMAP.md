@@ -47,7 +47,7 @@ CV:
   Current behavior is in [firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
 - T32: Choose the right panel on a robot that isn't spinning (the user,
   2026-10-04). Below `spin_exit_rad_s`, `plan_shot`
-  (`point_to_cv_target_core.py`) leads the panel whose yaw is nearest the
+  (`point_to_cv_target_core.cpp`) leads the panel whose yaw is nearest the
   bearing to us, rounded per tick. Near 45 deg two panels face us about
   equally and the pick can flip tick to tick, swinging the gun a panel's
   width; it also leans on the tracker's yaw, weakest there (T15,
@@ -58,7 +58,7 @@ CV:
   sweep from a target we're holding fire on. Add a bit (bit 3, reserved
   today) set on every patrol point: `CVTarget.msg`, the bridge's packing,
   `UART_PROTOCOL.md`, `point_to_cv_target`, sim's wire helper
-  (`sim/mcb_emulator/protocol.py`) and MCBV3's `JetsonSubsystem.hpp`,
+  (`sim/src/mcb_protocol.cpp`) and MCBV3's `JetsonSubsystem.hpp`,
   which the emulator compiles. Ask the MCB team to adopt it with the
   [bridge firmware asks](ros2_dji_serial_bridge/README.md#asked-of-the-firmware).
 
@@ -66,7 +66,7 @@ CV:
 
 Sim work first; robot work waits for [later](#later-needs-a-robot) (the
 user, 2026-10-08). Finish the short todos, then A, then G, then the sim
-parts of B and C. D runs alongside A, and E, F, H, J and K are
+parts of B and C. D runs alongside A, and E, F, H and J are
 unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
@@ -174,7 +174,7 @@ has the UEFI Shell workaround hero needed).
 
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
-  (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
+  (`isaac-ros-startup` `log-stamp`: uptime and wall-time prefix, run
   counter for a name). About 75% of its lines are `dji_serial_bridge`'s
   per-frame `ref_sys RX` (10 Hz) and `relocalize TX` INFO lines
   (`debug_log` defaults true). The per-run MCAP bag
@@ -297,7 +297,7 @@ stops every node it started, with no tracebacks and no orphans.
 
 Later (the user, 2026-10-02). Move most of the CV
 aiming code, `target_selector`, `target_tracker` and `point_to_cv_target`
-with its patrol, their `*_core.py` and tests, from `thornbots_pkg` to a new
+with its patrol, their C++ cores and tests, from `thornbots_pkg` to a new
 `thornbots_cv` package in its own repo.
 `thornbots_pkg` keeps the hardware interface, URDF, TF and `mcb_relay`. A
 new submodule means a new `Thornbots/` repo, a `.gitmodules` entry and a
@@ -320,7 +320,7 @@ override and no pose graph ships. Outside that suite, `auto.launch.py` can
 localize against a pose graph supplied with `map_file`. The drift suite's
 `--backend mapping` instead starts blank and scores against truth; it needs
 no saved pose graph. Its dated results and backend behavior are in
-[sim's drift suite](sim/README.md#test_localization_driftpy).
+[sim's drift suite](sim/README.md#localization-drift-suite).
 
 SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
 it, with the EKF allowed. It gets a mapping window before each game, and
@@ -385,17 +385,6 @@ What the sensors give, and whether we need them as they are.
   depth; no sim test uses depth since 2026-10-05 (`detector_standin`
   feeds 3D truth). Without it, range would have to come from
   the colour image.
-
-### K. Move to C++
-
-Move as much as possible from Python to C++ (the user, 2026-10-08). Noted
-only, not yet scoped. Already C++: `target_tracker`, the serial bridge,
-rf2o and the ROI depth node. Still Python on the robot: `thornbots_pkg`'s
-`target_selector`, `point_to_cv_target`, `mcb_relay`, `pose_translator`,
-`odom_tf_broadcaster` and `lidar_self_filter`, and `sentry_localization`'s
-`map_pose_publisher`, `map_autosaver` and `passthrough_odom_publisher`;
-sim's nodes after. Open: what moves first, and how the `*_core.py` tests
-carry over.
 
 ## Later: needs a robot
 

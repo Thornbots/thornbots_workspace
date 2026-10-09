@@ -47,6 +47,14 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Robot and simulation runtime nodes, scoring harnesses, offline tools and
+  startup helpers now build as C++17. Launch API adapters and CI/lint tooling
+  remain Python. ROS node names, topic interfaces and scoring thresholds stay
+  the same; localization now uses `ament_cmake`, and native GTests replace
+  the core and integration pytest suites. See the
+  [node graph](thornbots_pkg/README.md#nodes) and
+  [native sim port map](sim/README.md#native-port-map).
+
 - Consolidated migration and hardware status in `JAZZY_FLASH.md`, CV interface
   details in package READMEs, and remaining work in `ROADMAP.md`. Retired
   duplicate plans while retaining nightly field-frame behavior and dated results.
