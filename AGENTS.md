@@ -1,125 +1,105 @@
 # isaac_ros-dev workspace
 
-Call out code that doesn't follow standard practice.
+Call out code that doesn't follow standard practice. CV detection/tracking
+comes first; [game context](ARCC_2026_SENTRY_CONTEXT.md) defines the field.
+Use terse bullets for status/checklists; give rationale when asked.
+Memory is disabled: do not read or write agent memory.
+
+## Delegation
+
+Delegate well-specified, high-volume repetitive edits to lower-cost agents
+(Haiku/Luna). The delegating agent defines scope and acceptance checks,
+resolves ambiguity, then reviews the diff and runs the checks itself.
 
 ## Repository checks
 
-Use a host Python 3.12 venv with `.github/quality/requirements.txt`. Run
-`python .github/quality/check.py` in each repo and `actionlint -shellcheck=""`.
-Checker tests: `python -m unittest discover -s .github/quality -v`.
-Branch protection is opt-in: the script prints policy unless `--apply` is
-passed. MCBV3 policy targets only `main`. Coverage: [docs/CI.md](docs/CI.md).
+In a host Python 3.12 venv with `.github/quality/requirements.txt`, run
+`python .github/quality/check.py` in each changed repo and
+`actionlint -shellcheck=""`; checker changes also need
+`python -m unittest discover -s .github/quality -v`. Do not grow baselines to
+hide regressions. [Repository policy](docs/CI.md#repository-policy) hooks and
+CI check commits and message contracts;
+[branch protection](docs/CI.md#branch-protection) is opt-in.
 
-## Skills
+## Containers and runs
 
-- [`isaac-ros-docker`](.claude/skills/isaac-ros-docker/): every docker command,
-  and anything run inside the container.
+Load [isaac-ros-docker](.claude/skills/isaac-ros-docker/SKILL.md) for every
+Docker command or command inside a container.
 
-## Containers
-
-Ask before starting, restarting or stopping any container or container VM
-on this laptop: `docker run`/`start`, a script or service that starts one,
-`colima start`/`stop`. One started wrong can die, or take a running one
-with it.
-
-On remote boxes (the robots, `ts-nano-*`), start, stop, build and remove
-containers and images when the user asks for it; no separate confirmation
-(the user, 2026-10-04). "dev" means `ts-nano-dev`, not this laptop.
-
-## Priority
-
-CV (target detection/tracking) comes first. Game rules and field geometry:
-[`ARCC_2026_SENTRY_CONTEXT.md`](ARCC_2026_SENTRY_CONTEXT.md).
+- Ask before starting, restarting or stopping any laptop container or VM,
+  including through scripts/services or Colima. On `ts-nano-*`, carry out
+  requested container/image lifecycle work without separate confirmation.
+  “dev” means `ts-nano-dev`.
+- Ask before every sim integration test or bench run, even an obvious rerun.
+- Check for running stacks before launching; ask before stopping anything you
+  did not start, and clean up what you started.
 
 ## Branches
 
-`nightly` integrates Jazzy changes; `main` is the promoted release
-(`isaac_ros_jazzy_container`). Humble is frozen: no work on
-`humble` branches or in `isaac_ros_dev-x86_64-container`.
+`nightly` integrates Jazzy; `main` is the promoted release
+(`isaac_ros_jazzy_container`). Humble branches and
+`isaac_ros_dev-x86_64-container` are frozen; do not work there.
 
 ## Packages
 
-Each package dir is a submodule. Every package change needs a gitlink bump
-here, or everyone else builds old code. One logical change per bump, even if
-it moves several gitlinks or just one line.
-
-Commit and push each logical change once it's tested, without being asked.
-Push the submodule before the superproject.
-
-Stage superproject files by explicit path; never use `git commit -a`.
-Inspect `git diff --cached --stat` before committing. Include only gitlink
-changes you deliberately intend; stale submodule checkouts must not revert
-other people's gitlink updates (the user, 2026-10-04).
-
-Author and commit changes as `Blaise Baptist <blaise.baptist@gmail.com>`.
-Sign every commit with Blaise's configured Git signing key; never disable
-signing or substitute an agent identity. Do not add Claude or other AI
-co-author trailers or generated-by attribution to commit messages.
-Claude attribution is disabled in `.claude/settings.json`; keep it disabled.
-
-`nightly` keeps `.gitmodules` on package `nightly` branches. For coordinated
-package integration, follow [CI guidance](docs/CI.md#coordinated-package-integration).
-`.gitmodules` records each package's branch. After a clone, run the one-liner
-in `README.md` to get off detached HEAD.
-
-Instructions go in `AGENTS.md`, since more than Claude works here. Every
-`CLAUDE.md`, root and package, is just `@AGENTS.md`.
-
-Read a package's `AGENTS.md` before working there. Keep it short: current
-state, open questions, rules. Test runs and measurements go in commit messages.
-
-Write `README.md` for a human in a container terminal: plain `colcon` and
-`ros2`, no `dexec.sh`, `kill_launch.sh` or skills. Host-side equivalents go in
-`AGENTS.md`.
+- Read the package's `AGENTS.md` before editing. `CLAUDE.md` stays `@AGENTS.md`.
+- Commit with the existing Git identity and signing key tied to your GitHub
+  account. Do not rewrite identity config, disable signing, bypass hooks, or
+  add AI author, co-author, generated-by or session attribution; keep
+  `.claude/settings.json` attribution disabled.
+- Commit and push each tested logical change without being asked: package
+  first, then one workspace gitlink bump per logical change. Never point at an
+  unpushed commit.
+- Stage explicit superproject paths; never `git commit -a`. Inspect
+  `git diff --cached --stat`; only deliberately chosen gitlinks may move.
+  Stale checkouts must not revert someone else's gitlink updates.
+- `.gitmodules` tracks package `nightly` branches on `nightly`. Use
+  [coordinated integration](docs/CI.md#coordinated-package-integration) when
+  packages depend on one another; [README](README.md) covers clone setup.
 
 ## Documentation
 
-Give each fact, procedure or decision one maintained home. Other documents
-link directly to its section instead of copying it. Keep READMEs short:
-purpose, quickstart and links to details. AGENTS files add agent instructions
-and link to human documentation; they do not repeat it.
+Keep one maintained home per fact; link directly to its section elsewhere.
+Search before adding docs, update incoming links when moving sections, and
+check changed local links/anchors. Link external standards instead of copying
+usage tutorials. READMEs serve humans in container terminals (`colcon`,
+`ros2`); agent host commands belong in the Docker skill. Keep AGENTS files to
+instructions, open decisions and links. Put test runs/measurements in commits
+or dated investigations linked to current status.
 
 | Information | Maintained home |
 | --- | --- |
-| Package usage and design rationale | The owning package's `README.md` |
-| Full robot launch recipe | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
-| Robot node/topic diagram | [thornbots_pkg README](thornbots_pkg/README.md#nodes) |
-| Machine migration and hardware validation status | [JAZZY_FLASH](JAZZY_FLASH.md#hardware-status) |
-| Open project work | [ROADMAP](ROADMAP.md); link to plans for implementation detail |
-| Wire format and timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
-| Parameter defaults and message fields | Their source declarations; link to them from explanatory docs |
-| Test runs, tuning history and measurements | Commit messages; longer investigations in dated historical documents |
+| Usage and design | Owning package's `README.md` |
+| Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
+| Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
+| Hardware/migration status | [JAZZY_FLASH](JAZZY_FLASH.md#hardware-status) |
+| Open work | [ROADMAP](ROADMAP.md) |
+| Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
+| Defaults/message fields | Source declarations |
 
-Before adding documentation, search for an existing home. Update it and
-replace overlapping copies with relative Markdown links. Add a row here only
-when a topic spans packages and its owner is unclear. When moving a section,
-update its incoming links in the same change. Date historical observations
-and link to current status so they cannot be mistaken for today's results.
-Verify changed local links and anchors before committing.
+## Frames
+
+Follow [REP 103](https://github.com/ros-infrastructure/rep/blob/master/rep-0103.rst)
+units/axes and [REP 105](https://github.com/ros-infrastructure/rep/blob/master/rep-0105.rst)
+frame roles. Document only choices and deviations at their owner: the
+heading-fixed `root` base ([pose_translator](thornbots_pkg/README.md#pose_translator))
+and the field-centred [wire frame](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 
 ## Wire compatibility
 
-Use the current UART/wire format only
-([UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md)). Do not add an
-old-format fallback, including the former 40-byte `CVData` payload. When
-firmware and protocol disagree, update the MCB firmware and `sim` MCB
-emulator rather than downgrading the bridge (the user, 2026-10-02).
-
-## Responses
-
-Use terse bullet lists for checklists, status, and to-do summaries: one
-action or fact per item. Give rationale when asked (the user, 2026-10-03).
+Use only the [current UART format](ros2_dji_serial_bridge/UART_PROTOCOL.md).
+No old-format fallback, including the former 40-byte `CVData` payload.
+Update firmware and the sim MCB emulator when they disagree with the protocol.
 
 ## Timestamps
 
-Stamp every internal ROS message's `std_msgs/Header` with when the data was
-true (sensor capture, or the input's stamp carried through). Use `now()` only
-for data created on the spot, like a fire decision. Document the stamp's
-meaning in the `.msg` comment. Use `*Stamped` over bare `Point`/`Twist` unless
-a standard interface requires the bare type.
+Internal headers identify when data was true: sensor capture or carried input
+stamp. Use `now()` only for freshly created data (e.g. a fire decision).
+Prefer `*Stamped` to bare `Point`/`Twist` unless a standard interface requires
+otherwise. Policy checks that each internal `.msg` has a `Header` and
+documents its stamp; choosing the right meaning is still the author's job.
 
 ## Comments
 
-Keep comments and docstrings under 10 lines: topics, params, key invariants,
-current tuned value. Add `# see README.md for design rationale` when trimming
-would hide context a reader should know exists.
+Keep comments/docstrings under 10 lines; use them for interfaces, invariants
+and tuned values. Link the README for longer design rationale.

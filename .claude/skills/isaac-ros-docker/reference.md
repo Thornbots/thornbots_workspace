@@ -91,8 +91,7 @@ Dockerfile.isaac_ros (CLI)  →  Dockerfile.realsense (CLI)  →  isaac_ros_comm
   (cached after the first time). `realsense` compiles librealsense.
 
 **Packages `Dockerfile.thornbots` bakes into `/workspaces/ros2_ws`**, the
-list behind the shadowing warnings in each package's `AGENTS.md` (directory
-name → ROS package name). `dexec.sh -- ls /workspaces/ros2_ws/src` is the
+packages subject to the shadowing trap (directory name → ROS package name). `dexec.sh -- ls /workspaces/ros2_ws/src` is the
 ground truth for a running container:
 
 | source dir in `src/` | ROS package |

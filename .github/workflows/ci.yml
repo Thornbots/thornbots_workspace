@@ -15,6 +15,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  policy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch package histories at pinned commits
+        run: |
+          mapfile -t paths < <(git config -f .gitmodules --get-regexp '\.path$' | cut -d' ' -f2)
+          git submodule update --init --checkout --filter=blob:none -- "${paths[@]}"
+      - name: Check commits, gitlinks and message stamps with the base checker
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          checker="$RUNNER_TEMP/checker/.github/quality/policy.py"
+          mkdir -p "$(dirname "$checker")"
+          if [[ ! "$BASE" =~ ^0*$ ]] && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            source="$BASE"
+          elif [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            source=origin/main
+          else
+            source=origin/nightly
+          fi
+          if git cat-file -e "$source:.github/quality/policy.py" 2>/dev/null; then
+            git show "$source:.github/quality/policy.py" > "$checker"
+            echo "Policy checker from $source ($(git rev-parse "$source"))"
+          else
+            cp .github/quality/policy.py "$checker"
+            echo "::warning title=Policy bootstrap::$source has no checker; using the revision under test"
+          fi
+          python3 "$checker" ci
   quality:
     uses: ./.github/workflows/quality.yml
     with:

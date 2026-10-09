@@ -113,8 +113,8 @@ hosted firmware process. It replaces `mcb_emulator_node` in e2e:
 - **Referee state:** today these are ROS parameters on `mcb_emulator`. Move
   them to a gz topic, or to a thin ROS node that forwards them. The scorer's
   `_sync_referee` sets them.
-- **Physics step:** keep it at 1 ms (`sim/AGENTS.md`: 2-4 ms sent the head
-  PID unstable).
+- **Physics step:** keep it at 1 ms (2-4 ms sent the head PID unstable;
+  [sim rules](sim/AGENTS.md#standing-rules)).
 
 ### 3. UART in sim time
 
@@ -238,7 +238,6 @@ Only then take three runs per cell for `FLOORS` (`E2E_PLAN.md` Scoring).
 
 ## Running it
 
-- Container lifecycle approval follows [AGENTS.md](AGENTS.md#containers).
-- Simulation and bench approval follows [sim/AGENTS.md](sim/AGENTS.md#standing-rules).
-  Check for a live session before an approved run.
+- Container lifecycle, sim/bench approval and live-session checks follow
+  [workspace rules](AGENTS.md#containers-and-runs).
 - **Firmware:** rebuild it after edits with `sim/tools/build_mcb_firmware.sh`.
