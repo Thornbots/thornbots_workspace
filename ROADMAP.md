@@ -2,8 +2,9 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-08. Aiming is done, the estimation bench has
-limits on all 60 cells, every match-test stage runs the compiled MCB
+end in sim. Updated 2026-10-08. Aiming is done; the estimation bench has
+limits on 72 keyed cells, but its two default `stationary45` cells still
+lack accuracy limits. Every match-test stage runs the compiled MCB
 firmware, and `main` has been Jazzy since 2026-09-27. Humble is frozen on
 the `humble` branches.
 
@@ -38,7 +39,12 @@ CV:
   hit turn (`hit_turn_s`). The firmware already honours the bit
   (MCBV3 `AutoAimAndFireCommand.cpp`, 2026-10-08): clear, it ignores hits
   and ends a turn in progress; set, a hit overrides a live CV target for
-  `HIT_TURN_DURATION` (500 ms), which is the problem.
+  `HIT_TURN_DURATION` (500 ms), which is the problem. Also repair the hit
+  input: `HitTracker::addHit` converts already-radian IMU yaw by `PI/180`,
+  and its one-cycle `isHit` value can be missed by the 10 Hz REF_SYS sample.
+  Establish the angle's units/reference and latch hits until reported;
+  test with nonzero head/chassis yaw before trusting `hit_angle_sign`.
+  Current behavior is in [firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
 - T32: Choose the right panel on a robot that isn't spinning (the user,
   2026-10-04). Below `spin_exit_rad_s`, `plan_shot`
   (`point_to_cv_target_core.py`) leads the panel whose yaw is nearest the
@@ -54,7 +60,7 @@ CV:
   `UART_PROTOCOL.md`, `point_to_cv_target`, sim's wire helper
   (`sim/mcb_emulator/protocol.py`) and MCBV3's `JetsonSubsystem.hpp`,
   which the emulator compiles. Ask the MCB team to adopt it with the
-  bridge README's "Asked of the firmware".
+  [bridge firmware asks](ros2_dji_serial_bridge/README.md#asked-of-the-firmware).
 
 ## Tracks, in order of work
 
@@ -232,7 +238,9 @@ numbers in the commit message and update this track in the workspace bump.
   has `stationary45`, still at 45 deg with two panels in view (sim
   f47c84a). Four runs (2026-09-28), p95: staggered centre 0.064-0.071 m
   and `z_offset` 0.052-0.060 m (0.002 at yaw 0), yaw 0.12 rad on both
-  layouts. Fix the tracker, then give `stationary45` its `LIMITS`.
+  layouts. Fix the tracker, then give the default `chassis_spin:=0`
+  `stationary45` cells their `LIMITS`; only their `chassis_spin:=9` variants
+  have limits today.
 - T7: Sweep `process_noise_accel` against the velocity-error trace, path
   ends included.
 - T8: Check the bench scores the same with a cell run alone as in sequence.
@@ -302,16 +310,17 @@ benches after to show nothing moved.
 
 ### H. SLAM at amcl's level
 
-Keep SLAM a real fallback to amcl. amcl with the EKF passed all nine drift
-scenarios, the map-based ones at 0.15-0.19 m (2026-09-28; 8 of 9 since,
-see the status table). `slam` was last tuned 2026-07 on the old stack, at
-0.31-0.33 m, localizing against the saved field map. It can't run today:
-ARCC26's pose graph was dropped with the move to the field frame
-(`sentry_localization` `66a1143`), and `backend:=slam` refuses to start.
-The drift suite scores `--backend mapping` against truth since 2026-10-02:
-with `--use-rf2o` it passes all nine, the cornering loops at 0.02-0.09 m;
-without, it fails five (`sim/README.md`). amcl's 0.15-0.19 m is its
-`map->odom` change, not truth error, so compare on the same metric.
+Keep SLAM a real fallback to amcl. amcl with the EKF currently passes all
+nine drift scenarios; the map-based ones read 0.23-0.24 m in the 2026-10-08
+sweep ([current status](#where-we-actually-are)). That is `map->odom` change,
+not truth error: compare both backends on the same metric.
+
+The drift launch unconditionally rejects `backend:=slam`; it has no saved-map
+override and no pose graph ships. Outside that suite, `auto.launch.py` can
+localize against a pose graph supplied with `map_file`. The drift suite's
+`--backend mapping` instead starts blank and scores against truth; it needs
+no saved pose graph. Its dated results and backend behavior are in
+[sim's drift suite](sim/README.md#test_localization_driftpy).
 
 SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
 it, with the EKF allowed. It gets a mapping window before each game, and
@@ -325,7 +334,9 @@ correction (`sentry_localization/README.md`); fix that, don't drop the EKF.
 2. Carry the map across games. After each game, serialize the pose graph
    (slam_toolbox's `serialize_map`) and load it at the next boot with
    `load_map:=true` in `mapping` mode, starting from our known spawn pose
-   (`map_start_pose`). Before the Battle, give it a mapping window: a short
+   (`map_start_pose`). Expose that pose from the configured field spawn:
+   `localization.launch.py` currently hard-codes `[0, 0, 0]` for saved maps.
+   Before the Battle, give it a mapping window: a short
    scripted lap, if the rules allow moving then (check the Setup Period
    rules). Moving robots from past games must not pile up in the map.
 3. A game-like scenario: a full 5-minute Battle on the field with other
@@ -334,10 +345,10 @@ correction (`sentry_localization/README.md`); fix that, don't drop the EKF.
    acceleration (`real_accel`'s 1.2 m/s^2), including the high ground. Score pose error against
    truth throughout, and check the built map doesn't keep robots as walls
    (T3: sample the grid cells the actors crossed, the `TODO` in
-   `_run_cornering_loop_scenario`; the check is on `sim` branch
-   `t3-actor-map-check`. Blocked on a pose graph: the old ARCC26 one
-   never published `/map` (`getOccupancyGrid` ran 600 s at 100% of a core,
-   2026-09-28), and none ships now. Needs one that rasterises in seconds).
+   `_run_cornering_loop_scenario`). Implement it first in `mapping` mode
+   from a blank map; no pose graph blocks that check. Review the unmerged
+   `sim` branch `t3-actor-map-check` before reusing it. Carried-map tests
+   separately need a saved pose graph that rasterises in seconds.
 
 **Done when:** SLAM with the EKF passes the drift scenarios amcl passes,
 each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on the
@@ -490,11 +501,5 @@ to a track or todo once someone owns it.
   landed between; bisect from there.
 - The map-based drift scenarios read 0.23-0.24 m (drift_correction, with
   obstacle, moving obstacles), against 0.15-0.19 m on 2026-09-28. Still
-  under the 0.40 m limit; track H's amcl baseline uses the old numbers.
+  under the 0.40 m limit; investigate the regression against the dated baseline.
 - `mcb_drive` passes on 0 hits (track A).
-- Package docs still describe the old setup: `ros2_dji_serial_bridge`
-  README "Asked of the firmware" (`mcb_x_right`, the emulator "still ports
-  `f835be1`"), `thornbots_pkg` README (aiming benches "and E1" run with
-  `patrol_enabled:=false`), and `sim/README.md` (the gz depth camera into
-  `roi_depth_node`, a `z` that "aims 0.39 m high", the `backend:=slam`
-  hint). T33 points the MCB team at the bridge README.

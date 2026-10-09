@@ -50,6 +50,15 @@ impact, and link the corresponding package changes.
 - Consolidated migration and hardware status in `JAZZY_FLASH.md`, CV interface
   details in package READMEs, and remaining work in `ROADMAP.md`. Retired
   duplicate plans while retaining nightly field-frame behavior and dated results.
+- Updated package guidance for compiled firmware, enabled match-stage patrol,
+  current estimation coverage and saved-map startup. Removed obsolete frame
+  workarounds, E1 scoring instructions and the pose-graph blocker for blank-map
+  actor checks. Hit-angle unit/reporting fixes and nonzero saved-map spawn remain
+  open in ROADMAP. See
+  [bridge 4e3274f](https://github.com/Thornbots/ros2_dji_serial_bridge/commit/4e3274f),
+  [thornbots_pkg 5892c61](https://github.com/Thornbots/thornbots_pkg/commit/5892c61),
+  [localization 02707ad](https://github.com/Thornbots/sentry_localization/commit/02707ad)
+  and [sim bad5c8d](https://github.com/Thornbots/sim/commit/bad5c8d).
 - Integrated rf2o repository CI with repaired immutable workspace workflow pins.
   See [rf2o 3a2c91e](https://github.com/Thornbots/rf2o_laser_odometry/commit/3a2c91e)
   and [rf2o 961ff26](https://github.com/Thornbots/rf2o_laser_odometry/commit/961ff26).
@@ -85,7 +94,10 @@ impact, and link the corresponding package changes.
   and the UI hit ring. `CV_TARGET` bit 2 enables a 500 ms hit turn that can
   interrupt a live CV aim; clearing the bit ends an active turn. The Jetson
   still sends its fixed `turn_to_hit` parameter (default true); per-frame
-  gating remains open (ROADMAP T31). See
+  gating remains open (ROADMAP T31). HitTracker's extra radian scaling and
+  one-cycle hit reporting also need repair; see
+  [current firmware limitations](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
+  See
   [MCBV3 529fc4e](https://github.com/Thornbots/MCBV3/commit/529fc4e)
   and [MCBV3 f66a3a8](https://github.com/Thornbots/MCBV3/commit/f66a3a8).
 - Removed the hopper lid indicator and Ctrl-only lid closing (intentional;
