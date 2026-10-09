@@ -2,7 +2,7 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-08. Aiming is done; the estimation bench has
+end in sim. Updated 2026-10-09. Aiming is done; the estimation bench has
 limits on 72 keyed cells, but its two default `stationary45` cells still
 lack accuracy limits. Every match-test stage runs the compiled MCB
 firmware, and `main` has been Jazzy since 2026-09-27. Humble is frozen on
@@ -16,10 +16,10 @@ keep the record.
 
 | Thing | State |
 |---|---|
-| Localization drift suite (9 scenarios) | **9 of 9 pass** at `--backend amcl --use-rf2o`, headless, 214 s, RTF 1.92 (Mac, workspace `a65e025`, 2026-10-08): drift_correction 0.24 m, with obstacle 0.23 m, moving obstacles 0.24 m, real_accel 0.16 m, against 0.40 m; noise_correction growth 1.14; scan_degraded 0.44 m during (limit 0.50). Earlier 8 of 9: scan_degraded 0.501 m (Mac, 2026-10-06), drift_correction's bring-up (archlinux, 2026-10-03, T30) |
-| EKF fusion | **72-87% better than raw `/odom`** (fused 0.023-0.050 m vs raw 0.17-0.18 m mean, `suite:=ekf`, two Mac runs 2026-10-08, workspace `a65e025`); was 90-95%, 0.007-0.020 m, five runs 2026-09-28, before the field frame. See issues |
+| Localization drift suite | Native suite passes on ARM64; startup races remain T30. [Suite design](sim/README.md#localization-drift-suite), [latest validation](https://github.com/Thornbots/sim/commit/4e9445a) |
+| EKF fusion | Native ground-truth suite passes on ARM64. [Suite design](sim/README.md#ekf-ground-truth-suite), [latest validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands and behavior](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), and [remaining accuracy work](#g-estimation-accuracy) |
-| CV end to end in sim | `mcb_parked` **8/12 and 7/12** (two Mac runs 2026-10-08, workspace `a65e025`): still targets 72-100%, moving 0-30%, failing cells differ run to run (T17). `mcb_drive` passes with 0 hits; `mcb_match` didn't bring up (`map_server` configure stall, T30). Aiming bench 10/10 at 98.3-99.2%, estimation bench 12/12 with no lockstep timeouts, same day |
+| CV end to end in sim | Native aiming, tracking and driving suites pass on ARM64/x86_64; match passes on ARM64 but an x86_64 run caught allied intersections. Parked moving-target cells and repeatability remain open (T17); passing drive/match diagnostics do not establish combat accuracy. [Latest validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Jazzy | Laptop validation is recorded in [JAZZY_FLASH.md](JAZZY_FLASH.md#laptop-validation-2026-09-30); current machine and hardware-check status is in [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -248,7 +248,7 @@ numbers in the commit message and update this track in the workspace bump.
 ### D. Faster suites
 
 [`E2E_PLAN.md`](E2E_PLAN.md) "Speed" and [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md)
-(unfinished). Every suite prints its wall-time split (`suite_timing.py`).
+(unfinished). Every suite prints its wall-time split (`src/suite_timing.cpp`).
 Find why the full gz stack caps at RTF ~1.55 and render only what gets
 scored. Suites run one at a time; we are compute-limited. No suite runs the
 gz camera (`camera:=false`); a subscribed RGB-D camera alone caps a bare
@@ -260,9 +260,9 @@ Today a fresh container has no gz until `install-sim.sh` runs;
 `tools/run_suite.sh` checks for it, a plain `ros2 launch` doesn't. Nodes cold-start into live topics (TF has run
 0.6 s behind), and a lost lifecycle reply can leave `amcl` or `map_server`
 unconfigured; the drift harness restarts such a stack once, the robot's
-boot doesn't. Ctrl-C prints a traceback from every Python node (bare
-`rclpy.spin`; still so at the end of every bench, 2026-10-08). A launch whose shell dies leaves orphans that
-`kill_launch.sh -l` can't see.
+boot doesn't. The native port repairs shutdown races; verify interruption
+and shell-death cleanup across the launch paths, including children that
+`kill_launch.sh -l` cannot see.
 
 **Done when:** each bench starts with one command, says if gz is missing,
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
@@ -281,10 +281,10 @@ stops every node it started, with no tracebacks and no orphans.
   configure stall in sim `413502d`'s runs the same day).
 - T24: One name per test, for what it tests, used by its launch file,
   test file and the docs alike (the user, 2026-10-03).
-  Each has three names today ("aiming bench" is `shot_hit.launch.py` and
-  `test_shot_hit.py`). New names:
+  Each has several names today ("aiming bench" is `shot_hit.launch.py` and
+  `shot_hit_suite`). New names:
   - `localization_drift` (was `localization_tests.launch.py`, the drift suite)
-  - `ekf` (was `suite:=ekf`, `test_ekf_ground_truth.py`)
+  - `ekf` (now `suite:=ekf` in `localization_suite`)
   - `aim` (was `shot_hit`, the aiming bench)
   - `tracking` (was `estimation`, the estimation bench)
 
@@ -305,7 +305,7 @@ new submodule means a new `Thornbots/` repo, a `.gitmodules` entry and a
 `package='thornbots_pkg'` for those nodes follows: `auto.launch.py` (with
 its UDP-only DDS pinning, which `e2e.launch.py` includes) and `sim`'s
 `shot_hit.launch.py` and `estimation.launch.py`; `sim`'s
-`test_urdf_constants.py` imports `thornbots_pkg`. Do it between bench runs, and re-run both
+`test/cpp/test_cv_bench.cpp` resolves `thornbots_pkg` assets. Do it between bench runs, and re-run both
 benches after to show nothing moved.
 
 ### H. SLAM at amcl's level

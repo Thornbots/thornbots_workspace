@@ -34,7 +34,7 @@ impact, and link the corresponding package changes.
   real Jetson UART (`mcb_match`). Only our robot runs the real CV stack;
   the other three use truth-fed aim and fire. `match_driver` supplies our
   chassis route; firmware controls aim and fire. Runs record odometry
-  disagreement per shot, and `tools/compare_runs.py` diffs two runs. These
+  disagreement per shot, and `ros2 run sim compare_runs` diffs two runs. These
   are diagnostics, not combat accuracy or firmware navigation validation. See
   [sim a515ca6](https://github.com/Thornbots/sim/commit/a515ca6),
   [sim c4d47f5](https://github.com/Thornbots/sim/commit/c4d47f5),
@@ -53,7 +53,8 @@ impact, and link the corresponding package changes.
   the same; localization now uses `ament_cmake`, and native GTests replace
   the core and integration pytest suites. See the
   [node graph](thornbots_pkg/README.md#nodes) and
-  [native sim port map](sim/README.md#native-port-map).
+  [native sim port map](sim/README.md#native-port-map) and
+  [workspace #17](https://github.com/Thornbots/thornbots_workspace/pull/17).
 
 - Consolidated migration and hardware status in `JAZZY_FLASH.md`, CV interface
   details in package READMEs, and remaining work in `ROADMAP.md`. Retired
@@ -89,7 +90,7 @@ impact, and link the corresponding package changes.
   bridge, without a camera: `detector_standin` feeds gz truth in place of YOLO
   and depth. The old E1 stage, which scored simulated shots without the MCB,
   is gone. Stages are `mcb_parked`, `mcb_drive` and `mcb_match` (tests
-  `test_mcb_*.py`). Scoring is back on field-safe paths checked against the
+  `e2e_suite`). Scoring is back on field-safe paths checked against the
   field mesh, and patrol is enabled so the gun can sweep for a lost or
   out-of-view opponent. See [sim e834ba2](https://github.com/Thornbots/sim/commit/e834ba2),
   [sim 413502d](https://github.com/Thornbots/sim/commit/413502d),
@@ -120,6 +121,14 @@ impact, and link the corresponding package changes.
   [MCBV3 33e853e](https://github.com/Thornbots/MCBV3/commit/33e853e).
 
 ### Fixed
+
+- Native harnesses retain service responses while reading their results and
+  handle worker shutdown after the ROS context stops. CI fetches disable
+  background Git maintenance before removing temporary repositories;
+  `COLCON_IGNORE` keeps host startup helpers out of robot-image ROS tests.
+  See [sim 4e9445a](https://github.com/Thornbots/sim/commit/4e9445a),
+  [workspace 0f928af](https://github.com/Thornbots/thornbots_workspace/commit/0f928af)
+  and [startup 57a1f94](https://github.com/Thornbots/isaac-ros-startup/commit/57a1f94).
 
 - Estimation pacing waits for model and aim consumption. Seeded noise draws
   now have explicit order, fixing compiler-dependent assignment of samples
