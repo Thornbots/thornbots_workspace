@@ -1,4 +1,4 @@
-"""Apply CI-only protection without breaking tested package fast-forwards."""
+"""Print or apply CI-only branch protection policies."""
 
 import argparse
 import json
@@ -29,7 +29,7 @@ def policy(repo):
     if repo in PORTABLE or repo == 'thornbots_workspace':
         contexts.append('ros / portable')
     if repo == 'thornbots_workspace':
-        contexts += ['Robot image build and tests', 'advance']
+        contexts.append('Robot image build and tests')
     if repo == 'MCBV3':
         contexts += ['ARM / infantry', 'ARM / hero', 'ARM / sentry',
                      'Hosted control and UART tests']

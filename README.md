@@ -40,11 +40,8 @@ package before you push here — a gitlink pointing at an unpushed commit fails
 everyone else's `git submodule update --init`.
 
 A change across packages can live on a branch of the same name in each, with
-this repo's branch bumping the gitlinks. Open a draft PR here into `nightly`; its
-check (`.github/workflows/advance-submodules.yml`) fails if a gitlink doesn't
-fast-forward its package's `.gitmodules` branch. Merging it pushes those
-fast-forwards, so the packages move with it. That push needs the
-`SUBMODULES_TOKEN` secret, a token with contents write on the package repos.
+this repo's branch bumping the gitlinks. Follow the
+[coordinated package integration procedure](docs/CI.md#coordinated-package-integration).
 
 | Path | Branch | Role |
 | --- | --- | --- |

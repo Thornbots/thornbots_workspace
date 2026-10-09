@@ -27,20 +27,10 @@ must continue to describe nightly. The workspace uses its own tested revision.
 ## Coordinated package integration
 
 Push package feature branches first, then a workspace feature branch that
-bumps their gitlinks. Open draft PRs into `nightly` for review. The workspace's
-`advance` job checks each gitlink against its `.gitmodules` branch. A gitlink
-equal to or behind that branch is accepted; one ahead must be a fast-forward;
-a divergent gitlink fails and needs rebasing onto the latest package nightly.
-
-After a workspace merge into `nightly` or `main`, `advance-submodules.yml`
-pushes those fast-forwards to the configured package branches. It does not
-merge package PRs or rewrite history. Its manual dispatch does the same push.
-`SUBMODULES_TOKEN` needs contents read/write on every affected package repo;
-the workflow's ordinary `GITHUB_TOKEN` cannot write across repositories.
-PR checks do not use that secret. A missing or unauthorized token prevents
-post-merge advancement even if the ancestry check passes. The push loop can
-advance earlier packages before a later push fails; fix access and rerun.
-Gitlinks behind a moved branch are accepted and never rewind it.
+bumps their gitlinks. Open draft PRs into `nightly` for review. Merge package
+PRs first, then update the workspace gitlinks to the resulting package commits
+and merge the workspace PR. Workspace CI validates the pinned commits;
+workspace merges do not push or merge package branches.
 
 ## Lint debt
 
@@ -96,14 +86,12 @@ matching mandatory gitlinks, and retags the image for isaac-ros-cli. Usage:
 
 `configure_branch_protection.py` prints an opt-in policy requiring named CI
 checks and an up-to-date branch, blocking force pushes/deletion, applying to
-administrators, and requiring zero reviews. Workspace policy includes
-`advance`. It leaves linear history optional so coordinated merges remain
-possible. `--branch nightly` selects integration protection; the default is
-`main`. MCBV3 is skipped for nightly because its policy targets only main.
+administrators, and requiring zero reviews. It leaves linear history optional
+so coordinated merges remain possible. `--branch nightly` selects integration
+protection; the default is `main`. MCBV3 is skipped for nightly because its
+policy targets only main.
 
 This port does not apply or change GitHub protection settings. `--apply`
 replaces the policy and requires repo admin access; review the printed payload
 and existing settings before using it. Accounts without admin access are
-skipped. Package protection must permit the configured token to perform
-tested fast-forwards; whether existing required checks allow that remains an
-administrative verification, separate from PR ancestry checks.
+skipped.

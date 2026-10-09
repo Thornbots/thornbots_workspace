@@ -14,9 +14,8 @@ impact, and link the corresponding package changes.
   registered package tests, then publishes branch and exact workspace revision
   tags to GHCR; base layers are cached. GPU package validation still requires
   the manual Isaac ROS workflow and a provisioned runner. Package CI changes
-  retain the current wire encoding. The workspace fast-forward check and
-  post-merge package updater are enabled on both branches; sim stays part of
-  normal submodule checkout. See [CI coverage and limits](docs/CI.md) and
+  retain the current wire encoding; sim stays part of normal submodule checkout.
+  See [CI coverage and limits](docs/CI.md) and
   [workspace 5e2d584](https://github.com/Thornbots/thornbots_workspace/commit/5e2d584).
 - A coordinated `nightly` branch in the workspace and all eleven top-level
   submodule repositories. The nightly workspace tracks those branches in
@@ -47,6 +46,9 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Workspace merges no longer update package branches automatically. Merge
+  package PRs before updating and merging workspace gitlinks; see
+  [coordinated package integration](docs/CI.md#coordinated-package-integration).
 - Robot and simulation runtime nodes, scoring harnesses, offline tools and
   startup helpers now build as C++17. Launch API adapters and CI/lint tooling
   remain Python. ROS node names, topic interfaces and scoring thresholds stay

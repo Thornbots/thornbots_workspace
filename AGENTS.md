@@ -57,9 +57,8 @@ signing or substitute an agent identity. Do not add Claude or other AI
 co-author trailers or generated-by attribution to commit messages.
 Claude attribution is disabled in `.claude/settings.json`; keep it disabled.
 
-`nightly` keeps `.gitmodules` on package `nightly` branches. Workspace PRs
-check fast-forward ancestry; the merge pushes package fast-forwards through
-`advance-submodules.yml` using `SUBMODULES_TOKEN`.
+`nightly` keeps `.gitmodules` on package `nightly` branches. For coordinated
+package integration, follow [CI guidance](docs/CI.md#coordinated-package-integration).
 `.gitmodules` records each package's branch. After a clone, run the one-liner
 in `README.md` to get off detached HEAD.
 
