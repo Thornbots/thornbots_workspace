@@ -28,7 +28,7 @@ while read -r key path; do
     sha="$(git -C "$ROOT" ls-tree HEAD "$path" | awk '{print $3}')"
     repo="$WORK/$name"
     git init -q --bare "$repo"
-    git -C "$repo" fetch -q --filter=tree:0 "$url" "refs/heads/$branch:refs/heads/$branch" "$sha"
+    git -C "$repo" fetch --no-auto-maintenance -q --filter=tree:0 "$url" "refs/heads/$branch:refs/heads/$branch" "$sha"
     tip="$(git -C "$repo" rev-parse "refs/heads/$branch")"
     if [[ "$tip" == "$sha" ]] || git -C "$repo" merge-base --is-ancestor "$sha" "$tip"; then
         echo "$path: $branch already has ${sha:0:7}"

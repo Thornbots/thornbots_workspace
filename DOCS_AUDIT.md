@@ -23,7 +23,7 @@ Validation: launch arguments, shell syntax, local links and whitespace checks pa
 
 Addressed with #2: removed the obsolete graph and linked to the maintained node diagram.
 
-[realsense-yolov8-nitros-bridge/README.md:182](realsense-yolov8-nitros-bridge/README.md#full-inference-chain) sends the singular `/cv/panel_detection` into the tracker, says the aimer converts to root frame, assigns polygon publication to the aimer, and omits mcb_relay.
+[realsense-yolov8-nitros-bridge/README.md:182](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) sends the singular `/cv/panel_detection` into the tracker, says the aimer converts to root frame, assigns polygon publication to the aimer, and omits mcb_relay.
 
 Current code subscribes the tracker to `/cv/robot_panels`; the aimer publishes an odom aim point; target_selector publishes the polygon; mcb_relay sends the aim to the bridge. The correct diagram already exists in [thornbots_pkg/README.md](thornbots_pkg/README.md#nodes).
 
@@ -61,13 +61,13 @@ Fix: state exactly which residual delay remains: USB/read buffering and MCB samp
 
 ### 8. No-target behavior is described two different ways
 
-[thornbots_pkg/README.md:433](thornbots_pkg/README.md#point_to_cv_targetpy) says an absent/stale state or failed TF sends no CVTarget and holds the MCB still. The same section later describes patrol as enabled by default, and `on_publish_tick()` falls back to patrol when it has no aim, if the patrol's muzzle transform is available.
+[thornbots_pkg/README.md:433](thornbots_pkg/README.md#point_to_cv_target) says an absent/stale state or failed TF sends no CVTarget and holds the MCB still. The same section later describes patrol as enabled by default, and `on_publish_tick()` falls back to patrol when it has no aim, if the patrol's muzzle transform is available.
 
 Fix: distinguish target-aim failure from final output behavior. Say when patrol starts, when a missing transform prevents even patrol, and when disabling patrol causes silence.
 
 ### 9. Firmware payload guidance is obsolete
 
-[thornbots_pkg/README.md:485](thornbots_pkg/README.md#point_to_cv_targetpy) says the firmware struct still must grow before hardware timing works; its AGENTS says firmware still reads the target as root. The bridge README and protocol already document the matching 15-byte position-based-cv payload and firmware aiming from its odometry.
+[thornbots_pkg/README.md:485](thornbots_pkg/README.md#point_to_cv_target) says the firmware struct still must grow before hardware timing works; its AGENTS says firmware still reads the target as root. The bridge README and protocol already document the matching 15-byte position-based-cv payload and firmware aiming from its odometry.
 
 Fix: remove the obsolete struct-growth task. Keep actual remaining timing/frame coordination problems linked to the bridge's firmware status instead of maintaining another status copy.
 

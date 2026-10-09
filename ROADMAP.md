@@ -2,7 +2,7 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-08. Aiming is done; the estimation bench has
+end in sim. Updated 2026-10-09. Aiming is done; the estimation bench has
 limits on 72 keyed cells, but its two default `stationary45` cells still
 lack accuracy limits. Every match-test stage runs the compiled MCB
 firmware, and `main` has been Jazzy since 2026-09-27. Humble is frozen on
@@ -16,10 +16,10 @@ keep the record.
 
 | Thing | State |
 |---|---|
-| Localization drift suite (9 scenarios) | **9 of 9 pass** at `--backend amcl --use-rf2o`, headless, 214 s, RTF 1.92 (Mac, workspace `a65e025`, 2026-10-08): drift_correction 0.24 m, with obstacle 0.23 m, moving obstacles 0.24 m, real_accel 0.16 m, against 0.40 m; noise_correction growth 1.14; scan_degraded 0.44 m during (limit 0.50). Earlier 8 of 9: scan_degraded 0.501 m (Mac, 2026-10-06), drift_correction's bring-up (archlinux, 2026-10-03, T30) |
-| EKF fusion | **72-87% better than raw `/odom`** (fused 0.023-0.050 m vs raw 0.17-0.18 m mean, `suite:=ekf`, two Mac runs 2026-10-08, workspace `a65e025`); was 90-95%, 0.007-0.020 m, five runs 2026-09-28, before the field frame. See issues |
+| Localization drift suite | Native suite passes on ARM64; startup races remain T30. [Suite design](sim/README.md#localization-drift-suite), [latest validation](https://github.com/Thornbots/sim/commit/4e9445a) |
+| EKF fusion | Native ground-truth suite passes on ARM64. [Suite design](sim/README.md#ekf-ground-truth-suite), [latest validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands and behavior](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), and [remaining accuracy work](#g-estimation-accuracy) |
-| CV end to end in sim | `mcb_parked` **8/12 and 7/12** (two Mac runs 2026-10-08, workspace `a65e025`): still targets 72-100%, moving 0-30%, failing cells differ run to run (T17). `mcb_drive` passes with 0 hits; `mcb_match` didn't bring up (`map_server` configure stall, T30). Aiming bench 10/10 at 98.3-99.2%, estimation bench 12/12 with no lockstep timeouts, same day |
+| CV end to end in sim | Native aiming, tracking and driving suites pass on ARM64/x86_64; match passes on ARM64 but an x86_64 run caught allied intersections. Parked moving-target cells and repeatability remain open (T17); passing drive/match diagnostics do not establish combat accuracy. [Latest validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Jazzy | Laptop validation is recorded in [JAZZY_FLASH.md](JAZZY_FLASH.md#laptop-validation-2026-09-30); current machine and hardware-check status is in [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -47,7 +47,7 @@ CV:
   Current behavior is in [firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
 - T32: Choose the right panel on a robot that isn't spinning (the user,
   2026-10-04). Below `spin_exit_rad_s`, `plan_shot`
-  (`point_to_cv_target_core.py`) leads the panel whose yaw is nearest the
+  (`point_to_cv_target_core.cpp`) leads the panel whose yaw is nearest the
   bearing to us, rounded per tick. Near 45 deg two panels face us about
   equally and the pick can flip tick to tick, swinging the gun a panel's
   width; it also leans on the tracker's yaw, weakest there (T15,
@@ -58,7 +58,7 @@ CV:
   sweep from a target we're holding fire on. Add a bit (bit 3, reserved
   today) set on every patrol point: `CVTarget.msg`, the bridge's packing,
   `UART_PROTOCOL.md`, `point_to_cv_target`, sim's wire helper
-  (`sim/mcb_emulator/protocol.py`) and MCBV3's `JetsonSubsystem.hpp`,
+  (`sim/src/mcb_protocol.cpp`) and MCBV3's `JetsonSubsystem.hpp`,
   which the emulator compiles. Ask the MCB team to adopt it with the
   [bridge firmware asks](ros2_dji_serial_bridge/README.md#asked-of-the-firmware).
 
@@ -66,7 +66,7 @@ CV:
 
 Sim work first; robot work waits for [later](#later-needs-a-robot) (the
 user, 2026-10-08). Finish the short todos, then A, then G, then the sim
-parts of B and C. D runs alongside A, and E, F, H, J and K are
+parts of B and C. D runs alongside A, and E, F, H and J are
 unscheduled. Navigation comes after the Midwest competition;
 until then the match test drives our robot from sim.
 
@@ -174,7 +174,7 @@ has the UEFI Shell workaround hero needed).
 
 - T20: A better log format on the robots (the user, 2026-10-01). Today
   each boot-service run is one text file of console output
-  (`isaac-ros-startup` `log-stamp.py`: uptime and wall-time prefix, run
+  (`isaac-ros-startup` `log-stamp`: uptime and wall-time prefix, run
   counter for a name). About 75% of its lines are `dji_serial_bridge`'s
   per-frame `ref_sys RX` (10 Hz) and `relocalize TX` INFO lines
   (`debug_log` defaults true). The per-run MCAP bag
@@ -248,7 +248,7 @@ numbers in the commit message and update this track in the workspace bump.
 ### D. Faster suites
 
 [`E2E_PLAN.md`](E2E_PLAN.md) "Speed" and [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md)
-(unfinished). Every suite prints its wall-time split (`suite_timing.py`).
+(unfinished). Every suite prints its wall-time split (`src/suite_timing.cpp`).
 Find why the full gz stack caps at RTF ~1.55 and render only what gets
 scored. Suites run one at a time; we are compute-limited. No suite runs the
 gz camera (`camera:=false`); a subscribed RGB-D camera alone caps a bare
@@ -260,9 +260,9 @@ Today a fresh container has no gz until `install-sim.sh` runs;
 `tools/run_suite.sh` checks for it, a plain `ros2 launch` doesn't. Nodes cold-start into live topics (TF has run
 0.6 s behind), and a lost lifecycle reply can leave `amcl` or `map_server`
 unconfigured; the drift harness restarts such a stack once, the robot's
-boot doesn't. Ctrl-C prints a traceback from every Python node (bare
-`rclpy.spin`; still so at the end of every bench, 2026-10-08). A launch whose shell dies leaves orphans that
-`kill_launch.sh -l` can't see.
+boot doesn't. The native port repairs shutdown races; verify interruption
+and shell-death cleanup across the launch paths, including children that
+`kill_launch.sh -l` cannot see.
 
 **Done when:** each bench starts with one command, says if gz is missing,
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
@@ -281,10 +281,10 @@ stops every node it started, with no tracebacks and no orphans.
   configure stall in sim `413502d`'s runs the same day).
 - T24: One name per test, for what it tests, used by its launch file,
   test file and the docs alike (the user, 2026-10-03).
-  Each has three names today ("aiming bench" is `shot_hit.launch.py` and
-  `test_shot_hit.py`). New names:
+  Each has several names today ("aiming bench" is `shot_hit.launch.py` and
+  `shot_hit_suite`). New names:
   - `localization_drift` (was `localization_tests.launch.py`, the drift suite)
-  - `ekf` (was `suite:=ekf`, `test_ekf_ground_truth.py`)
+  - `ekf` (now `suite:=ekf` in `localization_suite`)
   - `aim` (was `shot_hit`, the aiming bench)
   - `tracking` (was `estimation`, the estimation bench)
 
@@ -297,7 +297,7 @@ stops every node it started, with no tracebacks and no orphans.
 
 Later (the user, 2026-10-02). Move most of the CV
 aiming code, `target_selector`, `target_tracker` and `point_to_cv_target`
-with its patrol, their `*_core.py` and tests, from `thornbots_pkg` to a new
+with its patrol, their C++ cores and tests, from `thornbots_pkg` to a new
 `thornbots_cv` package in its own repo.
 `thornbots_pkg` keeps the hardware interface, URDF, TF and `mcb_relay`. A
 new submodule means a new `Thornbots/` repo, a `.gitmodules` entry and a
@@ -305,7 +305,7 @@ new submodule means a new `Thornbots/` repo, a `.gitmodules` entry and a
 `package='thornbots_pkg'` for those nodes follows: `auto.launch.py` (with
 its UDP-only DDS pinning, which `e2e.launch.py` includes) and `sim`'s
 `shot_hit.launch.py` and `estimation.launch.py`; `sim`'s
-`test_urdf_constants.py` imports `thornbots_pkg`. Do it between bench runs, and re-run both
+`test/cpp/test_cv_bench.cpp` resolves `thornbots_pkg` assets. Do it between bench runs, and re-run both
 benches after to show nothing moved.
 
 ### H. SLAM at amcl's level
@@ -320,7 +320,7 @@ override and no pose graph ships. Outside that suite, `auto.launch.py` can
 localize against a pose graph supplied with `map_file`. The drift suite's
 `--backend mapping` instead starts blank and scores against truth; it needs
 no saved pose graph. Its dated results and backend behavior are in
-[sim's drift suite](sim/README.md#test_localization_driftpy).
+[sim's drift suite](sim/README.md#localization-drift-suite).
 
 SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
 it, with the EKF allowed. It gets a mapping window before each game, and
@@ -385,17 +385,6 @@ What the sensors give, and whether we need them as they are.
   depth; no sim test uses depth since 2026-10-05 (`detector_standin`
   feeds 3D truth). Without it, range would have to come from
   the colour image.
-
-### K. Move to C++
-
-Move as much as possible from Python to C++ (the user, 2026-10-08). Noted
-only, not yet scoped. Already C++: `target_tracker`, the serial bridge,
-rf2o and the ROI depth node. Still Python on the robot: `thornbots_pkg`'s
-`target_selector`, `point_to_cv_target`, `mcb_relay`, `pose_translator`,
-`odom_tf_broadcaster` and `lidar_self_filter`, and `sentry_localization`'s
-`map_pose_publisher`, `map_autosaver` and `passthrough_odom_publisher`;
-sim's nodes after. Open: what moves first, and how the `*_core.py` tests
-carry over.
 
 ## Later: needs a robot
 
