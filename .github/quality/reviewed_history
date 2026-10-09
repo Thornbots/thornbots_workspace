@@ -1,0 +1,15 @@
+# <workspace path> <commit>: history reachable from the commit predates policy
+# enforcement or is reviewed imported history. See docs/CI.md#repository-policy.
+. 2067fd423434efbd1a587e5654abfbf92ac726a6  # nightly at policy introduction
+. cc9b6c53669af679c85eef9ccd675d2286e7db20  # main at policy introduction
+Realsense_ROI_Depth_Rectifier 15ab01481be120c599d144a129b0b6b462e021bc
+firmware/MCBV3 a2ea519d317865d5a0ae0d90d161a4e4bdfd92f4
+isaac-ros-startup 57a1f94b3c2fd14a39892c760f7a943ad1ad5eb6
+isaac_ros_common ce94169560861e903cd292be26614e28e5bb2be3
+realsense-yolov8-nitros-bridge 798fc7e84ea0308c4b10063346cf50c64231dc26
+rf2o_laser_odometry 961ff26bd8d2ee2c8e10f13a00a0b1fd192e2171
+ros2_dji_serial_bridge 1368c163de18619c27ba198886f73dec4af38c2d
+sentry_localization df92a7c317e425d668c90da51611cc01353562d2
+sim 4e9445a6c1be7562e188d70a94435a47bad8043d
+sllidar_ros2 fe100fccea127571b4985d2eb9cd2ee4661b18bc
+thornbots_pkg 080c1a397017a892323e279efbbd601d7d65569a

@@ -29,7 +29,7 @@ def policy(repo):
     if repo in PORTABLE or repo == 'thornbots_workspace':
         contexts.append('ros / portable')
     if repo == 'thornbots_workspace':
-        contexts.append('Robot image build and tests')
+        contexts += ['Robot image build and tests', 'policy']
     if repo == 'MCBV3':
         contexts += ['ARM / infantry', 'ARM / hero', 'ARM / sentry',
                      'Hosted control and UART tests']

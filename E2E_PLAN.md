@@ -28,7 +28,7 @@ speed work below makes each run cheaper and makes one run cover more.
 
 Today: the drift suite takes ~285 s for 9 scenarios, the estimation bench about 30 s for 12
 cells on `bench_world` (Mac), and the aiming bench runs 40 cells. The full gz stack caps at RTF
-~1.55 for a reason nobody has found (`sim/AGENTS.md` Open), and
+~1.55 for a reason nobody has found ([ROADMAP track D](ROADMAP.md#d-faster-suites)), and
 the estimation bench scores at ~20x with the C++ `target_tracker`.
 
 1. Measure first. Each suite logs its wall time split into bring-up,
