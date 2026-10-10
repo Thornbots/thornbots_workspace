@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Native MCB batch lockstep for sim's three E2E stages, with stamped
+  acknowledgments, timeout rejection and transport/physics tests. This changes
+  simulation timing; full hit-path repeatability remains open (T17). See
+  [sim #8](https://github.com/Thornbots/sim/pull/8) and the
+  [MCB emulator](sim/README.md#mcb-emulator).
 - Workspace CI validates pinned native startup/common helpers and builds hosted
   sentry firmware for UART and ROS-bridge tests. Startup CI runs CTest after its
   C++ port; firmware CI covers nightly pushes with the current C++ UART fixture.

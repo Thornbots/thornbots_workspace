@@ -1,9 +1,10 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: unfinished plan, not current behavior (2026-10-08).** The done
-bar below is not met. The lockstep gate and coordinator are WIP on sim
-branch `t3code/lockstep-wip`, not on nightly, and haven't been rebuilt or
-rerun on nightly's stages. E1-E4 below predate the rename to `mcb_parked`,
+**Status: partial implementation (2026-10-10).** The done bar below is not
+met. The pinned sim implements the [native MCB-batch gate and coordinator](sim/README.md#mcb-emulator),
+with zero-phase scheduling, timeout rejection and transport/physics tests.
+Firmware in the physics step, UART in sim time, other consumption chains,
+and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
 every stage runs the MCB emulator, so step 8 is done.
 
@@ -212,16 +213,10 @@ benches still use them (`sim/AGENTS.md`).
 
 Each step is its own commit and gitlink bump, tested before the next:
 
-1. Fix the diagnosis order and add the metrics and `compare_runs.py`
-   (step 7). It's cheap, and it makes every later run readable.
-2. Add `LockstepGate` and the coordinator, with the current Python MCB
-   node's 5 ms batch as a hold point and acks on its output. This proves
-   the mechanism.
-3. Move the MCB into the physics step and model the UART in sim time
-   (steps 2 and 3). Remove the Python stepping path from e2e.
-4. Bring-up without wall time, `allow_latest_tf`, and the seeds (steps 5
+1. Move the native MCB into the physics step and model the UART in sim time
+   (steps 2 and 3). Replace e2e's ROS timer stepping path.
+2. Bring-up without wall time, `allow_latest_tf`, and the seeds (steps 5
    and 6).
-5. E1 on the MCB (step 8).
 
 Done when, for E2 stationary-lateral first, then all E2 cells, E3 and E4:
 

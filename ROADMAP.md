@@ -2,7 +2,7 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-09. Aiming is done; the estimation bench has
+end in sim. Updated 2026-10-10. Aiming is done; the estimation bench has
 limits on 72 keyed cells, but its two default `stationary45` cells still
 lack accuracy limits. Every match-test stage runs the compiled MCB
 firmware, and `main` has been Jazzy since 2026-09-27. Humble is frozen on
@@ -91,8 +91,9 @@ copies with the real code in between; in `mcb_match` they shoot back.
   6 rad/s, though the stand-in feeds truth. The aiming bench hits
   98-99% at every speed, so look at the tracker's input in gz (detection
   timing and stamps against `/clock`, the parked robot's odom walk in
-  `odom_disagreement_m`) before the tracker. Lockstep gz is
-  [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md) (unfinished).
+  `odom_disagreement_m`) before the tracker. The [MCB-batch gate](sim/README.md#mcb-emulator)
+  is implemented; full hit-path lockstep and identical shot sequences remain
+  in [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md).
 - `mcb_drive` passes with no hits: 2026-10-08, every segment 0% with
   "median aim error exceeds 0.10 m" and localization p95 0.46-0.91 m
   against truth. Make it fail on that, then find why localization is that
