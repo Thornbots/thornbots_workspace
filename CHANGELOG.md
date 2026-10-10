@@ -43,8 +43,21 @@ impact, and link the corresponding package changes.
   localization starts in the same field spawn frame as firmware odometry. See
   [thornbots_pkg be1af7e](https://github.com/Thornbots/thornbots_pkg/commit/be1af7e)
   and [sentry_localization 03e1e84](https://github.com/Thornbots/sentry_localization/commit/03e1e84).
+- A repository policy check in hooks and the CI `policy` job: commits must be
+  signed by their committer (GitHub-verified in CI), gitlinks must
+  fast-forward, and first-party top-level `.msg` files need a documented
+  `std_msgs/Header`. Install hooks with
+  `python3 scripts/install_policy_hooks.py --recursive`; see
+  [repository policy](docs/CI.md#repository-policy),
+  [workspace #18](https://github.com/Thornbots/thornbots_workspace/pull/18) and
+  [workspace #19](https://github.com/Thornbots/thornbots_workspace/pull/19).
 
 ### Changed
+
+- `pose_translator` publishes `/odom` and `/joint_states` with the incoming
+  `RobotPose` stamp; the wall-clock fallback for zero stamps is gone, so
+  upstream poses must carry a real stamp. See
+  [thornbots_pkg 61725e1](https://github.com/Thornbots/thornbots_pkg/commit/61725e1).
 
 - Workspace merges no longer update package branches automatically. Merge
   package PRs before updating and merging workspace gitlinks; see

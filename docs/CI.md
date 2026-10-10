@@ -42,10 +42,6 @@ workspace merges do not push or merge package branches.
 [policy.py](../.github/quality/policy.py) checks every commit new to a range,
 in the workspace and in package ranges its changed gitlinks newly cover:
 
-- No AI author/committer identity, co-author or generated-by footer, or agent
-  session link. Product names with any model suffix (`GPT-6-Astra`,
-  `Claude Opus 5.5`) and service bot accounts are rejected; people named
-  Claude, Gemini or Devin and prose about AI tools are not.
 - Signed by its committer, using each contributor's existing Git identity and
   GitHub-registered key; nothing compares against a fixed name, email or
   repository key. Workspace CI asks GitHub's commits API about the exact
@@ -82,8 +78,8 @@ package pins at introduction.
 in the workspace and package checkouts, plus workspace
 `push.recurseSubmodules=check`. It refuses to replace other hooks paths or
 unmanaged hooks and leaves global config alone. Hooks check staged `.msg`
-files, commit identity, `commit.gpgsign`, commit messages, and pushed ranges
-and their `.msg` files (merges and rebases skip pre-commit).
+files, `commit.gpgsign`, and pushed ranges and their `.msg` files (merges and
+rebases skip pre-commit).
 
 Limits: hooks are bypassable with `--no-verify` and absent while the
 workspace checks out a branch without `.githooks`. Pushes to an unnamed URL

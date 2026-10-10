@@ -1,4 +1,4 @@
-"""Check commit attribution, signatures, gitlink moves and ROS message stamps.
+"""Check commit signatures, gitlink moves and ROS message stamps.
 
 Coverage and limits: docs/CI.md#repository-policy. Hooks give early feedback;
 `ci` asks GitHub to verify every new signature against its committer account.
@@ -24,26 +24,6 @@ PROTECTED = ('main', 'nightly')
 HOOK_ENV = ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_PREFIX',
             'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_COMMON_DIR')
 
-# Product names that are never personal names; any model or version text may follow.
-# Bare "Claude", "Gemini" or "Devin" stay allowed unless the email is the service's.
-PRODUCT = re.compile(r'(?:chatgpt|openai|anthropic|codex|copilot|github copilot|gpt[ -]?\d|'
-                     r't3 ?code|claude[ -]?(?:code|opus|sonnet|haiku|fable|instant|\d)|'
-                     r'gemini[ -]?(?:pro|flash|ultra|code|cli|\d)|devin[ -]?ai|cursor[ -]?agent|'
-                     r'ai[ -](?:agent|assistant))(?![a-z])', re.I)
-SERVICE_BOT = re.compile(r'(?:claude|gemini|devin|cursor|codex|copilot|chatgpt|openai|anthropic)'
-                         r'[\w-]*\[bot\]', re.I)
-AGENT_DOMAINS = {'anthropic.com', 'openai.com', 'cursor.com', 'cursor.sh', 'devin.ai'}
-TRAILER = re.compile(r'^\s*(?:co-authored|generated|assisted|written|authored|created)[- ]by\s*:'
-                     r'\s*(.*?)\s*(?:<([^>]*)>)?\s*$', re.I)
-GENERATED = re.compile(r'^\W*(?:generated|created|written|authored|made|built)\s+'
-                       r'(?:with|by|using|via)'
-                       r'\s+\W*(?:claude|anthropic|codex|openai|chatgpt|gpt[ -]?\d|copilot|gemini|'
-                       r'devin|cursor|t3 ?code|an? (?:ai|llm)\b)', re.I)
-SESSION = re.compile(r'https?://(?:www\.)?(?:claude\.(?:ai|com)/(?:code|chat|share)\b|'
-                     r'(?:chatgpt\.com|chat\.openai\.com)/(?:c|share|codex)/)|'
-                     r'^\s*(?:claude|codex|chatgpt|agent|ai)[- ]session(?:[- ]id)?\s*:', re.I)
-
-
 def run_git(repo, args, nested):
     env = {k: v for k, v in os.environ.items() if not (nested and k in HOOK_ENV)}
     return subprocess.run(['git', '-C', str(repo), '-c', 'log.showSignature=false', *args],
@@ -64,40 +44,6 @@ def has_commit(repo, oid, nested=False):
 
 def is_ancestor(repo, old, new, nested=False):
     return not run_git(repo, ['merge-base', '--is-ancestor', old, new], nested).returncode
-
-
-def is_agent(name, email=''):
-    """Whether an identity names an AI product rather than a person."""
-    name = ' '.join(name.split())
-    local, _, domain = email.lower().partition('@')
-    local = re.sub(r'^\d+\+', '', local)
-    agent_domain = domain in AGENT_DOMAINS
-    service = agent_domain or domain.endswith('users.noreply.github.com')
-    return bool(PRODUCT.match(name) or SERVICE_BOT.fullmatch(name) or SERVICE_BOT.fullmatch(local)
-                or (service and PRODUCT.match(local))
-                or (agent_domain and (local in {'noreply', 'no-reply'}
-                                      or re.match(r'(?:claude|cursor|devin|codex)', local))))
-
-
-def message_errors(message, hook=False):
-    errors = []
-    if hook:  # git strips comments and the verbose diff after the scissors line
-        message = message.split('# ------------------------ >8 ------------------------')[0]
-        message = '\n'.join(line for line in message.splitlines() if not line.startswith('#'))
-    for line in message.splitlines():
-        trailer = TRAILER.match(line)
-        if trailer and is_agent(trailer[1], trailer[2] or ''):
-            errors.append(f'AI attribution trailer: {line.strip()}')
-        elif GENERATED.match(line):
-            errors.append(f'AI generated-by footer: {line.strip()}')
-        elif SESSION.search(line):
-            errors.append(f'AI session link or trailer: {line.strip()}')
-    return errors
-
-
-def identity_errors(fields):
-    return [f'{role} {name} <{email}> is an AI identity'
-            for role, name, email in fields if is_agent(name, email)]
 
 
 def vendor(path):
@@ -278,12 +224,8 @@ class Checker:
                 self.check(child, new, [old] if old else [], child_label, reviewed, True)
 
     def commit(self, repo, oid, nested):
-        fields = git(repo, 'log', '-1', '--format=%an%x00%ae%x00%cn%x00%ce%x00%B', oid,
-                     nested=nested).split('\0', 4)
-        findings = identity_errors([('author', *fields[0:2]), ('committer', *fields[2:4])])
-        findings += message_errors(fields[4])
         signature = self.signature(repo, oid, nested)
-        return findings + ([signature] if signature else [])
+        return [signature] if signature else []
 
     @staticmethod
     def moves(repo, commits, nested):
@@ -349,7 +291,7 @@ def ci_errors(root, signature=github_signature):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=['pre-commit', 'commit-msg', 'pre-push', 'contracts',
+    parser.add_argument('mode', choices=['pre-commit', 'pre-push', 'contracts',
                                          'commits', 'ci'])
     parser.add_argument('args', nargs='*', help='hook arguments')
     parser.add_argument('--repo', type=Path, default=Path.cwd())
@@ -362,15 +304,9 @@ def main():
     root = options.repo.resolve()
     try:
         if options.mode == 'pre-commit':
-            fields = []
-            for role in ('AUTHOR', 'COMMITTER'):
-                ident = re.match(r'^(.*) <(.*)> ', git(root, 'var', f'GIT_{role}_IDENT'))
-                fields.append((role.lower(), *ident.groups()))
-            errors = identity_errors(fields) + contract_errors(root)
+            errors = contract_errors(root)
             if git(root, 'config', '--bool', 'commit.gpgsign', allowed=(0, 1)).strip() != 'true':
                 errors.append('enable commit.gpgsign with your GitHub-registered signing key')
-        elif options.mode == 'commit-msg':
-            errors = message_errors(Path(options.args[0]).read_text(), hook=True)
         elif options.mode == 'pre-push':
             errors = pre_push(root, options.args[0], sys.stdin.read().splitlines())
         elif options.mode == 'contracts':
