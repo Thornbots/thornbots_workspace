@@ -11,11 +11,11 @@ normal submodule checkout; only MCB firmware remains opt-in.
 | --- | --- |
 | Workspace and packages | Ruff, ShellCheck, targeted C++ lint, XML/YAML parsing, actionlint; [checker tests](../.github/quality/test_check.py) |
 | Workspace and seven portable ROS packages | Ubuntu 24.04/Jazzy build and registered colcon tests; logs and install artifact |
-| isaac-ros-startup | [Log handling tests](../isaac-ros-startup/tests) |
-| isaac_ros_common | [Subprocess](../isaac_ros_common/isaac_common_py/tests) and [robot-image helper](../isaac_ros_common/tests) tests |
+| Workspace and isaac-ros-startup | Native CMake/CTest [log and CUDA-probe tests](../isaac-ros-startup/tests), with an error on empty discovery |
+| Workspace and isaac_ros_common | [Subprocess](../isaac_ros_common/isaac_common_py/tests) and [robot-image helper](../isaac_ros_common/tests) tests |
 | Workspace | Native arm64 robot-image build and package tests |
 | Workspace, covering bumped package commits | [Repository policy](#repository-policy) and its [regression tests](../.github/quality/test_policy.py) |
-| MCBV3 (existing nightly CI) | ARM builds and hosted control/UART tests; unchanged by this port |
+| MCBV3 | ARM builds in all robot/sysid combinations and hosted control/UART tests on main/nightly pushes and PRs |
 
 Portable packages are thornbots_pkg, sim, sentry_localization,
 rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
@@ -24,6 +24,9 @@ workspace commits retained by `ci-tooling-884bfe6` and `ci-ros-58b7bf0` tags.
 Their `workspace-ref` independently pins the integrated dependency workspace.
 Update workflow references and their tooling inputs together; dependency pins
 must continue to describe nightly. The workspace uses its own tested revision.
+Host helper jobs use the workspace's exact package pins and archive their JUnit
+reports. Package quality workflows use the same
+[host test runner](../.github/scripts/test_host_packages.sh).
 
 ## Coordinated package integration
 
