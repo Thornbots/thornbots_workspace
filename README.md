@@ -5,6 +5,9 @@ The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace.
 `main` is on ROS 2 Jazzy and Isaac ROS 4.6. The `humble` branch here and in
 every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
 more work, and stays only for robots not yet reflashed to JetPack 7.2.
+A GitHub ruleset makes it read-only (no pushes or deletion, admins
+included); the repos still unlocked are listed in
+[ROADMAP T36](ROADMAP.md#short-todos).
 
 `nightly` integrates changes across the workspace and all eleven package repos.
 On this branch, `.gitmodules` tracks each package's `nightly` branch while
