@@ -24,13 +24,16 @@ def api(path, payload=None):
     return json.loads(result.stdout)
 
 
-def policy(repo):
+def policy(repo, branch='main'):
+    # Nightly PRs skip ROS and robot-image jobs, so nightly requires only cheap checks.
+    full = branch == 'main'
     contexts = ['quality / lint']
-    if repo in PORTABLE or repo == 'thornbots_workspace':
+    if full and (repo in PORTABLE or repo == 'thornbots_workspace'):
         contexts.append('ros / portable')
     if repo == 'thornbots_workspace':
-        contexts += ['Robot image build and tests', 'policy',
-                     'Host helpers / startup', 'Host helpers / common']
+        if full:
+            contexts.append('Robot image build and tests')
+        contexts += ['policy', 'Host helpers / startup', 'Host helpers / common']
     if repo == 'MCBV3':
         contexts += [f'ARM / {robot} / {sysid}'
                      for robot in ('infantry', 'hero', 'sentry')
@@ -65,16 +68,16 @@ def main():
             continue
         endpoint = f'repos/Thornbots/{repo}/branches/{branch}/protection'
         if not args.apply:
-            print(json.dumps({'endpoint': endpoint, 'policy': policy(repo)}))
+            print(json.dumps({'endpoint': endpoint, 'policy': policy(repo, branch)}))
             continue
         try:
             metadata = api(f'repos/Thornbots/{repo}')
             if not metadata.get('permissions', {}).get('admin'):
                 print(f'{repo}/{branch}: skipped; no admin access')
                 continue
-            api(endpoint, policy(repo))
+            api(endpoint, policy(repo, branch))
             actual = api(endpoint)
-            assert actual['required_status_checks']['contexts'] == policy(repo)['required_status_checks']['contexts']
+            assert actual['required_status_checks']['contexts'] == policy(repo, branch)['required_status_checks']['contexts']
             assert actual['enforce_admins']['enabled']
             assert not actual['allow_force_pushes']['enabled']
             assert not actual['allow_deletions']['enabled']

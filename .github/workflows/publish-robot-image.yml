@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   publish:
+    # PRs into nightly stay cheap; nightly pushes and PRs into main run this.
+    if: github.event_name != 'pull_request' || github.base_ref != 'nightly'
     name: Robot image build and tests
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
