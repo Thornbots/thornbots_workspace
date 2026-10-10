@@ -44,9 +44,7 @@ Docker command or command inside a container.
 
 - Read the package's `AGENTS.md` before editing. `CLAUDE.md` stays `@AGENTS.md`.
 - Commit with the existing Git identity and signing key tied to your GitHub
-  account. Do not rewrite identity config, disable signing, bypass hooks, or
-  add AI author, co-author, generated-by or session attribution; keep
-  `.claude/settings.json` attribution disabled.
+  account. Do not rewrite identity config, disable signing or bypass hooks.
 - Commit and push each tested logical change without being asked: package
   first, then one workspace gitlink bump per logical change. Never point at an
   unpushed commit.
