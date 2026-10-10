@@ -22,6 +22,7 @@ rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
 and sllidar_ros2. Package workflows pin reusable tooling to existing immutable
 workspace commits retained by `ci-tooling-884bfe6` and `ci-ros-58b7bf0` tags.
 Their `workspace-ref` independently pins the integrated dependency workspace.
+Startup pins the native host-test tooling introduced by the C++ CI repair.
 Update workflow references and their tooling inputs together; dependency pins
 must continue to describe nightly. The workspace uses its own tested revision.
 Host helper jobs use the workspace's exact package pins and archive their JUnit
@@ -110,6 +111,10 @@ these are departures from standard C++ practice, not endorsed conventions.
 ## Validation boundaries
 
 ROS CI runs registered unit tests; sim's integration suites remain excluded.
+Workspace ROS CI builds its pinned hosted sentry firmware with GCC 14 before
+running sim's native UART and ROS-bridge tests, and fails if the build does not
+produce an executable. Package-only ROS jobs omit the opt-in firmware and may
+skip those firmware-dependent cases.
 The fixture uses the current Taproot UART bit layout only, with no legacy
 schema switch. Missing firmware cannot establish native firmware coverage.
 No job flashes firmware or deploys to a robot. These checks do not validate

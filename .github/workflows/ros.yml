@@ -38,6 +38,7 @@ jobs:
     env:
       PACKAGE_REPO: ${{ inputs.package-repo }}
       ROS_LOCALHOST_ONLY: '1'
+      MCB_FIRMWARE_BINARY: ${{ github.workspace }}/ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
     steps:
       - name: Checkout pinned dependency workspace
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
@@ -62,6 +63,12 @@ jobs:
         with:
           path: ws/src/${{ inputs.package-repo }}
           persist-credentials: false
+      - name: Checkout pinned firmware for workspace UART tests
+        if: inputs.package-repo == 'workspace'
+        working-directory: ws/src
+        run: |
+          git submodule update --init --checkout --depth 1 -- firmware/MCBV3
+          git -C firmware/MCBV3 submodule update --init --checkout --depth 1 -- taproot-scripts
       - name: Setup ROS tooling
         run: |
           curl --fail --location --retry 3 \
@@ -75,6 +82,17 @@ jobs:
           if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
             sudo rosdep init
           fi
+      - name: Build hosted firmware for workspace UART tests
+        if: inputs.package-repo == 'workspace'
+        working-directory: ws/src/firmware/MCBV3/MCB-project
+        run: |
+          sudo apt-get install -y gcc-14 g++-14 python3-venv
+          python3 -m venv "$RUNNER_TEMP/mcb-tools"
+          "$RUNNER_TEMP/mcb-tools/bin/python" -m pip install \
+            scons==4.11.1 pyelftools==0.32 Jinja2==3.1.6
+          "$RUNNER_TEMP/mcb-tools/bin/scons" build-sim robot=sentry \
+            profile=release compiler-suffix=-14 -j2
+          test -x "$MCB_FIRMWARE_BINARY"
       - name: Install declared dependencies
         working-directory: ws
         run: |
@@ -109,6 +127,7 @@ jobs:
           path: |
             ws/log
             ws/build/**/test_results
+            ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
             ws/ros-jazzy-install.tar.gz
           retention-days: 14
 
