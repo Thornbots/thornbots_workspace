@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+## 2026-10-10
+
 ### Added
 
 - Native MCB batch lockstep for sim's three E2E stages, with stamped
@@ -99,6 +101,8 @@ impact, and link the corresponding package changes.
   [localization 02707ad](https://github.com/Thornbots/sentry_localization/commit/02707ad)
   and [sim bad5c8d](https://github.com/Thornbots/sim/commit/bad5c8d).
 - Integrated rf2o repository CI with repaired immutable workspace workflow pins.
+  Reconciled the release branch history while retaining nightly's newer CI
+  configuration; see [rf2o #7](https://github.com/Thornbots/rf2o_laser_odometry/pull/7).
   See [rf2o 3a2c91e](https://github.com/Thornbots/rf2o_laser_odometry/commit/3a2c91e)
   and [rf2o 961ff26](https://github.com/Thornbots/rf2o_laser_odometry/commit/961ff26).
 - Removed the Python copy of MCB control logic; firmware edits are now exercised
