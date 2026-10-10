@@ -62,6 +62,17 @@ CV:
   which the emulator compiles. Ask the MCB team to adopt it with the
   [bridge firmware asks](ros2_dji_serial_bridge/README.md#asked-of-the-firmware).
 
+Repos:
+
+- T35: Move MCBV3 to `main` (the user, 2026-10-10; not ready yet). Its
+  GitHub default is still `newMain`, last updated 2026-10-02 and 116 commits
+  behind `nightly`. Make `main` the default like the other packages, then
+  retire `newMain`.
+- T36: Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
+  isaac-ros-startup, realsense-yolov8-nitros-bridge and
+  ros2_dji_serial_bridge. Needs a repo admin; copy the
+  "Archive humble (read-only)" ruleset from thornbots_workspace.
+
 ## Tracks, in order of work
 
 Sim work first; robot work waits for [later](#later-needs-a-robot) (the
