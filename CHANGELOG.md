@@ -71,6 +71,9 @@ impact, and link the corresponding package changes.
   upstream poses must carry a real stamp. See
   [thornbots_pkg 61725e1](https://github.com/Thornbots/thornbots_pkg/commit/61725e1).
 
+- `humble` is read-only in thornbots_workspace, sentry_localization, sim
+  and thornbots_pkg: a GitHub ruleset blocks pushes and deletion for admins
+  too. The other repos with `humble` are in [ROADMAP T36](ROADMAP.md#short-todos).
 - Workspace merges no longer update package branches automatically. Merge
   package PRs before updating and merging workspace gitlinks; see
   [coordinated package integration](docs/CI.md#coordinated-package-integration).
