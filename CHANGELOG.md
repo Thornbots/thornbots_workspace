@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+### Changed
+
+- `.claude/settings.local.json` is no longer tracked and is now gitignored; it
+  held one maintainer's personal permissions and paths. Pulling this removes
+  the tracked copy, so keep a backup first if you edited it locally.
+
 ## 2026-10-10
 
 ### Added
