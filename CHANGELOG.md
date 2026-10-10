@@ -21,6 +21,9 @@ impact, and link the corresponding package changes.
   [Realsense_ROI_Depth_Rectifier #4](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/4),
   [sllidar_ros2 #4](https://github.com/Thornbots/sllidar_ros2/pull/4) and
   [MCBV3 #85](https://github.com/Thornbots/MCBV3/pull/85).
+- `.claude/settings.local.json` is no longer tracked and is now gitignored; it
+  held one maintainer's personal permissions and paths. Pulling this removes
+  the tracked copy, so keep a backup first if you edited it locally.
 
 ## 2026-10-10
 
