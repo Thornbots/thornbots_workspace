@@ -1,0 +1,94 @@
+{
+  "segments": [
+    {
+      "segment": "approach_2",
+      "fighting": false,
+      "shots": 0,
+      "enemy_hit_rate": 0.0,
+      "diagnosis": null,
+      "hp": {
+        "sentry": 400,
+        "ally_0": 400,
+        "opponent_0": 400,
+        "opponent_1": 400
+      },
+      "route_p95_m": 0.09911468158962222,
+      "localization_p95_m": 0.4570283236005012
+    },
+    {
+      "segment": "parked",
+      "fighting": true,
+      "shots": 10,
+      "enemy_hit_rate": 0.0,
+      "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+      "hp": {
+        "sentry": 400,
+        "ally_0": 400,
+        "opponent_0": 400,
+        "opponent_1": 380
+      },
+      "route_p95_m": 0.00013033792054698148,
+      "localization_p95_m": 0.49908795565500036
+    },
+    {
+      "segment": "straight_1",
+      "fighting": true,
+      "shots": 4,
+      "enemy_hit_rate": 0.0,
+      "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+      "hp": {
+        "sentry": 400,
+        "ally_0": 400,
+        "opponent_0": 400,
+        "opponent_1": 380
+      },
+      "route_p95_m": 0.025515489867973393,
+      "localization_p95_m": 1.0637696389837485
+    },
+    {
+      "segment": "turn",
+      "fighting": true,
+      "shots": 10,
+      "enemy_hit_rate": 0.0,
+      "diagnosis": "localization: map->root p95 error exceeds 0.40 m",
+      "hp": {
+        "sentry": 400,
+        "ally_0": 400,
+        "opponent_0": 400,
+        "opponent_1": 380
+      },
+      "route_p95_m": 0.023248892766083773,
+      "localization_p95_m": 0.735683329904223
+    },
+    {
+      "segment": "spin",
+      "fighting": true,
+      "shots": 12,
+      "enemy_hit_rate": 0.0,
+      "diagnosis": "pose/TF stamps: head_pitch p95 attitude error exceeds 1 degree",
+      "hp": {
+        "sentry": 400,
+        "ally_0": 400,
+        "opponent_0": 400,
+        "opponent_1": 380
+      },
+      "route_p95_m": 0.00822370204009033,
+      "localization_p95_m": 0.3835382386713638
+    }
+  ],
+  "friendly_shots": 0,
+  "damage_taken": 0,
+  "hp": {
+    "sentry": 400,
+    "ally_0": 400,
+    "opponent_0": 400,
+    "opponent_1": 380
+  },
+  "referee_uart_frames": 604,
+  "shots_by_robot": {
+    "sentry": 36,
+    "ally_0": 37,
+    "opponent_0": 37,
+    "opponent_1": 37
+  }
+}

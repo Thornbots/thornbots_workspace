@@ -1,0 +1,515 @@
+[INFO] [launch]: All log files can be found below /root/.ros/log/2026-10-07-00-44-43-073695-b6fafe83bf25-9094
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [bench_world-1]: process started with pid [9098]
+[INFO] [lidar_self_filter-2]: process started with pid [9099]
+[INFO] [pose_translator-3]: process started with pid [9100]
+[INFO] [odom_tf_broadcaster-4]: process started with pid [9101]
+[INFO] [robot_state_publisher-5]: process started with pid [9102]
+[INFO] [passthrough_odom_publisher-6]: process started with pid [9103]
+[INFO] [target_selector-7]: process started with pid [9104]
+[INFO] [target_tracker-8]: process started with pid [9105]
+[INFO] [point_to_cv_target-9]: process started with pid [9106]
+[INFO] [target_state_markers-10]: process started with pid [9107]
+[INFO] [rviz2-11]: process started with pid [9108]
+[INFO] [estimation_tests-12]: process started with pid [9109]
+[INFO] [latch_holder-13]: process started with pid [9110]
+[INFO] [foxglove_bridge-14]: process started with pid [9111]
+[bench_world-1] [INFO] [1791333883.195486478] [bench_world]: bench_world: lockstep with the nodes under test, physics 1 ms, /clock every 5 ms
+[robot_state_publisher-5] [INFO] [1791333883.202504178] [robot_state_publisher]: Robot initialized
+[target_tracker-8] [INFO] [1791333883.221235392] [target_tracker]: target_tracker ready (C++)
+[target_tracker-8]   /cv/robot_panels -> /cv/target_state (frame=odom)
+[target_tracker-8]   pose_latency_s=0.000 camera_latency_s=0.000 track_max_gap_s=0.50 tf_max_wait_s=0.25
+[target_tracker-8]   panel_radius_m=0.27
+[foxglove_bridge-14] [INFO] [1791333883.254007256] [foxglove_bridge]: Starting foxglove_bridge (jazzy, 3.5.0@)
+[foxglove_bridge-14] [2026-10-07T00:44:43Z INFO  foxglove::websocket::server] Started server on 0.0.0.0:8765
+[foxglove_bridge-14] [INFO] [1791333883.255050053] [foxglove_bridge]: Server listening on port 8765
+[foxglove_bridge-14] [INFO] [1791333883.258676362] [foxglove_bridge]: Advertising new channel 2 for topic "/rosout"
+[foxglove_bridge-14] [INFO] [1791333883.264703141] [foxglove_bridge]: Advertising new channel 3 for topic "/parameter_events"
+[foxglove_bridge-14] [INFO] [1791333883.268281741] [foxglove_bridge]: Advertising new channel 4 for topic "/clock"
+[rviz2-11] QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+[estimation_tests-12] ============================= test session starts ==============================
+[estimation_tests-12] platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+[estimation_tests-12] cachedir: .pytest_cache
+[estimation_tests-12] rootdir: /workspaces/isaac_ros-dev/src/sim
+[estimation_tests-12] configfile: setup.cfg
+[estimation_tests-12] plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, colcon-core-0.21.2
+[target_selector-7] [INFO] [1791333883.363095942] [target_selector]: target_selector ready
+[target_selector-7]   /cv/panel_detections -> /cv/panel_detection, /cv/robot_panels, /cv/panel_polygon
+[target_selector-7]   score = conf + 1.0*centrality + 0.5 if class in [2, 6]  (min_score=0.0 gates on raw confidence only)
+[target_selector-7]   panel_group_radius_m=0.5
+[target_selector-7]   team source: /dji_serial_bridge/ref_sys
+[point_to_cv_target-9] [INFO] [1791333883.370606936] [point_to_cv_target]: point_to_cv_target ready
+[point_to_cv_target-9]   /cv/target_state + /dji_serial_bridge/pose
+[point_to_cv_target-9]   -> /cv/target (CVTarget, odom frame, aim + fire, @ 40.0Hz)
+[point_to_cv_target-9]   lead_enabled=True v_muzzle=25.0 firmware_latency_s=0.05 gimbal_lag_s=0.05
+[point_to_cv_target-9]   target_timeout_s=0.50
+[point_to_cv_target-9]   fire <= 2.00Hz, spin-timed above 3.0 rad/s, confidence >= 0.5
+[point_to_cv_target-9]   patrol: off
+[rviz2-11] [INFO] [1791333883.376935424] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-11] [INFO] [1791333883.377014383] [rviz2]: OpenGl version: 4.5 (GLSL 4.5)
+[rviz2-11] [INFO] [1791333883.389230774] [rviz2]: Stereo is NOT SUPPORTED
+[estimation_tests-12] collecting ... collected 12 items
+[estimation_tests-12]
+[foxglove_bridge-14] [INFO] [1791333883.770901756] [foxglove_bridge]: Advertising new channel 5 for topic "/tf"
+[foxglove_bridge-14] [INFO] [1791333883.772707973] [foxglove_bridge]: Advertising new channel 6 for topic "/sim/raw_odom"
+[foxglove_bridge-14] [INFO] [1791333883.772718181] [foxglove_bridge]: Advertising new channel 7 for topic "/localization/odom"
+[foxglove_bridge-14] [INFO] [1791333883.772997307] [foxglove_bridge]: Advertising new channel 8 for topic "/head_pitch_cmd"
+[foxglove_bridge-14] [INFO] [1791333883.773004641] [foxglove_bridge]: Advertising new channel 9 for topic "/head_pan_cmd"
+[foxglove_bridge-14] [INFO] [1791333883.774381980] [foxglove_bridge]: Advertising new channel 10 for topic "/dji_serial_bridge/pose"
+[foxglove_bridge-14] [INFO] [1791333883.774727482] [foxglove_bridge]: Advertising new channel 11 for topic "/scan"
+[foxglove_bridge-14] [INFO] [1791333883.775279068] [foxglove_bridge]: Advertising new channel 12 for topic "/dji_serial_bridge/ref_sys"
+[foxglove_bridge-14] [INFO] [1791333883.779012836] [foxglove_bridge]: Advertising new channel 13 for topic "/cv/target_state_markers"
+[foxglove_bridge-14] [INFO] [1791333883.779301004] [foxglove_bridge]: Advertising new channel 14 for topic "/robot_description"
+[foxglove_bridge-14] [INFO] [1791333883.779844090] [foxglove_bridge]: Advertising new channel 15 for topic "/cv/target_state"
+[foxglove_bridge-14] [INFO] [1791333883.779852632] [foxglove_bridge]: Advertising new channel 16 for topic "/tf_static"
+[foxglove_bridge-14] [INFO] [1791333883.780153258] [foxglove_bridge]: Advertising new channel 17 for topic "/cv/tracker/clock_ack"
+[foxglove_bridge-14] [INFO] [1791333883.780162341] [foxglove_bridge]: Advertising new channel 18 for topic "/cv/target/tick"
+[foxglove_bridge-14] [INFO] [1791333883.780723802] [foxglove_bridge]: Advertising new channel 19 for topic "/cv/target"
+[foxglove_bridge-14] [INFO] [1791333883.780753052] [foxglove_bridge]: Advertising new channel 20 for topic "/target/ground_truth_odom"
+[foxglove_bridge-14] [INFO] [1791333883.781289305] [foxglove_bridge]: Advertising new channel 21 for topic "/map"
+[foxglove_bridge-14] [INFO] [1791333883.782626645] [foxglove_bridge]: Advertising new channel 22 for topic "/cv/robot_panels"
+[foxglove_bridge-14] [INFO] [1791333883.782634520] [foxglove_bridge]: Advertising new channel 23 for topic "/target_markers"
+[foxglove_bridge-14] [INFO] [1791333883.783341481] [foxglove_bridge]: Advertising new channel 24 for topic "/cv/panel_polygon"
+[foxglove_bridge-14] [INFO] [1791333883.783358315] [foxglove_bridge]: Advertising new channel 25 for topic "/cv/tracker/measurement"
+[foxglove_bridge-14] [INFO] [1791333883.784043943] [foxglove_bridge]: Advertising new channel 26 for topic "/cv/panel_detection"
+[foxglove_bridge-14] [INFO] [1791333883.784054901] [foxglove_bridge]: Advertising new channel 27 for topic "/scan_raw"
+[foxglove_bridge-14] [INFO] [1791333883.784448945] [foxglove_bridge]: Advertising new channel 28 for topic "/joint_states"
+[foxglove_bridge-14] [INFO] [1791333883.784459403] [foxglove_bridge]: Advertising new channel 29 for topic "/cv/panel_detections"
+[foxglove_bridge-14] [INFO] [1791333883.784835197] [foxglove_bridge]: Advertising new channel 30 for topic "/cmd_vel"
+[foxglove_bridge-14] [INFO] [1791333883.784848530] [foxglove_bridge]: Advertising new channel 31 for topic "/sim/raw_joint_states"
+[foxglove_bridge-14] [INFO] [1791333883.784853364] [foxglove_bridge]: Advertising new channel 32 for topic "/odom"
+[foxglove_bridge-14] [INFO] [1791333883.784857780] [foxglove_bridge]: Advertising new channel 33 for topic "/bench/progress"
+[foxglove_bridge-14] [INFO] [1791333883.784861655] [foxglove_bridge]: Advertising new channel 34 for topic "/bench/case"
+[bench_world-1] [WARN] [1791333884.399768993] [bench_world]: lockstep: /cv/target/tick at 0.060 s is off point_to_cv_target's phase from sim time 0; runs won't repeat exactly
+[bench_world-1] [WARN] [1791333884.901084790] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333886.916201090] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333888.932689913] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333890.947774496] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333892.964574271] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [INFO] [1791333893.466453709] [bench_world]: bench_world: 0.1x, 18 lockstep timeouts
+[point_to_cv_target-9] [INFO] [1791333893.471323940] [point_to_cv_target]: target_state: tracking robot 1
+[point_to_cv_target-9] [INFO] [1791333893.471615775] [point_to_cv_target]: target_state age on arrival: 5.0 ms now, 5.0 ms mean over 1 samples
+[bench_world-1] [WARN] [1791333894.990423813] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333897.021066435] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333899.047528721] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333901.066857324] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333903.094571650] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [INFO] [1791333903.603788258] [bench_world]: bench_world: 0.1x, 38 lockstep timeouts
+[point_to_cv_target-9] [INFO] [1791333903.607644151] [point_to_cv_target]: target_state age on arrival: 0.0 ms now, 2.0 ms mean over 74 samples
+[bench_world-1] [WARN] [1791333905.129983986] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[bench_world-1] [WARN] [1791333907.178695568] [bench_world]: lockstep: /cv/target/tick timed out after 0.50 s wall; this run may not repeat
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[foxglove_bridge-14] [INFO] [1791333908.290799398] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-5] [INFO] [1791333908.290853024] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[rviz2-11] [INFO] [1791333908.290868440] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [foxglove_bridge-14]: sending signal 'SIGINT' to process[foxglove_bridge-14]
+[INFO] [latch_holder-13]: sending signal 'SIGINT' to process[latch_holder-13]
+[INFO] [estimation_tests-12]: sending signal 'SIGINT' to process[estimation_tests-12]
+[INFO] [rviz2-11]: sending signal 'SIGINT' to process[rviz2-11]
+[INFO] [target_state_markers-10]: sending signal 'SIGINT' to process[target_state_markers-10]
+[INFO] [point_to_cv_target-9]: sending signal 'SIGINT' to process[point_to_cv_target-9]
+[INFO] [target_tracker-8]: sending signal 'SIGINT' to process[target_tracker-8]
+[INFO] [target_selector-7]: sending signal 'SIGINT' to process[target_selector-7]
+[INFO] [passthrough_odom_publisher-6]: sending signal 'SIGINT' to process[passthrough_odom_publisher-6]
+[INFO] [robot_state_publisher-5]: sending signal 'SIGINT' to process[robot_state_publisher-5]
+[INFO] [odom_tf_broadcaster-4]: sending signal 'SIGINT' to process[odom_tf_broadcaster-4]
+[INFO] [pose_translator-3]: sending signal 'SIGINT' to process[pose_translator-3]
+[INFO] [lidar_self_filter-2]: sending signal 'SIGINT' to process[lidar_self_filter-2]
+[INFO] [bench_world-1]: sending signal 'SIGINT' to process[bench_world-1]
+[ERROR] [point_to_cv_target-9]: process has died [pid 9106, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/point_to_cv_target --ros-args -r __node:=point_to_cv_target --params-file /tmp/launch_params_a4at_v57'].
+[ERROR] [target_state_markers-10]: process has died [pid 9107, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sim/lib/sim/target_state_markers --ros-args -r __node:=target_state_markers --params-file /tmp/launch_params_ju_duznh'].
+[bench_world-1] [INFO] [1791333908.291007066] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [robot_state_publisher-5]: process has died [pid 9102, exit code -2, cmd '/opt/ros/jazzy/lib/robot_state_publisher/robot_state_publisher --ros-args -r __node:=robot_state_publisher --params-file /tmp/launch_params_myy6gjgr'].
+[target_tracker-8] [INFO] [1791333908.291057650] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[passthrough_odom_publisher-6] Traceback (most recent call last):
+[passthrough_odom_publisher-6]   File "/workspaces/isaac_ros-dev/install/sentry_localization/lib/sentry_localization/passthrough_odom_publisher", line 33, in <module>
+[target_state_markers-10] Traceback (most recent call last):
+[target_state_markers-10]   File "/workspaces/isaac_ros-dev/install/sim/lib/sim/target_state_markers", line 20, in <module>
+[pose_translator-3] Traceback (most recent call last):
+[pose_translator-3]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/pose_translator", line 20, in <module>
+[point_to_cv_target-9] Traceback (most recent call last):
+[point_to_cv_target-9]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/point_to_cv_target", line 20, in <module>
+[odom_tf_broadcaster-4] Traceback (most recent call last):
+[odom_tf_broadcaster-4]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/odom_tf_broadcaster", line 20, in <module>
+[lidar_self_filter-2] Traceback (most recent call last):
+[lidar_self_filter-2]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/lidar_self_filter", line 20, in <module>
+[foxglove_bridge-14] [INFO] [1791333908.291419735] [foxglove_bridge]: Shutting down foxglove_bridge
+[foxglove_bridge-14] Failed to publish log message to rosout: publisher's context is invalid, at ./src/rcl/publisher.c:423
+[foxglove_bridge-14] [ERROR] [1791333908.292280864] [foxglove_bridge]: Exception thrown in rosgraphPollThread: failed to get topic names and types: rcl node's context is invalid, at ./src/rcl/node.c:404
+[foxglove_bridge-14] [2026-10-07T00:45:08Z INFO  foxglove::websocket::server] Shutting down
+[foxglove_bridge-14] [2026-10-07T00:45:08Z INFO  foxglove::websocket::server] Shutdown complete
+[foxglove_bridge-14] [INFO] [1791333908.292635240] [foxglove_bridge]: Shutdown complete
+[target_selector-7] Traceback (most recent call last):
+[target_selector-7]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/target_selector", line 20, in <module>
+[pose_translator-3]     main()
+[pose_translator-3]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/pose_translator.py", line 124, in main
+[pose_translator-3]     rclpy.spin(node)
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[pose_translator-3]     executor.spin_once()
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[pose_translator-3]     self._spin_once_impl(timeout_sec)
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[pose_translator-3]     handler, entity, node = self.wait_for_ready_callbacks(
+[pose_translator-3]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[pose_translator-3]     return next(self._cb_iter)
+[pose_translator-3]            ^^^^^^^^^^^^^^^^^^^
+[pose_translator-3]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[pose_translator-3]     wait_set.wait(timeout_nsec)
+[pose_translator-3] KeyboardInterrupt
+[odom_tf_broadcaster-4]     main()
+[odom_tf_broadcaster-4]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/odom_tf_broadcaster.py", line 60, in main
+[odom_tf_broadcaster-4]     rclpy.spin(node)
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[odom_tf_broadcaster-4]     executor.spin_once()
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[odom_tf_broadcaster-4]     self._spin_once_impl(timeout_sec)
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[odom_tf_broadcaster-4]     handler, entity, node = self.wait_for_ready_callbacks(
+[odom_tf_broadcaster-4]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[odom_tf_broadcaster-4]     return next(self._cb_iter)
+[odom_tf_broadcaster-4]            ^^^^^^^^^^^^^^^^^^^
+[odom_tf_broadcaster-4]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[odom_tf_broadcaster-4]     wait_set.wait(timeout_nsec)
+[odom_tf_broadcaster-4] KeyboardInterrupt
+[lidar_self_filter-2]     main()
+[lidar_self_filter-2]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/lidar_self_filter.py", line 84, in main
+[lidar_self_filter-2]     rclpy.spin(node)
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[lidar_self_filter-2]     executor.spin_once()
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[lidar_self_filter-2]     self._spin_once_impl(timeout_sec)
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[lidar_self_filter-2]     handler, entity, node = self.wait_for_ready_callbacks(
+[lidar_self_filter-2]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[lidar_self_filter-2]     return next(self._cb_iter)
+[lidar_self_filter-2]            ^^^^^^^^^^^^^^^^^^^
+[lidar_self_filter-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[lidar_self_filter-2]     wait_set.wait(timeout_nsec)
+[lidar_self_filter-2] KeyboardInterrupt
+[ERROR] [passthrough_odom_publisher-6]: process has died [pid 9103, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sentry_localization/lib/sentry_localization/passthrough_odom_publisher --ros-args -r __node:=passthrough_odom_publisher --params-file /tmp/launch_params_8i53m3bm'].
+[foxglove_bridge-14] [INFO] [1791333908.295026918] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[passthrough_odom_publisher-6]     sys.exit(load_entry_point('sentry-localization', 'console_scripts', 'passthrough_odom_publisher')())
+[passthrough_odom_publisher-6]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[passthrough_odom_publisher-6]   File "/workspaces/isaac_ros-dev/build/sentry_localization/sentry_localization/passthrough_odom_publisher.py", line 42, in main
+[passthrough_odom_publisher-6]     rclpy.spin(node)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[passthrough_odom_publisher-6]     executor.spin_once()
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[passthrough_odom_publisher-6]     self._spin_once_impl(timeout_sec)
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[passthrough_odom_publisher-6]     handler, entity, node = self.wait_for_ready_callbacks(
+[passthrough_odom_publisher-6]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[passthrough_odom_publisher-6]     return next(self._cb_iter)
+[passthrough_odom_publisher-6]            ^^^^^^^^^^^^^^^^^^^
+[passthrough_odom_publisher-6]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[passthrough_odom_publisher-6]     wait_set.wait(timeout_nsec)
+[passthrough_odom_publisher-6] KeyboardInterrupt
+[point_to_cv_target-9]     main()
+[point_to_cv_target-9]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/point_to_cv_target.py", line 372, in main
+[point_to_cv_target-9]     rclpy.spin(node)
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[point_to_cv_target-9]     executor.spin_once()
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[point_to_cv_target-9]     self._spin_once_impl(timeout_sec)
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[point_to_cv_target-9]     handler, entity, node = self.wait_for_ready_callbacks(
+[point_to_cv_target-9]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[point_to_cv_target-9]     return next(self._cb_iter)
+[point_to_cv_target-9]            ^^^^^^^^^^^^^^^^^^^
+[point_to_cv_target-9]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[point_to_cv_target-9]     wait_set.wait(timeout_nsec)
+[point_to_cv_target-9] KeyboardInterrupt
+[target_state_markers-10]     main()
+[target_state_markers-10]   File "/workspaces/isaac_ros-dev/install/sim/lib/python3.12/site-packages/sim/target_state_markers.py", line 118, in main
+[target_state_markers-10]     rclpy.spin(node)
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[target_state_markers-10]     executor.spin_once()
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[target_state_markers-10]     self._spin_once_impl(timeout_sec)
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[target_state_markers-10]     handler, entity, node = self.wait_for_ready_callbacks(
+[target_state_markers-10]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[target_state_markers-10]     return next(self._cb_iter)
+[target_state_markers-10]            ^^^^^^^^^^^^^^^^^^^
+[target_state_markers-10]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[target_state_markers-10]     wait_set.wait(timeout_nsec)
+[target_state_markers-10] KeyboardInterrupt
+[target_selector-7]     main()
+[target_selector-7]   File "/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/python3.12/site-packages/thornbots_pkg/target_selector.py", line 189, in main
+[target_selector-7]     rclpy.spin(node)
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[target_selector-7]     executor.spin_once()
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[target_selector-7]     self._spin_once_impl(timeout_sec)
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[target_selector-7]     handler, entity, node = self.wait_for_ready_callbacks(
+[target_selector-7]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[target_selector-7]     return next(self._cb_iter)
+[target_selector-7]            ^^^^^^^^^^^^^^^^^^^
+[target_selector-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[target_selector-7]     wait_set.wait(timeout_nsec)
+[target_selector-7] KeyboardInterrupt
+[rviz2-11] [INFO] [1791333908.305687342] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[latch_holder-13] Traceback (most recent call last):
+[latch_holder-13]   File "/workspaces/isaac_ros-dev/install/sim/lib/sim/latch_holder", line 20, in <module>
+[latch_holder-13]     main()
+[latch_holder-13]   File "/workspaces/isaac_ros-dev/install/sim/lib/python3.12/site-packages/sim/latch_holder.py", line 50, in main
+[latch_holder-13]     node.destroy_node()
+[latch_holder-13]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1968, in destroy_node
+[latch_holder-13]     self.__node.destroy_when_not_in_use()
+[latch_holder-13] KeyboardInterrupt
+[target_tracker-8] [INFO] [1791333908.311768662] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [target_selector-7]: process has died [pid 9104, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/target_selector --ros-args -r __node:=target_selector --params-file /tmp/launch_params_qx2tvdxa'].
+[ERROR] [bench_world-1]: process has died [pid 9098, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sim/lib/sim/bench_world --ros-args -r __node:=bench_world --params-file /tmp/launch_params_ypy2ydmb'].
+[ERROR] [lidar_self_filter-2]: process has died [pid 9099, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/lidar_self_filter --ros-args -r __node:=lidar_self_filter --params-file /tmp/launch_params_pkm8btgn'].
+[ERROR] [odom_tf_broadcaster-4]: process has died [pid 9101, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/odom_tf_broadcaster --ros-args -r __node:=odom_tf_broadcaster --params-file /tmp/launch_params_ddplyjs4'].
+[ERROR] [pose_translator-3]: process has died [pid 9100, exit code -2, cmd '/workspaces/isaac_ros-dev/install/thornbots_pkg/lib/thornbots_pkg/pose_translator --ros-args -r __node:=pose_translator --params-file /tmp/launch_params_7v8m3jz6'].
+[estimation_tests-12] Warning: A plugin raised an exception during an old-style hookwrapper teardown.
+[estimation_tests-12] Plugin: terminalreporter, Hook: pytest_sessionfinish
+[estimation_tests-12] RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
+[estimation_tests-12] For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning
+[estimation_tests-12] Traceback (most recent call last):
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 271, in wrap_session
+[estimation_tests-12]     session.exitstatus = doit(config, session) or 0
+[estimation_tests-12]                          ^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 325, in _main
+[estimation_tests-12]     config.hook.pytest_runtestloop(session=session)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 181, in _multicall
+[estimation_tests-12]     return outcome.get_result()
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_result.py", line 99, in get_result
+[estimation_tests-12]     raise exc.with_traceback(exc.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 350, in pytest_runtestloop
+[estimation_tests-12]     item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 181, in _multicall
+[estimation_tests-12]     return outcome.get_result()
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_result.py", line 99, in get_result
+[estimation_tests-12]     raise exc.with_traceback(exc.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 114, in pytest_runtest_protocol
+[estimation_tests-12]     runtestprotocol(item, nextitem=nextitem)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 133, in runtestprotocol
+[estimation_tests-12]     reports.append(call_and_report(item, "call", log))
+[estimation_tests-12]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 222, in call_and_report
+[estimation_tests-12]     call = call_runtest_hook(item, when, **kwds)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 261, in call_runtest_hook
+[estimation_tests-12]     return CallInfo.from_call(
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 341, in from_call
+[estimation_tests-12]     result: Optional[TResult] = func()
+[estimation_tests-12]                                 ^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 262, in <lambda>
+[estimation_tests-12]     lambda: ihook(item=item, **kwds), when=when, reraise=reraise
+[estimation_tests-12]             ^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 181, in _multicall
+[estimation_tests-12]     return outcome.get_result()
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_result.py", line 99, in get_result
+[estimation_tests-12]     raise exc.with_traceback(exc.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 169, in pytest_runtest_call
+[estimation_tests-12]     item.runtest()
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/python.py", line 1792, in runtest
+[estimation_tests-12]     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 138, in _multicall
+[estimation_tests-12]     raise exception.with_traceback(exception.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/python.py", line 194, in pytest_pyfunc_call
+[estimation_tests-12]     result = testfunction(**testargs)
+[estimation_tests-12]              ^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/workspaces/isaac_ros-dev/src/sim/test/cv/test_estimation.py", line 102, in test_estimation
+[estimation_tests-12]     summary = harness.run_case(est_stack, cell, speed, spin_hz, duration,
+[estimation_tests-12]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/workspaces/isaac_ros-dev/src/sim/test/cv/estimation_harness.py", line 258, in run_case
+[estimation_tests-12]     sampler.spin_until_truth(start_s + SETTLE_S)
+[estimation_tests-12]   File "/workspaces/isaac_ros-dev/src/sim/test/cv/estimation_harness.py", line 123, in spin_until_truth
+[estimation_tests-12]     ok = self.wait_until(lambda: (self.truth_s() or 0.0) >= stamp_s, timeout=60.0,
+[estimation_tests-12]          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/workspaces/isaac_ros-dev/src/sim/test/cv/shot_hit_harness.py", line 388, in wait_until
+[estimation_tests-12]     rclpy.spin_once(self, timeout_sec=0.1)
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 226, in spin_once
+[estimation_tests-12]     executor.spin_once(timeout_sec=timeout_sec)
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[estimation_tests-12]     self._spin_once_impl(timeout_sec)
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[estimation_tests-12]     handler, entity, node = self.wait_for_ready_callbacks(
+[estimation_tests-12]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[estimation_tests-12]     return next(self._cb_iter)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[estimation_tests-12]     wait_set.wait(timeout_nsec)
+[estimation_tests-12] KeyboardInterrupt
+[estimation_tests-12]
+[estimation_tests-12] During handling of the above exception, another exception occurred:
+[estimation_tests-12]
+[estimation_tests-12] Traceback (most recent call last):
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 285, in wrap_session
+[estimation_tests-12]     config.hook.pytest_keyboard_interrupt(excinfo=excinfo)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 138, in _multicall
+[estimation_tests-12]     raise exception.with_traceback(exception.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/terminal.py", line 891, in pytest_keyboard_interrupt
+[estimation_tests-12]     self._keyboardinterrupt_memo = excinfo.getrepr(funcargs=True)
+[estimation_tests-12]                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 701, in getrepr
+[estimation_tests-12]     return fmt.repr_excinfo(self)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 989, in repr_excinfo
+[estimation_tests-12]     reprtraceback = self.repr_traceback(excinfo_)
+[estimation_tests-12]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 914, in repr_traceback
+[estimation_tests-12]     self.repr_traceback_entry(entry, excinfo if last == entry else None)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 852, in repr_traceback_entry
+[estimation_tests-12]     source = self._getentrysource(entry)
+[estimation_tests-12]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 754, in _getentrysource
+[estimation_tests-12]     source = entry.getsource(self.astcache)
+[estimation_tests-12]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 252, in getsource
+[estimation_tests-12]     source = self.frame.code.fullsource
+[estimation_tests-12]              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/code.py", line 108, in fullsource
+[estimation_tests-12]     full, _ = findsource(self.raw)
+[estimation_tests-12]               ^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/_code/source.py", line 121, in findsource
+[estimation_tests-12]     sourcelines, lineno = inspect.findsource(obj)
+[estimation_tests-12]                           ^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3.12/inspect.py", line 1083, in findsource
+[estimation_tests-12]     module = getmodule(object, file)
+[estimation_tests-12]              ^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3.12/inspect.py", line 1009, in getmodule
+[estimation_tests-12]     os.path.realpath(f)] = module.__name__
+[estimation_tests-12]     ^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "<frozen posixpath>", line 432, in realpath
+[estimation_tests-12]   File "<frozen posixpath>", line 476, in _joinrealpath
+[estimation_tests-12] KeyboardInterrupt
+[estimation_tests-12]
+[estimation_tests-12] During handling of the above exception, another exception occurred:
+[estimation_tests-12]
+[estimation_tests-12] Traceback (most recent call last):
+[estimation_tests-12]   File "<frozen runpy>", line 198, in _run_module_as_main
+[estimation_tests-12]   File "<frozen runpy>", line 88, in _run_code
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pytest/__main__.py", line 5, in <module>
+[estimation_tests-12]     raise SystemExit(pytest.console_main())
+[estimation_tests-12]                      ^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/config/__init__.py", line 192, in console_main
+[estimation_tests-12]     code = main()
+[estimation_tests-12]            ^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/config/__init__.py", line 169, in main
+[estimation_tests-12]     ret: Union[ExitCode, int] = config.hook.pytest_cmdline_main(
+[estimation_tests-12]                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 138, in _multicall
+[estimation_tests-12]     raise exception.with_traceback(exception.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 318, in pytest_cmdline_main
+[estimation_tests-12]     return wrap_session(config, _main)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/main.py", line 306, in wrap_session
+[estimation_tests-12]     config.hook.pytest_sessionfinish(
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_hooks.py", line 501, in __call__
+[estimation_tests-12]     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_manager.py", line 119, in _hookexec
+[estimation_tests-12]     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+[estimation_tests-12]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 155, in _multicall
+[estimation_tests-12]     teardown[0].send(outcome)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/terminal.py", line 857, in pytest_sessionfinish
+[estimation_tests-12]     outcome.get_result()
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_result.py", line 99, in get_result
+[estimation_tests-12]     raise exc.with_traceback(exc.__traceback__)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/pluggy/_callers.py", line 102, in _multicall
+[estimation_tests-12]     res = hook_impl.function(*args)
+[estimation_tests-12]           ^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 108, in pytest_sessionfinish
+[estimation_tests-12]     session._setupstate.teardown_exact(None)
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 537, in teardown_exact
+[estimation_tests-12]     raise exceptions[0]
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/runner.py", line 526, in teardown_exact
+[estimation_tests-12]     fin()
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/fixtures.py", line 701, in <lambda>
+[estimation_tests-12]     subrequest.node.addfinalizer(lambda: fixturedef.finish(request=subrequest))
+[estimation_tests-12]                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/fixtures.py", line 1031, in finish
+[estimation_tests-12]     raise exc
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/fixtures.py", line 1024, in finish
+[estimation_tests-12]     func()
+[estimation_tests-12]   File "/usr/lib/python3/dist-packages/_pytest/fixtures.py", line 911, in _teardown_yield_fixture
+[estimation_tests-12]     next(it)
+[estimation_tests-12]   File "/workspaces/isaac_ros-dev/src/sim/test/conftest.py", line 174, in ros_context
+[estimation_tests-12]     rclpy.shutdown()
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+[estimation_tests-12]     _shutdown(context=context)
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+[estimation_tests-12]     context.shutdown()
+[estimation_tests-12]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+[estimation_tests-12]     self.__context.shutdown()
+[estimation_tests-12] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
+[estimation_tests-12] src/sim/test/cv/test_estimation.py::test_estimation[flat-stationary]
+[estimation_tests-12] === flat-stationary-lateral-shooter0, spin=0.00 Hz ===
+[ERROR] [latch_holder-13]: process has died [pid 9110, exit code -2, cmd '/workspaces/isaac_ros-dev/install/sim/lib/sim/latch_holder --ros-args'].
+[INFO] [target_tracker-8]: process has finished cleanly [pid 9105]
+[INFO] [foxglove_bridge-14]: process has finished cleanly [pid 9111]
+[ERROR] [estimation_tests-12]: process has died [pid 9109, exit code 1, cmd '/usr/bin/python3 -m pytest /workspaces/isaac_ros-dev/src/sim/test/cv/test_estimation.py -m integration -v -s --external-stack --panel-layout both --target-path lateral --shooter-speed 0.0 --chassis-spin 0.0 --camera-latency 0.0 --log-dir /workspaces/isaac_ros-dev/nightly-validation-2026-10-06/estimation'].
+[INFO] [launch.user]: estimation tests exited with code 1
+[INFO] [rviz2-11]: process has finished cleanly [pid 9108]

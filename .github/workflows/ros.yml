@@ -1,0 +1,185 @@
+name: ROS Jazzy
+
+on:
+  workflow_call:
+    inputs:
+      package-repo:
+        description: Package directory, or workspace to test all portable packages
+        required: true
+        type: string
+      workspace-ref:
+        description: Pinned workspace commit supplying dependency gitlinks
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      package-repo:
+        description: GPU package to build on the provisioned Isaac ROS runner
+        type: choice
+        options: [realsense-yolov8-nitros-bridge, isaac_ros_common]
+        required: true
+      workspace-ref:
+        description: Workspace revision supplying dependency gitlinks
+        type: string
+        default: nightly
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    if: inputs.package-repo != 'isaac_ros_common' && inputs.package-repo != 'realsense-yolov8-nitros-bridge'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    env:
+      PACKAGE_REPO: ${{ inputs.package-repo }}
+      ROS_LOCALHOST_ONLY: '1'
+      MCB_FIRMWARE_BINARY: ${{ github.workspace }}/ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
+    steps:
+      - name: Checkout pinned dependency workspace
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: Thornbots/thornbots_workspace
+          ref: ${{ inputs.workspace-ref }}
+          path: ws/src
+          persist-credentials: false
+      - name: Checkout portable packages
+        working-directory: ws/src
+        run: |
+          case "$PACKAGE_REPO" in
+            workspace|thornbots_pkg|sim|sentry_localization|rf2o_laser_odometry|ros2_dji_serial_bridge|Realsense_ROI_Depth_Rectifier|sllidar_ros2) ;;
+            *) echo "Unsupported portable package: $PACKAGE_REPO" >&2; exit 1 ;;
+          esac
+          git submodule update --init --checkout --depth 1 -- \
+            thornbots_pkg sim sentry_localization rf2o_laser_odometry \
+            ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2
+      - name: Overlay the caller's tested revision
+        if: github.repository != 'Thornbots/thornbots_workspace'
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          path: ws/src/${{ inputs.package-repo }}
+          persist-credentials: false
+      - name: Checkout pinned firmware for workspace UART tests
+        if: inputs.package-repo == 'workspace'
+        working-directory: ws/src
+        run: |
+          git submodule update --init --checkout --depth 1 -- firmware/MCBV3
+          git -C firmware/MCBV3 submodule update --init --checkout --depth 1 -- taproot-scripts
+      - name: Setup ROS tooling
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.3.0/ros2-apt-source_1.3.0.noble_all.deb \
+            --output /tmp/ros2-apt-source.deb
+          echo 'f31d84adf5054c7d60ded0e82c0f776a77ea33af53d08f40b9ad7c94cca55296  /tmp/ros2-apt-source.deb' | sha256sum --check
+          sudo dpkg -i /tmp/ros2-apt-source.deb
+          sudo apt-get update
+          sudo apt-get install -y build-essential ros-jazzy-ros-base \
+            python3-colcon-common-extensions python3-rosdep
+          if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
+            sudo rosdep init
+          fi
+      - name: Build hosted firmware for workspace UART tests
+        if: inputs.package-repo == 'workspace'
+        working-directory: ws/src/firmware/MCBV3/MCB-project
+        run: |
+          sudo apt-get install -y gcc-14 g++-14 python3-venv
+          python3 -m venv "$RUNNER_TEMP/mcb-tools"
+          "$RUNNER_TEMP/mcb-tools/bin/python" -m pip install \
+            scons==4.11.1 pyelftools==0.32 Jinja2==3.1.6
+          "$RUNNER_TEMP/mcb-tools/bin/scons" build-sim robot=sentry \
+            profile=release compiler-suffix=-14 -j2
+          test -x "$MCB_FIRMWARE_BINARY"
+      - name: Install declared dependencies
+        working-directory: ws
+        run: |
+          rosdep update --rosdistro jazzy
+          rosdep install --from-paths src --ignore-src --rosdistro jazzy -y
+      - name: Build packages with tests enabled
+        working-directory: ws
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --event-handlers console_direct+ --parallel-workers 2 \
+            --cmake-args -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Run package tests
+        working-directory: ws
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          source install/setup.bash
+          selection=()
+          if [[ "$PACKAGE_REPO" != workspace ]]; then
+            package_name=$(python3 -c 'import sys, xml.etree.ElementTree as E; print(E.parse(sys.argv[1]).getroot().findtext("name"))' "src/$PACKAGE_REPO/package.xml")
+            selection=(--packages-select "$package_name")
+          fi
+          colcon test "${selection[@]}" --event-handlers console_direct+ --return-code-on-test-failure
+          colcon test-result --verbose
+      - name: Archive install tree
+        working-directory: ws
+        run: tar -czf ros-jazzy-install.tar.gz install
+      - name: Upload build and test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ros-jazzy-${{ inputs.package-repo }}-${{ github.sha }}
+          path: |
+            ws/log
+            ws/build/**/test_results
+            ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
+            ws/ros-jazzy-install.tar.gz
+          retention-days: 14
+
+  isaac:
+    if: github.event_name == 'workflow_dispatch' && (inputs.package-repo == 'isaac_ros_common' || inputs.package-repo == 'realsense-yolov8-nitros-bridge')
+    runs-on: [self-hosted, Linux, isaac-ros-jazzy]
+    environment: isaac-ros-ci
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    env:
+      PACKAGE_REPO: ${{ inputs.package-repo }}
+      ISAAC_ROS_CI_UNDERLAY: ${{ vars.ISAAC_ROS_CI_UNDERLAY }}
+      ROS_LOCALHOST_ONLY: '1'
+    steps:
+      - name: Checkout pinned workspace
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          ref: ${{ inputs.workspace-ref }}
+          path: ws/src
+          persist-credentials: false
+      - name: Checkout GPU package and source dependencies
+        working-directory: ws/src
+        run: |
+          git submodule update --init --depth 1 -- \
+            "$PACKAGE_REPO" ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier
+      - name: Build and test against provisioned Isaac ROS 4.6
+        working-directory: ws
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          if [[ -z "$ISAAC_ROS_CI_UNDERLAY" || ! -f "$ISAAC_ROS_CI_UNDERLAY/setup.bash" ]]; then
+            echo 'Set ISAAC_ROS_CI_UNDERLAY to the provisioned Isaac ROS 4.6 install directory.' >&2
+            exit 1
+          fi
+          source "$ISAAC_ROS_CI_UNDERLAY/setup.bash"
+          mapfile -t packages < <(colcon list --base-paths "src/$PACKAGE_REPO" --names-only)
+          [[ ${#packages[@]} -gt 0 ]]
+          colcon build --packages-up-to "${packages[@]}" --parallel-workers 2 \
+            --event-handlers console_direct+ --cmake-args -DBUILD_TESTING=ON
+          source install/setup.bash
+          colcon test --packages-select "${packages[@]}" \
+            --event-handlers console_direct+ --return-code-on-test-failure
+          colcon test-result --verbose
+          tar -czf ros-jazzy-install.tar.gz install
+      - name: Upload GPU build and test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: isaac-jazzy-${{ inputs.package-repo }}-${{ github.run_id }}
+          path: |
+            ws/log
+            ws/build/**/test_results
+            ws/ros-jazzy-install.tar.gz
+          retention-days: 14

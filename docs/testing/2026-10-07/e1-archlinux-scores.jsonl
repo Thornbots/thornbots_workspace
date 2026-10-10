@@ -1,0 +1,6 @@
+{"cell": "stationary-lateral", "duration_s": 10.0, "rate_shots": 99, "rate_hit_rate": 1.0, "flag_shots": 19, "flag_hit_rate": 1.0, "mcb_shots": 0, "mcb_hit_rate": 0.0}
+{"cell": "speed2-lateral", "duration_s": 10.0, "rate_shots": 99, "rate_hit_rate": 0.202, "flag_shots": 19, "flag_hit_rate": 0.3684, "mcb_shots": 0, "mcb_hit_rate": 0.0}
+{"cell": "stationary-radial", "duration_s": 10.0, "rate_shots": 99, "rate_hit_rate": 1.0, "flag_shots": 19, "flag_hit_rate": 1.0, "mcb_shots": 0, "mcb_hit_rate": 0.0}
+{"cell": "speed2-radial", "duration_s": 10.0, "rate_shots": 99, "rate_hit_rate": 0.2323, "flag_shots": 19, "flag_hit_rate": 0.8421, "mcb_shots": 0, "mcb_hit_rate": 0.0}
+{"cell": "stationary-diagonal", "duration_s": 10.0, "rate_shots": 99, "rate_hit_rate": 1.0, "flag_shots": 19, "flag_hit_rate": 1.0, "mcb_shots": 0, "mcb_hit_rate": 0.0}
+{"cell": "speed2-diagonal", "duration_s": 10.0, "rate_shots": 99, "rate_hit_rate": 0.2727, "flag_shots": 19, "flag_hit_rate": 0.4737, "mcb_shots": 0, "mcb_hit_rate": 0.0}

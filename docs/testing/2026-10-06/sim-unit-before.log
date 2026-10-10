@@ -1,0 +1,374 @@
+Starting >>> sim
+--- output: sim
+UpdateCTestConfiguration  from :/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+Parse Config file:/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+   Site: b6fafe83bf25
+   Build name: (empty)
+ Add coverage exclude regular expressions.
+Create new tag: 20261007-0044 - Experimental
+UpdateCTestConfiguration  from :/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+Parse Config file:/workspaces/isaac_ros-dev/build/sim/CTestConfiguration.ini
+Test project /workspaces/isaac_ros-dev/build/sim
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: test_depth_mm
+
+1: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml" "--package-name" "sim" "--output-file" "/workspaces/isaac_ros-dev/build/sim/ament_cmake_gtest/test_depth_mm.txt" "--command" "/workspaces/isaac_ros-dev/build/sim/test_depth_mm" "--gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml"
+1: Working Directory: /workspaces/isaac_ros-dev/build/sim
+1: Test timeout computed to be: 60
+1: -- run_test.py: invoking following command in '/workspaces/isaac_ros-dev/build/sim':
+1:  - /workspaces/isaac_ros-dev/build/sim/test_depth_mm --gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml
+1: Running main() from /opt/ros/jazzy/src/gtest_vendor/src/gtest_main.cc
+1: [==========] Running 2 tests from 1 test suite.
+1: [----------] Global test environment set-up.
+1: [----------] 2 tests from DepthMm
+1: [ RUN      ] DepthMm.RoundsToMillimetres
+1: [       OK ] DepthMm.RoundsToMillimetres (0 ms)
+1: [ RUN      ] DepthMm.NoDataIsZero
+1: [       OK ] DepthMm.NoDataIsZero (0 ms)
+1: [----------] 2 tests from DepthMm (0 ms total)
+1:
+1: [----------] Global test environment tear-down
+1: [==========] 2 tests from 1 test suite ran. (0 ms total)
+1: [  PASSED  ] 2 tests.
+1: -- run_test.py: return code 0
+1: -- run_test.py: inject classname prefix into gtest result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml'
+1: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_depth_mm.gtest.xml'
+1/3 Test #1: test_depth_mm ....................   Passed    0.03 sec
+test 2
+    Start 2: test_panel_view
+
+2: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml" "--package-name" "sim" "--output-file" "/workspaces/isaac_ros-dev/build/sim/ament_cmake_gtest/test_panel_view.txt" "--command" "/workspaces/isaac_ros-dev/build/sim/test_panel_view" "--gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml"
+2: Working Directory: /workspaces/isaac_ros-dev/build/sim
+2: Test timeout computed to be: 60
+2: -- run_test.py: invoking following command in '/workspaces/isaac_ros-dev/build/sim':
+2:  - /workspaces/isaac_ros-dev/build/sim/test_panel_view --gtest_output=xml:/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml
+2: Running main() from /opt/ros/jazzy/src/gtest_vendor/src/gtest_main.cc
+2: [==========] Running 6 tests from 1 test suite.
+2: [----------] Global test environment set-up.
+2: [----------] 6 tests from PanelView
+2: [ RUN      ] PanelView.FacingPanelAheadIsCentred
+2: [       OK ] PanelView.FacingPanelAheadIsCentred (0 ms)
+2: [ RUN      ] PanelView.LeftIsLowerU
+2: [       OK ] PanelView.LeftIsLowerU (0 ms)
+2: [ RUN      ] PanelView.PanelTurnedPastTheConeIsHidden
+2: [       OK ] PanelView.PanelTurnedPastTheConeIsHidden (0 ms)
+2: [ RUN      ] PanelView.BehindOrOffImageIsHidden
+2: [       OK ] PanelView.BehindOrOffImageIsHidden (0 ms)
+2: [ RUN      ] PanelView.CornersRunTopLeftClockwiseAsSeen
+2: [       OK ] PanelView.CornersRunTopLeftClockwiseAsSeen (0 ms)
+2: [ RUN      ] PanelView.InterpolatesHalfway
+2: [       OK ] PanelView.InterpolatesHalfway (0 ms)
+2: [----------] 6 tests from PanelView (0 ms total)
+2:
+2: [----------] Global test environment tear-down
+2: [==========] 6 tests from 1 test suite ran. (0 ms total)
+2: [  PASSED  ] 6 tests.
+2: -- run_test.py: return code 0
+2: -- run_test.py: inject classname prefix into gtest result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml'
+2: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/test_panel_view.gtest.xml'
+2/3 Test #2: test_panel_view ..................   Passed    0.03 sec
+test 3
+    Start 3: sim_pytest
+
+3: Test command: /usr/bin/python3 "-u" "/opt/ros/jazzy/share/ament_cmake_test/cmake/run_test.py" "/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml" "--package-name" "sim" "--output-file" "/workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest.txt" "--env" "PYTEST_ADDOPTS=-p no:anyio" "--command" "/usr/bin/python3" "-u" "-m" "pytest" "/workspaces/isaac_ros-dev/src/sim/test" "-o" "cache_dir=/workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest/.cache" "--junit-xml=/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml" "--junit-prefix=sim"
+3: Working Directory: /workspaces/isaac_ros-dev/src/sim
+3: Test timeout computed to be: 600
+3: -- run_test.py: extra environment variables:
+3:  - PYTEST_ADDOPTS=-p no:anyio
+3: -- run_test.py: invoking following command in '/workspaces/isaac_ros-dev/src/sim':
+3:  - /usr/bin/python3 -u -m pytest /workspaces/isaac_ros-dev/src/sim/test -o cache_dir=/workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest/.cache --junit-xml=/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml --junit-prefix=sim
+3: ============================= test session starts ==============================
+3: platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+3: cachedir: /workspaces/isaac_ros-dev/build/sim/ament_cmake_pytest/sim_pytest/.cache
+3: rootdir: /workspaces/isaac_ros-dev/src/sim
+3: configfile: setup.cfg
+3: plugins: ament-lint-0.17.5, ament-flake8-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, ament-pep257-0.17.5, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, colcon-core-0.21.2
+3: collected 104 items / 56 deselected / 48 selected
+3:
+3: test/test_copyright.py F                                                 [  2%]
+3: test/test_flake8.py F                                                    [  4%]
+3: test/test_foxglove_layouts.py .                                          [  6%]
+3: test/test_pep257.py F                                                    [  8%]
+3: test/test_suite_timing.py ...                                            [ 14%]
+3: test/cv/test_cv_head_aim.py .....                                        [ 25%]
+3: test/cv/test_estimation_metrics.py ........                              [ 41%]
+3: test/cv/test_shot_face.py ....                                           [ 50%]
+3: test/cv/test_urdf_constants.py ........                                  [ 66%]
+3: test/mcb/test_mcb_bridge_pty.py .                                        [ 68%]
+3: test/mcb/test_mcb_firmware.py ..........                                 [ 89%]
+3: test/mcb/test_mcb_protocol.py .....                                      [100%]
+3:
+3: =================================== FAILURES ===================================
+3: ________________________________ test_copyright ________________________________
+3:
+3:     @pytest.mark.copyright
+3:     @pytest.mark.linter
+3:     def test_copyright():
+3:         rc = main(argv=['launch', 'sim', 'test', 'setup.py'])
+3: >       assert rc == 0, 'Found errors'
+3: E       AssertionError: Found errors
+3: E       assert 1 == 0
+3:
+3: test/test_copyright.py:24: AssertionError
+3: ----------------------------- Captured stderr call -----------------------------
+3: launch/mcb.launch.py: copyright=Thornbots (2026), license=<unknown>
+3: sim/mcb_firmware.py: copyright=Thornbots (2026), license=<unknown>
+3: test/mcb/test_mcb_bridge_pty.py: copyright=Thornbots (2026), license=<unknown>
+3: test/mcb/test_mcb_firmware.py: copyright=Thornbots (2026), license=<unknown>
+3: 4 errors, checked 60 files
+3: _________________________________ test_flake8 __________________________________
+3:
+3:     @pytest.mark.flake8
+3:     @pytest.mark.linter
+3:     def test_flake8():
+3:         rc, errors = main_with_errors(argv=['launch', 'scripts', 'sim', 'test'])
+3: >       assert rc == 0, \
+3:             'Found %d code style errors / warnings:\n' % len(errors) + \
+3:             '\n'.join(errors)
+3: E       AssertionError: Found 9 code style errors / warnings:
+3: E         sim/mcb_firmware.py:80:1: D401 First line should be in imperative mood
+3: E         test/mcb/test_mcb_bridge_pty.py:15:1: I100 Import statements are in the wrong order. 'from dji_serial_bridge.msg import CVTarget, RefSysStatus, RobotPose' should be before 'import pytest'
+3: E         test/mcb/test_mcb_bridge_pty.py:15:1: E402 module level import not at top of file
+3: E         test/mcb/test_mcb_bridge_pty.py:16:1: E402 module level import not at top of file
+3: E         test/mcb/test_mcb_bridge_pty.py:17:1: E402 module level import not at top of file
+3: E         test/mcb/test_mcb_bridge_pty.py:18:1: E402 module level import not at top of file
+3: E         test/mcb/test_mcb_bridge_pty.py:19:1: E402 module level import not at top of file
+3: E         test/mcb/test_mcb_bridge_pty.py:20:1: E402 module level import not at top of file
+3: E         test/mcb/test_mcb_firmware.py:65:1: E303 too many blank lines (3)
+3: E       assert 1 == 0
+3:
+3: test/test_flake8.py:24: AssertionError
+3: ----------------------------- Captured stdout call -----------------------------
+3:
+3: sim/mcb_firmware.py:80:1: D401 First line should be in imperative mood
+3:         """readings: pods x/y/vx/vy, IMU yaw/rate, joint yaw/rate/pitch/rate."""
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:15:1: I100 Import statements are in the wrong order. 'from dji_serial_bridge.msg import CVTarget, RefSysStatus, RobotPose' should be before 'import pytest'
+3: from dji_serial_bridge.msg import CVTarget, RefSysStatus, RobotPose
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:15:1: E402 module level import not at top of file
+3: from dji_serial_bridge.msg import CVTarget, RefSysStatus, RobotPose
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:16:1: E402 module level import not at top of file
+3: from geometry_msgs.msg import PointStamped
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:17:1: E402 module level import not at top of file
+3: from rclpy.executors import SingleThreadedExecutor
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:18:1: E402 module level import not at top of file
+3: from rclpy.qos import qos_profile_sensor_data
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:19:1: E402 module level import not at top of file
+3: from sim.mcb_emulator.pty_link import PtyLink
+3: ^
+3:
+3: test/mcb/test_mcb_bridge_pty.py:20:1: E402 module level import not at top of file
+3: from sim.mcb_firmware import default_binary, Firmware
+3: ^
+3:
+3: test/mcb/test_mcb_firmware.py:65:1: E303 too many blank lines (3)
+3: def test_actual_firmware_consumes_fake_sensor_readings(board):
+3: ^
+3:
+3: 1     D401 First line should be in imperative mood
+3: 1     E303 too many blank lines (3)
+3: 6     E402 module level import not at top of file
+3: 1     I100 Import statements are in the wrong order. 'from dji_serial_bridge.msg import CVTarget, RefSysStatus, RobotPose' should be before 'import pytest'
+3:
+3: 58 files checked
+3: 9 errors
+3:
+3: 'D'-type errors: 1
+3: 'E'-type errors: 7
+3: 'I'-type errors: 1
+3:
+3: Checked files:
+3:
+3: * launch/shot_hit.launch.py
+3: * launch/foxglove.launch.py
+3: * launch/e2e.launch.py
+3: * launch/estimation.launch.py
+3: * launch/localization_tests.launch.py
+3: * launch/mcb.launch.py
+3: * launch/sim.launch.py
+3: * sim/sim_clock.py
+3: * sim/actor_driver.py
+3: * sim/target_state_truth.py
+3: * sim/cv_target_emulator.py
+3: * sim/target_driver.py
+3: * sim/__init__.py
+3: * sim/display.py
+3: * sim/parent_death.py
+3: * sim/suite_timing.py
+3: * sim/wasd_teleop.py
+3: * sim/latch_holder.py
+3: * sim/cv_head_aim.py
+3: * sim/opponents.py
+3: * sim/pose_emulator.py
+3: * sim/mcb_emulator_node.py
+3: * sim/auto_explore.py
+3: * sim/point_shooter.py
+3: * sim/cv_head_aim_core.py
+3: * sim/mcb_firmware.py
+3: * sim/head_slider_relay.py
+3: * sim/opponent_driver.py
+3: * sim/target_state_markers.py
+3: * sim/mcb_emulator/pty_link.py
+3: * sim/mcb_emulator/protocol.py
+3: * sim/mcb_emulator/__init__.py
+3: * test/test_flake8.py
+3: * test/conftest.py
+3: * test/test_suite_timing.py
+3: * test/test_copyright.py
+3: * test/test_foxglove_layouts.py
+3: * test/test_pep257.py
+3: * test/mcb/test_mcb_firmware.py
+3: * test/mcb/test_mcb_protocol.py
+3: * test/mcb/test_mcb_bridge_pty.py
+3: * test/cv/test_estimation_metrics.py
+3: * test/cv/test_urdf_constants.py
+3: * test/cv/estimation_metrics.py
+3: * test/cv/test_shot_face.py
+3: * test/cv/estimation_harness.py
+3: * test/cv/test_estimation.py
+3: * test/cv/estimation_limits_data.py
+3: * test/cv/shot_hit_harness.py
+3: * test/cv/test_cv_head_aim.py
+3: * test/cv/test_shot_hit.py
+3: * test/e2e/test_e1.py
+3: * test/e2e/e2e_harness.py
+3: * test/e2e/test_e2.py
+3: * test/localization/test_ekf_ground_truth.py
+3: * test/localization/test_localization_drift.py
+3: * test/localization/ekf_diag_harness.py
+3: * test/localization/drift_harness.py
+3: _________________________________ test_pep257 __________________________________
+3:
+3:     @pytest.mark.linter
+3:     @pytest.mark.pep257
+3:     def test_pep257():
+3:         rc = main(argv=['launch', 'scripts', 'sim', 'test'])
+3: >       assert rc == 0, 'Found code style errors / warnings'
+3: E       AssertionError: Found code style errors / warnings
+3: E       assert 1 == 0
+3:
+3: test/test_pep257.py:24: AssertionError
+3: ----------------------------- Captured stdout call -----------------------------
+3: checking launch/e2e.launch.py
+3: checking launch/estimation.launch.py
+3: checking launch/foxglove.launch.py
+3: checking launch/localization_tests.launch.py
+3: checking launch/mcb.launch.py
+3: checking launch/shot_hit.launch.py
+3: checking launch/sim.launch.py
+3: checking sim/__init__.py
+3: checking sim/actor_driver.py
+3: checking sim/auto_explore.py
+3: checking sim/cv_head_aim.py
+3: checking sim/cv_head_aim_core.py
+3: checking sim/cv_target_emulator.py
+3: checking sim/display.py
+3: checking sim/head_slider_relay.py
+3: checking sim/latch_holder.py
+3: checking sim/mcb_emulator/__init__.py
+3: checking sim/mcb_emulator/protocol.py
+3: checking sim/mcb_emulator/pty_link.py
+3: checking sim/mcb_emulator_node.py
+3: checking sim/mcb_firmware.py
+3: checking sim/opponent_driver.py
+3: checking sim/opponents.py
+3: checking sim/parent_death.py
+3: checking sim/point_shooter.py
+3: checking sim/pose_emulator.py
+3: checking sim/sim_clock.py
+3: checking sim/suite_timing.py
+3: checking sim/target_driver.py
+3: checking sim/target_state_markers.py
+3: checking sim/target_state_truth.py
+3: checking sim/wasd_teleop.py
+3: checking test/conftest.py
+3: checking test/cv/estimation_harness.py
+3: checking test/cv/estimation_limits_data.py
+3: checking test/cv/estimation_metrics.py
+3: checking test/cv/shot_hit_harness.py
+3: checking test/cv/test_cv_head_aim.py
+3: checking test/cv/test_estimation.py
+3: checking test/cv/test_estimation_metrics.py
+3: checking test/cv/test_shot_face.py
+3: checking test/cv/test_shot_hit.py
+3: checking test/cv/test_urdf_constants.py
+3: checking test/e2e/e2e_harness.py
+3: checking test/e2e/test_e1.py
+3: checking test/e2e/test_e2.py
+3: checking test/localization/drift_harness.py
+3: checking test/localization/ekf_diag_harness.py
+3: checking test/localization/test_ekf_ground_truth.py
+3: checking test/localization/test_localization_drift.py
+3: checking test/mcb/test_mcb_bridge_pty.py
+3: checking test/mcb/test_mcb_firmware.py
+3: checking test/mcb/test_mcb_protocol.py
+3: checking test/test_copyright.py
+3: checking test/test_flake8.py
+3: checking test/test_foxglove_layouts.py
+3: checking test/test_pep257.py
+3: checking test/test_suite_timing.py
+3: ----------------------------- Captured stderr call -----------------------------
+3: sim/mcb_firmware.py:80 in public method `step`: D401: First line should be in imperative mood (perhaps 'Read', not 'readings')
+3: 1 errors
+3: =============================== warnings summary ===============================
+3: <frozen importlib._bootstrap>:488
+3:   Warning: Type google.protobuf.pyext._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+3:
+3: <frozen importlib._bootstrap>:488
+3:   Warning: Type google.protobuf.pyext._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+3:
+3: test/test_flake8.py: 10 warnings
+3:   Warning: This process (pid=8985) is multi-threaded, use of fork() may lead to deadlocks in the child.
+3:
+3: -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3: - generated xml file: /workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml -
+3: =========================== short test summary info ============================
+3: FAILED test/test_copyright.py::test_copyright - AssertionError: Found errors
+3: FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 9 code style ...
+3: FAILED test/test_pep257.py::test_pep257 - AssertionError: Found code style er...
+3: =========== 3 failed, 45 passed, 56 deselected, 12 warnings in 2.21s ===========
+3: -- run_test.py: return code 1
+3: -- run_test.py: verify result file '/workspaces/isaac_ros-dev/build/sim/test_results/sim/sim_pytest.xunit.xml'
+3/3 Test #3: sim_pytest .......................***Failed    2.48 sec
+
+67% tests passed, 1 tests failed out of 3
+
+Label Time Summary:
+gtest     =   0.05 sec*proc (2 tests)
+pytest    =   2.48 sec*proc (1 test)
+
+Total Test time (real) =   2.53 sec
+
+The following tests FAILED:
+	  3 - sim_pytest (Failed)
+Errors while running CTest
+Output from these tests are in: /workspaces/isaac_ros-dev/build/sim/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.
+---
+--- stderr: sim
+Errors while running CTest
+Output from these tests are in: /workspaces/isaac_ros-dev/build/sim/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.
+---
+Finished <<< sim [2.57s]	[ with test failures ]
+
+Summary: 1 package finished [2.67s]
+  1 package had stderr output: sim
+  1 package had test failures: sim

@@ -1,0 +1,58 @@
+[
+  {
+    "package": "dji_serial_bridge",
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4,
+    "passed": 17
+  },
+  {
+    "package": "thornbots_pkg",
+    "tests": 94,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 94
+  },
+  {
+    "package": "sentry_localization",
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 12
+  },
+  {
+    "package": "rf2o_laser_odometry",
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 4
+  },
+  {
+    "package": "sllidar_ros2",
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 27
+  },
+  {
+    "package": "roi_depth_query",
+    "tests": 28,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4,
+    "passed": 24
+  },
+  {
+    "package": "sim",
+    "tests": 56,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 56
+  }
+]

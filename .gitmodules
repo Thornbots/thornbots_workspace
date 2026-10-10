@@ -13,7 +13,7 @@
 [submodule "rf2o_laser_odometry"]
 	path = rf2o_laser_odometry
 	url = https://github.com/Thornbots/rf2o_laser_odometry.git
-	branch = ros2
+	branch = main
 [submodule "ros2_dji_serial_bridge"]
 	path = ros2_dji_serial_bridge
 	url = https://github.com/Thornbots/ros2_dji_serial_bridge.git
@@ -41,5 +41,5 @@
 [submodule "firmware/MCBV3"]
 	path = firmware/MCBV3
 	url = https://github.com/Thornbots/MCBV3.git
-	branch = position-based-cv
+	branch = main
 	update = none

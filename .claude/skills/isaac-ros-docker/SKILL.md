@@ -13,8 +13,8 @@ postmortems.
 
 > **On this laptop, never create a container, and never build the image.
 > Attach only.** Remote boxes (`ts-nano-*`) are exempt when the user asks:
-> there, start, stop, build and remove as asked (`../../../CLAUDE.md`
-> § Containers). The rest of this block is about the laptop.
+> there, start, stop, build and remove as asked
+> ([workspace rules](../../../AGENTS.md#containers-and-runs)). The rest of this block is about the laptop.
 >
 > Run commands *inside* a container the user already started (`smoke.sh`,
 > `dexec.sh`, `kill_launch.sh`), and nothing else.
@@ -146,7 +146,7 @@ uses SIMPLE discovery, so nodes on one machine find each other with no env
 changes, and lists the robots' tailscale IPs as unicast initial peers for
 cross-machine work. Don't unset it. Its recorded invariants were measured on
 Fast DDS 2.6 (Humble); Jazzy ships 2.14 and they are due a re-measure
-(JAZZY_PLAN.md step 5).
+(JAZZY_FLASH.md#hardware-checklist).
 
 Two things in that file look removable and aren't: the `239.255.0.1` peer
 (without it local discovery breaks, the 2026-07-20 postmortem) and
@@ -221,6 +221,8 @@ check. reference.md covers the official suites and the `--headless` flag.
 - `ros2 topic list` nearly empty, `hz`/`echo` hang, `tf2_echo` says the frame
   doesn't exist, rviz Fixed Frame empty → the DDS profile, above, or a
   `ROS_DOMAIN_ID` mismatch (this image is on 1).
+- Every drift scenario fails `stack NOT ready` → one possibility is a stale
+  DDS profile; check `/etc/fastdds/profile.xml` against the DDS section.
 - Nodes visible from another machine but not from a shell on the robot, or a
   lifecycle manager losing a heartbeat → Fast DDS SHM files deleted by
   logind (`RemoveIPC`). See the DDS section.

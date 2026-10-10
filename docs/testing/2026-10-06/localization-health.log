@@ -1,0 +1,30 @@
+== /tmp/dexec_15059.log
+  ================================= suite timing =================================
+  test_localization_drift: wall seconds per phase; RTF over sim-timed spans
+    case                                     sim_start   bringup     reset    settle    scored  teardown    total    RTF
+    test_scenario[baseline]                        2.8       4.7       0.7                 5.6       1.2     14.9   1.54
+    test_scenario[noise_correction]                          4.8       0.6                17.8       0.2     23.3   1.84
+    test_scenario[drift_correction]                          2.8       0.5                18.5       3.2     25.1   1.57
+    test_scenario[drift_correction_obstacle]                 4.4       0.6                18.2       0.2     23.4   2.02
+    test_scenario[moving_obstacles]                          4.0       0.6                22.0       0.4     27.1   1.74
+    test_scenario[real_accel]                                4.9       0.6                21.0       3.2     29.8   1.51
+    test_scenario[jerk_with_motion]                          2.7       0.5                20.1       3.2     26.5   1.62
+    test_scenario[odom_stuck]                                2.8       0.6                22.2       0.2     25.9   1.80
+    test_scenario[scan_degraded]                             4.5       0.6                17.7       0.2     23.0   1.74
+    (setup)                                                                                          0.3      0.3      -
+    total                                          2.8      35.7       5.4               163.0      12.4    219.3   1.71
+  =========================== short test summary info ============================
+  FAILED src/sim/test/localization/test_localization_drift.py::test_scenario[scan_degraded]
+  ============= 1 failed, 8 passed, 3 warnings in 219.36s (0:03:39) ==============
+== /tmp/localization_drift_tests/actor_driver_1.log
+== /tmp/localization_drift_tests/robot_1.log
+== /tmp/localization_drift_tests/robot_2.log
+== /tmp/localization_drift_tests/robot_3.log
+== /tmp/localization_drift_tests/robot_4.log
+== /tmp/localization_drift_tests/robot_5.log
+== /tmp/localization_drift_tests/robot_6.log
+== /tmp/localization_drift_tests/robot_7.log
+== /tmp/localization_drift_tests/robot_8.log
+== /tmp/localization_drift_tests/robot_9.log
+== /tmp/localization_drift_tests/sim.log
+bench ok

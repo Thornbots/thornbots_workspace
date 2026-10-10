@@ -1,0 +1,35 @@
+[
+  {
+    "t": 45.0,
+    "shooter": "sentry",
+    "impact_t": 45.069431836655525,
+    "impact": "hull",
+    "victim": "ally_0",
+    "panel": null,
+    "eligible": false,
+    "normal_speed": 0.0,
+    "segment": "parked",
+    "chassis_tilt_deg": 0.08937955854588227,
+    "head_tf_error_deg": 4.542198867763509,
+    "head_tf_translation_m": 0.008030114159710257,
+    "route_error_m": 3.2728417694722034e-05,
+    "localization_error_m": 0.5142010723307616,
+    "barrel_off_aim_deg": 10.27,
+    "aim_off_panel_m": 1.0,
+    "aim_minus_panel": [
+      -0.781,
+      0.584,
+      -0.219
+    ],
+    "hit": false,
+    "friendly_intersection": true,
+    "enemy_hit": false,
+    "hp": {
+      "sentry": 400,
+      "ally_0": 400,
+      "opponent_0": 400,
+      "opponent_1": 380
+    },
+    "kind": "mcb"
+  }
+]

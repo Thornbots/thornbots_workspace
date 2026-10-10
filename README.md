@@ -5,6 +5,18 @@ The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace.
 `main` is on ROS 2 Jazzy and Isaac ROS 4.6. The `humble` branch here and in
 every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
 more work, and stays only for robots not yet reflashed to JetPack 7.2.
+A GitHub ruleset makes it read-only (no pushes or deletion, admins
+included); the repos still unlocked are listed in
+[ROADMAP T36](ROADMAP.md#short-todos).
+
+`nightly` integrates changes across the workspace and all eleven package repos.
+On this branch, `.gitmodules` tracks each package's `nightly` branch while
+keeping exact commit pins. [CHANGELOG.md](CHANGELOG.md) records unreleased
+changes to carry into `main`; update it when adding work to nightly.
+
+[Nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md) records
+the tested revisions, results, coverage limits, and commands to reproduce them.
+## Working with submodules
 
 Each package is a submodule:
 
@@ -21,26 +33,38 @@ git submodule foreach --recursive \
 
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
+[CI and validation](docs/CI.md) covers repository checks, lint debt, and
+robot images. PRs into `nightly` or `main` run CI; pushes to either branch
+publish tested images to `ghcr.io/thornbots/isaac-ros`, using exact gitlinks.
+
 One logical change, one bump: a bump may move several gitlinks when they belong
 to the same change, and a one-line package commit still earns its own. Push the
 package before you push here — a gitlink pointing at an unpushed commit fails
 everyone else's `git submodule update --init`.
 
+A change across packages can live on a branch of the same name in each, with
+this repo's branch bumping the gitlinks. Follow the
+[coordinated package integration procedure](docs/CI.md#coordinated-package-integration).
+
 | Path | Branch | Role |
 | --- | --- | --- |
-| `thornbots_pkg` | `main` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
-| `sentry_localization` | `main` | SLAM / AMCL / EKF backends |
-| `sim` | `main` | gz-sim worlds and the localization test suite |
-| `realsense-yolov8-nitros-bridge` | `main` | YOLOv8 detection on the RealSense stream |
-| `Realsense_ROI_Depth_Rectifier` | `main` | Depth rectification for detection ROIs |
-| `ros2_dji_serial_bridge` | `main` | Serial link to the DJI Type-C board |
-| `sllidar_ros2` | `main` | RPLIDAR driver (fork) |
-| `rf2o_laser_odometry` | `ros2` | Scan-matched odometry (fork) |
-| `isaac_ros_common` | `main` | Isaac ROS base, our Dockerfiles and container scripts |
-| `isaac-ros-startup` | `main` | systemd service that starts the robot stack at boot |
-| `firmware/MCBV3` | `newMain` | MCB firmware, opt-in: not cloned by default, see below |
+| `thornbots_pkg` | `nightly` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
+| `sentry_localization` | `nightly` | SLAM / AMCL / EKF backends |
+| `sim` | `nightly` | gz-sim worlds and the localization test suite |
+| `realsense-yolov8-nitros-bridge` | `nightly` | YOLOv8 detection on the RealSense stream |
+| `Realsense_ROI_Depth_Rectifier` | `nightly` | Depth rectification for detection ROIs |
+| `ros2_dji_serial_bridge` | `nightly` | Serial link to the DJI Type-C board |
+| `sllidar_ros2` | `nightly` | RPLIDAR driver (fork) |
+| `rf2o_laser_odometry` | `nightly` | Scan-matched odometry (fork) |
+| `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
+| `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
+| `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
-Root files: `ARCC_2026_SENTRY_CONTEXT.md` (competition rules), `ROADMAP.md` (where the project is going), `CV_SPLIT_PLAN.md`, `E2E_PLAN.md` and `JAZZY_PLAN.md` (the plans behind ROADMAP.md's tracks: world-frame aim, match test and speed, Jazzy on the robots), `JAZZY_FLASH.md` (the Orin reflash runbook, JAZZY_PLAN.md step 1), `CLAUDE.md` and `.claude/` (agent config), `.dockerignore` (build context for `Dockerfile.thornbots`).
+Start with [ROADMAP.md](ROADMAP.md) for open work and links to its plans,
+[JAZZY_FLASH.md](JAZZY_FLASH.md) for migration status, robot checks and reflashing.
+[ARCC_2026_SENTRY_CONTEXT.md](ARCC_2026_SENTRY_CONTEXT.md) covers competition
+rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
+identifies where shared information belongs; link there instead of copying it.
 
 ### MCB firmware
 

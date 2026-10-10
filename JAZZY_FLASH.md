@@ -1,10 +1,38 @@
-# Step 1 runbook: reflash `ts-nano-dev` to JetPack 7.2.1
+# Jazzy migration and Jetson reflash
 
-Step 1 of `JAZZY_PLAN.md`. Target: Orin Nano Super 8 GB devkit, NVMe,
-JetPack 6.2.x / L4T R36.5 today, JetPack 7.2.1 / L4T R39.2.1 / kernel 6.8
-after. Laptop commands run on the Arch laptop, board commands on the Jetson.
-Budget half a day. You need a DisplayPort monitor and a USB keyboard at the
-board (the devkit has no HDMI), a 16 GB+ USB stick and Ethernet.
+**Only standard remains to be flashed.** `main` is Jazzy; the `humble`
+branches are frozen. Deployment and validation are recorded below.
+
+## Hardware status
+
+Updated 2026-10-06 from the user's confirmation.
+
+| Machine | Migration state |
+| --- | --- |
+| `ts-nano-sentry` | Jazzy flash complete |
+| `ts-nano-hero` | Jazzy flash complete |
+| `ts-nano-dev` | Jazzy flash complete (test box) |
+| `ts-nano-standard` | Not yet flashed; frozen Humble tree |
+
+**No hardware checks have been run on the robot yet** (user, 2026-10-06).
+Camera/YOLO, ROI depth, tracking and aiming, serial link, lidar/localization, and firing are all
+unverified on the robot. Earlier boot logs, detections and timing samples
+in ROADMAP and package notes are historical observations, not acceptance
+results. No Humble FPS/latency baseline is recorded here; its availability
+is unconfirmed. Remaining setup problems have not been confirmed resolved.
+
+Follow [Before flashing](#1-before-flashing) through [Our image](#8-our-image)
+for standard, then complete the [hardware checklist](#hardware-checklist).
+The [laptop comparison](#laptop-validation-2026-09-30) is historical evidence.
+
+## Reflash setup
+
+Target: Orin Nano Super 8 GB devkit, NVMe, JetPack 6.2.x / L4T R36.5 to
+JetPack 7.2.1 / L4T R39.2.1 / kernel 6.8. Examples below use
+`ts-nano-standard` / `nano-standard`. Laptop commands run on Arch unless
+macOS is explicitly mentioned; board commands run on the Jetson.
+Budget half a day. You need a DisplayPort monitor and USB keyboard (the
+devkit has no HDMI), a 16 GB+ USB stick and Ethernet.
 
 ## 0. Already done on the laptop (2026-09-26)
 
@@ -20,132 +48,14 @@ cd ~/Downloads/jetpack-7.2.1 && sha1sum -c <(grep iso release_sha_hashes.txt)
 Sources: [JetPack 7.2.1 downloads](https://developer.nvidia.com/embedded/jetpack/downloads/archive-7.2.1),
 [hash list](https://developer.nvidia.com/downloads/embedded/L4T/r39_Release_v2.1/release/release_sha_hashes.txt).
 
-## 1. Before you wipe anything (board still on JetPack 6)
+## 1. Before flashing
 
-Everything here runs from the laptop over ssh while the board is up.
-
-If the RealSense is on this board, first record the Humble numbers step 5
-compares against: YOLO fps and camera-to-`TargetState` latency from
-`isaac_ros_yolov8_realsense.launch.py` in the Humble container. Without a
-camera here, take them on `ts-nano-sentry` before its reflash instead.
-
-### 1.1 Temporary passwordless sudo for the backup tools
-
-`sudo` over a non-tty ssh pipe can't prompt, and `ssh -t` corrupts binary
-output. The reflash removes this file. Skip this if the board already has
-section 4's `90-nano-dev-nopasswd` rule (`ssh ts-nano-dev sudo -n true`).
-
-```bash
-ssh -t ts-nano-dev 'echo "nano-dev ALL=(root) NOPASSWD: /usr/bin/dd, /usr/bin/tar, /usr/sbin/sfdisk, /usr/sbin/fstrim" | sudo tee /etc/sudoers.d/99-backup && sudo chmod 440 /etc/sudoers.d/99-backup'
-```
-
-### 1.2 Inventory and unpushed git work
-
-```bash
-B=~/backups/ts-nano-dev/$(date +%F); mkdir -p "$B"
-ssh ts-nano-dev 'hostname; uname -a; cat /etc/nv_tegra_release; cat /etc/nv_boot_control.conf
-  lsblk -f; df -h; sudo -n sfdisk -d /dev/nvme0n1; groups; nvpmodel -q
-  for t in /sys/class/tty/ttyTHS*; do echo "$t -> $(readlink -f $t/device)"; done
-  lsusb; lsusb -t; ls -l /dev/ttyUSB* /dev/rplidar /dev/video* 2>&1
-  docker ps -a; docker images; docker volume ls
-  ls /etc/NetworkManager/system-connections /etc/netplan; tailscale ip -4; crontab -l
-  cd ~/workspaces/isaac_ros-dev/src 2>/dev/null && git status --short && git log --branches --not --remotes --oneline &&
-  git submodule foreach --quiet "echo == \$name; git status --short; git log --branches --not --remotes --oneline"' \
-  > "$B/inventory.txt" 2>&1
-less "$B/inventory.txt"
-```
-
-Push anything the last block lists before going further. Keep
-`inventory.txt`: section 5 compares the kernel 6.8 board against it.
-
-### 1.3 Files to copy off
-
-Models first. `yolo11s_fp16.plan` won't load on JetPack 7.2's TensorRT, so
-the ONNX is what matters (`JAZZY_PLAN.md`, What still has to be checked on hardware). If no
-`.onnx` turns up, stop and find it before flashing.
-
-```bash
-ssh ts-nano-dev 'sudo -n find / -xdev \( -name "*.onnx" -o -name "*.plan" -o -name "*.engine" -o -name "*.pt" \) 2>/dev/null' | tee "$B/models.txt"
-```
-
-Home directory, which also picks up `~/workspaces/isaac_ros-dev/isaac_ros_assets`,
-`~/.ssh`, dotfiles and shell history. Build output is skipped:
-
-```bash
-rsync -aHX --info=progress2 \
-  --exclude .cache --exclude 'workspaces/*/build' --exclude 'workspaces/*/install' --exclude 'workspaces/*/log' \
-  ts-nano-dev:/home/nano-dev/ "$B/home/"
-```
-
-Then copy any model from `models.txt` that lives outside `/home/nano-dev`
-with `rsync ts-nano-dev:<path> "$B/models/"`.
-
-System state: Wi-Fi and wired profiles, netplan, ssh host keys (keeps the
-laptop's `known_hosts` entry valid), udev rules, Docker config, custom
-systemd units, cron and the tailscale node state (keeps the node's 100.x IP):
-
-```bash
-ssh ts-nano-dev 'sudo -n tar -C / --ignore-failed-read -czf - \
-  etc/NetworkManager/system-connections etc/netplan etc/hostname etc/hosts etc/ssh \
-  etc/udev/rules.d etc/docker etc/systemd/system etc/nvpmodel.conf var/spool/cron var/lib/tailscale' \
-  > "$B/system-state.tgz"
-tar -tzf "$B/system-state.tgz" | head -50
-```
-
-Docker volumes, only if `docker volume ls` in the inventory shows one worth
-keeping. Images are not worth saving: they are JetPack 6 images and the NVMe
-image already holds them for rollback.
-
-```bash
-ssh ts-nano-dev 'sudo -n tar -C /var/lib/docker/volumes -czf - .' > "$B/docker-volumes.tgz"
-```
-
-### 1.4 NVMe image (the rollback)
-
-A raw image of the ~500 GB drive (456 GB filesystem) won't fit in the laptop's ~272 GB free on
-`/home`, so it goes over compressed. Trim first so free blocks read back as
-zeros and compress to almost nothing. With 70 GB used, expect a 35 to 70 GB
-`.zst`. Check the space first and plan on 100 GB.
-
-The root filesystem is live while `dd` reads it, so the image is
-crash-consistent (ext4 replays its journal on restore). The file copies in
-1.3 are the safety net for that. Stop the busy writers first:
-
-```bash
-df -h /home   # need 100 GB free
-ssh -t ts-nano-dev 'sudo systemctl stop docker docker.socket; sudo fstrim -av; sync'
-mkdir -p ~/backups/ts-nano-dev
-ssh ts-nano-dev 'command -v zstd' || ssh -t ts-nano-dev 'sudo apt-get install -y zstd'
-ssh ts-nano-dev 'sudo -n dd if=/dev/nvme0n1 bs=4M status=progress | zstd -T0 -3' \
-  > ~/backups/ts-nano-dev/nvme0n1-r36.5-$(date +%F).img.zst
-```
-
-On gigabit Ethernet this takes about an hour and a half; over Wi-Fi or
-tailscale, several. Watch `ls -lh` on the output. If it is past 150 GB, the
-drive doesn't zero trimmed blocks: stop it, zero the free space
-(`ssh -t ts-nano-dev 'sudo dd if=/dev/zero of=/zero bs=4M status=progress; sudo rm /zero; sync'`)
-and run the image again.
-
-Verify:
-
-```bash
-zstd -t ~/backups/ts-nano-dev/nvme0n1-r36.5-*.img.zst
-zstd -dc ~/backups/ts-nano-dev/nvme0n1-r36.5-*.img.zst | head -c 1M > /tmp/nvme-head.img; sfdisk -d /tmp/nvme-head.img
-```
-
-Compare that partition table with the `sfdisk -d` output in
-`inventory.txt`. If you have a USB M.2 enclosure, pulling the NVMe and
-running the same `dd | zstd` on the laptop gives a clean image instead.
-
-Rollback caveat: the 7.2.1 installer moves the board's QSPI firmware from
-36.x to 39.x. Forum reports say an R36 NVMe no longer boots on 39.x
-firmware, so a rollback means restoring this image **and** reflashing R36.5
-QSPI from an Ubuntu 22.04 host in recovery mode (SDK Manager or
-`l4t_initrd_flash.sh`). Arch can't run SDK Manager natively. Sources: forum
-thread posts
-[#26](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/26)
-and
-[#112](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/112).
+No disk image or file backup is needed for standard: the user confirmed
+nothing important remains on it (2026-10-06). Flash it as a clean install.
+Models and source come from their repositories; see the
+[hardware checklist](#hardware-checklist) for the ONNX source
+and TensorRT rebuild. Any Humble performance comparison needs a recorded
+baseline; see [hardware status](#hardware-status).
 
 ## 2. Write the USB stick (laptop, Arch)
 
@@ -164,7 +74,7 @@ sudo cmp -n "$(stat -c%s "$ISO")" "$ISO" "$DEV" && echo "stick OK"
 ```
 
 A forum user fixed an install that hung mid-way by rewriting the stick
-([post #29](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/29)),
+([post #29](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/29)),
 so do the `cmp`.
 
 For a keyboard-free stick for one robot, use
@@ -177,17 +87,15 @@ nothing about the stick.
 
 ## 3. Flash (at the board)
 
-From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/quick_start.html).
+From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-standardkit/user-guide/latest/quick_start.html).
 
-1. Firmware gate: `nv_tegra_release` in `inventory.txt` says R36.5, so the
-   QSPI firmware is 36.x and the 6.x update path isn't needed. To confirm,
-   press Esc at the NVIDIA splash and read the version line (must be 36.0
-   or later).
+1. Firmware gate: press Esc at the NVIDIA splash and read the version
+   line (must be 36.0 or later).
 2. Power off. Plug in the DP monitor, keyboard, Ethernet and the stick,
    leaving the NVMe in place. Apply power.
 3. Press Esc at the NVIDIA logo, then Boot Manager, then the USB disk. Pick
    it explicitly; auto-boot times out on the capsule step
-   ([post #8](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/8)).
+   ([post #8](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/8)).
 4. **Press Y at the firmware update prompt.** It waits 30 s. If you miss
    it, the install fails later; start over.
 5. The UEFI capsule update runs in two passes and may reboot between them.
@@ -195,16 +103,16 @@ From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-devkit
 6. At the GRUB menu pick "Install Jetson ISO r39.2.1", choose the NVMe
    (`nvme0n1`, about 500 GB), confirm the erase, wait, reboot.
 7. Pull the stick when told. oem-config: accept the EULA, then set username
-   `nano-dev`, computer name `ts-nano-dev` (the laptop's `~/.ssh/config`
-   has `Host ts-nano-dev`, `User nano-dev`) and connect the network.
+   `nano-standard`, computer name `ts-nano-standard` (the laptop's `~/.ssh/config`
+   has `Host ts-nano-standard`, `User nano-standard`) and connect the network.
 
 If the installer dies at "Step 9/13 Updating boot firmware" with
 `command_34 ... nvidia-l4t-bootloader ... exit status 100`, press Enter for
 the shell and run `journalctl --no-pager | grep -B5 -A40 nvidia-l4t-bootloader`.
 A "does not match any known boards" line is the board-spec bug from
-[post #102](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/102).
+[post #102](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/102).
 Someone on an Orin Nano Super with NVMe hit this on 2026-09-18
-([post #118](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/118))
+([post #118](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/118))
 and it was unresolved at the time. Save the journal to a spare stick and
 stop there.
 
@@ -241,7 +149,7 @@ skips the firmware update: the installer logs "Using ISO to update the
 QSPI version 2360327 is not supported", so 36.4.7 firmware stays under
 R39. Hero then booted recovery (black screen) until the `setvar` above.
 The firmware update then went in from Linux, the same capsule-on-disk the
-launcher stages (board `jetson-orin-nano-devkit-super` →
+launcher stages (board `jetson-orin-nano-standardkit-super` →
 `TEGRA_BL_3767_super.Cap`, from the stick's ESP):
 
 ```bash
@@ -277,7 +185,7 @@ sudo nvpmodel -q; grep POWER_MODEL /etc/nvpmodel.conf
 7.2.1's ISO flashes the Super config by default
 ([JetsonHacks](https://jetsonhacks.com/2026/08/12/jetpack-7-2-1-released/)).
 On 7.2.0 some boards came up with only 7 W and 15 W modes
-([post #6](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/6)).
+([post #6](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/6)).
 If MAXN_SUPER isn't in the list, note it and move on; it doesn't block
 step 1. If it is, select it (top-bar power menu, or
 `sudo nvpmodel -m <id>` with the id from `nvpmodel.conf`) and run
@@ -286,7 +194,7 @@ step 1. If it is, select it (top-bar power menu, or
 ## 4. Make it reachable again
 
 ```bash
-sudo apt update && sudo apt install -y openssh-server rsync zstd
+sudo apt update && sudo apt install -y openssh-server
 sudo systemctl enable --now ssh
 ```
 
@@ -296,51 +204,38 @@ only sets `/etc/localtime`, so anything reading the zone name from
 `/etc/timezone` (Python's `tzlocal`, Java) sees UTC:
 
 ```bash
-echo "nano-dev ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/90-nano-dev-nopasswd && sudo chmod 440 /etc/sudoers.d/90-nano-dev-nopasswd
+echo "nano-standard ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/90-nano-standard-nopasswd && sudo chmod 440 /etc/sudoers.d/90-nano-standard-nopasswd
 sudo timedatectl set-timezone America/New_York && echo America/New_York | sudo tee /etc/timezone
 ```
 
-Restore from the laptop's backup (copy `system-state.tgz` and `home/.ssh`
-over the LAN by IP, or by stick):
+Add the laptop's public key to the new account with
+`ssh-copy-id <user>@<board-ip>` from the laptop.
 
-```bash
-mkdir -p ~/.ssh && cp /path/to/backup/home/.ssh/authorized_keys ~/.ssh/ && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
-sudo tar -C / -xzf system-state.tgz --wildcards 'etc/ssh/ssh_host_*'
-sudo systemctl restart ssh
-```
-
-Tailscale, restoring the old node state so the IP stays the same:
+Join Tailscale as a new node (substitute the board's hostname):
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo systemctl stop tailscaled
-sudo tar -C / -xzf system-state.tgz var/lib/tailscale
-sudo systemctl start tailscaled && tailscale ip -4   # compare with inventory.txt
+sudo tailscale up --hostname <name> --advertise-tags=tag:jetsons
+sudo tailscale set --ssh
+tailscale ip -4
 ```
 
-If that fails, run `sudo tailscale up --hostname ts-nano-dev` and log in
-again. `ts-nano-dev` is not in `fastdds_cable.xml`'s peer list today;
-step 5 of the plan adds it. Restore Wi-Fi profiles from
-`etc/NetworkManager/system-connections` only if you need Wi-Fi (files must
-stay `root:root 600`, then `sudo nmcli connection reload`).
-
-With no `system-state.tgz`, the node joins with a new IP: `sudo tailscale up
---hostname <name> --advertise-tags=tag:jetsons`, then `sudo tailscale set
---ssh`, and put the IP in `fastdds_cable.xml` and `fastdds_udp_only.xml`.
+Put the new IP in `fastdds_cable.xml` and `fastdds_udp_only.xml`, and
+configure Wi-Fi again if needed.
 Campus DNS registers the board's Wi-Fi hostname, so the short name can
 resolve to the Wi-Fi address, where port 22 is blocked. Give `~/.ssh/config`
 the tailscale IP as `HostName` (ts-nano-sentry, 2026-09-30).
 
-From the laptop: `ssh ts-nano-dev true`. If it warns about a changed host
-key, the host keys weren't restored; run `ssh-keygen -R ts-nano-dev` and
-reconnect.
+From the laptop: `ssh ts-nano-standard true`. If it warns about a changed host
+key after the reflash, confirm it is the intended board, then remove its
+old entry with `ssh-keygen -R ts-nano-standard` and reconnect.
 
 ## 5. Kernel 6.8 hardware checks (host, no container)
 
-Compare each with `inventory.txt` (`JAZZY_PLAN.md`, What still has to be checked on hardware).
+Record results in [hardware status](#hardware-status).
 
 ```bash
-# DJI serial bridge UART: same ttyTHS1 -> same *.serial address as before?
+# DJI serial bridge UART: check ttyTHS1 and its *.serial address
 for t in /sys/class/tty/ttyTHS*; do echo "$t -> $(readlink -f $t/device)"; done
 ls -l /dev/ttyTHS1; groups | grep -w dialout || sudo usermod -aG dialout $USER
 systemctl status nvgetty 2>/dev/null | head -3    # must not own the port
@@ -354,8 +249,7 @@ lsusb | grep -i 10c4:ea60; sudo dmesg | grep -i cp210x; ls -l /dev/ttyUSB*
 lsusb | grep -i 8086; lsusb -t | grep -B1 -i uvc; ls -l /dev/video*; sudo dmesg | grep -iE 'uvcvideo|realsense' | tail
 ```
 
-Pass: `ttyTHS1` points at the same `*.serial` device as on R36 and the
-loopback prints `ping`; the lidar appears as `/dev/ttyUSB0`; the RealSense
+Pass: `ttyTHS1` maps to the intended UART and the loopback prints `ping`; the lidar appears as `/dev/ttyUSB0`; the RealSense
 shows as a UVC device at 5000M. A full `rs-enumerate-devices` needs the
 realsense image layer, built in section 8.
 
@@ -365,7 +259,7 @@ Order follows the [Isaac ROS 4.6 getting started](https://nvidia-isaac-ros.githu
 page. Its Jetson steps are written for AGX Orin; the Orin Nano docs cover
 Docker.
 
-JetPack components ("Install via apt"; [Orin Nano JetPack setup](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/setup_jetpack.html)):
+JetPack components ("Install via apt"; [Orin Nano JetPack setup](https://docs.nvidia.com/jetson/orin-nano-standardkit/user-guide/latest/setup_jetpack.html)):
 
 ```bash
 sudo apt update && sudo apt install -y nvidia-jetpack
@@ -395,7 +289,7 @@ sudo apt-get update
 sudo apt-get install -y isaac-ros-cli
 ```
 
-Docker and the container toolkit ([Orin Nano Docker setup](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/setup_docker.html)):
+Docker and the container toolkit ([Orin Nano Docker setup](https://docs.nvidia.com/jetson/orin-nano-standardkit/user-guide/latest/setup_docker.html)):
 
 ```bash
 sudo apt install -y nvidia-container curl jq
@@ -417,7 +311,7 @@ docker run --rm --gpus all ubuntu:24.04 bash -lc 'echo "NVIDIA runtime OK"'
 ```
 
 Initialise the CLI and a workspace. Jazzy machines use domain 1 until
-cutover (`JAZZY_PLAN.md`, What still has to be checked on hardware):
+cutover (see [hardware checklist](#hardware-checklist)):
 
 ```bash
 sudo isaac-ros init docker
@@ -427,7 +321,8 @@ echo 'export ROS_DOMAIN_ID=1' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Copy the ONNX (and old `.plan`, for reference) from the backup into
+Get the ONNX from the source linked in the
+[hardware checklist](#hardware-checklist) and place it in
 `~/workspaces/isaac_ros-dev/isaac_ros_assets/models/yolo11/`. Don't clone
 our repo or add image keys yet; that is section 8.
 
@@ -451,8 +346,7 @@ into the container on aarch64
 ([`run_dev.py`, release-4.6](https://github.com/NVIDIA-ISAAC-ROS/isaac-ros-cli/blob/release-4.6/scripts/run_dev/run_dev.py)),
 so a "not found" here means the host binary is missing, not the image.
 
-Optional GPU check, if the ONNX is in place (it is step 5's engine build
-anyway):
+Optional GPU check, if the ONNX is in place:
 
 ```bash
 /usr/src/tensorrt/bin/trtexec --onnx=$ISAAC_ROS_WS/isaac_ros_assets/models/yolo11/<model>.onnx --fp16 --saveEngine=/tmp/test.plan
@@ -460,7 +354,7 @@ anyway):
 
 `CUDA failed to initialize ... error 801` is the failure an AGX Orin user
 reported on 7.2.1 in containers
-([post #115](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/115)).
+([post #115](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/115)).
 Record it and stop.
 
 The stock image works when `activate` starts it and `tegrastats` prints
@@ -487,6 +381,91 @@ docker image inspect -f '{{len .RootFS.Layers}}' \
 ~/workspaces/isaac_ros-dev/src/.claude/skills/isaac-ros-docker/smoke.sh
 ```
 
-Step 1 is done when our image starts on the Orin and `smoke.sh` passes. Put
-the kernel 6.8 check results, the power modes offered, the layer count and
-the image size in the commit message that records step 1.
+The installation check is complete when our image starts and `smoke.sh`
+passes. Record the kernel checks, power modes, layer count and image size
+in the commit message, and update [hardware status](#hardware-status).
+
+## Hardware checklist
+
+Complete these checks on a robot with its camera, UART and lidar connected.
+Flashing alone does not validate the stack.
+
+- Run [host hardware checks](#5-kernel-68-hardware-checks-host-no-container).
+- Rebuild `yolo11s_fp16.plan` on each Orin from `best.onnx` in
+  `Thornbots/trained-models` (LFS, `detect/yolo11s_realsense/v1/weights/`).
+  The engine is tied to the TensorRT version.
+- Check RealSense at 60 fps using `isaac_ros_common/docker/config/*_60fps.yaml`;
+  run the [full robot pipeline](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline)
+  and measure YOLO FPS and camera-to-`TargetState` latency. Compare with
+  Humble only if a baseline exists; otherwise record Jazzy numbers and
+  leave that comparison unverified.
+- Validate ROI depth, tracking/aiming, serial, lidar/localization and firing;
+  the [roadmap](ROADMAP.md) owns the detailed acceptance tasks.
+- Repeat the 2026-09-14 and 2026-09-20 Fast DDS measurements in
+  `isaac_ros_common/docker/fastdds_cable.xml`, between dev and the laptop on
+  domain 1. Fast DDS moved from 2.6 to 2.14: recheck the 239.255.0.1 peer,
+  `maxInitialPeersRange` 32, and SHM hiding local participants.
+- Keep Jazzy on `ROS_DOMAIN_ID=1` while a Humble robot remains. Switch all
+  machines back to domain 0 after the last reflash; mixed distributions
+  do not interoperate reliably.
+- Count aarch64 image layers against the roughly 128-layer cap. The x86
+  image had 42 layers (8 ours); Humble had reached 127.
+- Check host dotfiles and CLI mounts before the first run; the owning
+  [common package notes](isaac_ros_common/AGENTS.md#open) describe them.
+- Time a full build on the 8 GB Orin. The `-j6` / three-worker caps came
+  from the old toolchain. Watch for localization lifecycle-reply stalls
+  during boot (see [roadmap track E](ROADMAP.md#e-benches-that-start-and-stop-cleanly)).
+
+Record dated results in [hardware status](#hardware-status). Migration is
+complete when the laptop comparison and robot acceptance checks pass;
+report any unavailable Humble performance comparison explicitly. Then
+remove unused Humble images and retire ROADMAP track C.
+
+## Laptop validation (2026-09-30)
+
+Historical migration validation: `isaac_ros_common`'s `main`
+is upstream `release-4.6` plus our container files, and the image comes
+from `isaac-ros activate` (the `isaac-ros-docker` skill). Laptop results,
+for the robot comparison:
+
+| Check | Humble | Jazzy |
+| --- | --- | --- |
+| `colcon build`, 8 packages, `-Wall` | clean | clean; warnings only in `sllidar_ros2`'s vendored SDK |
+| `colcon test` | `dji_serial_bridge` lint fails | same lint failures, nothing else |
+| CV tests (`point_to_cv_target`, `target_selector`, `target_tracker`) | pass | pass |
+| Drift suite, unthrottled | 7/7 | 7/7 in each of the last three runs |
+| `suite:=ekf` fused mean | 0.0075 m | 0.0079 m |
+| The aiming bench, 10 cells | 10/10 | 10/10, every score within 0.004 |
+| The estimation bench, five runs | 10/10; moving cells 0.10 m facing p95 median | 10/10; 0.10 m; each cell within 10% of Humble except the 4 m/s ones, which swing on both |
+
+## Migration background (2026-09-25 decision)
+
+| | Migration from | Migration to |
+| --- | --- | --- |
+| ROS 2 | Humble | Jazzy |
+| Isaac ROS | 3.2 (`nvcr.io/nvidia/isaac/ros:humble-3.2`) | 4.6.0, released 2026-08-18 |
+| Ubuntu in the image | 22.04 | 24.04 |
+| Jetson OS | JetPack 6.2.x, L4T R36.5, kernel 5.15 | JetPack 7.2.1, L4T R39.2, kernel 6.8 |
+| Container tooling | our fork's `run_dev.sh` / `build_image_layers.sh` | `isaac-ros-cli` (`isaac-ros activate`) |
+| Gazebo (`sim` only) | Fortress, `ros-humble-ros-gz` | Harmonic, `ros-jazzy-ros-gz` |
+
+Isaac ROS 4.6 is the only Jazzy release that runs on Orin. 4.0 to 4.5
+supported Thor and x86 only; 4.6 added Orin on JetPack 7.2.
+
+Isaac ROS 5.0 came out on 2026-09-21 on ROS 2 Lyrical. The migration chose 4.6:
+5.0 was four days old when this was written, and Jazzy has a year of Nav2,
+slam_toolbox and robot_localization binaries behind it. Both need the same
+JetPack 7.2 reflash and Ubuntu 24.04 image, so a later hop to Lyrical is a
+package-level port with no hardware work.
+
+Measured 2026-09-25: `ts-nano-dev` is an Orin Nano Super devkit (8 GB),
+JetPack 6.2.x (L4T R36.5), 70 GB used of a 456 GB NVMe. The laptop (RTX 1000
+Ada, driver 615.71) already meets 4.6's driver 595+ floor.
+
+## Sources
+
+- [Isaac ROS 4.6 getting started](https://nvidia-isaac-ros.github.io/v/release-4.6/getting_started/index.html): Jazzy, Orin on JetPack 7.2, driver 595+
+- [Isaac ROS release notes](https://nvidia-isaac-ros.github.io/releases/index.html): 4.6 adds Orin; 5.0 moves to Lyrical
+- [Docker mode configuration](https://nvidia-isaac-ros.github.io/v/release-4.6/concepts/dev_env/index.html)
+- [isaac-ros-cli release-4.6](https://github.com/NVIDIA-ISAAC-ROS/isaac-ros-cli/tree/release-4.6)
+- [JetPack 7.2 on Orin Nano forum thread](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151), [JetPack 7.2.1 notes](https://jetsonhacks.com/2026/08/12/jetpack-7-2-1-released/)

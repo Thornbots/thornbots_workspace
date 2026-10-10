@@ -9,9 +9,9 @@ what's relevant to building an autonomous Sentry, not the full rulebook (pit
 crew procedures, other robot types, appeals process, etc. are omitted). Read
 the source PDF directly if you need something not covered here.
 
-Dev status, priorities, and open work are not tracked here: each package's
-`AGENTS.md` has an `## Open` section with its live TODO list, and its
-`README.md` has the detail. This doc holds only the rules and opponent facts.
+Dev status, priorities, and open work are not tracked here: see
+[ROADMAP](ROADMAP.md), package `AGENTS.md` `## Open` sections, and package
+READMEs. This doc holds only the rules and opponent facts.
 
 ## Sentry robot spec (§3.1.3)
 
