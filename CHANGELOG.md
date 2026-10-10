@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Workspace CI validates pinned native startup/common helpers and builds hosted
+  sentry firmware for UART and ROS-bridge tests. Startup CI runs CTest after its
+  C++ port; firmware CI covers nightly pushes with the current C++ UART fixture.
+  The opt-in protection policy names every ARM robot/sysid check. See
+  [workspace #20](https://github.com/Thornbots/thornbots_workspace/pull/20),
+  [startup #4](https://github.com/Thornbots/isaac-ros-startup/pull/4), and
+  [MCBV3 #84](https://github.com/Thornbots/MCBV3/pull/84).
 - Repository quality checks and portable Jazzy CI on PRs and pushes to
   `nightly` and `main`. A native arm64 workflow builds robot images, runs
   registered package tests, then publishes branch and exact workspace revision

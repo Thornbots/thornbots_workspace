@@ -29,10 +29,13 @@ def policy(repo):
     if repo in PORTABLE or repo == 'thornbots_workspace':
         contexts.append('ros / portable')
     if repo == 'thornbots_workspace':
-        contexts += ['Robot image build and tests', 'policy']
+        contexts += ['Robot image build and tests', 'policy',
+                     'Host helpers / startup', 'Host helpers / common']
     if repo == 'MCBV3':
-        contexts += ['ARM / infantry', 'ARM / hero', 'ARM / sentry',
-                     'Hosted control and UART tests']
+        contexts += [f'ARM / {robot} / {sysid}'
+                     for robot in ('infantry', 'hero', 'sentry')
+                     for sysid in ('none', 'dt', 'yaw', 'odo')]
+        contexts.append('Hosted control and UART tests')
     return {
         'required_status_checks': {'strict': True, 'contexts': contexts},
         'enforce_admins': True,

@@ -45,13 +45,15 @@ jobs:
             --output /tmp/actionlint.tar.gz
           tar -xzf /tmp/actionlint.tar.gz -C /tmp actionlint
           /tmp/actionlint -shellcheck=""
-      - name: Test startup log handling
-        if: inputs.unit-suite == 'startup'
-        working-directory: source
-        run: python -m unittest discover -s tests -v
-      - name: Test common subprocess handling
-        if: inputs.unit-suite == 'common'
-        working-directory: source
+      - name: Test host helpers
+        if: inputs.unit-suite != 'none'
         env:
-          PYTHONPATH: isaac_common_py
-        run: python -m pytest isaac_common_py/tests tests -q
+          UNIT_SUITE: ${{ inputs.unit-suite }}
+        run: bash tooling/.github/scripts/test_host_packages.sh source "$UNIT_SUITE"
+      - name: Upload host test reports
+        if: always() && inputs.unit-suite != 'none'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: host-tests-${{ inputs.unit-suite }}-${{ github.sha }}
+          path: source/build/host-tests
+          retention-days: 14
