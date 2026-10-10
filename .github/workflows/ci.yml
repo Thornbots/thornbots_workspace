@@ -91,6 +91,8 @@ jobs:
     with:
       tooling-ref: ${{ github.sha }}
   ros:
+    # PRs into nightly stay cheap; nightly pushes and PRs into main run this.
+    if: github.event_name != 'pull_request' || github.base_ref != 'nightly'
     uses: ./.github/workflows/ros.yml
     with:
       package-repo: workspace

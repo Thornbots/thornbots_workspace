@@ -9,6 +9,18 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- PRs into `nightly` run only cheap CI (lint, policy, host helpers, MCBV3
+  hosted tests). Jazzy ROS builds, the robot image and MCBV3 ARM builds run on
+  `nightly`/`main` pushes, PRs into `main` and manual dispatch, and nightly
+  branch protection requires only the cheap checks. See
+  [CI](docs/CI.md), [thornbots_pkg #8](https://github.com/Thornbots/thornbots_pkg/pull/8),
+  [sim #9](https://github.com/Thornbots/sim/pull/9),
+  [sentry_localization #4](https://github.com/Thornbots/sentry_localization/pull/4),
+  [rf2o_laser_odometry #8](https://github.com/Thornbots/rf2o_laser_odometry/pull/8),
+  [ros2_dji_serial_bridge #4](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/4),
+  [Realsense_ROI_Depth_Rectifier #4](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/4),
+  [sllidar_ros2 #4](https://github.com/Thornbots/sllidar_ros2/pull/4) and
+  [MCBV3 #85](https://github.com/Thornbots/MCBV3/pull/85).
 - `.claude/settings.local.json` is no longer tracked and is now gitignored; it
   held one maintainer's personal permissions and paths. Pulling this removes
   the tracked copy, so keep a backup first if you edited it locally.

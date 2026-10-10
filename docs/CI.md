@@ -2,8 +2,10 @@
 
 `nightly` integrates package changes; `main` receives promoted releases.
 Workspace and package CI run on PRs targeting either branch and on pushes to
-either branch. Feature branches are validated through their PRs; manual
-dispatch remains available. All eleven `.gitmodules` entries track `nightly`
+either branch. PRs into `nightly` stay cheap: lint, policy, host helpers and
+MCBV3 hosted tests. Jazzy ROS builds, the robot image and MCBV3 ARM builds run
+on `nightly`/`main` pushes, PRs into `main` and manual dispatch; dispatch a
+feature branch to run them before merging. All eleven `.gitmodules` entries track `nightly`
 on this integration branch, with exact gitlink pins. Sim is initialized by
 normal submodule checkout; only MCB firmware remains opt-in.
 
@@ -127,8 +129,8 @@ counts belong in commit messages; old PR results do not validate new pins.
 `publish robot image` builds the existing Isaac ROS CLI layer chain natively
 on GitHub's arm64 runner and tests packages before publishing. Pushes to
 `nightly` and `main` publish `ghcr.io/thornbots/isaac-ros:<branch>-arm64-jetpack`
-and `sha-<full workspace SHA>-arm64-jetpack`. PR builds test without publishing
-robot tags. Manual dispatch can publish its selected branch revision, with
+and `sha-<full workspace SHA>-arm64-jetpack`. PRs into `main` build and test
+without publishing robot tags. Manual dispatch can publish its selected branch revision, with
 slashes replaced by dashes. Simulation images are not published.
 
 Base layers are cached as `isaac-ros:base-<layer>_<hash>-arm64-jetpack`, with
@@ -150,7 +152,7 @@ matching mandatory gitlinks, and retags the image for isaac-ros-cli. Usage:
 checks and an up-to-date branch, blocking force pushes/deletion, applying to
 administrators, and requiring zero reviews. It leaves linear history optional
 so coordinated merges remain possible. `--branch nightly` selects integration
-protection; the default is `main`. MCBV3 is skipped for nightly because its
+protection, requiring only the cheap checks its PRs run; the default is `main`. MCBV3 is skipped for nightly because its
 policy targets only main.
 
 This port does not apply or change GitHub protection settings. `--apply`
