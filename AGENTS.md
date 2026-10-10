@@ -48,6 +48,9 @@ Docker command or command inside a container.
 - Commit and push each tested logical change without being asked: package
   first, then one workspace gitlink bump per logical change. Never point at an
   unpushed commit.
+- Keep [CHANGELOG](CHANGELOG.md) Unreleased current: each workspace change
+  that alters behavior, interfaces or contributor workflow adds or updates
+  its entry in the same PR.
 - Stage explicit superproject paths; never `git commit -a`. Inspect
   `git diff --cached --stat`; only deliberately chosen gitlinks may move.
   Stale checkouts must not revert someone else's gitlink updates.
