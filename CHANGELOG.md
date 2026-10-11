@@ -31,7 +31,7 @@ impact, and link the corresponding package changes.
 
 - Native MCB batch lockstep for sim's three E2E stages, with stamped
   acknowledgments and timeout rejection. This changes simulation timing; full
-  hit-path repeatability is open (T17). See [sim #8](https://github.com/Thornbots/ssim/pull/8) and the
+  hit-path repeatability is open (T17). See [sim #8](https://github.com/Thornbots/sim/pull/8) and the
   [MCB emulator](sim/README.md#mcb-emulator).
 - Repository quality checks and Jazzy CI on PRs and pushes to `nightly` and
   `main`: native arm64 robot-image build and package tests, GHCR publishing by
