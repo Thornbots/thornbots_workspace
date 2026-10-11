@@ -77,12 +77,10 @@ drives our robot from sim.
 ### I. MCB emulator
 
 Stages run the checked-out MCBV3 code as a host build with fake hardware
-([sim README](sim/README.md#mcb-emulator)); motor feedback and MCU timing
-are models, and `mcb_drive`/`mcb_match` use `match_driver`, not the
-firmware's auto-drive.
-
-- Wire physical CAN motor feedback and dynamics to gz instead of applying
-  firmware setpoints through gz's existing controllers.
+([sim README](sim/README.md#mcb-emulator)), with CAN feedback and motor forces
+inside each 1 ms gz physics step. The motor plant remains an estimate; MCU
+execution is still hosted, and `mcb_drive`/`mcb_match` use scripted velocities
+through firmware motor control rather than the firmware's auto-drive.
 - A real Type C emulator (the user, 2026-10-03): emulate the STM32F407 and
   run the same `.elf` we flash, to catch what the host build hides (UART/DMA
   drivers, interrupt timing, 1 kHz overruns, `-O` and float behaviour).
