@@ -1,9 +1,10 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: partial implementation (2026-10-10).** The done bar below is not
+**Status: partial implementation (2026-10-11).** The done bar below is not
 met. The pinned sim implements the [native MCB-batch gate and coordinator](sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
-Firmware in the physics step, UART in sim time, other consumption chains,
+Firmware runs inside each 1 ms physics step with CAN motor feedback and force
+outputs ([motor plant](sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
 and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
 every stage runs the MCB emulator, so step 8 is done.
@@ -37,7 +38,7 @@ varies. The full stack runs below real time here even unthrottled, so this
 isn't only a fast-machine problem. Logs are in `/tmp/lockstep_baseline/` in
 the mini's container.
 
-The hit path crosses wall-time boundaries, so the order and sim time of its
+That revision's hit path crossed wall-time boundaries, so the order and sim time of its
 events depend on scheduling:
 
 1. **The firmware is stepped in batches with stale readings.**
@@ -94,6 +95,11 @@ only; the remaining hold points are in step 4. Its contract:
   service round trip.
 
 ### 2. The MCB firmware inside the physics step
+
+Implemented with CAN feedback and motor forces; usage and limits live in
+[sim's MCB emulator](sim/README.md#mcb-emulator). The following is the original
+proposal; its setpoint PD and chassis-velocity shortcut were replaced by the
+motor plant so firmware motor control is exercised.
 
 Add a C++ gz system plugin, `sim/src/mcb_firmware_system.cpp`, that owns the
 hosted firmware process. It replaces `mcb_emulator_node` in e2e:
@@ -212,8 +218,8 @@ benches still use them (`sim/AGENTS.md`).
 
 Each step is its own commit and gitlink bump, tested before the next:
 
-1. Move the native MCB into the physics step and model the UART in sim time
-   (steps 2 and 3). Replace e2e's ROS timer stepping path.
+1. Finish UART in sim time (step 3). The native MCB already runs in each
+   physics step; e2e's ROS timer stepping path is removed (step 2).
 2. Bring-up without wall time, `allow_latest_tf`, and the seeds (steps 5
    and 6).
 

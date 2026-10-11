@@ -9,6 +9,16 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Sim runs one native MCB control tick per gz physics step, supplies DJI motor
+  feedback and applies motor outputs as forces instead of gz setpoint
+  controllers. The UART bridge waits for the PTY. This completes track I's
+  motor path; STM32 execution and firmware auto-drive remain. See
+  [sim #14](https://github.com/Thornbots/sim/pull/14),
+  [MCBV3 #88](https://github.com/Thornbots/MCBV3/pull/88),
+  [bridge #7](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/7) and the
+  [motor validation](sim/docs/mcb-motor-plant-2026-10-11.md). Drive/match diagnostics
+  pass; parked hit-path repeatability remains unresolved.
+
 - `CVTarget.patrol` identifies every Jetson sweep and hit-turn patrol point
   on UART bit 3. The 15-byte payload and current firmware behavior stay
   unchanged; compiled-firmware tests verify all flag combinations and gates.
