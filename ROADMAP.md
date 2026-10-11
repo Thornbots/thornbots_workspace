@@ -280,7 +280,8 @@ must not collect robots or duplicate walls.
 
 ### J. Lidar and camera
 
-T22 and T23's robot half are later, needing a robot (the user, 2026-10-08).
+T22 and T23's robot half are later, needing a robot (the user, 2026-10-08),
+as is T37's measurement.
 
 - T22: Can the RPLIDAR's points per scan and scan rate change, and would it
   help (the user, 2026-10-02)? Open: which modes and rates our model
@@ -299,6 +300,16 @@ T22 and T23's robot half are later, needing a robot (the user, 2026-10-08).
   On the robot `roi_depth_node` ranges each detection off the D435's depth;
   no sim test uses depth (`detector_standin` feeds 3D truth). Without it,
   range would have to come from the colour image.
+- T37: Look into going back to a zero-copy camera path (the user,
+  2026-10-11). On Jazzy the camera frame is a CPU `Image` that
+  `DnnImageEncoderNode` uploads to the GPU every frame, and the camera →
+  encoder hop is copy-free only while intra-process comms hold, unverified
+  on the encoder side ([copy boundary](realsense-yolov8-nitros-bridge/README.md#copy-boundary)).
+  Measure what those copies cost on the Orin first (latency and GPU/CPU
+  time per frame). Then weigh options: a camera node that publishes
+  `NitrosImage` from a pinned or mapped buffer, letterboxing on the GPU,
+  or reworking the unused `NitrosRealsenseBridgeNode`. Measurement needs a
+  robot.
 
 ## Later: needs a robot
 
