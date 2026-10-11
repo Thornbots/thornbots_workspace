@@ -9,6 +9,15 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- `CVTarget.patrol` identifies every Jetson sweep and hit-turn patrol point
+  on UART bit 3. The 15-byte payload and current firmware behavior stay
+  unchanged; compiled-firmware tests verify all flag combinations and gates.
+  See [bridge #5](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/5),
+  [thornbots_pkg #10](https://github.com/Thornbots/thornbots_pkg/pull/10),
+  [MCBV3 #86](https://github.com/Thornbots/MCBV3/pull/86),
+  [sim #12](https://github.com/Thornbots/sim/pull/12) and the
+  [firmware verification](sim/docs/patrol-flag-2026-10-11.md).
+
 - Non-spinning aiming holds the most face-on physical panel until another
   faces the shooter more squarely. The measured 0.3 rad margin suppresses
   noise-driven panel flips; track changes, invalid states, spinning and timeout
