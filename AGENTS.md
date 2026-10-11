@@ -9,7 +9,10 @@ Memory is disabled: do not read or write agent memory.
 
 Delegate well-specified, high-volume repetitive edits to lower-cost agents
 (Haiku/Luna). The delegating agent defines scope and acceptance checks,
-resolves ambiguity, then reviews the diff and runs the checks itself.
+resolves ambiguity, then reviews the diff and runs the checks itself. It
+names user-approved runs in the brief and owns asking the user. Delegated
+agents never wait on user input: they skip anything outside the brief and list
+it in their report.
 
 ## Repository checks
 
@@ -31,6 +34,8 @@ Docker command or command inside a container.
   requested container/image lifecycle work without separate confirmation.
   “dev” means `ts-nano-dev`.
 - Ask before every sim integration test or bench run, even an obvious rerun.
+- A delegation brief stating the user approved named runs or lifecycle actions
+  is that approval for the delegated agent, only for what it names.
 - Check for running stacks before launching; ask before stopping anything you
   did not start, and clean up what you started.
 

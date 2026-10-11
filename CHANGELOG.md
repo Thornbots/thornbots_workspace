@@ -9,6 +9,10 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Delegated agents never wait on user input. A delegation brief naming
+  user-approved runs or lifecycle actions counts as that approval; anything
+  else is skipped and reported to the delegating agent. See
+  [AGENTS.md](AGENTS.md#delegation).
 - Sim temporary-world cleanup tolerates repeated shutdown events, and the native
   log checker rejects launch exceptions. Fresh hosted MCB builds, UART traffic
   and live gimbal aiming were verified on x86_64. See
