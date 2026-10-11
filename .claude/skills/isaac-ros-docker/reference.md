@@ -345,12 +345,10 @@ There are two colcon workspaces in the container, and they overlap:
 | `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
 
 **Which copy wins depends on the entry point** (re-measured 2026-07-26;
-earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong):
-
-| entry point | what it sources | resolves to |
-|---|---|---|
-| the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `/workspaces/ros2_ws/install` | the **image-baked snapshot** |
-| `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, so it wins) | **your `src/` edit**, if that package is built locally |
+earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong). The
+entry-point table is in
+[SKILL.md](SKILL.md#two-workspaces-ros2_ws-silently-shadows-your-src-edits):
+the user's terminal sources only `ros2_ws`, `dexec.sh` prepends `isaac_ros-dev`.
 
 Packages not built into `/workspaces/isaac_ros-dev/install` (e.g.
 `sllidar_ros2`) fall through to `ros2_ws` under either entry point.
@@ -427,8 +425,10 @@ do nothing.
 - A package's apt dependency goes in its `package.xml`, where the rosdep
   layer picks it up, not in the Dockerfile. Sim-only deps stay out of the
   image (`install-sim.sh`).
-- A new first-party package needs only its directory name in the
-  `--packages-select` list; the `COPY`s pick it up. Fold any new file into
+- A new first-party package needs its ROS package name (from `package.xml`,
+  not its directory: `dji_serial_bridge`, `roi_depth_query` and
+  `realsense_yolov8_nitros_bridge` differ) in the `--packages-select` list;
+  the `COPY`s pick it up. Fold any new file into
   the existing config `RUN` rather than adding a layer.
 
 
@@ -481,8 +481,9 @@ list` but never publish; a *live* session (the user's own manual sim/CV
 work, or a previous test that didn't clean up) collides on the same
 topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
 silently corrupts whatever you're about to measure. No error, just wrong
-numbers or empty samples. The drift suite's own
-`check_no_orphans()` does this exact check and only *warns*, it doesn't
+numbers or empty samples. The suites' own
+`sim::check_no_orphans()` (`sim/src/process.cpp`, run pre- and post-flight)
+does this exact check and only *warns*, it doesn't
 block, so don't skip it just because the script ran.
 
 If something is already running, **don't kill it yourself**: it may be
@@ -494,13 +495,14 @@ you interrupt it), clean up what *you* started rather than leaving it for
 the next run to collide with:
 - The official suites (`localization_tests.launch.py`,
   `shot_hit.launch.py`) already do this, and are safe to `kill_launch.sh`:
-  `teardown_stack()` runs in a `finally` block, and a per-scenario stack
-  also gets SIGINT if pytest dies.
-- Any ad hoc script you write that calls `run_stack()`/launches its own
-  processes must do the same: wrap the body in `try`/`finally` and call
-  `teardown_stack(stack, helper)` (or `kill_launch.sh
-  <pid>` for anything launched outside that helper) unconditionally, and
-  re-run the `ps aux` check above afterward to confirm nothing's left.
+  the localization suite's `stop_sim()` and `Stack` destructor
+  (`sim/test/localization/localization_suite.cpp`) stop every process they
+  started.
+- Any ad hoc C++ you write that launches its own processes must hold them in
+  a `sim::LaunchTree` (`sim/include/sim/process.hpp`), whose destructor
+  SIGINTs, then SIGKILLs, the whole process group even when the body throws.
+  Use `kill_launch.sh <pid>` for anything launched outside it, and re-run
+  the `ps aux` check above afterward to confirm nothing's left.
 
 `sim` launches with GUI by default (standing rule in `sim/AGENTS.md`);
 that includes both test launches, which take `headless:=true` to opt out:

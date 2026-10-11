@@ -24,12 +24,20 @@ Each package is a submodule:
 git clone --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
 ```
 
-That leaves every submodule on a detached HEAD. Put each back on its branch before committing:
+That checks out the exact commits this repo pins, each on a detached HEAD.
+Build from that state to reproduce the workspace. To change a package, start a
+branch where it stands, then rebase onto the package's `nightly` only when you
+mean to take newer work:
 
 ```sh
-git submodule foreach --recursive \
-  'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch)'
+cd thornbots_pkg
+git switch -c my-change
+git fetch origin && git rebase origin/nightly   # optional: move to the branch tip
 ```
+
+Do not run `git checkout nightly` in every submodule: it jumps each package to
+its branch tip, which can differ from the pinned commit, and nested
+submodules have no configured branch.
 
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 

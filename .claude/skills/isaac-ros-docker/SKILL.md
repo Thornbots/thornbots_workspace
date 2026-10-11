@@ -111,15 +111,9 @@ which one wins depends on the entry point:
 | the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `ros2_ws/install` | the image-baked snapshot of `src/` |
 | `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, wins) | your `src/` edit, if built locally |
 
-Measured on the Humble image 2026-09-06 (`smoke.sh` step 4 reprints this for
-the live container):
-
-| package | `dexec.sh` | user's terminal |
-|---|---|---|
-| `sim` | `isaac_ros-dev` | **Package not found** |
-| `thornbots_pkg` | `isaac_ros-dev` | **Package not found** |
-| `sentry_localization` | `isaac_ros-dev` | `ros2_ws` (shadowed) |
-| `sllidar_ros2` | `ros2_ws` | `ros2_ws` |
+The per-package resolution measured on the Humble image (2026-09-06) is in
+[reference.md](reference.md#two-workspaces-workspacesros2_ws-silently-shadows-your-src-edits);
+`smoke.sh` step 4 reprints it for the live container.
 
 So the same `ros2 launch` runs different code depending on where it's typed,
 and a package built only into `isaac_ros-dev` is invisible from the user's
@@ -153,16 +147,13 @@ Two things in that file look removable and aren't: the `239.255.0.1` peer
 `maxInitialPeersRange` 32 (at the default 4, remote nodes past participant ID
 3 are never found). A new robot needs its tailscale IP added there.
 
-**Shared memory is on. On a robot, logind must not delete it.** The 2026-09-20
-note that SHM hides nodes from a robot shell (1 of 15 in `ros2 node list`) was
-most likely logind's `RemoveIPC=yes`: 10 s after the last ssh session of
-UID 1000 ends, logind deletes that UID's `/dev/shm` files, Fast DDS's
-segments included, and same-host nodes stop hearing each other, the
-localization lifecycle too. With `RemoveIPC=no` (`isaac-ros-startup`
-`install.sh`, 2026-10-01) a robot shell saw all 15 nodes; a process started by
-`docker exec` into the running stack still finds few or none, which
-`isaac-ros-startup/AGENTS.md` lists as open (2026-10-03). If it reappears,
-check `ls /dev/shm | grep -c fastrtps` against a node's
+**Shared memory is on. On a robot, logind must not delete it.** The
+2026-09-20 note that SHM hides nodes from a robot shell (1 of 15 in `ros2 node
+list`) was most likely logind's `RemoveIPC=yes`; the mechanism and the fix are
+in [isaac-ros-startup's README](../../../isaac-ros-startup/README.md#design-notes).
+A process started by `docker exec` into the running stack still finds few or
+none, which `isaac-ros-startup/AGENTS.md` lists as open (2026-10-03). If it
+reappears, check `ls /dev/shm | grep -c fastrtps` against a node's
 `grep -c fastrtps /proc/<pid>/maps`: mapped but missing means deleted.
 
 `auto.launch.py` still pins the small high-level publishers
@@ -213,7 +204,7 @@ dexec.sh -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_nod
 
 If something is running, **ask before touching it**; it may be the user's own
 work. Afterwards, tear down what you started (`kill_launch.sh <pid>`, or
-`teardown_stack()` in a `finally` block for ad hoc scripts) and re-run the
+a `sim::LaunchTree` that goes out of scope for ad hoc C++: its destructor SIGINTs, then SIGKILLs, the whole process group) and re-run the
 check. reference.md covers the official suites and the `--headless` flag.
 
 ## Troubleshooting quick hits

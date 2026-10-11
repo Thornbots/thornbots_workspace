@@ -101,7 +101,7 @@ Each stage adds hops and is its own commit and bump. Scoring stays the same
 from stage to stage, so a drop belongs to the hops that stage added. Since
 2026-10-08 every stage runs the MCB emulator (the user's call): E1 folded
 into E2, and the stages are named `stage:=mcb_parked` (E1/E2), `mcb_drive`
-(E3) and `mcb_match` (E4), with `test_mcb_*.py` to match. The history below
+(E3) and `mcb_match` (E4), with `sim/test/cpp/test_mcb_*.cpp` for the MCB unit tests. The history below
 keeps the E numbers.
 
 1. E1, the stand-in to the gimbal, our robot parked. Panels on the URDF, one
@@ -135,7 +135,7 @@ Repeated-run floors and standalone-versus-sequence equivalence remain open.
 
 ### Scoring
 
-One `sim/launch/e2e.launch.py` and a pytest suite in `sim/test/e2e/`. Per
+One `sim/launch/e2e.launch.py` and a C++ suite in `sim/test/e2e/`. Per
 segment:
 
 - hit rate on enemy panels, the pass condition, with floors from three runs

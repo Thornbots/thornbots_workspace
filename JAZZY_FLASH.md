@@ -220,7 +220,7 @@ sudo tailscale set --ssh
 tailscale ip -4
 ```
 
-Put the new IP in `fastdds_cable.xml` and `fastdds_udp_only.xml`, and
+Put the new IP in `isaac_ros_common/docker/fastdds_cable.xml` and `thornbots_pkg/config/fastdds_udp_only.xml`, and
 configure Wi-Fi again if needed.
 Campus DNS registers the board's Wi-Fi hostname, so the short name can
 resolve to the Wi-Fi address, where port 22 is blocked. Give `~/.ssh/config`
@@ -365,8 +365,7 @@ inside it. Exit the container before section 8.
 ```bash
 cd ~/workspaces/isaac_ros-dev
 git clone --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
-cd src && git submodule foreach --recursive \
-  'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch)'
+cd src
 isaac_ros_common/scripts/setup_workspace.sh
 export ISAAC_ROS_WS=~/workspaces/isaac_ros-dev
 isaac-ros activate --build-local

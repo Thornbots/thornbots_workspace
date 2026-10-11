@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- A fresh clone stays on the pinned package commits; the README and
+  [JAZZY_FLASH](JAZZY_FLASH.md#8-our-image) no longer check out every
+  submodule's branch tip. Start work with `git switch -c` in the package. See
+  [Working with submodules](README.md#working-with-submodules).
+
 - Non-spinning aiming holds the most face-on physical panel until another
   faces the shooter more squarely. The measured 0.3 rad margin suppresses
   noise-driven panel flips; track changes, invalid states, spinning and timeout
