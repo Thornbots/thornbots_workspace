@@ -36,14 +36,6 @@ CV:
   sample. Establish the angle's units/reference, latch hits until
   reported, and test with nonzero head/chassis yaw before trusting
   `hit_angle_sign`. See [firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
-- T32: Choose the right panel on a robot that isn't spinning (the user,
-  2026-10-04). Below `spin_exit_rad_s`, `plan_shot`
-  (`point_to_cv_target_core.cpp`) leads the panel whose yaw is nearest the
-  bearing to us, rounded per tick. Near 45 deg two panels face us about
-  equally and the pick can flip tick to tick, swinging the gun a panel's
-  width; it also leans on the tracker's yaw, weakest there (T15). Want:
-  the most face-on panel, held with hysteresis until another is clearly
-  better. Measure on the aiming bench at 45 deg.
 - T33: A patrol flag on `CVTarget` (the user, 2026-10-04). Patrol points go
   out as aim points with `fire` clear, so the MCB can't tell a sweep from a
   target we're holding fire on. Add a bit (bit 3, reserved today) set on

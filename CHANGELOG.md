@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Non-spinning aiming holds the most face-on physical panel until another
+  faces the shooter more squarely. The measured 0.3 rad margin suppresses
+  noise-driven panel flips; track changes, invalid states, spinning and timeout
+  clear the hold. See [thornbots_pkg #9](https://github.com/Thornbots/thornbots_pkg/pull/9),
+  [sim #11](https://github.com/Thornbots/sim/pull/11) and the
+  [panel-choice measurements and compiled-firmware timing checks](sim/docs/panel-choice-2026-10-11.md).
+
 - Delegated agents never wait on user input. A delegation brief naming
   user-approved runs or lifecycle actions counts as that approval; anything
   else is skipped and reported to the delegating agent. See
