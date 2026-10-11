@@ -218,6 +218,12 @@ cleanup across the launch paths, including children that
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
 stops every node it started, with no tracebacks and no orphans.
 
+Open after 2026-10-11 fixes (temporary-world deletion, launch exceptions
+now fail the log checker): Fast DDS reader/participant teardown races
+(x86 pitch-bridge core; the aarch64 scan-bridge core needs a
+matching-library backtrace) and one interruption that left a gz server
+needing SIGKILL. See the [shutdown findings](sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings).
+
 - T30: The robot stack's bring-up race fails drift scenarios (2026-10-03:
   3 of 9 starts). `rf2o` can't look up `root -> lidar` and `amcl` drops
   every scan as older than its TF, so there is no `map->root`; the
