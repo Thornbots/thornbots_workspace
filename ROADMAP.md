@@ -36,14 +36,6 @@ CV:
   sample. Establish the angle's units/reference, latch hits until
   reported, and test with nonzero head/chassis yaw before trusting
   `hit_angle_sign`. See [firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
-- T33: A patrol flag on `CVTarget` (the user, 2026-10-04). Patrol points go
-  out as aim points with `fire` clear, so the MCB can't tell a sweep from a
-  target we're holding fire on. Add a bit (bit 3, reserved today) set on
-  every patrol point: `CVTarget.msg`, the bridge's packing,
-  `UART_PROTOCOL.md`, `point_to_cv_target`, sim's wire helper
-  (`sim/src/mcb_protocol.cpp`) and MCBV3's `JetsonSubsystem.hpp`. Ask the
-  MCB team to adopt it with the
-  [bridge firmware asks](ros2_dji_serial_bridge/README.md#asked-of-the-firmware).
 
 Repos:
 

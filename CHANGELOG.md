@@ -9,6 +9,17 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- `CVTarget.patrol` identifies every Jetson sweep and hit-turn patrol point
+  on UART bit 3. The 15-byte payload and current firmware behavior stay
+  unchanged; compiled-firmware tests verify all flag combinations and gates.
+  Bridge diagnostic interval zero now disables its timer; negatives are
+  rejected during startup.
+  See [bridge #5](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/5),
+  [thornbots_pkg #10](https://github.com/Thornbots/thornbots_pkg/pull/10),
+  [MCBV3 #86](https://github.com/Thornbots/MCBV3/pull/86),
+  [sim #12](https://github.com/Thornbots/sim/pull/12) and the
+  [firmware verification](sim/docs/patrol-flag-2026-10-11.md).
+
 - A fresh clone stays on the pinned package commits; the README and
   [JAZZY_FLASH](JAZZY_FLASH.md#8-our-image) no longer check out every
   submodule's branch tip. Start work with `git switch -c` in the package. See
