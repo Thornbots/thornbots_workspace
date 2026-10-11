@@ -37,7 +37,7 @@ Fix: correct the diagram or link to the single maintained diagram. This is an in
 
 ### 4. Firmware quickstart defaults to a different robot than advertised
 
-**Status (2026-10-11):** fix in progress (firmware README).
+**Status (2026-10-11):** resolved by [MCBV3 #87](https://github.com/Thornbots/MCBV3/pull/87) (README default robot, CI scope, `MCB-project/src/` case). Bare `scons run` was judged correct as documented: without `robot=` the build warns and defaults to ENGINEER, and the README says to pass `robot=` explicitly.
 
 Out of scope for the current work (user, 2026-10-06).
 
@@ -55,7 +55,7 @@ Fix: scope exclusivity to application commands sent to the bridge, if that is th
 
 ### 6. Localization rationale confuses the chassis with the heading-fixed root frame
 
-**Status (2026-10-11):** fix in progress.
+**Status (2026-10-11):** resolved by [sentry_localization #5](https://github.com/Thornbots/sentry_localization/pull/5) (rationale rewritten around the heading-fixed root; ekf.yaml header matches its source arrays).
 
 [sentry_localization/README.md:113](../../sentry_localization/README.md#launchlocalizationlaunchpy) says the chassis never turns; line 233 says it never rotates and attributes this to the context document. [ARCC_2026_SENTRY_CONTEXT.md:40](../../ARCC_2026_SENTRY_CONTEXT.md#our-sentrys-drivetrain-not-from-the-rulebook-our-hardware-choice) explicitly says the chassis spins while driving.
 
@@ -65,7 +65,7 @@ Fix: rewrite the rf2o/EKF rationale in terms of root. Check AGENTS and config co
 
 ### 7. Latency documentation describes an old bridge stamp
 
-**Status (2026-10-11):** fix in progress.
+**Status (2026-10-11):** resolved by [thornbots_pkg #11](https://github.com/Thornbots/thornbots_pkg/pull/11).
 
 [thornbots_pkg/README.md:221](../../thornbots_pkg/README.md#target_tracker) justifies `pose_latency_s` as compensation for parse-time stamping; line 371 says odom is stamped on arrival. [UART_PROTOCOL.md](../../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson) and the bridge's `frame_stamp()` instead use last-byte read time minus frame wire time.
 
@@ -79,7 +79,7 @@ Fix: distinguish target-aim failure from final output behavior. Say when patrol 
 
 ### 9. Firmware payload guidance is obsolete
 
-**Status (2026-10-11):** fix in progress.
+**Status (2026-10-11):** resolved by [thornbots_pkg #11](https://github.com/Thornbots/thornbots_pkg/pull/11) (struct-growth task and root-frame AGENTS claim removed).
 
 [thornbots_pkg/README.md:485](../../thornbots_pkg/README.md#point_to_cv_target) says the firmware struct still must grow before hardware timing works; its AGENTS says firmware still reads the target as root. The bridge README and protocol already document the matching 15-byte position-based-cv payload and firmware aiming from its odometry.
 
@@ -117,7 +117,7 @@ Fix: keep one current machine/status table with dates and link to it. Mark older
 
 ### 13. Current Jazzy guidance is buried under Humble internals
 
-**Status (2026-10-11):** open.
+**Status (2026-10-11):** resolved by [realsense-yolov8-nitros-bridge #4](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/4) and [#5](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/5): the README covers the Jazzy code only; Humble-era material was removed and stays on the frozen `humble` branch.
 
 [realsense-yolov8-nitros-bridge/README.md](../../realsense-yolov8-nitros-bridge/README.md) warns up front that its analysis was written for 3.2, but most of the document still recommends GXF stream pools and ManagedNitrosPublisher after declaring those obsolete for 4.6. The reader has to mentally patch every section with the preamble.
 
@@ -127,7 +127,7 @@ Fix: make the current pipeline and measured copy boundaries the primary document
 
 #### 14a — Lidar README
 
-**Status (2026-10-11):** fix in progress.
+**Status (2026-10-11):** partly resolved by [sllidar_ros2 #5](https://github.com/Thornbots/sllidar_ros2/pull/5), which fixed the `rpldiar_ros` directory typo. The `$echo`/`$source` lines in the shell setup example remain open.
 
 sllidar README's udev recipe uses nonexistent `src/rpldiar_ros/`; its shell setup examples include `$echo` and `$source`, which are not executable commands as written.
 
