@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Verified all three hosted-firmware match stages after T32/T33. Parked
+  moving cells still fail; drive/match pass diagnostic completion with zero
+  native hits. Current status links the
+  [per-cell/segment results and native checker verdicts](sim/docs/match-check-2026-10-11.md).
+
 - `CVTarget.patrol` identifies every Jetson sweep and hit-turn patrol point
   on UART bit 3. The 15-byte payload and current firmware behavior stay
   unchanged; compiled-firmware tests verify all flag combinations and gates.
