@@ -219,7 +219,8 @@ needing SIGKILL. See the [shutdown findings](sim/docs/mcb-hosted-check-2026-10-1
 - T30: The robot stack's bring-up race fails drift scenarios (2026-10-03:
   3 of 9 starts). `rf2o` can't look up `root -> lidar` and `amcl` drops
   every scan as older than its TF, so there is no `map->root`; the
-  harness's one restart (`_wait_for_root_chain`) hides some of it, and the
+  localization suite's single retry (it restarts the robot stack once if
+  `root` is not up after 30 s) hides some of it, and the
   robot can hit it at boot too. Find why the `root` chain is missing at
   start rather than restart around it. 2026-10-08: `mcb_match` died in
   bring-up when `lifecycle_manager_localization` heard nothing from
@@ -276,9 +277,9 @@ fix that, don't drop the EKF.
    our robot on a match-like route with `real_accel`'s 1.2 m/s^2, including
    the high ground. Score pose error against truth and check the map
    doesn't keep robots as walls (T3: sample the grid cells the actors
-   crossed, the `TODO` in `_run_cornering_loop_scenario`). Implement it
-   first in `mapping` mode from a blank map; review the unmerged `sim`
-   branch `t3-actor-map-check` before reusing it. Carried-map tests need a
+   crossed; the `cornering()` scenario in `localization_suite.cpp` has no
+   such check yet). Implement it first in `mapping` mode from a blank map.
+   Carried-map tests need a
    saved pose graph that rasterises in seconds.
 
 **Done when:** SLAM with the EKF passes the drift scenarios amcl passes,
@@ -372,6 +373,10 @@ status: [hardware status](JAZZY_FLASH.md#hardware-status).
   matters once obstacle avoidance has to be demonstrated.
 
 ## Issues found
+
+Open documentation findings (#4, #6, #7, #9, #13, #14a, #14f; the first
+five and #14a have fixes in progress) are in the
+[2026-10-06 documentation audit](docs/audits/docs-audit-2026-10-06.md).
 
 From the 2026-10-08 test sweep (Mac, workspace `a65e025`). Move each to a
 track or todo once someone owns it.

@@ -22,7 +22,7 @@ day:
 ## Why results don't repeat
 
 Measured on the Mac mini, 2026-10-08, workspace `8588660`, sim `c8f39a2`.
-The cell was `stage:=e2 speeds:=0 paths:=lateral duration:=10`, with the
+The cell was `stage:=mcb_parked speeds:=0 paths:=lateral duration:=10`, with the
 opponent parked:
 
 | Run | Hits | Barrel off aim, p50/max | Head TF error, p50/max | Scored RTF |
@@ -57,12 +57,13 @@ events depend on scheduling:
    `delay_ms` counts from there.
 5. **The stack falls back to latest TF.** `point_to_cv_target` uses the
    latest `odom<-root` when the stamped one isn't in yet
-   (`point_to_cv_target.py:333`). `_gun_pose` always uses the latest.
+   (`point_to_cv_target_node.cpp`, the `tf2::TimePointZero` lookup). `_gun_pose` always uses the latest.
 6. **Bring-up runs on wall timers.** `ROBOT_DELAY_S` and the bridge's 2 s
    `TimerAction` move sim time under the robot's start, so the first shot
    falls anywhere from 22 to 26 s.
-7. **The harness blames localization.** `segment_diagnostics` blames
-   `map->root` error before checking aim and barrel (`e2e_harness.py:726`).
+7. **The harness blamed localization.** `segment_diagnostics` blamed
+   `map->root` error before checking aim and barrel. It now follows the order
+   in step 7 (`sim/test/e2e/e2e_harness.cpp`).
    Every hop that aims uses `odom`, and `mcb_relay` relocalizes the MCB from
    the EKF's `odom` estimate, not AMCL's. So `map` error can't cost a hit,
    and that diagnosis hid the gimbal and stamp losses above.
@@ -77,12 +78,14 @@ in wall time but computes the same thing. A fast one never waits on a sleep.
 
 ### 1. LockstepGate: a gz system plugin that holds physics
 
-Add `sim/src/lockstep_gate.cpp`. `e2e.launch.py` loads it into the world
-when `lockstep:=true`, which is the default for e2e.
+Done: `sim/src/lockstep_gate.cpp`, loaded into the world when
+`lockstep:=true`, the default for e2e. It holds at 5 ms MCB batch deadlines
+only; the remaining hold points are in step 4. Its contract:
 
-- In `PreUpdate`, it stops at the next hold point and blocks until a release
-  arrives. Releases come on a gz-transport topic,
-  `/sim/lockstep/release` (`gz.msgs.Time`, released-until).
+- It stops at the next hold point and blocks until a release arrives.
+  Releases come on a gz-transport topic,
+  `/sim/lockstep/release` (`gz.msgs.Time`, released-until). Move the hold
+  from `PostUpdate` to `PreUpdate` when the firmware runs in the step.
 - Make sure the `/clock` ROS sees while held equals the hold time. Check
   this with a test; don't assume it.
 - A wait longer than `max_wait_s` of wall time (2 s) is a **lockstep
@@ -98,22 +101,21 @@ hosted firmware process. It replaces `mcb_emulator_node` in e2e:
 - **One firmware cycle per 1 ms physics step,** in `PreUpdate`. Readings
   come from the ECM at that step: chassis pose and twist, plus
   `headlink`/`headpitch` position and velocity. Use the mapping in
-  `mcb_firmware.Firmware.gz_readings` and `GzHardware`.
+  `Firmware::gz_readings` and `GzHardware` (`mcb_firmware.hpp`).
 - **Gimbal commands apply in the same step.** Run the head PD inside the
   plugin, with the gains `JointPositionController` has now
   (`sentry_v2.urdf.xacro`: p 75, d 2.1 yaw, d 1.2 pitch, +-50 N m), as
   joint force commands. Drop those two controllers from the model when the
   plugin is loaded. Chassis drive goes straight to the velocity command
   that `VelocityControl` sets now.
-- **Pipe protocol:** reimplement the `INPUT`/`OUTPUT` structs and the `MCB1`
-  handshake from `sim/mcb_firmware.py`. Keep the Python `Firmware` class
-  only where `test/mcb` and `mcb.launch.py` still need it, or port them.
-  Don't keep two stepping paths for e2e.
+- **Pipe protocol:** reuse the `Input`/`Output` structs and the `MCB1`
+  handshake from `sim/include/sim/mcb_firmware.hpp` (the Python port is
+  removed). Don't keep two stepping paths for e2e.
 - **Shots:** publish each shot stamped with its firmware cycle's sim time,
   on the topic the scorer reads now (`/mcb_emulator/shot`).
 - **Referee state:** today these are ROS parameters on `mcb_emulator`. Move
   them to a gz topic, or to a thin ROS node that forwards them. The scorer's
-  `_sync_referee` sets them.
+  `Scorer::sync_referee()` (`sim/test/e2e/e2e_harness.cpp`) sets them.
 - **Physics step:** keep it at 1 ms (2-4 ms sent the head PID unstable;
   [sim rules](sim/AGENTS.md#standing-rules)).
 
@@ -134,9 +136,9 @@ relays bytes to and from the pty master on a modeled wire:
 
 ### 4. A coordinator that decides when to release
 
-Add `sim/src/lockstep_coordinator.cpp`, in C++. It generalizes
-`sim_clock.py`'s `pace_topics` into a schedule of hold points, each waiting
-on acks:
+`sim/src/lockstep_coordinator.cpp` exists and schedules only the MCB batch
+ack. Extend it, generalizing `sim_clock.cpp`'s `pace_topics`, into a schedule
+of hold points, each waiting on acks:
 
 | Chain started at T | Hold until |
 |---|---|
@@ -184,7 +186,7 @@ a fixed sim-time boundary, as `case_align_s` does on the estimation bench.
 
 ### 7. Harness and diagnosis
 
-- **Diagnosis order** in `segment_diagnostics`:
+- **Diagnosis order** in `segment_diagnostics` (done):
   1. no shots
   2. `aim_off_panel_m` (tracker / `point_to_cv_target`)
   3. head TF error (stamps)
@@ -192,19 +194,16 @@ a fixed sim-time boundary, as `case_align_s` does on the estimation bench.
   5. otherwise none
 
   `map->root` error is logged, never a diagnosis.
-- **New metric, `odom_disagreement_m`:** at each shot, the MCB's POSE
-  position against TF `odom->root` at the same stamp. That agreement is what
-  a hit depends on.
-- **Run comparison:** add `tools/compare_runs.py <log_dir_a> <log_dir_b>`.
-  It diffs `shots.jsonl`, `states.jsonl` and `route.jsonl` record by record
-  and prints the first divergence.
+- **New metric, `odom_disagreement_m`:** done in the harness (the MCB's POSE
+  position against TF `odom->root` at the stamp).
+- **Run comparison:** done, `ros2 run sim compare_runs LOG_DIR_A LOG_DIR_B`
+  (`sim/tools/compare_runs.cpp`) prints the first divergence per jsonl log.
 
 ### 8. The MCB emulator for every stage
 
-E2 already runs E1's cells through the MCB. Remove E1's
-`cv_head_aim` + `pose_emulator` + `team_stub` path from `e2e.launch.py` and
-`e2e_harness.py`, and make the parked-robot stage the MCB stage. Update
-`E2E_PLAN.md`'s Stages and the `sim` docs to match.
+Done: every stage runs the MCB emulator and E1's `cv_head_aim` +
+`pose_emulator` + `team_stub` path is gone from `e2e.launch.py` and
+`sim/test/e2e/e2e_harness.cpp`; `E2E_PLAN.md`'s Stages match.
 
 Keep `pose_emulator` and `cv_head_aim` themselves. The drift suite and the
 benches still use them (`sim/AGENTS.md`).
@@ -222,7 +221,7 @@ Done when, for E2 stationary-lateral first, then all E2 cells, E3 and E4:
 
 - On one machine, three unthrottled runs, one at `real_time_factor:=1` and
   one with gz pinned to two cores (`taskset -c 0,1`) give identical
-  `shots.jsonl`, compared with `compare_runs.py`.
+  `shots.jsonl`, compared with `compare_runs`.
 - Mac and Archlinux give the same hit sequence. Any per-shot difference is
   traced to gz physics floating point and written down.
 - No run has a lockstep timeout or a latest-TF fallback.
