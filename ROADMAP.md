@@ -280,6 +280,13 @@ and shell-death cleanup across the launch paths, including children that
 waits for the stack before scoring, and on Ctrl-C or the end of the tests
 stops every node it started, with no tracebacks and no orphans.
 
+2026-10-11: repeated temporary-world deletion is fixed and launch exceptions
+now fail the log checker. An x86 pitch-bridge core shows concurrent Fast DDS
+reader/participant teardown; the Mac Oct 8 aarch64 scan-bridge core still needs
+a matching-library backtrace. One interruption left a gz server requiring
+SIGKILL; a subsequent run shut down cleanly. See
+[MCB/shutdown investigation](sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings).
+
 - T30: The robot stack's bring-up race fails drift scenarios (2026-10-03
   run, archlinux). 3 of 9 starts had no `map->root` after 30 s:
   `rf2o` can't look up `root -> lidar`, `amcl` comes up active but drops

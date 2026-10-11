@@ -9,6 +9,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Sim temporary-world cleanup tolerates repeated shutdown events, and the native
+  log checker rejects launch exceptions. Fresh hosted MCB builds, UART traffic
+  and live gimbal aiming were verified on x86_64. See
+  [sim #10](https://github.com/Thornbots/sim/pull/10) and the
+  [verification and shutdown findings](sim/docs/mcb-hosted-check-2026-10-11.md).
+
 - PRs into `nightly` run only cheap CI (lint, policy, host helpers, MCBV3
   hosted tests). Jazzy ROS builds, the robot image and MCBV3 ARM builds run on
   `nightly`/`main` pushes, PRs into `main` and manual dispatch, and nightly
