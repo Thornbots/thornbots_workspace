@@ -101,9 +101,10 @@ remaining wire and firmware work with the MCB team. The
 [CV interface](thornbots_pkg/README.md#cv-interface) is implemented;
 hardware validation is not.
 
-- Validate the [shared field frame](ros2_dji_serial_bridge/README.md#shared-aim-frame)
+- Validate [raw aim and separate navigation frames](ros2_dji_serial_bridge/README.md#aim-and-navigation-frames)
   on hardware with matching firmware and ROS revisions, including RELOCALIZE
-  mailbox loss. The [POSE chassis-yaw proposal](ros2_dji_serial_bridge/UART_PROTOCOL.md#proposed-pose-chassis-yaw)
+  mailbox loss and the team-start reanchor.
+  The [POSE chassis-yaw proposal](ros2_dji_serial_bridge/UART_PROTOCOL.md#proposed-pose-chassis-yaw)
   stays unapplied; heading-fixed aiming does not need it.
 - Measure USB/read buffering and MCB sample-to-send delay. An MCB clock on
   the wire is a proposal, not the current stamp contract.
@@ -346,10 +347,10 @@ status: [hardware status](JAZZY_FLASH.md#hardware-status).
     bit 0 alone (the user, 2026-10-04). T31 decides when to allow its turn
     toward a hit.
   - Acceptance checks: depth on a lit panel, bridge diagnostics `pose>0`,
-    muzzle under 25 m/s, `POSE`'s x/y in the field frame (a panel straight
-    ahead lands straight ahead of `root`; driving 1 m fires no RELOCALIZE
-    every 0.3 s). First shots on a stand, eye protection on, e-stop in
-    reach.
+    muzzle under 25 m/s, a panel straight ahead lands straight ahead of
+    `root`, and a `RELOCALIZE` moves neither `POSE` x/y nor a held aim (it
+    fires only when the navigation offset changes, not every 0.3 s). First
+    shots on a stand, eye protection on, e-stop in reach.
   - Timing (the user, 2026-10-04): `delay_ms` runs from MCB receipt but is
     computed at decision, transit not taken off (`mcb_relay` takes off its
     RELOCALIZE latency); our `firmware_latency_s` 0.05 and the firmware's

@@ -149,7 +149,7 @@ of hold points, each waiting on acks:
 | Chain started at T | Hold until |
 |---|---|
 | POSE frame (plugin announces its cycle) | `/dji_serial_bridge/pose` and `/odom` stamped k |
-| EKF tick (30 Hz) | `/localization/odom`, and `odom->root` on `/tf`, at that tick |
+| EKF tick (30 Hz) | `/localization/odom`, and `nav_odom->odom` on `/tf`, at that tick |
 | `/scan` (10 Hz) | rf2o's output stamped T |
 | `detector_standin` tick (60 Hz) | `/cv/tracker/measurement` echoes T, as on the estimation bench |
 | `point_to_cv_target` tick (40 Hz) | its `tick_pub` header at T, then the plugin reports any CV_TARGET bytes read |
@@ -171,7 +171,7 @@ true:
 
 - Every e2e node is up.
 - The localization lifecycle nodes are active.
-- The first `map->odom->root->camera` chain is in TF.
+- The first `map->nav_odom->odom->root->camera` chain is in TF.
 
 `ROBOT_DELAY_S` and the 2 s bridge timer then can't move sim time. Use event
 handlers instead (the pty exists, then start the bridge). Start each cell on

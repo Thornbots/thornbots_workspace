@@ -10,14 +10,19 @@ impact, and link the corresponding package changes.
 ### Changed
 
 - Aim and tracking now use raw, never-relocalized MCB `odom`; EKF and
-  RELOCALIZE correct only navigation `nav_odom`. POSE and CV_TARGET retain
-  their current UART layouts but require matching firmware and Jetson updates.
-  `mcb_drive` now rejects zero native hits. The
-  [controlled comparison and three-repeat results](sim/docs/aim-localization-coupling-2026-10-11.md)
+  RELOCALIZE correct only navigation `nav_odom` through a translation-only
+  `nav_odom->odom`. The EKF no longer feeds its own heading back, the relay
+  sends RELOCALIZE only when the navigation offset changes (4-86 per sim run,
+  down from up to 881), and a team-start reanchor or sim clock reset is never
+  interpolated across. POSE and CV_TARGET retain their current UART layouts
+  but require matching firmware and Jetson updates. `mcb_drive` now rejects
+  zero native hits. The
+  [controlled comparison, repeats and review-fix rerun](sim/docs/aim-localization-coupling-2026-10-11.md)
   measure frame isolation and remaining combat misses. See
   [MCBV3 #89](https://github.com/Thornbots/MCBV3/pull/89),
   [bridge #8](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/8),
-  [thornbots_pkg #13](https://github.com/Thornbots/thornbots_pkg/pull/13), and
+  [thornbots_pkg #13](https://github.com/Thornbots/thornbots_pkg/pull/13),
+  [sentry_localization #6](https://github.com/Thornbots/sentry_localization/pull/6), and
   [sim #16](https://github.com/Thornbots/sim/pull/16).
 
 - Moving RELOCALIZE corrections now predict to their estimated apply stamp
