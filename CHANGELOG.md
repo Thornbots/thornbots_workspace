@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Verified all three hosted-firmware match stages after T32/T33. Parked
+  moving cells still fail; drive/match pass diagnostic completion with zero
+  native hits. Current status links the
+  [per-cell/segment results and native checker verdicts](sim/docs/match-check-2026-10-11.md).
+
 - Sim runs one native MCB control tick per gz physics step, supplies DJI motor
   feedback and applies motor outputs as forces instead of gz setpoint
   controllers. The UART bridge waits for the PTY. This completes track I's

@@ -15,7 +15,7 @@ belong in commits and dated investigation docs.
 |---|---|
 | Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Aiming, tracking, driving and match suites pass, but an x86_64 match run caught allied intersections; moving-target cells and repeatability are open (T17). Passing drive/match diagnostics do not establish combat accuracy. |
+| CV end to end in sim | Aiming/tracking benches pass; parked moving cells fail. Drive/match complete diagnostically with zero native hits. See the [latest hosted-firmware run](sim/docs/match-check-2026-10-11.md); repeatability remains open (T17). |
 | Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -68,11 +68,14 @@ drives our robot from sim.
   `odom_disagreement_m`) before the tracker. The
   [MCB-batch gate](sim/README.md#mcb-emulator) is implemented; full
   hit-path lockstep and identical shot sequences remain in
-  [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md).
-- `mcb_drive` passes with no hits (2026-10-08: every segment 0%, median aim
-  error over 0.10 m, localization p95 0.46-0.91 m against truth). Make it
-  fail on that, then find why localization is that far off while driving
-  (the drift suite's 0.24 m is `map->odom` change, not truth error).
+  [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md). The
+  [latest x86_64 cell results](sim/docs/match-check-2026-10-11.md#parked-cells)
+  still fail moving-target floors.
+- `mcb_drive` and `mcb_match` still pass diagnostic completion with zero
+  native hits; [latest segment results](sim/docs/match-check-2026-10-11.md#driving-segments)
+  include truth-localization error. Make combat accuracy fail on that, then
+  find why localization is that far off while driving (the drift suite's
+  0.24 m is `map->odom` change, not truth error).
 
 ### I. MCB emulator
 
