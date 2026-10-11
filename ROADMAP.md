@@ -80,12 +80,10 @@ drives our robot from sim.
 ### I. MCB emulator
 
 Stages run the checked-out MCBV3 code as a host build with fake hardware
-([sim README](sim/README.md#mcb-emulator)); motor feedback and MCU timing
-are models, and `mcb_drive`/`mcb_match` use `match_driver`, not the
-firmware's auto-drive.
-
-- Wire physical CAN motor feedback and dynamics to gz instead of applying
-  firmware setpoints through gz's existing controllers.
+([sim README](sim/README.md#mcb-emulator)), with CAN feedback and motor forces
+inside each 1 ms gz physics step. The motor plant remains an estimate; MCU
+execution is still hosted, and `mcb_drive`/`mcb_match` use scripted velocities
+through firmware motor control rather than the firmware's auto-drive.
 - A real Type C emulator (the user, 2026-10-03): emulate the STM32F407 and
   run the same `.elf` we flash, to catch what the host build hides (UART/DMA
   drivers, interrupt timing, 1 kHz overruns, `-O` and float behaviour).
@@ -285,7 +283,8 @@ must not collect robots or duplicate walls.
 
 ### J. Lidar and camera
 
-T22 and T23's robot half are later, needing a robot (the user, 2026-10-08).
+T22 and T23's robot half are later, needing a robot (the user, 2026-10-08),
+as is T37's measurement.
 
 - T22: Can the RPLIDAR's points per scan and scan rate change, and would it
   help (the user, 2026-10-02)? Open: which modes and rates our model
@@ -304,6 +303,16 @@ T22 and T23's robot half are later, needing a robot (the user, 2026-10-08).
   On the robot `roi_depth_node` ranges each detection off the D435's depth;
   no sim test uses depth (`detector_standin` feeds 3D truth). Without it,
   range would have to come from the colour image.
+- T37: Look into going back to a zero-copy camera path (the user,
+  2026-10-11). On Jazzy the camera frame is a CPU `Image` that
+  `DnnImageEncoderNode` uploads to the GPU every frame, and the camera →
+  encoder hop is copy-free only while intra-process comms hold, unverified
+  on the encoder side ([copy boundary](realsense-yolov8-nitros-bridge/README.md#copy-boundary)).
+  Measure what those copies cost on the Orin first (latency and GPU/CPU
+  time per frame). Then weigh options: a camera node that publishes
+  `NitrosImage` from a pinned or mapped buffer, letterboxing on the GPU,
+  or reworking the unused `NitrosRealsenseBridgeNode`. Measurement needs a
+  robot.
 
 ## Later: needs a robot
 
