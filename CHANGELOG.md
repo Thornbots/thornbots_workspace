@@ -9,6 +9,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Moving RELOCALIZE corrections now predict to their estimated apply stamp
+  without counting the inbound UART leg twice. This removes a velocity-times-
+  UART-latency position bias; stationary corrections are unchanged. See
+  [thornbots_pkg #12](https://github.com/Thornbots/thornbots_pkg/pull/12) and
+  [relay timing](thornbots_pkg/README.md#mcb_relay).
+
 - Verified all three hosted-firmware match stages after T32/T33. Parked
   moving cells still fail; drive/match pass diagnostic completion with zero
   native hits. Current status links the
