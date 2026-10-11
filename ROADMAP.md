@@ -15,7 +15,7 @@ belong in commits and dated investigation docs.
 |---|---|
 | Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Aiming/tracking benches pass; parked moving cells fail. Drive/match complete diagnostically with zero native hits. See the [latest hosted-firmware run](sim/docs/match-check-2026-10-11.md); repeatability remains open (T17). |
+| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero hits. Parked moving cells and combat accuracy remain open. See the [coupling comparison and three-repeat results](sim/docs/aim-localization-coupling-2026-10-11.md); repeatability remains open (T17). |
 | Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -69,13 +69,14 @@ drives our robot from sim.
   [MCB-batch gate](sim/README.md#mcb-emulator) is implemented; full
   hit-path lockstep and identical shot sequences remain in
   [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md). The
-  [latest x86_64 cell results](sim/docs/match-check-2026-10-11.md#parked-cells)
+  [latest x86_64 cell results](sim/docs/aim-localization-coupling-2026-10-11.md#parked-cells)
   still fail moving-target floors.
-- `mcb_drive` and `mcb_match` still pass diagnostic completion with zero
-  native hits; [latest segment results](sim/docs/match-check-2026-10-11.md#driving-segments)
-  include truth-localization error. Make combat accuracy fail on that, then
-  find why localization is that far off while driving (the drift suite's
-  0.24 m is `map->odom` change, not truth error).
+- `mcb_drive` rejects zero native hits; `mcb_match` still uses diagnostic
+  completion rather than a calibrated combat hit floor. Raw aim is isolated
+  from EKF/RELOCALIZE; [controlled and three-repeat segment results](sim/docs/aim-localization-coupling-2026-10-11.md#driving-and-match-segments)
+  include stamped truth-localization error. Improve moving-shooter hits and
+  set combat accuracy floors; the drift suite's transform change is not truth
+  error.
 
 ### I. MCB emulator
 
@@ -338,8 +339,9 @@ status: [hardware status](JAZZY_FLASH.md#hardware-status).
   less its own odometry and fires `delay_ms` after receipt. New format only;
   the bridge doesn't fall back to the old one (the user, 2026-10-02).
   - Flash the matching firmware: MCBV3 `nightly` (pinned here) has pitch
-    for `z` above the pivot and rep-105's one field frame (Thornbots/MCBV3#77,
-    closed). Not flashed; deploy firmware and ROS stack together.
+    for `z` above the pivot and separate raw aim/navigation odometry. See
+    [wire frames](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+    Not flashed; deploy firmware and ROS stack together.
   - Patrol sweeps the gun with no target, fire clear; the firmware fires on
     bit 0 alone (the user, 2026-10-04). T31 decides when to allow its turn
     toward a hit.

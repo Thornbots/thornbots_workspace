@@ -9,6 +9,17 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Aim and tracking now use raw, never-relocalized MCB `odom`; EKF and
+  RELOCALIZE correct only navigation `nav_odom`. POSE and CV_TARGET retain
+  their current UART layouts but require matching firmware and Jetson updates.
+  `mcb_drive` now rejects zero native hits. The
+  [controlled comparison and three-repeat results](sim/docs/aim-localization-coupling-2026-10-11.md)
+  measure frame isolation and remaining combat misses. See
+  [MCBV3 #89](https://github.com/Thornbots/MCBV3/pull/89),
+  [bridge #8](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/8),
+  [thornbots_pkg #13](https://github.com/Thornbots/thornbots_pkg/pull/13), and
+  [sim #16](https://github.com/Thornbots/sim/pull/16).
+
 - Moving RELOCALIZE corrections now predict to their estimated apply stamp
   without counting the inbound UART leg twice. This removes a velocity-times-
   UART-latency position bias; stationary corrections are unchanged. See
