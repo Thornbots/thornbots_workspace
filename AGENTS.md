@@ -10,9 +10,9 @@ Memory is disabled: do not read or write agent memory.
 Delegate well-specified, high-volume repetitive edits to lower-cost agents
 (Haiku/Luna). The delegating agent defines scope and acceptance checks,
 resolves ambiguity, then reviews the diff and runs the checks itself. It
-names user-approved runs in the brief and owns asking the user. Delegated
-agents never wait on user input: they skip anything outside the brief and list
-it in their report.
+names other user-approved actions in the brief and owns asking the user.
+Delegated agents never wait on user input: they skip anything outside the
+brief and list it in their report.
 
 ## Repository checks
 
@@ -29,15 +29,16 @@ CI check commits and message contracts;
 Load [isaac-ros-docker](.claude/skills/isaac-ros-docker/SKILL.md) for every
 Docker command or command inside a container.
 
-- Ask before starting, restarting or stopping any laptop container or VM,
-  including through scripts/services or Colima. On `ts-nano-*`, carry out
-  requested container/image lifecycle work without separate confirmation.
-  “dev” means `ts-nano-dev`.
-- Ask before every sim integration test or bench run, even an obvious rerun.
-- A delegation brief stating the user approved named runs or lifecycle actions
-  is that approval for the delegated agent, only for what it names.
-- Check for running stacks before launching; ask before stopping anything you
-  did not start, and clean up what you started.
+- Start laptop containers, VMs (including Colima) and stacks as needed
+  without asking, following the skill. Check for running ones first
+  and reuse them; ask before restarting or stopping anything you did not
+  start, and clean up what you started. On `ts-nano-*`, carry out requested
+  container/image lifecycle work without separate confirmation. “dev” means
+  `ts-nano-dev`.
+- Run tests as you see fit, including sim integration tests, sim benches and
+  reruns, without asking. Ask before runs on a physical robot.
+- A delegation brief stating the user approved named actions is that approval
+  for the delegated agent, only for what it names.
 
 ## Branches
 
