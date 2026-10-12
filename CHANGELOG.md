@@ -54,9 +54,10 @@ impact, and link the corresponding package changes.
   [panel-choice measurements and compiled-firmware timing checks](sim/docs/panel-choice-2026-10-11.md).
 
 - Agents run tests, sim integration tests, sim benches and reruns as they see
-  fit without asking; physical-robot runs and laptop container/VM lifecycle
+  fit, and start laptop containers, VMs and stacks as needed, without asking.
+  Physical-robot runs and restarting or stopping what an agent did not start
   still need the user. Delegated agents never wait on user input: a brief
-  naming user-approved lifecycle actions counts as that approval, and anything
+  naming other user-approved actions counts as that approval, and anything
   else is skipped and reported. See [delegation](AGENTS.md#delegation) and
   [runs](AGENTS.md#containers-and-runs).
 - Sim temporary-world cleanup tolerates repeated shutdown events, and the native
