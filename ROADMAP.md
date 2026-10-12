@@ -1,379 +1,250 @@
 # Where the project is going
 
-A localization suite we can believe, CV split at `TargetState` with a bench
-for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-12. `main` has been Jazzy since 2026-09-27;
-Humble is frozen on the `humble` branches.
-
-This file lists only work still to do. Delete an item when it's finished,
-then commit and push; don't mark it done. Measurements and run histories
-belong in commits and dated investigation docs.
+Prove the firmware-driven CV stack end to end in sim, then improve estimation
+accuracy and validate the same stack on the robots. This file owns open work;
+usage, design and measurements stay in the linked package docs and investigations.
 
 ## Where we actually are
 
-| Thing | State |
-|---|---|
-| Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
-| Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Board parked, drive and match cells pass at diagnostic tier; [current verification](sim/docs/mcb-auto-drive-2026-10-12.md). Calibrated combat accuracy and repeatability remain in [track A](#a-the-match-test) and T17. |
-| MCB execution | The [Type C backend](sim/README.md#type-c-board-execution-with-renode) runs the board ELF through calibration and UART/CAN drivers; driving stages use firmware auto-drive. [Board-stage verification](sim/docs/mcb-auto-drive-2026-10-12.md), [boot/receive-path investigation](sim/docs/mcb-type-c-2026-10-11.md), and [model limits](sim/README.md#type-c-board-execution-with-renode). |
-| Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
+| Area | Status | Maintained home / evidence |
+| --- | --- | --- |
+| Localization | Recorded native passes; startup race open (T30) | [Drift](sim/README.md#localization-drift-suite), [EKF](sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
+| Estimation | Accuracy work open (G) | [Bench](sim/README.md#run-the-tests), [dated baseline](sim/docs/cv-bench-results-2026-09-28.md) |
+| Firmware / CV | Board stages verified at diagnostic tier; accuracy open (A) | [Type C execution](sim/README.md#type-c-board-execution-with-renode), [board verification](sim/docs/mcb-auto-drive-2026-10-12.md) |
+| Robots | Flashing and acceptance remain (C) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
 
-Numbers stay put when items are deleted or move to a track (T3 to H; T7, T8
-and T15 to G; T17 to A; T20, T25 and T29 to C; T24 and T30 to E; T19, T22
-and T23 to J).
+T-numbers and track letters are stable identifiers. Repository administration
+can proceed independently of the sim work.
 
-CV:
-
-- T31: Tell the Type C when not to turn toward a hit (the user,
-  2026-10-04). `point_to_cv_target` sends `turn_to_hit` (`CVTarget` bit 2)
-  unchanged (default true), so a hit overrides a live CV target for 500 ms.
-  Decide it per frame: clear it while we hold a valid `TargetState`, and
-  gate our own patrol's hit turn (`hit_turn_s`) the same way. Also repair
-  the hit input: `HitTracker::addHit` converts already-radian IMU yaw by
-  `PI/180`, and its one-cycle `isHit` can be missed by the 10 Hz REF_SYS
-  sample. Establish the angle's units/reference, latch hits until
-  reported, and test with nonzero head/chassis yaw before trusting
-  `hit_angle_sign`. See [firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
-
-Repos:
-
-- T35: Move MCBV3 to `main` (the user, 2026-10-10; not ready yet). Its
-  GitHub default is still `newMain`, far behind `nightly`. Make `main` the
-  default like the other packages, then retire `newMain`.
-- T36: Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
-  isaac-ros-startup, realsense-yolov8-nitros-bridge and
-  ros2_dji_serial_bridge. Needs a repo admin; copy the
-  "Archive humble (read-only)" ruleset from thornbots_workspace.
+- **T31 — bridge / MCBV3, open:** decide hit-turn permission per frame (the
+  user, 2026-10-04). Clear it while holding a valid `TargetState`, including
+  the Jetson patrol's hit turn. Establish hit-angle units/reference and latch
+  hits until REF_SYS reports them; test nonzero head and chassis yaw before
+  trusting the sign. [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
+- **T35 — MCBV3, not ready:** move the default branch from `newMain` to
+  `main`, then retire `newMain` (the user, 2026-10-10).
+  [Repository](https://github.com/Thornbots/MCBV3), [branch policy](AGENTS.md#branches).
+- **T36 — repository admins, blocked on admin access:** lock `humble`
+  read-only in Realsense_ROI_Depth_Rectifier, isaac-ros-startup,
+  realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge. Apply the workspace's
+  “Archive humble (read-only)” [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
 
 ## Tracks, in order of work
 
-Sim work first; robot work waits for [later](#later-needs-a-robot) (the
-user, 2026-10-08). Finish the short todos, then A, then G, then the sim
-parts of B and C. D runs alongside A; E, F, H, I and J are unscheduled.
-Navigation comes after the Midwest competition; until then the match test
-drives our robot from sim.
+Sim first; robot work waits (the user, 2026-10-08). Address T31, then A,
+then G, then the sim parts of B and C. D supports A in parallel. E, F, H
+and J are unscheduled; their robot checks join [later](#later-needs-a-robot).
+Navigation waits until after the Midwest competition.
 
 ### A. The match test
 
-[`E2E_PLAN.md`](E2E_PLAN.md): stages `mcb_parked`, `mcb_drive` and
-`mcb_match` ([sim README](sim/README.md)).
+Owner: sim and thornbots_pkg. Open: calibrated combat accuracy and repeatability.
+Stage definitions and scoring live in [E2E_PLAN](E2E_PLAN.md); current board
+acceptance is in the [dated verification](sim/docs/mcb-auto-drive-2026-10-12.md).
 
-- T17: Runs with the same inputs should score nearly the same (the user,
-  2026-09-28). The aiming bench does; the estimation bench's moving cells
-  and `mcb_parked` do not. The worst cells are lost tracks, not aim, though
-  the stand-in feeds truth, so look at the tracker's input in gz (detection
-  timing and stamps against `/clock`, the parked robot's odom walk in
-  `odom_disagreement_m`) before the tracker. The
-  [MCB-batch gate](sim/README.md#mcb-emulator) is implemented; full
-  hit-path lockstep and identical shot sequences remain in
-  [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md). The
-  [latest x86_64 cell results](sim/docs/match-check-2026-10-11.md#parked-cells)
-  still fail moving-target floors.
-- `mcb_drive` and `mcb_match` still pass diagnostic completion with zero
-  native hits; [latest segment results](sim/docs/match-check-2026-10-11.md#driving-segments)
-  include truth-localization error. Make combat accuracy fail on that, then
-  find why localization is that far off while driving (the drift suite's
-  0.24 m is `map->odom` change, not truth error).
-
-### B. Hit while we move
-
-Later, needs a robot (the user, 2026-10-08), except the moving-shooter
-aiming-bench runs, which are sim. After `mcb_drive` scores, agree the
-remaining wire and firmware work with the MCB team. The
-[CV interface](thornbots_pkg/README.md#cv-interface) is implemented;
-hardware validation is not.
-
-- Validate the [shared field frame](ros2_dji_serial_bridge/README.md#shared-aim-frame)
-  on hardware with matching firmware and ROS revisions, including RELOCALIZE
-  mailbox loss. The [POSE chassis-yaw proposal](ros2_dji_serial_bridge/UART_PROTOCOL.md#proposed-pose-chassis-yaw)
-  stays unapplied; heading-fixed aiming does not need it.
-- Measure USB/read buffering and MCB sample-to-send delay. An MCB clock on
-  the wire is a proposal, not the current stamp contract.
-- Verify camera stamps survive YOLO, measure stamp-to-capture latency
-  (metadata or a blinking LED), and set `camera_latency_s`.
-- Measure the gimbal's roughly 7-degree chase jump settling; set
-  `chase_settle_s`.
-- Run radial and diagonal aiming-bench paths with a moving shooter and add
-  their missing floors.
-
-Done when each moving match-test segment comes within 10 percentage points
-of the same target cell with our robot parked. Record hardware results in
-[hardware status](JAZZY_FLASH.md#hardware-status).
-
-### C. Jazzy on the robots
-
-Later, needs a robot (the user, 2026-10-08): the reflash, hardware checks,
-boot time and T29. T20's bridge logging and T25's message can land first,
-tested in sim against the MCB emulator. Migration state, unverified checks
-and flashing steps: [JAZZY_FLASH.md](JAZZY_FLASH.md#hardware-status). A
-Humble performance comparison needs a recorded baseline; none exists.
-
-Boot time: power-on to a running ROS stack under 1 min on each robot (the
-user, 2026-09-30). The trimmed sentry is at about 20 s from kernel start
-([Boot time](isaac-ros-startup/README.md#boot-time), T34). Open: 1 of 12
-`quiet` boots lost the GPU (`isaac-ros-startup` reboots on it), the firmware
-time before the kernel, and Standard, the one robot left to flash.
-
-- T20: A better log format on the robots (the user, 2026-10-01). About 75%
-  of each boot-service log is `dji_serial_bridge`'s per-frame `ref_sys RX`
-  and `relocalize TX` INFO lines (`debug_log` defaults true). Left: move
-  those to DEBUG or throttle them, throttle CRC and rf2o per-scan WARNs,
-  put the bridge's DIAG stats on `/diagnostics`, and test pruning old
-  per-run bags by free disk.
-- T25: Log any data from the MCB through a new message (the user,
-  2026-10-03). The Jetson sees only `POSE`, `REF_SYS` and `PING`, so the
-  MCB's own state (mode, setpoints, what it did with a `CV_TARGET`, fire
-  events, faults) is invisible after a run. Add a UART message the
-  firmware can fill with any data, published by `dji_serial_bridge` on a
-  topic the per-run bag records (T20). Open: fixed struct or tagged
-  key/value fields, its rate, and the bandwidth left on the 115200-baud
-  link. Spec it in `UART_PROTOCOL.md`; land it in the bridge and MCBV3.
-- T29: Each robot builds its own image, faster (the user, 2026-10-03).
-  Building on the Mac mini is a stopgap. CI now publishes arm64 robot
-  images to GHCR ([registry](docs/CI.md#robot-registry)), not yet pulled
-  onto a robot. Decide whether pulling replaces building on the robot, then
-  trim this item. If building stays, try zstd or no compression on the
-  export, new apt packages in their own layer plus an apt cache mount,
-  ccache for colcon, and `USE_WS_OVERLAY=true` with an incremental
-  `colcon build` for code-only changes. Carrying an image from the laptop
-  to the sentry over USB (~200 MB/s, the user) takes minutes; shipping over
-  `ssh -R` is untested ([x86 laptop](isaac_ros_common/docker/README.md#on-the-x86-laptop)).
+- **T17 — open:** identical inputs should produce nearly identical scores
+  (the user, 2026-09-28). Finish the consumption-chain, UART-in-sim-time and
+  deterministic bring-up work in [E2E_LOCKSTEP_PLAN](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
+  Check detection timing/stamps, lost tracks and `odom_disagreement_m` before
+  tuning the tracker. Repeat the full parked-cell sweep on the board backend;
+  the [hosted baseline](sim/docs/match-check-2026-10-11.md#parked-cells) is not
+  current board acceptance.
+- **Combat floors — open:** `mcb_drive` and `mcb_match` can pass diagnostic
+  completion with zero hits when a miss diagnosis is present. Add calibrated
+  hit-rate gates and resolve aim/frame and driving localization errors.
+  [Diagnostic design](sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 
 ### G. Estimation accuracy
 
-Tuning waits until the stack works end to end (the user, 2026-09-29); the
-match test runs on today's tracker. [Dated bench observations](sim/docs/cv-bench-results-2026-09-28.md)
-record the errors behind these tasks.
+Owner: thornbots_pkg and sim. Open; tuning follows end-to-end functionality
+(the user, 2026-09-29). [Tracker design](thornbots_pkg/README.md#target_tracker)
+and [dated observations](sim/docs/cv-bench-results-2026-09-28.md) own the rationale.
 
-| Step | Problem | Where to start |
-| --- | --- | --- |
-| G.1 | Radius and spin-rate outliers on some 4 m/s runs | Lower `process_noise_radius` and try an armor-radius prior; log innovations around spin misreads |
-| G.2 | Radial depth error and staggered-panel handoff after blackouts | Tune `meas_noise_base_m` / `meas_noise_range_coeff` with `ray_covariance`; check `dz` pair parity across gaps |
-| G.3 | Fresh tracks become `valid` before the estimate settles | Gate on track age or facing-panel predicted-versus-measured residual, rather than update count; check the aiming cost |
+- **G.1 — open:** reduce radius/spin-rate outliers; test lower radius process
+  noise and an armor-radius prior, with innovation logs around spin misreads.
+- **G.2 — open:** tune radial depth noise with ray covariance and repair
+  staggered-panel handoff/parity after blackouts.
+- **G.3 — open:** gate fresh-track validity on settling, rather than update
+  count; compare track age and facing-panel residual gates and their aiming cost.
+- **T15 — open:** fix yaw/radius loss for angled stationary targets, then add
+  limits to the default `stationary45` cells. [Bench limits](sim/README.md#run-the-tests).
+- **T7 — open:** sweep acceleration process noise against velocity error,
+  including path ends. [Tracker](thornbots_pkg/README.md#target_tracker).
+- **T8 — open:** compare cells run alone with cells run in sequence.
+  [Estimation bench](sim/README.md#run-the-tests).
 
-Each accuracy step is its own commit, scored over three estimation-bench
-runs. Done when every cell passes limits tightened to the new worst runs,
-radial and blackout error is within 1.5x of default, and no fresh track is
-`valid` before facing-panel error settles under 5 cm. Put before/after
-numbers in the commit message and update this track in the workspace bump.
+Score each accuracy change over three runs in its own commit. Tighten limits
+against the new worst runs and require every cell to pass; radial/blackout
+error must stay within 1.5x of baseline, and fresh tracks must not become valid before facing-panel error
+settles below 5 cm. Keep before/after measurements in commits.
 
-- T15: A still target seen at an angle loses yaw and radius (`stationary45`
-  bench cells; p95 yaw 0.12 rad). Fix the tracker, then give the default
-  `chassis_spin:=0` `stationary45` cells their `LIMITS`; only the
-  `chassis_spin:=9` variants have limits today.
-- T7: Sweep `process_noise_accel` against the velocity-error trace, path
-  ends included.
-- T8: Check the bench scores the same with a cell run alone as in sequence.
+### B. Hit while we move
+
+Owner: thornbots_pkg, bridge and MCBV3. Open; hardware checks wait (the user,
+2026-10-08), while moving-shooter bench runs can proceed in sim. After A scores,
+coordinate remaining firmware work using the [shared aim frame](ros2_dji_serial_bridge/README.md#shared-aim-frame)
+and [CV interface](thornbots_pkg/README.md#cv-interface).
+
+- **Hardware validation — pending:** deploy matching ROS/firmware revisions;
+  verify the shared frame and RELOCALIZE mailbox loss under CV traffic.
+- **Timing — unmeasured:** measure USB/read buffering, MCB sample-to-send
+  delay and camera stamp-to-capture latency; verify stamps survive YOLO and
+  set the residual latency parameters. [Stamp contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson),
+  [tracker timing](thornbots_pkg/README.md#target_tracker).
+- **Chase settling — unmeasured:** measure the gimbal's chase jump and set
+  settling time. [Aimer](thornbots_pkg/README.md#point_to_cv_target).
+- **Moving shooter — open:** run radial/diagonal aiming-bench paths and add
+  missing floors. Each moving match segment must finish within 10 percentage
+  points of the same target cell with our robot parked. [Bench](sim/README.md#run-the-tests).
+
+### C. Jazzy on the robots
+
+Owner: startup, common package, bridge and MCBV3. Open; flashing and hardware
+acceptance wait (the user, 2026-10-08). The [hardware checklist](JAZZY_FLASH.md#hardware-checklist)
+owns deployment checks and the unavailable Humble comparison. T20/T25 can
+land first with emulator validation; boot measurement is [T34](#later-needs-a-robot).
+
+- **T20 — open:** improve robot logs (the user, 2026-10-01). Move/throttle
+  per-frame bridge INFO logs, CRC and rf2o scan warnings; publish bridge DIAG
+  statistics on `/diagnostics`, and test free-space-based pruning of per-run
+  bags. [Bridge diagnostics](ros2_dji_serial_bridge/README.md#diagnostics),
+  [run logging](isaac-ros-startup/README.md#use).
+- **T25 — design open:** expose arbitrary MCB state in a bagged ROS message
+  (the user, 2026-10-03). Decide fixed struct versus tagged fields, rate and
+  UART bandwidth; specify and implement it in firmware and bridge.
+  [Wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **T29 — decision open:** make robot image updates faster (the user,
+  2026-10-03). Decide whether [published images](docs/CI.md#robot-registry)
+  replace on-robot builds; robot pulling remains unverified. If local builds
+  stay, evaluate export compression, apt layers/cache, colcon ccache and
+  incremental overlays. Compare USB delivery with the untested reverse-SSH
+  path. [Image workflow](isaac_ros_common/docker/README.md#on-the-x86-laptop).
 
 ### D. Faster suites
 
-[`E2E_PLAN.md`](E2E_PLAN.md) "Speed" and [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md)
-(unfinished). Find why the full gz stack caps at RTF ~1.55 and render only
-what gets scored. Suites run one at a time; we are compute-limited. No
-suite runs the gz camera (`camera:=false`); a subscribed RGB-D camera alone
-caps a bare server near RTF 2.2.
+Owner: sim. Open: identify the full-stack RTF bottleneck and render only
+scored inputs. Speed work and acceptance live in [E2E_PLAN](E2E_PLAN.md#speed);
+remaining lockstep gates live in [E2E_LOCKSTEP_PLAN](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
 
 ### E. Benches that start and stop cleanly
 
-A fresh container has no gz until `install-sim.sh` runs; `tools/run_suite.sh`
-checks, a plain `ros2 launch` doesn't. A lost lifecycle reply can leave
-`amcl` or `map_server` unconfigured; the drift harness restarts such a
-stack once, the robot's boot doesn't. Verify interruption and shell-death
-cleanup across the launch paths, including children that
-`kill_launch.sh -l` cannot see.
+Owner: sim, localization and startup. Open: every bench must start with one
+command, diagnose missing gz, wait for readiness, and stop all owned nodes
+on completion, Ctrl-C or shell death without tracebacks or orphans.
+[Suite lifecycle](sim/README.md#more-on-the-tests).
 
-**Done when:** each bench starts with one command, says if gz is missing,
-waits for the stack before scoring, and on Ctrl-C or the end of the tests
-stops every node it started, with no tracebacks and no orphans.
-
-Open after 2026-10-11 fixes (temporary-world deletion, launch exceptions
-now fail the log checker): Fast DDS reader/participant teardown races
-(x86 pitch-bridge core; the aarch64 scan-bridge core needs a
-matching-library backtrace) and one interruption that left a gz server
-needing SIGKILL. See the [shutdown findings](sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings).
-
-- T30: The robot stack's bring-up race fails drift scenarios (2026-10-03:
-  3 of 9 starts). `rf2o` can't look up `root -> lidar` and `amcl` drops
-  every scan as older than its TF, so there is no `map->root`; the
-  localization suite's single retry (it restarts the robot stack once if
-  `root` is not up after 30 s) hides some of it, and the
-  robot can hit it at boot too. Find why the `root` chain is missing at
-  start rather than restart around it. 2026-10-08: `mcb_match` died in
-  bring-up when `lifecycle_manager_localization` heard nothing from
-  `map_server` for 30 s (an `amcl` configure stall in sim `413502d`'s runs).
-- T24: One name per test, for what it tests, used by its launch file, test
-  file and the docs alike (the user, 2026-10-03). New names:
-  `localization_drift` (was `localization_tests.launch.py`), `ekf` (now
-  `suite:=ekf` in `localization_suite`), `aim` (was `shot_hit`) and
-  `tracking` (was `estimation`). Stages stay `mcb_parked`, `mcb_drive`,
-  `mcb_match`; stray E1-E4 and "Part 1/Part 2" names go. About 160
-  references across 41 files, plus the isaac-ros-docker skill's
-  `reference.md`.
+- **T30 — open:** fix missing `root` TF and localization lifecycle stalls
+  at bring-up; do not rely on the suite's single retry to hide them.
+  [Localization launch](sentry_localization/README.md#launchlocalizationlaunchpy).
+- **Teardown — open:** resolve Fast DDS reader/participant races, obtain a
+  matching-library aarch64 scan-bridge backtrace, and handle nodes/gz that
+  need SIGKILL. [Shutdown findings](sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
+  [later board/hosted observations](sim/docs/mcb-auto-drive-2026-10-12.md).
+- **Launch paths — open:** make direct launches diagnose missing gz and
+  verify interruption cleanup, including children outside `kill_launch.sh`'s
+  view. [Build prerequisite](sim/README.md#build).
+- **T24 — cleanup open:** use one name across each launch, test and doc
+  (the user, 2026-10-03): `localization_drift`, `ekf`, `aim`, `tracking`.
+  Keep the `mcb_*` stage names; retire E1–E4 and Part 1/Part 2 references,
+  including the Docker skill's reference. [Current names](sim/README.md#more-on-the-tests).
 
 ### F. CV nodes into their own repo
 
-Later (the user, 2026-10-02). Move `target_selector`, `target_tracker` and
-`point_to_cv_target` with its patrol, their C++ cores and tests, from
-`thornbots_pkg` to a new `thornbots_cv` package in its own repo.
-`thornbots_pkg` keeps the hardware interface, URDF, TF and `mcb_relay`. A
-new submodule needs a `Thornbots/` repo, a `.gitmodules` entry and a
-`Dockerfile.thornbots` build line. Everything naming
-`package='thornbots_pkg'` for those nodes follows: `auto.launch.py`, sim's
-`shot_hit.launch.py` and `estimation.launch.py`, and
-`test/cpp/test_cv_bench.cpp`. Do it between bench runs, and re-run both
-benches after to show nothing moved.
+Owner: thornbots_pkg and workspace. Deferred (the user, 2026-10-02): move
+selector, tracker, aimer/patrol, their cores and tests into `thornbots_cv`.
+Keep hardware, URDF/TF and relay in thornbots_pkg. Update launch/test callers,
+submodule and image build together; rerun both CV benches between bench runs.
+[Node ownership](thornbots_pkg/README.md#nodes), [integration](docs/CI.md#coordinated-package-integration).
 
 ### H. SLAM at amcl's level
 
-Keep SLAM a real fallback to amcl. amcl with the EKF passes all nine drift
-scenarios; the map-based ones read 0.23-0.24 m, which is `map->odom`
-change, not truth error: compare both backends on the same metric
-([drift suite](sim/README.md#localization-drift-suite)). The drift launch
-rejects `backend:=slam` and no pose graph ships; `auto.launch.py` can
-localize against one given as `map_file`.
+Owner: sentry_localization and sim. Open: retain SLAM with EKF as an amcl
+fallback, using mapping mode and one map carried across games.
+[Backend design](sentry_localization/README.md#launchlocalizationlaunchpy),
+[drift metrics](sim/README.md#localization-drift-suite).
 
-SLAM here means `mapping` mode: slam_toolbox builds the map and localizes on
-it, with the EKF allowed, one map carried from game to game (load at boot,
-extend during the game, save after). Earlier `slam --use-rf2o` read worse
-than plain `slam`, likely because slam_toolbox's correction stacked on the
-EKF's rf2o correction ([sentry_localization](sentry_localization/README.md));
-fix that, don't drop the EKF.
+- **EKF interaction — open:** test the suspected stacked lidar corrections,
+  including raw odometry as slam_toolbox's odom frame; retune SLAM without
+  removing EKF. [Investigation](sentry_localization/README.md#slam---use-rf2o-worse).
+- **Carried map — open:** serialize after games, load at the configured field
+  spawn, and expose that spawn instead of hard-coded `[0, 0, 0]`. Provide a
+  quickly rasterizing pose graph; assess a pre-Battle mapping lap against the
+  rules. [Map loading](sentry_localization/README.md#launchlocalizationlaunchpy).
+- **T3 / game scenario — open:** run a five-minute Battle from a blank map
+  with moving/spinning lidar occluders, high ground and realistic acceleration.
+  Score truth error and check crossed map cells for retained robots; repeat
+  three games on one carried map. [Scenario harness](sim/README.md#scenarios).
+- **Localization anomalies — unverified:** rerun comparable EKF and map-based
+  scenarios to establish whether the historical error increase is a regression;
+  bisect the field-frame change if it reproduces. Distinguish truth error from
+  `map->odom` change. [Metric definitions](sim/README.md#localization-drift-suite),
+  [historical note](https://github.com/Thornbots/thornbots_workspace/blob/3b8163141f919e61b4bf5dafb857130b61d78869/ROADMAP.md#issues-found).
 
-1. Fix the EKF stacking, for example by pointing slam_toolbox's `odom_frame`
-   at raw odometry, then retune `slam.yaml`.
-2. Carry the map across games: `serialize_map` after each game, load at the
-   next boot with `load_map:=true` from the known spawn pose
-   (`map_start_pose`). `localization.launch.py` hard-codes `[0, 0, 0]` for
-   saved maps; expose the configured field spawn instead. Before the
-   Battle, give it a mapping window (a short scripted lap, if the Setup
-   Period rules allow moving). Robots from past games must not pile up in
-   the map.
-3. A game-like scenario: a full 5-minute Battle with other `sentry_v2`
-   copies driving, spinning and blocking the lidar (track A's opponents),
-   our robot on a match-like route with `real_accel`'s 1.2 m/s^2, including
-   the high ground. Score pose error against truth and check the map
-   doesn't keep robots as walls (T3: sample the grid cells the actors
-   crossed; the `cornering()` scenario in `localization_suite.cpp` has no
-   such check yet). Implement it first in `mapping` mode from a blank map.
-   Carried-map tests need a
-   saved pose graph that rasterises in seconds.
-
-**Done when:** SLAM with the EKF passes the drift scenarios amcl passes,
-each within 0.05 m of amcl's error, and stays within 0.05 m of amcl on the
-game-like scenario too. Run that scenario as three games in a row on one
-carried-over map: the error must not grow from game to game, and the map
-must not collect robots or duplicate walls.
+SLAM+EKF must pass amcl's drift scenarios and the game scenario within 0.05 m
+of amcl on the same error metric. Error must not grow across carried-map games,
+and maps must not accumulate robots or duplicate walls.
 
 ### J. Lidar and camera
 
-T22 and T23's robot half are later, needing a robot (the user, 2026-10-08),
-as is T37's measurement.
+Owner: localization and camera/CV packages. Open; robot checks wait (the user,
+2026-10-08). Sim stand-ins do not establish camera or field performance.
 
-- T22: Can the RPLIDAR's points per scan and scan rate change, and would it
-  help (the user, 2026-10-02)? Open: which modes and rates our model
-  supports and whether `sllidar_node` exposes them (`auto.launch.py` sets
-  only port, baud and frame); what runs today; whether more points or a
-  faster scan help rf2o, the EKF, amcl or the map; the cost in range,
-  noise, Orin CPU and USB bandwidth; and whether a faster scan cuts the
-  skew while the head turns (T23).
-- T23: Does the patrol hurt the lidar (the user, 2026-10-02)? The lidar is
-  on the head, so `point_to_cv_target`'s patrol turns it at 2 rad/s (about
-  0.2 rad per scan at 10 Hz), where a held head keeps it still in the
-  world. Check rf2o, the EKF and the map with the patrol on against off, in
-  sim and on the robot. If it hurts, use the lidar to find robots and only
-  turn the gun toward them instead of patrolling all the time.
-- T19: See if the depth camera is actually needed (the user, 2026-10-01).
-  On the robot `roi_depth_node` ranges each detection off the D435's depth;
-  no sim test uses depth (`detector_standin` feeds 3D truth). Without it,
-  range would have to come from the colour image.
-- T37: Look into going back to a zero-copy camera path (the user,
-  2026-10-11). On Jazzy the camera frame is a CPU `Image` that
-  `DnnImageEncoderNode` uploads to the GPU every frame, and the camera →
-  encoder hop is copy-free only while intra-process comms hold, unverified
-  on the encoder side ([copy boundary](realsense-yolov8-nitros-bridge/README.md#copy-boundary)).
-  Measure what those copies cost on the Orin first (latency and GPU/CPU
-  time per frame). Then weigh options: a camera node that publishes
-  `NitrosImage` from a pinned or mapped buffer, letterboxing on the GPU,
-  or reworking the unused `NitrosRealsenseBridgeNode`. Measurement needs a
-  robot.
+- **T23 — open:** compare head patrol on/off for rf2o, EKF and mapping in
+  sim and on the robot (the user, 2026-10-02). If it harms localization,
+  evaluate lidar-driven robot search instead of continuous patrol.
+  [Moving lidar](sentry_localization/README.md#contract-with-thornbots_pkg),
+  [patrol](thornbots_pkg/README.md#point_to_cv_target).
+- **T19 — untested:** determine whether depth is needed or colour-only
+  ranging suffices (the user, 2026-10-01). [Depth input](thornbots_pkg/README.md#target_tracker).
+- **T37 — unmeasured:** measure camera copy latency and CPU/GPU cost on Orin
+  before choosing a zero-copy path (the user, 2026-10-11).
+  [Copy boundary and options](realsense-yolov8-nitros-bridge/README.md#copy-boundary).
 
 ## Later: needs a robot
 
-Robot work waits; sim work goes first (the user, 2026-10-08). Tracks B, C
-and J mark their robot parts the same way. Deployment and validation
-status: [hardware status](JAZZY_FLASH.md#hardware-status).
+Record validation at [hardware status](JAZZY_FLASH.md#hardware-status).
 
-- T21: The sentry's real-floor runs. The 2026-10-04 practice field went
-  well, but no localization runs happened (the user, 2026-10-08), so the map
-  layer is still unjudged. `auto.launch.py` defaults to `mapping` from a
-  blank map and `map_autosaver` saves the map every 30 s to
-  `maps/<boot time>/`. Bring back maps and `~/logs/thornbots-run<N>/` (each
-  `.log` and its bag: `/tf`, `/scan`, `/scan_odom`, `/localization/odom`,
-  `/localization/map_odom`) to judge it offline: `map->odom` matched the
-  EKF in sim but never beat it, since sim's EKF barely drifts; real floors
-  over 5-minute runs decide. A run ended by a battery pull needs
-  `ros2 bag reindex <dir>/bag -s mcap`. Left: one boot air-gapped with
-  Wi-Fi turned on mid-run (T27).
-
-  Shots (the user, 2026-10-02). The team's firmware is MCBV3
-  `position-based-cv`: it takes our 15-byte `CV_TARGET`
-  ([UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md)), aims at x/y/z
-  less its own odometry and fires `delay_ms` after receipt. New format only;
-  the bridge doesn't fall back to the old one (the user, 2026-10-02).
-  - Flash the matching firmware: MCBV3 `nightly` (pinned here) has pitch
-    for `z` above the pivot and rep-105's one field frame (Thornbots/MCBV3#77,
-    closed). Not flashed; deploy firmware and ROS stack together.
-  - Patrol sweeps the gun with no target, fire clear; the firmware fires on
-    bit 0 alone (the user, 2026-10-04). T31 decides when to allow its turn
-    toward a hit.
-  - Acceptance checks: depth on a lit panel, bridge diagnostics `pose>0`,
-    muzzle under 25 m/s, `POSE`'s x/y in the field frame (a panel straight
-    ahead lands straight ahead of `root`; driving 1 m fires no RELOCALIZE
-    every 0.3 s). First shots on a stand, eye protection on, e-stop in
-    reach.
-  - Timing (the user, 2026-10-04): `delay_ms` runs from MCB receipt but is
-    computed at decision, transit not taken off (`mcb_relay` takes off its
-    RELOCALIZE latency); our `firmware_latency_s` 0.05 and the firmware's
-    80 ms `FIRING_LATENCY_TIME` both cover the indexer, so spinning-target
-    shots go ~50 ms early. Measure the indexer, then one side owns it.
-- T27: The camera container dies when NTP steps the clock (2026-10-03,
-  sentry): the RTC resets to 1970, Wi-Fi NTP steps it forward, RealSense
-  stamps go wild and `component_container_mt` aborts. Mitigated in
-  `Realsense_ROI_Depth_Rectifier` and `isaac-ros-startup` ("Clock steps
-  restart the stack" in its README). Left: a sentry boot with Wi-Fi (T21).
-- T34: Look into boot time more (the user, 2026-10-04). Missing: power-on to
-  kernel (UEFI, not in `systemd-analyze`), time to the stack being useful
-  (first detection, first `CVTarget`, first `map->odom`), hero and
-  standard, and the rebuilt Jazzy image. Time it with a stopwatch from
-  power-on alongside the `[boot]` lines, then cut the longest stage. Target
-  stays under 1 min.
-
-## Caveats
-
-- Sim detection noise is 0.005 m against a D435's centimetres, and no sim
-  test runs YOLO, so every CV rate here runs optimistic. The benches rank
-  changes; they don't predict the field.
-- `odom_stuck` loses the robot at 4 m/s with `/odom` frozen, accepted as a
-  limit (2026-09-25).
-- Neither CV bench runs gz; the drift suite does. SAPIEN is out for good.
-- Nobody has checked what `sentry_v2` does when driven into a wall. That
-  matters once obstacle avoidance has to be demonstrated.
+- **T21 — localization / startup, pending:** collect real-floor maps and
+  per-run logs/bags to judge localization over five-minute runs (the user,
+  2026-10-08: practice produced no localization runs). Include an air-gapped
+  boot with Wi-Fi enabled mid-run for T27. [Run artifacts](isaac-ros-startup/README.md#use),
+  [map persistence](sentry_localization/README.md#launchlocalizationlaunchpy).
+- **T21 shots — bridge / MCBV3, pending:** deploy matching firmware and ROS,
+  then validate lit-panel depth, bridge `pose>0`, field-aligned POSE, muzzle
+  speed below 25 m/s and stand firing. Driving 1 m must not trigger repeated
+  RELOCALIZE every 0.3 s (the user, 2026-10-02). Use only the current wire format (the user,
+  2026-10-02). Check no-target patrol with fire clear and firmware's bit-0
+  firing gate (the user, 2026-10-04); T31 owns hit-turn permission.
+  Measure decision-to-receipt and indexer timing, then assign latency
+  compensation to one side (the user, 2026-10-04).
+  [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands),
+  [timing contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#cv_target-id1--aim-point-and-fire-decision).
+  First shots need eye protection and an accessible e-stop.
+- **T27 — startup, mitigation unvalidated:** test a sentry boot/run with
+  Wi-Fi clock synchronization. [Clock-step mitigation](isaac-ros-startup/README.md#design-notes).
+- **T34 — startup, unmeasured:** time power-on through useful detections,
+  CVTarget and localization on sentry, hero and standard with the rebuilt
+  Jazzy image (the user, 2026-10-04). Include UEFI and GPU-loss recovery;
+  cut the longest stage to meet the under-one-minute target (the user,
+  2026-09-30). [Boot instrumentation](isaac-ros-startup/README.md#boot-time).
 
 ## Issues found
 
-Open documentation findings (#4, #6, #7, #9, #13, #14a, #14f; the first
-five and #14a have fixes in progress) are in the
-[2026-10-06 documentation audit](docs/audits/docs-audit-2026-10-06.md).
+Owner: the named documentation packages. Open audit follow-ups:
+[2026-10-06 audit](docs/audits/docs-audit-2026-10-06.md). Resolved findings
+are historical evidence there, not roadmap work.
 
-From the 2026-10-08 test sweep (Mac, workspace `a65e025`). Move each to a
-track or todo once someone owns it.
-
-- The EKF lost accuracy since 2026-09-28: fused error 0.023 and 0.050 m in
-  two runs against 0.007-0.020 m, a per-run offset rather than drift. The
-  field-frame move (2026-10-04) landed between; bisect from there.
-- The map-based drift scenarios read 0.23-0.24 m against 0.15-0.19 m on
-  2026-09-28. Still under the 0.40 m limit; investigate the regression.
-- `mcb_drive` passes on 0 hits (track A).
+- **rf2o / common docs — open:** add human-facing fork usage and onboarding
+  (#14b/#14c). [rf2o README](rf2o_laser_odometry/README.md),
+  [common README](isaac_ros_common/README.md).
+- **MCBV3 deployment docs — open:** replace obsolete artifact guidance and
+  the dead build anchor (#14d). [Deployment README](firmware/MCBV3/isolated-deploy/README.md).
+- **Sim docs — open:** shorten current instructions and separate historical
+  experiments (#14f). [Sim README](sim/README.md).
+- **Rules provenance — audit open:** finish the source/page audit and
+  extract the missing base building specifications (#14g).
+  [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
+- **Obstacle avoidance — untested:** establish wall-impact behavior before
+  demonstrating avoidance. [Motion-model limits](sim/README.md#sentry_v2urdfxacro-motion-model).
