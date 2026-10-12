@@ -15,7 +15,7 @@ belong in commits and dated investigation docs.
 |---|---|
 | Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero hits. Parked moving cells and combat accuracy remain open. See the [follow-up investigation](sim/docs/aim-followup-2026-10-12.md): TF composition is correct, but local drift, parked chassis motion and combat repeatability remain open (T17). |
+| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero hits. Parked moving cells and combat accuracy remain open. See the [follow-up investigation](sim/docs/aim-followup-2026-10-12.md): TF composition is correct. The [accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md) calibrates parked holding and the hosted model; moving-target accuracy and repeatability remain open (T17). |
 | Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -78,8 +78,10 @@ drives our robot from sim.
   [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) separates
   local dead reckoning from map correction and records repeated results.
   Native parked checks now reject chassis motion; the
-  frictionless plant coasts in firmware stop mode, so stationary-shooter
-  acceptance also needs a calibrated braking/contact model.
+  [accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md) records powered
+  zero-velocity holding, passive wheel resistance and rejected tracker tuning.
+  The parked limit is now 3 cm; hardware friction and launcher calibration
+  remain unmeasured.
   Improve moving-shooter hits and
   set combat accuracy floors; the drift suite's transform change is not truth
   error.

@@ -9,14 +9,24 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Calibrate the hosted aim fixture's 8 ms gyro age, 24 m/s projectile speed
+  and inherited muzzle motion; expose simulation pose-latency calibration.
+  Firmware yaw prediction now uses geared torque and configured friction,
+  controls use their actual 1 ms interval, and the powered in-game parked
+  command holds zero wheel velocity. Sim adds estimated passive rolling
+  resistance and tightens parked displacement to 3 cm. Expanded capture-time
+  diagnostics and rejected tuning trials live in the
+  [accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md); moving-target
+  accuracy remains an acceptance gate.
+
 - Sim pose diagnostics distinguish local EKF field-alignment error from
   globally corrected localization error, retain capture-time TF exceptions,
   and retry delayed pose telemetry for up to one simulated second. The
   [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) checks TF
   composition, startup gaps, nightly localization behavior and combat
   repeatability. `mcb_parked` also rejects cells where the chassis moves more than
-  0.10 m; zero motor current does not immobilize the current frictionless
-  plant. Native accuracy failures remain visible.
+  0.10 m in that investigation; the subsequent accuracy work tightens this
+  to 0.03 m and adds powered velocity holding. Native accuracy failures remain visible.
 
 - Aim and tracking now use raw, never-relocalized MCB `odom`; EKF and
   RELOCALIZE correct only navigation `nav_odom` through a translation-only
