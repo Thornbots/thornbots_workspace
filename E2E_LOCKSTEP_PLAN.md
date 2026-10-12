@@ -1,6 +1,6 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: partial implementation (2026-10-11).** The done bar below is not
+**Status: partial implementation (2026-10-12).** The done bar below is not
 met. The pinned sim implements the [native MCB-batch gate and coordinator](sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
@@ -8,6 +8,11 @@ outputs ([motor plant](sim/README.md#mcb-emulator)). UART in sim time, other con
 and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
 every stage runs the MCB emulator, so step 8 is done.
+
+The optional [Type C backend](sim/README.md#type-c-board-execution-with-renode)
+executes the normal board ELF and its drivers during each virtual step. This
+does not establish cycle-accurate STM32 deadlines or finish the remaining UART
+serialization and consumption-chain gates.
 
 Asked by the user, 2026-10-08: fix the E1-E4 tests so a result doesn't
 depend on how fast the machine runs, and make them run as fast as the
