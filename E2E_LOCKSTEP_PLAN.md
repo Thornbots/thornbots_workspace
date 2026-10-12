@@ -158,10 +158,10 @@ of hold points, each waiting on acks:
 | `/scan` (10 Hz) | rf2o's output stamped T |
 | `detector_standin` tick (60 Hz) | `/cv/tracker/measurement` echoes T, as on the estimation bench |
 | `point_to_cv_target` tick (40 Hz) | its `tick_pub` header at T, then the plugin reports any CV_TARGET bytes read |
-| `match_driver` (100 Hz), scorer fire tick (10 Hz) | their outputs for T |
+| `match_environment` (100 Hz), scorer fire tick (10 Hz) | their outputs for T |
 | AMCL | pace only, up to a slack. It is not on the hit path |
 
-- Nodes whose timers decide something (`point_to_cv_target`, `match_driver`,
+- Nodes whose timers decide something (`point_to_cv_target`, `match_environment`,
   the ghosts) get a `clock_ack_topic`, like `target_tracker`. That way a
   tick is never skipped or doubled when `/clock` moves.
 - Hold-point times are known ahead: firmware cycles and fixed rates. Merge

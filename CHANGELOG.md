@@ -9,6 +9,15 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- MCB driving stages select firmware waypoints and spin through DBUS instead of
+  scripted chassis velocities. Renode board execution is the stage default;
+  hosted execution remains an explicit fixture. The emulator supplies three-axis
+  IMU samples and derives traction from gz model mass. Jetson UART is unchanged.
+  See [sim #19](https://github.com/Thornbots/sim/pull/19),
+  [MCBV3 #92](https://github.com/Thornbots/MCBV3/pull/92),
+  [bridge #11](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/11), and
+  [verification/remaining acceptance](sim/docs/mcb-auto-drive-2026-10-12.md).
+
 - Automatic firmware aiming now releases the indexer's stop flag when shooting
   becomes allowed after calibration/SETUP. Existing shot-eligibility gates and
   manual aiming are retained. Sim models a loaded-cartridge reverse homing
