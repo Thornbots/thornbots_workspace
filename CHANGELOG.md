@@ -16,7 +16,9 @@ impact, and link the corresponding package changes.
   See [sim #19](https://github.com/Thornbots/sim/pull/19),
   [MCBV3 #92](https://github.com/Thornbots/MCBV3/pull/92),
   [bridge #11](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/11), and
-  [verification/remaining acceptance](sim/docs/mcb-auto-drive-2026-10-12.md).
+  [board-stage verification and limits](sim/docs/mcb-auto-drive-2026-10-12.md).
+  Track I is complete and removed from the roadmap; combat accuracy remains
+  in the existing match/estimation tracks.
 
 - Automatic firmware aiming now releases the indexer's stop flag when shooting
   becomes allowed after calibration/SETUP. Existing shot-eligibility gates and

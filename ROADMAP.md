@@ -15,8 +15,8 @@ belong in commits and dated investigation docs.
 |---|---|
 | Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Aiming/tracking benches pass. Board auto-drive scored ten of 35 physical hits in a diagnostic run; [acceptance and limits](sim/docs/mcb-auto-drive-2026-10-12.md). Clean stage acceptance remains in track I; repeatability and combat accuracy remain open (T17). |
-| MCB execution | The [Type C backend](sim/README.md#type-c-board-execution-with-renode) runs the board ELF through calibration and UART/CAN drivers. The parked cell passes after [indexer recovery](sim/docs/mcb-indexer-recovery-2026-10-12.md); [boot verification and rejected runs](sim/docs/mcb-type-c-2026-10-11.md). Firmware auto-drive acceptance remains in track I. |
+| CV end to end in sim | Board parked, drive and match cells pass at diagnostic tier; [current verification](sim/docs/mcb-auto-drive-2026-10-12.md). Calibrated combat accuracy and repeatability remain in [track A](#a-the-match-test) and T17. |
+| MCB execution | The [Type C backend](sim/README.md#type-c-board-execution-with-renode) runs the board ELF through calibration and UART/CAN drivers; driving stages use firmware auto-drive. [Board-stage verification](sim/docs/mcb-auto-drive-2026-10-12.md), [boot/receive-path investigation](sim/docs/mcb-type-c-2026-10-11.md), and [model limits](sim/README.md#type-c-board-execution-with-renode). |
 | Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -77,16 +77,6 @@ drives our robot from sim.
   include truth-localization error. Make combat accuracy fail on that, then
   find why localization is that far off while driving (the drift suite's
   0.24 m is `map->odom` change, not truth error).
-
-### I. MCB emulator
-
-The [Type C backend](sim/README.md#type-c-board-execution-with-renode) executes
-the board ELF through calibration and peripheral drivers with physical CAN
-feedback/forces in gz. Driving stages now default to board execution and select
-firmware waypoints through DBUS; hosted execution is an explicit fixture.
-[Implementation and acceptance evidence](sim/docs/mcb-auto-drive-2026-10-12.md).
-- Finish clean Renode acceptance for `mcb_drive`, `mcb_match` and `mcb_parked`,
-  then remove this track.
 
 ### B. Hit while we move
 
