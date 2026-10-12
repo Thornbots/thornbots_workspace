@@ -12,7 +12,8 @@ impact, and link the corresponding package changes.
 - Sim optionally runs the Type C board ELF under pinned Renode through its own
   calibration and peripheral drivers, with separate CAN motor feedback and
   command capture for each bus. CAN2 software reset preserves CAN1 receive
-  filters, so wheel feedback reaches the board drivers. The bridge drops queued frames whose send start
+  filters, so wheel feedback reaches the board drivers. DBUS remains absent
+  through calibration to let firmware sample its yaw home. The bridge drops queued frames whose send start
   precedes clock zero. Startup sysid generators are constructed in place to
   avoid exhausting the board's startup stack; normal control gains and wire
   payloads are unchanged. Firmware auto-drive stages remain a separate change.
