@@ -9,6 +9,16 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Automatic firmware aiming now releases the indexer's stop flag when shooting
+  becomes allowed after calibration/SETUP. Existing shot-eligibility gates and
+  manual aiming are retained. Sim models a loaded-cartridge reverse homing
+  stop and checks CAN output as well as issued requests. The real-board parked
+  cell passes; repeatability remains open. See
+  [MCBV3 #91](https://github.com/Thornbots/MCBV3/pull/91),
+  [sim #18](https://github.com/Thornbots/sim/pull/18),
+  [bridge #10](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/10), and
+  [the recovery verification](sim/docs/mcb-indexer-recovery-2026-10-12.md).
+
 - Sim optionally runs the Type C board ELF under pinned Renode through its own
   calibration and peripheral drivers, with separate CAN motor feedback and
   command capture for each bus. CAN2 software reset preserves CAN1 receive
