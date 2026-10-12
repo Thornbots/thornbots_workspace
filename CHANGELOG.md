@@ -9,40 +9,75 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
-- Calibrate the hosted aim fixture's 8 ms gyro age, 24 m/s projectile speed
-  and inherited muzzle motion; expose simulation pose-latency calibration.
-  Firmware yaw prediction now uses geared torque and configured friction,
-  controls use their actual 1 ms interval, and the powered in-game parked
-  command holds zero wheel velocity. Sim adds estimated passive rolling
-  resistance and tightens parked displacement to 3 cm. Expanded capture-time
-  diagnostics and rejected tuning trials live in the
-  [accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md); moving-target
-  accuracy remains an acceptance gate.
+- Calibrate the hosted direct-sensor aim fixture's 8 ms gyro age and model
+  projectile speed at 24 m/s, matching the firmware solver; add inherited
+  muzzle motion and pose-latency controls. The 8 ms delay is fixture-specific;
+  board execution uses its full IMU filter. Firmware yaw prediction now uses
+  geared torque and configured friction, control integration uses the actual
+  1 ms interval, and the in-game parked command holds zero wheel velocity.
+  Sim adds estimated passive rolling resistance and a 3 cm parked-displacement
+  limit. Three hosted pre-track-I repeats measured maximum chassis displacement
+  of 19.2, 28.9 and 22.4 mm versus the 132.0 mm coasting observation. These
+  scores are not controlled comparisons with the new board auto-drive route.
+  Native failures remain failures, not accepted accuracy results; moving-shot
+  accuracy remains an acceptance gate. See the [dated accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md).
 
 - Sim pose diagnostics distinguish local EKF field-alignment error from
   globally corrected localization error, retain capture-time TF exceptions,
   and retry delayed pose telemetry for up to one simulated second. The
   [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) checks TF
   composition, startup gaps, nightly localization behavior and combat
-  repeatability. `mcb_parked` also rejects cells where the chassis moves more than
-  0.10 m in that investigation; the subsequent accuracy work tightens this
-  to 0.03 m and adds powered velocity holding. Native accuracy failures remain visible.
+  repeatability. `mcb_parked` first used a 0.10 m displacement bound; the
+  accuracy work tightens it to 0.03 m and adds powered velocity holding.
+  Capture-stamp and native accuracy failures remain visible.
 
-- Aim and tracking now use raw, never-relocalized MCB `odom`; EKF and
-  RELOCALIZE correct only navigation `nav_odom` through a translation-only
+- Aim and tracking use raw, never-relocalized MCB `odom`; EKF and RELOCALIZE
+  correct only navigation `nav_odom` through a translation-only
   `nav_odom->odom`. The EKF no longer feeds its own heading back, the relay
   sends RELOCALIZE only when the navigation offset changes, and a team-start
-  reanchor or sim clock reset is never
-  interpolated across. POSE and CV_TARGET retain their current UART layouts
-  but require matching firmware and Jetson updates. `mcb_drive` now rejects
-  zero native hits. The
+  reanchor or sim clock reset is never interpolated across. POSE and CV_TARGET
+  retain their current UART layouts but require matching firmware and Jetson
+  updates. `mcb_drive` rejects zero native hits. The
   [controlled comparison, repeats and review-fix rerun](sim/docs/aim-localization-coupling-2026-10-11.md)
-  measure frame isolation and remaining combat misses. See
-  [MCBV3 #89](https://github.com/Thornbots/MCBV3/pull/89),
+  predate the current firmware auto-drive route and are not controlled
+  comparisons against it. See [MCBV3 #89](https://github.com/Thornbots/MCBV3/pull/89),
   [bridge #8](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/8),
   [thornbots_pkg #13](https://github.com/Thornbots/thornbots_pkg/pull/13),
   [sentry_localization #6](https://github.com/Thornbots/sentry_localization/pull/6), and
   [sim #16](https://github.com/Thornbots/sim/pull/16).
+
+- MCB driving stages select firmware waypoints and spin through DBUS instead of
+  scripted chassis velocities. Renode board execution is the stage default;
+  hosted execution remains an explicit fixture. The emulator supplies three-axis
+  IMU samples and derives traction from gz model mass. Jetson UART is unchanged.
+  Track I is complete; all three board stages pass at diagnostic tier, while
+  calibrated combat accuracy and repeatability remain open. See
+  [sim #19](https://github.com/Thornbots/sim/pull/19),
+  [MCBV3 #92](https://github.com/Thornbots/MCBV3/pull/92),
+  [bridge #11](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/11), and
+  [board-stage verification and limits](sim/docs/mcb-auto-drive-2026-10-12.md).
+
+- Automatic firmware aiming now releases the indexer's stop flag when shooting
+  becomes allowed after calibration/SETUP. Existing shot-eligibility gates and
+  manual aiming are retained. Sim models a loaded-cartridge reverse homing
+  stop and checks CAN output as well as issued requests. The real-board parked
+  cell passes; repeatability remains open. See
+  [MCBV3 #91](https://github.com/Thornbots/MCBV3/pull/91),
+  [sim #18](https://github.com/Thornbots/sim/pull/18),
+  [bridge #10](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/10), and
+  [the recovery verification](sim/docs/mcb-indexer-recovery-2026-10-12.md).
+
+- Sim runs the Type C board ELF under pinned Renode through its own calibration
+  and peripheral drivers, with separate CAN motor feedback and command capture
+  for each bus. CAN2 software reset preserves CAN1 receive filters so wheel
+  feedback reaches the board drivers. DBUS remains absent through calibration
+  so firmware samples its yaw home. The bridge drops queued frames whose send
+  start precedes clock zero. Startup sysid generators are constructed in place
+  to avoid exhausting the board's startup stack; normal control gains and wire
+  payloads are unchanged. See [sim #17](https://github.com/Thornbots/sim/pull/17),
+  [MCBV3 #90](https://github.com/Thornbots/MCBV3/pull/90),
+  [bridge #9](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/9), and
+  [verification and model limits](sim/docs/mcb-type-c-2026-10-11.md).
 
 - Moving RELOCALIZE corrections now predict to their estimated apply stamp
   without counting the inbound UART leg twice. This removes a velocity-times-

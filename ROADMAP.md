@@ -2,7 +2,7 @@
 
 A localization suite we can believe, CV split at `TargetState` with a bench
 for each half, then the CV stack from detections to gimbal tested end to
-end in sim. Updated 2026-10-11. `main` has been Jazzy since 2026-09-27;
+end in sim. Updated 2026-10-12. `main` has been Jazzy since 2026-09-27;
 Humble is frozen on the `humble` branches.
 
 This file lists only work still to do. Delete an item when it's finished,
@@ -15,7 +15,8 @@ belong in commits and dated investigation docs.
 |---|---|
 | Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero hits. Parked moving cells and combat accuracy remain open. See the [follow-up investigation](sim/docs/aim-followup-2026-10-12.md): TF composition is correct. The [accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md) calibrates parked holding and the hosted model; moving-target accuracy and repeatability remain open (T17). |
+| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero native hits. Board parked, drive and match stages pass at diagnostic tier, not calibrated accuracy; [board verification](sim/docs/mcb-auto-drive-2026-10-12.md). The [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) verifies TF composition. The [dated accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md) records three-repeat powered-holding measurements from a hosted source snapshot before track I; those scores are not controlled comparisons with the board auto-drive route. Moving accuracy and repeatability remain open (T17, track A). |
+| MCB execution | Track I is complete. The [Type C backend](sim/README.md#type-c-board-execution-with-renode) is the default for stages and runs the board ELF through calibration and UART/CAN drivers; driving stages use firmware auto-drive. Hosted execution is an explicit fixture. See [board-stage verification](sim/docs/mcb-auto-drive-2026-10-12.md), [boot/receive-path investigation](sim/docs/mcb-type-c-2026-10-11.md), and [model limits](sim/README.md#type-c-board-execution-with-renode). |
 | Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -80,26 +81,16 @@ drives our robot from sim.
   Native parked checks now reject chassis motion; the
   [accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md) records powered
   zero-velocity holding, passive wheel resistance and rejected tracker tuning.
-  The parked limit is now 3 cm; hardware friction and launcher calibration
-  remain unmeasured.
+  Its three hosted pre-track-I repeats measured maximum chassis displacement
+  of 19.2/28.9/22.4 mm against 132.0 mm while coasting; they are not controlled
+  comparisons with the new board auto-drive route. The parked limit is 3 cm.
+  The current physics model uses 24 m/s to match the firmware solver, real 1 ms
+  integration, and yaw prediction with geared torque and configured friction.
+  Hardware friction and launcher calibration remain unmeasured; moving-shot
+  accuracy acceptance remains open, and native failures are not passes.
   Improve moving-shooter hits and
   set combat accuracy floors; the drift suite's transform change is not truth
   error.
-
-### I. MCB emulator
-
-Stages run the checked-out MCBV3 code as a host build with fake hardware
-([sim README](sim/README.md#mcb-emulator)), with CAN feedback and motor forces
-inside each 1 ms gz physics step. The motor plant remains an estimate; MCU
-execution is still hosted, and `mcb_drive`/`mcb_match` use scripted velocities
-through firmware motor control rather than the firmware's auto-drive.
-- A real Type C emulator (the user, 2026-10-03): emulate the STM32F407 and
-  run the same `.elf` we flash, to catch what the host build hides (UART/DMA
-  drivers, interrupt timing, 1 kHz overruns, `-O` and float behaviour).
-  Check Renode and QEMU's STM32F405 board first. Model the Jetson and
-  referee UARTs, remote DBUS, BMI088 on SPI, and DJI motors on CAN bridged
-  to gz.
-- Drive `mcb_drive` and `mcb_match` with the firmware's auto-drive.
 
 ### B. Hit while we move
 
