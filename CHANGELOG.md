@@ -9,11 +9,20 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Sim pose diagnostics distinguish local EKF field-alignment error from
+  globally corrected localization error, retain capture-time TF exceptions,
+  and retry delayed pose telemetry for up to one simulated second. The
+  [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) checks TF
+  composition, startup gaps, nightly localization behavior and combat
+  repeatability. `mcb_parked` also rejects cells where the chassis moves more than
+  0.10 m; zero motor current does not immobilize the current frictionless
+  plant. Native accuracy failures remain visible.
+
 - Aim and tracking now use raw, never-relocalized MCB `odom`; EKF and
   RELOCALIZE correct only navigation `nav_odom` through a translation-only
   `nav_odom->odom`. The EKF no longer feeds its own heading back, the relay
-  sends RELOCALIZE only when the navigation offset changes (4-86 per sim run,
-  down from up to 881), and a team-start reanchor or sim clock reset is never
+  sends RELOCALIZE only when the navigation offset changes, and a team-start
+  reanchor or sim clock reset is never
   interpolated across. POSE and CV_TARGET retain their current UART layouts
   but require matching firmware and Jetson updates. `mcb_drive` now rejects
   zero native hits. The

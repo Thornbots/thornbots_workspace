@@ -15,7 +15,7 @@ belong in commits and dated investigation docs.
 |---|---|
 | Drift suite, EKF | Native suites pass; startup races remain T30. [Drift design](sim/README.md#localization-drift-suite), [EKF design](sim/README.md#ekf-ground-truth-suite), [validation](https://github.com/Thornbots/sim/commit/4e9445a) |
 | Estimation bench | [Commands](sim/README.md#run-the-tests), [dated results](sim/docs/cv-bench-results-2026-09-28.md), [remaining work](#g-estimation-accuracy) |
-| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero hits. Parked moving cells and combat accuracy remain open. See the [coupling comparison and three-repeat results](sim/docs/aim-localization-coupling-2026-10-11.md); repeatability remains open (T17). |
+| CV end to end in sim | Aim uses raw MCB odometry independently of navigation; `mcb_drive` rejects zero hits. Parked moving cells and combat accuracy remain open. See the [follow-up investigation](sim/docs/aim-followup-2026-10-12.md): TF composition is correct, but local drift, parked chassis motion and combat repeatability remain open (T17). |
 | Jazzy | [Laptop validation](JAZZY_FLASH.md#laptop-validation-2026-09-30); [hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -64,8 +64,8 @@ drives our robot from sim.
   2026-09-28). The aiming bench does; the estimation bench's moving cells
   and `mcb_parked` do not. The worst cells are lost tracks, not aim, though
   the stand-in feeds truth, so look at the tracker's input in gz (detection
-  timing and stamps against `/clock`, the parked robot's odom walk in
-  `odom_disagreement_m`) before the tracker. The
+  timing and stamps against `/clock`, raw odometry against truth;
+  `odom_disagreement_m` measures MCB/aim TF consistency only) before the tracker. The
   [MCB-batch gate](sim/README.md#mcb-emulator) is implemented; full
   hit-path lockstep and identical shot sequences remain in
   [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md). The
@@ -74,7 +74,13 @@ drives our robot from sim.
 - `mcb_drive` rejects zero native hits; `mcb_match` still uses diagnostic
   completion rather than a calibrated combat hit floor. Raw aim is isolated
   from EKF/RELOCALIZE; [controlled and three-repeat segment results](sim/docs/aim-localization-coupling-2026-10-11.md#driving-and-match-segments)
-  include stamped truth-localization error. Improve moving-shooter hits and
+  include stamped truth-localization error. The
+  [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) separates
+  local dead reckoning from map correction and records repeated results.
+  Native parked checks now reject chassis motion; the
+  frictionless plant coasts in firmware stop mode, so stationary-shooter
+  acceptance also needs a calibrated braking/contact model.
+  Improve moving-shooter hits and
   set combat accuracy floors; the drift suite's transform change is not truth
   error.
 
