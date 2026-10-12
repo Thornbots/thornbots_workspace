@@ -9,6 +9,19 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Sim optionally runs the Type C board ELF under pinned Renode through its own
+  calibration and peripheral drivers, with separate CAN motor feedback and
+  command capture for each bus. CAN2 software reset preserves CAN1 receive
+  filters, so wheel feedback reaches the board drivers. DBUS remains absent
+  through calibration to let firmware sample its yaw home. The bridge drops queued frames whose send start
+  precedes clock zero. Startup sysid generators are constructed in place to
+  avoid exhausting the board's startup stack; normal control gains and wire
+  payloads are unchanged. Firmware auto-drive stages remain a separate change.
+  See [sim #17](https://github.com/Thornbots/sim/pull/17),
+  [MCBV3 #90](https://github.com/Thornbots/MCBV3/pull/90),
+  [bridge #9](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/9), and
+  [verification and model limits](sim/docs/mcb-type-c-2026-10-11.md).
+
 - Moving RELOCALIZE corrections now predict to their estimated apply stamp
   without counting the inbound UART leg twice. This removes a velocity-times-
   UART-latency position bias; stationary corrections are unchanged. See
