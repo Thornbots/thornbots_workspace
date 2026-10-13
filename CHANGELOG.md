@@ -9,15 +9,16 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
-- Hosted aim calibration now filters absolute yaw setpoint rate, preserves
-  the planner's alignment wait in the wire fire delay, and models sentry
-  indexing at 94 ms. The hosted profile uses zero residual yaw lead and
-  25 ms chase windows. Powered parked/centered drive holds raw position;
-  keyboard peek release no longer overrides DBUS drive at startup. Three
-  post-track-I repeats measured at most 3.081 mm parked displacement, with
-  pooled drive/match hits of 81.0%/50.4% versus nightly's 3.8%/11.9%.
-  Near-range spinning still scored zero hits; navigation repeatability and
-  board accuracy remain open. See the [five-stage comparison](sim/docs/aim-accuracy-2026-10-12.md#merged-nightly-no-lead-profile-three-repeats).
+- Aim now defaults to spin alignment gating: hold a steady center-to-shooter
+  line and schedule fire for the predicted facing panel. The yaw rate filter,
+  zero residual hosted lead and 94 ms indexing calibration remain unchanged.
+  Three fresh hosted repeats clear every spinning cell at 100% hits, versus
+  nightly's pooled 5.8%; parked, drive and match pooled hits improve to
+  84.6%, 96.9% and 55.6%. Nonspinning prediction retains panel lead and
+  hysteresis. Board lockstep learns one 5 ms batch ahead while retaining wall
+  deadlines and timeout rejection. Renode installation now avoids the
+  temporary-directory cleanup prefix that deleted writable fixtures. See the
+  [spinning and board investigation](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison).
 
 - Calibrate the hosted direct-sensor aim fixture's 8 ms gyro age and model
   projectile speed at 24 m/s, matching the firmware solver; add inherited
