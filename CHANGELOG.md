@@ -9,6 +9,16 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Hosted aim calibration now filters absolute yaw setpoint rate, preserves
+  the planner's alignment wait in the wire fire delay, and models sentry
+  indexing at 94 ms. The hosted profile uses zero residual yaw lead and
+  25 ms chase windows. Powered parked/centered drive holds raw position;
+  keyboard peek release no longer overrides DBUS drive at startup. Three
+  post-track-I repeats measured at most 3.081 mm parked displacement, with
+  pooled drive/match hits of 81.0%/50.4% versus nightly's 3.8%/11.9%.
+  Near-range spinning still scored zero hits; navigation repeatability and
+  board accuracy remain open. See the [five-stage comparison](sim/docs/aim-accuracy-2026-10-12.md#merged-nightly-no-lead-profile-three-repeats).
+
 - Calibrate the hosted direct-sensor aim fixture's 8 ms gyro age and model
   projectile speed at 24 m/s, matching the firmware solver; add inherited
   muzzle motion and pose-latency controls. The 8 ms delay is fixture-specific;
