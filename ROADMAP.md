@@ -9,7 +9,7 @@ work; usage, design and measurements stay in linked docs.
 | --- | --- | --- |
 | Localization | Native suite passes recorded | [Drift](sim/README.md#localization-drift-suite), [EKF](sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
 | Estimation | Bench baseline recorded | [Bench](sim/README.md#run-the-tests), [baseline](sim/docs/cv-bench-results-2026-09-28.md) |
-| Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Hosted repeats clear spinning cells at 100% and improve drive/match; board accuracy repeats are being evaluated | [Type C](sim/README.md#type-c-board-execution-with-renode), [board verification](sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
+| Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](sim/README.md#type-c-board-execution-with-renode), [board verification](sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
 | Robots | Flashing and acceptance remain (C) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -36,8 +36,10 @@ until after the Midwest competition.
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when),
   [hosted baseline](sim/docs/match-check-2026-10-11.md#parked-cells).
 - **A-combat — sim / thornbots_pkg — open:** Add calibrated combat floors; drive rejects zero native hits, while
-  match still uses diagnostic checks. Raw aim no longer follows EKF/RELOCALIZE. Spin alignment gating clears the hosted near-range spinning floors. Evaluate board accuracy repeatability
-  and retain navigation startup failures in the acceptance record.
+  match still uses diagnostic checks. Raw aim no longer follows EKF/RELOCALIZE. Spin alignment gating clears the
+  hosted near-range spinning floors. Three accepted board drive/match repeats improve hits over nightly;
+  calibrated combat floors and board parked-cell repeatability remain open. Retain navigation startup
+  failures in the acceptance record.
   [Diagnostic design](sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 
 ### G. Estimation accuracy

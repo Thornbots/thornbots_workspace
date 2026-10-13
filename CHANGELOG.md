@@ -12,15 +12,18 @@ impact, and link the corresponding package changes.
 - Aim now defaults to spin alignment gating: hold a steady center-to-shooter
   line and schedule fire for the predicted facing panel. The yaw rate filter,
   zero residual hosted lead and 94 ms indexing calibration remain unchanged.
-  Three fresh hosted repeats clear every spinning cell at 100% hits, versus
-  nightly's pooled 5.8%; parked, drive and match pooled hits improve to
-  84.6%, 96.9% and 55.6%. Nonspinning prediction retains panel lead and
-  hysteresis. Board lockstep learns one 5 ms batch ahead while retaining wall
+  Three fresh Mac hosted repeats clear every spinning cell, with pooled hits
+  of 97.1% versus nightly's observed 17.3%; parked, drive, match and moving
+  improve to 85.5%, 93.5%, 54.5% and 79.6%. Failed nightly accuracy checks
+  remain diagnostic observations; clock-invalid attempts are excluded.
+  Nonspinning prediction retains panel lead and hysteresis. Board lockstep learns one 5 ms batch ahead while retaining wall
   deadlines and timeout rejection. Renode installation now avoids the
   temporary-directory cleanup prefix that deleted writable fixtures. Firmware
   sleeps between SysTick interrupts during the three-second power-on guard;
   three complete Mac board boots take 102–116 wall seconds under the unchanged
-  600-second startup limit. See the
+  600-second startup limit. Three native-accepted board repeats improve drive
+  hits from 30.5% to 85.1% and match from 23.7% to 54.1%, with zero lockstep
+  timeouts in the selected runs. See the
   [spinning and board investigation](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison).
 
 - Calibrate the hosted direct-sensor aim fixture's 8 ms gyro age and model
