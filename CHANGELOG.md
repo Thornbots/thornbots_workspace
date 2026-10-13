@@ -17,7 +17,10 @@ impact, and link the corresponding package changes.
   84.6%, 96.9% and 55.6%. Nonspinning prediction retains panel lead and
   hysteresis. Board lockstep learns one 5 ms batch ahead while retaining wall
   deadlines and timeout rejection. Renode installation now avoids the
-  temporary-directory cleanup prefix that deleted writable fixtures. See the
+  temporary-directory cleanup prefix that deleted writable fixtures. Firmware
+  sleeps between SysTick interrupts during the three-second power-on guard;
+  three complete Mac board boots take 102–116 wall seconds under the unchanged
+  600-second startup limit. See the
   [spinning and board investigation](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison).
 
 - Calibrate the hosted direct-sensor aim fixture's 8 ms gyro age and model
