@@ -12,7 +12,8 @@ impact, and link the corresponding package changes.
 - E2E GUI stages use a dedicated RViz view and scene-only gz layout. The
   sim recorder produces synchronized 1080p H.264 demos retimed from `/clock`,
   with stage/time/score captions and scored shot markers. See
-  [recording workflow](sim/README.md#record-an-e2e-demo).
+  [recording workflow](sim/README.md#record-an-e2e-demo)
+  ([sim #20](https://github.com/Thornbots/sim/pull/20)).
 
 - Aim now defaults to spin alignment gating: hold a steady center-to-shooter
   line and schedule fire for the predicted facing panel. The yaw rate filter,
