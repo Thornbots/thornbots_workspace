@@ -9,7 +9,7 @@ work; usage, design and measurements stay in linked docs.
 | --- | --- | --- |
 | Localization | Native suite passes recorded | [Drift](sim/README.md#localization-drift-suite), [EKF](sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
 | Estimation | Bench baseline recorded | [Bench](sim/README.md#run-the-tests), [baseline](sim/docs/cv-bench-results-2026-09-28.md) |
-| Firmware / CV | Board stages pass diagnostic tier | [Type C](sim/README.md#type-c-board-execution-with-renode), [verification](sim/docs/mcb-auto-drive-2026-10-12.md) |
+| Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](sim/README.md#type-c-board-execution-with-renode), [board verification](sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
 | Robots | Flashing and acceptance remain (C) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
@@ -35,8 +35,11 @@ until after the Midwest competition.
   lost tracks and stamped detection/odometry inputs before tracker tuning.
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when),
   [hosted baseline](sim/docs/match-check-2026-10-11.md#parked-cells).
-- **A-combat — sim / thornbots_pkg — open:** Add calibrated combat floors; diagnostic drive/match can pass with zero
-  hits and a miss diagnosis. Resolve aim/frame and driving-localization errors.
+- **A-combat — sim / thornbots_pkg — open:** Add calibrated combat floors; drive rejects zero native hits, while
+  match still uses diagnostic checks. Raw aim no longer follows EKF/RELOCALIZE. Spin alignment gating clears the
+  hosted near-range spinning floors. Three accepted board drive/match repeats improve hits over nightly;
+  calibrated combat floors and board parked-cell repeatability remain open. Retain navigation startup
+  failures in the acceptance record.
   [Diagnostic design](sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 
 ### G. Estimation accuracy
@@ -59,12 +62,13 @@ settles below 5 cm. [Bench](sim/README.md#run-the-tests).
 
 ### B. Hit while we move
 
-- **B-hardware — thornbots_pkg / bridge / MCBV3 — pending:** Validate the shared frame and RELOCALIZE mailbox loss under
-  CV traffic. [Aim frame](ros2_dji_serial_bridge/README.md#shared-aim-frame).
+- **B-hardware — thornbots_pkg / bridge / MCBV3 — pending:** Validate separate raw aim/navigation frames and RELOCALIZE
+  mailbox loss under CV traffic. [Aim and navigation frames](ros2_dji_serial_bridge/README.md#aim-and-navigation-frames).
 - **B-timing — bridge / thornbots_pkg — unmeasured:** Measure residual UART/camera delays, verify YOLO stamp propagation
   and set latency parameters. [Stamp contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson),
   [tracker timing](thornbots_pkg/README.md#target_tracker).
-- **B-settling — thornbots_pkg — unmeasured:** Measure gimbal chase jump and set settling time.
+- **B-settling — thornbots_pkg — sim measured, hardware pending:** Use spin alignment gating after chase/lead/filter
+  ablations; measure real gimbal and indexing delays before hardware acceptance.
   [Aimer](thornbots_pkg/README.md#point_to_cv_target).
 - **B-moving — sim / thornbots_pkg — open:** Run radial/diagonal aiming paths and add missing floors; each moving match
   segment must finish within 10 percentage points of the same target cell with our robot parked.
@@ -143,8 +147,9 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   clock-validation artifacts. [Run artifacts](isaac-ros-startup/README.md#use),
   [map persistence](sentry_localization/README.md#launchlocalizationlaunchpy).
 - **T21 shots — bridge / MCBV3 — pending:** Deploy matching firmware/ROS using the current wire format, then:
-  - Validate lit-panel depth, bridge `pose>0` and field-aligned POSE; driving 1 m must not cause repeated RELOCALIZE
-    every 0.3 s. [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
+  - Validate lit-panel depth, bridge `pose>0`, field-aligned raw POSE and held aim across RELOCALIZE. Send a navigation
+    correction only when the offset changes; driving alone must not trigger repeated fixes every 0.3 s.
+    [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
   - Check no-target fire-clear/bit-0 behavior; measure transit/indexer timing and give latency compensation one owner.
     [Timing contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#cv_target-id1--aim-point-and-fire-decision).
   - Verify muzzle speed below 25 m/s on a stand, with eye protection and accessible e-stop.

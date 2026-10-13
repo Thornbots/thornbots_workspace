@@ -116,9 +116,9 @@ keeps the E numbers.
    stationary lateral cell passes; moving tracking accuracy remains open.
 3. E3, driving while shooting. Our robot drives the scripted route: straight
    at 1 and 2 m/s, a 90 deg turn while driving, and spinning in place.
-   Localization from gz lidar is in the loop, so its error at fire time
-   lands in the score. The aim is an `odom` point; `RobotPose.chassis_yaw`
-   comes from the hosted firmware. Robots start at their provisional team
+   Fused navigation from gz lidar is measured beside the shot score.
+   Aim uses raw `odom`; chassis yaw is still absent from the current POSE wire
+   payload. Robots start at their provisional team
    spawns and travel around the south walls to center.
 4. E4, the match, 2v2: two opponents and one ally (the user, 2026-09-28),
    with opponents shooting back and the referee emulator counting HP. One fixed-seed scenario of set
@@ -129,7 +129,9 @@ Remaining moving-shooter work and its acceptance bar are in
 `mcb_drive` and `mcb_match` run on nightly. `mcb_match` includes ballistic first impacts against
 the field, chassis hulls and armor, per-panel damage dead time, HP and
 referee UART feedback. `sim/README.md` documents commands and model limits.
-`mcb_drive` diagnostic completion passes; moving combat accuracy does not. `mcb_match`'s
+`mcb_drive` now fails when the native total hit count is zero, even if route
+and localization diagnostics complete; per-segment diagnostics still identify
+the failing hop. `mcb_match`'s
 strict zero-friendly-intersection assertion exposes intermittent failures.
 Repeated-run floors and standalone-versus-sequence equivalence remain open.
 
@@ -141,16 +143,19 @@ segment:
 - hit rate on enemy panels, the pass condition, with floors from three runs
   minus 10 points, like the aiming bench's `FLOORS`;
 - shots at the ally, which must be zero;
-- for `mcb_drive` on: route error and localization error (EKF against gz truth) at
+- for `mcb_drive` on: route error and localization error (`map->root` against gz truth) at
   each fire time;
 - damage taken, logged only, with no pass condition until opponents' aim is
   tuned to something realistic.
 
 Diagnostics logged beside each segment: ROI depth error against truth,
 `TargetState` error (`estimation_metrics`), and each hop's stamp against
-the image stamp. Each miss is split into our pose error, `TargetState`
-error and aim error, so a drop names localization, Part 2 or Part 1
-without a second run.
+the image stamp. Each miss is split into raw pose error, `TargetState`
+error and aim error; navigation truth error is recorded separately.
+
+Aim uses raw odometry independently of navigation corrections. See
+[the wire frame contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types)
+and [the frame tree and `root` choice](thornbots_pkg/README.md#pose_translator).
 
 ### Done when
 

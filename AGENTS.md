@@ -89,8 +89,9 @@ or dated investigations linked to current status.
 Follow [REP 103](https://github.com/ros-infrastructure/rep/blob/master/rep-0103.rst)
 units/axes and [REP 105](https://github.com/ros-infrastructure/rep/blob/master/rep-0105.rst)
 frame roles. Document only choices and deviations at their owner: the
-heading-fixed `root` base ([pose_translator](thornbots_pkg/README.md#pose_translator))
-and the field-centred [wire frame](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+heading-fixed `root` base, the translation-only `nav_odom->odom` correction
+([pose_translator and odometry](thornbots_pkg/README.md#pose_translator)), and the
+field-centred [wire frame](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 
 ## Wire compatibility
 
