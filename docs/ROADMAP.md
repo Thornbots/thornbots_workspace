@@ -50,8 +50,9 @@ until after the Midwest competition.
 
 ### G. Estimation accuracy
 
-- **G.1 — thornbots_pkg — open:** Reduce radius/spin outliers with noise/prior trials and innovation logs.
-  [Tracker](../thornbots_pkg/README.md#target_tracker).
+- **G.1 — thornbots_pkg — open:** Finish radius/spin repair; tested radius-noise and initial-prior settings fail
+  full-matrix acceptance. Diagnostics and trial controls are available; defaults and limits stay unchanged.
+  [Trials and remaining gates](../sim/docs/cv-estimation-g1-2026-10-15.md), [tracker](../thornbots_pkg/README.md#target_tracker).
 - **G.2 — thornbots_pkg — open:** Tune radial depth noise with ray covariance; repair staggered-panel handoff/parity
   after blackouts. [Tracker](../thornbots_pkg/README.md#target_tracker).
 - **G.3 — thornbots_pkg — open:** Gate validity on settling; compare age/residual gates and aiming cost.
