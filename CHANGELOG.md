@@ -9,6 +9,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- E2E can opt into modeled UART byte deadlines and capture-stamped bridge
+  packets. Late delivery rejects the experiment; complete consumption gates
+  remain open. See the [investigation](sim/docs/track-a-uart-2026-10-15.md)
+  ([bridge #14](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/14),
+  [sim #23](https://github.com/Thornbots/sim/pull/23)).
+
 - E2E disables latest-TF fallback, requires its counter to be present and zero,
   and records stamped CV/odometry inputs. The aimer retains a usable same-track
   state while newer stamped TF arrives. Run comparison rejects empty evidence;

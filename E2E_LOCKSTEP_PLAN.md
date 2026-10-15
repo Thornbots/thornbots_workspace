@@ -1,11 +1,14 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: partial implementation (2026-10-14).** The done bar below is not
+**Status: partial implementation (2026-10-15).** The done bar below is not
 met. The pinned sim implements the [native MCB-batch gate and coordinator](sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
 outputs ([motor plant](sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
-and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
+and deterministic bring-up remain open. An opt-in sim-time UART fixture has
+byte-deadline and bridge-stamp tests; its first whole-stack attempt was
+[rejected for late outgoing delivery](sim/docs/track-a-uart-2026-10-15.md).
+E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
 every stage runs the MCB emulator, so step 8 is done.
 

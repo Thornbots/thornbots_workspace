@@ -29,8 +29,9 @@ until after the Midwest competition.
 
 ### A. The match test
 
-- **T17 — sim / thornbots_pkg — open:** Finish UART serialization, consumption barriers and deterministic bring-up,
+- **T17 — sim / thornbots_pkg — open:** Finish consumption barriers and deterministic bring-up,
   then identical-shot gates and the board parked-cell sweep. Strict stamped TF and the input ledger are implemented;
+  [sim-time UART](sim/docs/track-a-uart-2026-10-15.md) remains opt-in after a rejected late-delivery run;
   keep tracker tuning behind the [input audit](sim/docs/track-a-stamped-inputs-2026-10-14.md#inspect-inputs-before-tracker-tuning).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
 - **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
