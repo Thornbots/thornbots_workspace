@@ -26,10 +26,8 @@ speed work below makes each run cheaper and makes one run cover more.
 
 ## Speed
 
-Today: the drift suite takes ~285 s for 9 scenarios, the estimation bench about 30 s for 12
-cells on `bench_world` (Mac), and the aiming bench runs 40 cells. The full gz stack caps at RTF
-~1.55 for a reason nobody has found ([ROADMAP track D](ROADMAP.md#d-faster-suites)), and
-the estimation bench scores at ~20x with the C++ `target_tracker`.
+The full gz stack's RTF cap has no named cause yet
+([ROADMAP track D](ROADMAP.md#d-faster-suites)).
 
 1. Measure first. Each suite logs its wall time split into bring-up,
    per-case reset and scored time, plus the mean RTF. Numbers go in the
@@ -55,23 +53,13 @@ the estimation bench scores at ~20x with the C++ `target_tracker`.
    of single-purpose cases in the regular run. The benches stay for
    diagnosis: run them when a match segment drops or when their half of the
    code changes.
-7. `target_tracker` is C++ (2026-09-28): the estimation bench scores at
-   ~20x, up from ~14x, and the tracker is no longer the ceiling.
-
-8. Lockstep the gz stack so results don't depend on machine speed:
+7. Lockstep the gz stack so results don't depend on machine speed:
    [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md) (the user, 2026-10-08).
-   Unfinished: its done bar isn't met and the code is WIP off nightly.
+   Partly on nightly (`lockstep:=true` by default); its done bar isn't met.
 
 Done when each suite's time split is logged, the RTF cap has a named cause,
 and the regular run (unit tests, then the match test) fits 10 minutes, and
 5 without the match test (the user, 2026-09-28).
-
-## Before the match test
-
-- Armor panels are on both URDFs (2026-09-27): `armor_0` to `armor_3` on
-  the diagonals at 45 deg + k x 90 deg, 0.252 m out, at 0.230 and 0.136 m,
-  each a 135 x 125 mm Small module (`sim/README.md`). Both benches' target
-  uses them, with `FLOORS` and `LIMITS` rerun on it.
 
 ## The match test
 
@@ -98,42 +86,32 @@ stacks is out of scope.
 ### Stages
 
 Each stage adds hops and is its own commit and bump. Scoring stays the same
-from stage to stage, so a drop belongs to the hops that stage added. Since
-2026-10-08 every stage runs the MCB emulator (the user's call): E1 folded
-into E2, and the stages are named `stage:=mcb_parked` (E1/E2), `mcb_drive`
-(E3) and `mcb_match` (E4), with `sim/test/cpp/test_mcb_*.cpp` for the MCB unit tests. The history below
-keeps the E numbers.
+from stage to stage, so a drop belongs to the hops that stage added. Every
+stage runs the MCB emulator (the user, 2026-10-08); the former E1, which
+skipped it, is gone. Older records use E2-E4 for these stages.
 
-1. E1, the stand-in to the gimbal, our robot parked. Panels on the URDF, one
-   opponent running the aiming bench's cells, the stand-in and a team
-   stub in place of the referee. The real selector, tracker and
-   `point_to_cv_target` feed `cv_head_aim`. Removed 2026-10-08.
-2. E2, the wire. `dji_serial_bridge` and `mcb_relay` on a pty against the
-   MCB emulator, which replaces `pose_emulator`, `cv_head_aim` and the team
-   stub. Tests the `CV_TARGET` packing, the stamps both ways, the fire path,
-   and `REF_SYS` into the selector. `stage:=mcb_parked` runs it;
-   it scores through the compiled MCB firmware on field-safe paths. The
-   stationary lateral cell passes; moving tracking accuracy remains open.
-3. E3, driving while shooting. Our robot drives the scripted route: straight
-   at 1 and 2 m/s, a 90 deg turn while driving, and spinning in place.
-   Fused navigation from gz lidar is measured beside the shot score.
+1. `mcb_parked` (E2), the wire, our robot parked. The detector stand-in,
+   the real selector, tracker and `point_to_cv_target`, then
+   `dji_serial_bridge` and `mcb_relay` on a pty against the MCB emulator.
+   Tests the `CV_TARGET` packing, the stamps both ways, the fire path, and
+   `REF_SYS` into the selector, scoring through the compiled firmware on
+   field-safe paths.
+2. `mcb_drive` (E3), driving while shooting. The firmware's own auto-drive
+   takes our robot from its provisional team spawn around the south walls to
+   center. Fused navigation from gz lidar is measured beside the shot score.
    Aim uses raw `odom`; chassis yaw is still absent from the current POSE wire
-   payload. Robots start at their provisional team
-   spawns and travel around the south walls to center.
-4. E4, the match, 2v2: two opponents and one ally (the user, 2026-09-28),
-   with opponents shooting back and the referee emulator counting HP. One fixed-seed scenario of set
-   length, split into scored segments.
+   payload.
+3. `mcb_match` (E4), the match, 2v2: two opponents and one ally (the user,
+   2026-09-28), with opponents shooting back and the referee emulator
+   counting HP. One fixed-seed scenario of set length, split into scored
+   segments.
+
 Remaining moving-shooter work and its acceptance bar are in
 [ROADMAP track B](ROADMAP.md#b-hit-while-we-move).
 
-`mcb_drive` and `mcb_match` run on nightly. `mcb_match` includes ballistic first impacts against
-the field, chassis hulls and armor, per-panel damage dead time, HP and
-referee UART feedback. `sim/README.md` documents commands and model limits.
-`mcb_drive` now fails when the native total hit count is zero, even if route
-and localization diagnostics complete; per-segment diagnostics still identify
-the failing hop. `mcb_match`'s
-strict zero-friendly-intersection assertion exposes intermittent failures.
-Repeated-run floors and standalone-versus-sequence equivalence remain open.
+All three stages run on nightly. Commands and model limits are in
+[sim's README](../sim/README.md#driving-and-combat-diagnostics-mcb_drive);
+current results and open work are in [ROADMAP track A](ROADMAP.md#a-the-match-test).
 
 ### Scoring
 
