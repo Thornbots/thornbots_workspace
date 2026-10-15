@@ -9,6 +9,15 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- E2E disables latest-TF fallback, requires its counter to be present and zero,
+  and records stamped CV/odometry inputs. The aimer retains a usable same-track
+  state while newer stamped TF arrives. Run comparison rejects empty evidence;
+  repeat auditing preserves startup failures, source pins and rejected controls.
+  T17 and combat-floor calibration remain open. See the
+  [investigation](sim/docs/track-a-stamped-inputs-2026-10-14.md)
+  ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
+  [sim #23](https://github.com/Thornbots/sim/pull/23)).
+
 - E2E GUI stages use a dedicated RViz view and scene-only gz layout. The
   sim recorder produces synchronized 1080p H.264 demos retimed from `/clock`,
   with stage/time/score captions and scored shot markers. See
