@@ -1,6 +1,6 @@
 # Documentation audit of main
 
-Dated record (2026-10-06). Status as of 2026-10-11 on `nightly` is in the line under each finding's heading marked **Status**; findings without one were not rechecked. Open items are tracked from [ROADMAP](../../ROADMAP.md#issues-found).
+Dated record (2026-10-06). Status as of 2026-10-11 on `nightly` is in the line under each finding's heading marked **Status**; findings without one were not rechecked. Open items are tracked from [ROADMAP](../ROADMAP.md#issues-found).
 
 Reviewed 2026-10-06 against workspace `main` at `59e5b2d`, with every package at that commit's gitlink.
 
@@ -57,7 +57,7 @@ Fix: scope exclusivity to application commands sent to the bridge, if that is th
 
 **Status (2026-10-11):** resolved by [sentry_localization #5](https://github.com/Thornbots/sentry_localization/pull/5) (rationale rewritten around the heading-fixed root; ekf.yaml header matches its source arrays).
 
-[sentry_localization/README.md:113](../../sentry_localization/README.md#launchlocalizationlaunchpy) says the chassis never turns; line 233 says it never rotates and attributes this to the context document. [ARCC_2026_SENTRY_CONTEXT.md:40](../../ARCC_2026_SENTRY_CONTEXT.md#our-sentrys-drivetrain-not-from-the-rulebook-our-hardware-choice) explicitly says the chassis spins while driving.
+[sentry_localization/README.md:113](../../sentry_localization/README.md#launchlocalizationlaunchpy) says the chassis never turns; line 233 says it never rotates and attributes this to the context document. [ARCC_2026_SENTRY_CONTEXT.md:40](../ARCC_2026_SENTRY_CONTEXT.md#our-sentrys-drivetrain-not-from-the-rulebook-our-hardware-choice) explicitly says the chassis spins while driving.
 
 The explanation in thornbots_pkg is more accurate: root stays heading-fixed while chassis yaw is a joint below it. Fixed heading belongs to that frame contract, not a physically fixed chassis.
 
@@ -187,7 +187,7 @@ simulation-document shortening remains open.
 
 ## Jazzy document consolidation
 
-Merged the migration plan into [JAZZY_FLASH.md](../../JAZZY_FLASH.md) and removed
+Merged the migration plan into [JAZZY_FLASH.md](../JAZZY_FLASH.md) and removed
 the separate plan (user, 2026-10-06). The first line and machine table make
 clear that only standard remains to be flashed. Flashing examples now use
 standard. Preserved the hardware checklist, dated laptop comparison,
