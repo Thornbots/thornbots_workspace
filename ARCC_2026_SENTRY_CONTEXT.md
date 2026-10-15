@@ -239,10 +239,9 @@ Fetched from: https://www.arc-robotics.org/_files/ugd/df0c37_85f8332e4e464f12ad4
 
 This is a short (5-page) diff on top of the base
 **"2026 RoboMaster University Series Robot Building Specifications V1.3.0"**
-(hosted behind RoboMaster's JS-rendered community hub at
-`bbs.robomaster.com/wiki/20204847`; no static PDF link found, so open in a
-real browser and follow Rulebooks if the base spec's actual construction
-limits (size/weight/materials) are needed). ARCC applies all RMUS rules
+(hosted on RoboMaster's community hub `bbs.robomaster.com/wiki/20204847`;
+[rm2027 sources](docs/rules/rm2027/README.md#sources) shows how to fetch its
+PDFs). ARCC applies all RMUS rules
 except where noted here, and interprets RMUC-only rules (e.g. Custom
 Clients, Dart/Aerial-specific rules) as not applicable since ARCC is
 treated like an RMUL event.
@@ -283,16 +282,60 @@ treated like an RMUL event.
 - The ARC Organizing Group is the ARCC equivalent of RMOC (RoboMaster's
   organizing committee) for rule-interpretation purposes.
 
+## RoboMaster 2027 RMUL base rules
+
+RMUL 2027 V1.0.0 (2026-10-15) is the likely base for ARCC 2027; ARC has not
+published 2027 rules yet. Full English translations live in
+[docs/rules/rm2027](docs/rules/rm2027/README.md). Differences from the
+ARCC 2026 facts above:
+
+- **Sentry unchanged** ([§3.1.3](docs/rules/rm2027/rmul-rules-manual.md#313-sentry-robot)):
+  fully automatic, at most one debug remote controller, no inter-robot
+  communication, 17mm at 25 m/s, 400 HP, 100 W, heat limit 260, cooling
+  30/s, Projectile Allowance 750 fixed for the five-minute Round. Table 3-5
+  lists Control Zones and the Supply Zone as buff points; it heals
+  25% max HP/s in its own Supply Zone. R22 still puts its remote controller at the
+  Battlefield entrance after the Setup Period.
+- **Lineup**: Heavy Robot (new, replaces Hero; 42mm, needs a modular 42mm
+  launcher fitted at the Workbench and one recognised shot to reach full
+  performance), Infantry Robot, Sentry Robot. Custom Controller and Custom
+  Client merge into one Custom Terminal. The Engineer Challenge is dropped.
+- **Field** ([§3.2](docs/rules/rm2027/rmul-rules-manual.md#32-competition-field)):
+  still 12 m x 8 m. Starting Zone = Supply Zone (2500 x 2000 mm) with a
+  Workbench; new Tunnel. Three Control Zones (Red Highland, Central, Blue
+  Highland) replace the single Capture Point, still detected by Field
+  Interaction Module cards with dead zones and an extra flooring layer.
+- **Win condition is Control Points, not base HP**
+  ([§3.3.4](docs/rules/rm2027/rmul-rules-manual.md#334-control-zones-and-control-points-mechanism)):
+  each side starts with 600; each Control Zone held costs the opponent 1/s
+  and each death costs 10. Reaching 0 ends the round. A gap of 200 or 400
+  shortens the trailing side's revival and speeds its Supply Zone healing.
+- **Buffs**: a Highland Control Zone also gives 25% defense; reading both own
+  Tunnel cards within 3 s gives 1.5x cooling for 60 s.
+- **Revival**: first revival bar is 5 s, +5 s per later death; revives at
+  20% HP with 30 s invincibility and Weakened (launcher locked, cannot
+  activate Control Zones) until it reads its own Supply Zone card.
+- **Penalties**: a Yellow Card on the Sentry cuts its chassis power for 2 s
+  and deducts 15% of its max HP.
+  Damage, overspeed, heat, chassis-power and module-offline numbers match
+  the Combat mechanics section above; only the Small Armor Module is listed.
+- **Build spec** ([robot building specifications](docs/rules/rm2027/robot-building-specifications.md)):
+  Sentry max 28 kg, 600 mm cube stowed, 800 mm cube extended, 300 Wh, 30 V.
+  RMUL needs no Positioning Module or fluorescent charging device (ARCC 2026
+  A7 overrode the latter). Supercapacitor Management Module is mandatory
+  (S158). Armor geometry: 75° between the panel normal and -Z (S120), 50 mm
+  offset (S121), 60 N moves it at most 2.5° (S122), lower edges within
+  100 mm of each other (S124) and at most 400 mm, never touching the ground
+  (S125; the old 60 mm minimum is gone). On Infantry and Sentry the face must
+  be clear within 105° of the lower edge, 120° of the upper and 145° of the
+  sides (S129).
+
 ## Not yet extracted / worth pulling in later
 
 - Exact Battlefield zone coordinates/drawings (Figures 3-1–3-9 are diagrams,
   not extracted as text, so you need the actual PDF pages if building a precise
-  arena map for `sim`).
-- Base RMUS "Robot Building Specifications V1.3.0" itself (size/weight
-  limits, materials, chassis/armor construction, manufacturing process
-  rules). ARCC's building-spec doc above is only a diff against it, and the
-  base doc's actual numeric limits aren't extracted yet since it isn't
-  reachable as a static PDF (see note above).
+  arena map for `sim`). The RMUL 2027 translation lists each figure's labels
+  and dimensions but not its geometry.
 - Full Referee System data interface / UART protocol spec.
 - Round timing/countdown details (§7.5–7.9) if precise match-phase state
   machine timing is needed later.
