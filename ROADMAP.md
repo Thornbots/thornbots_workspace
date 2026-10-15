@@ -17,8 +17,6 @@ work; usage, design and measurements stay in linked docs.
 - **T31 — bridge / MCBV3 — open:** Decide hit-turn permission per frame; clear it while holding valid `TargetState`,
   including Jetson patrol. Define hit-angle units/reference, latch until REF_SYS reports hits, and verify sign with
   nonzero head/chassis yaw. [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
-- **T35 — MCBV3 — not ready:** Move default branch from `newMain` to `main`, then retire `newMain`.
-  [Repository](https://github.com/Thornbots/MCBV3), [branch policy](AGENTS.md#branches).
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
   isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
   [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
@@ -140,6 +138,12 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   [Depth input](thornbots_pkg/README.md#target_tracker).
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](realsense-yolov8-nitros-bridge/README.md#copy-boundary).
+
+## Later: deferred
+
+- **T35 — MCBV3 — deferred:** Leave branches as they are for now. Later, an admin makes `main` the default branch
+  (it already contains all of `newMain`; nothing references `newMain`), then deletes `newMain`.
+  [Repository](https://github.com/Thornbots/MCBV3), [branch policy](AGENTS.md#branches).
 
 ## Later: needs a robot
 
