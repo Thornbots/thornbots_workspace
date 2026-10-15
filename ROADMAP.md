@@ -14,17 +14,13 @@ work; usage, design and measurements stay in linked docs.
 
 ## Short todos
 
-- **T31 — bridge / MCBV3 — open:** Latch hit angles until REF_SYS reports them. Per-frame Jetson
-  permission and chassis-relative radians are implemented in the preceding package changes. On the robot, confirm hit direction and which
-  armor ID each face reports; CAD faces sit on the diagonals, firmware assumes ID 0 faces forward.
-  [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
   isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
   [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
 
 ## Tracks, in order of work
 
-Sim first; robot work waits (2026-10-08). Address T31, A, G, then sim parts of B and C; D supports A. Administration is
+Sim first; robot work waits (2026-10-08). Address A, G, then sim parts of B and C; D supports A. Administration is
 independent. E, F, H and J are unscheduled, with robot checks under [later](#later-needs-a-robot). Navigation waits
 until after the Midwest competition.
 

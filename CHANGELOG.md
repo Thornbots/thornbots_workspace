@@ -9,6 +9,15 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Complete T31 reporting: firmware retains the latest hit through control cycles
+  until a complete REF_SYS write reports it. The report uses radians relative
+  to the current chassis heading, positive CCW; the next report uses 123 until
+  another hit. One-cycle control/UI reactions remain independent of this latch.
+  See [firmware latch](https://github.com/Thornbots/MCBV3/pull/94),
+  [emulator tests](https://github.com/Thornbots/sim/pull/22),
+  [wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ref_sys-id3--referee-system-status)
+  and [T31 validation](sim/docs/t31-hit-contract-2026-10-14.md).
+
 - Pair the chassis-relative firmware hit-angle correction with per-frame Jetson
   hit-turn permission. Any held target estimate, including coasting/predicted
   tracks, clears `turn_to_hit`; no estimate, including patrol, permits it without
@@ -18,7 +27,7 @@ impact, and link the corresponding package changes.
 
 - REF_SYS hit angles now use radians relative to the current chassis heading,
   positive CCW, with firmware and hosted UART tests at nonzero head and chassis
-  yaw. The wire payload is unchanged. Report latching remains the next T31 change.
+  yaw. The wire payload is unchanged.
   See [firmware correction](https://github.com/Thornbots/MCBV3/pull/93) and
   [hit-angle contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ref_sys-id3--referee-system-status).
 
@@ -259,8 +268,8 @@ impact, and link the corresponding package changes.
   upstream poses must carry a real stamp. See
   [thornbots_pkg 61725e1](https://github.com/Thornbots/thornbots_pkg/commit/61725e1).
 - MCBV3 uses HitTracker for hit reactions and the UI hit ring. `CV_TARGET`
-  bit 2 enables a 500 ms hit turn that can interrupt a live CV aim. Per-frame
-  gating (T31) and HitTracker's radian scaling remain open; see
+  bit 2 enables a 500 ms hit turn during no-estimate patrol. Per-frame
+  gating, radian scaling and report latching were completed by T31 above; see
   [firmware limitations](ros2_dji_serial_bridge/README.md#where-the-firmware-stands)
   and [MCBV3 529fc4e](https://github.com/Thornbots/MCBV3/commit/529fc4e).
 - MCBV3 drops the hopper lid indicator and Ctrl-only lid closing. The old
