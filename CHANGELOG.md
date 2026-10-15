@@ -350,7 +350,7 @@ impact, and link the corresponding package changes.
 - Fake interfaces are active only in hosted builds. Physical motor dynamics,
   STM32 timing, boot calibration and projectile exit are outside the test
   boundary; none of this was flashed or verified on a physical robot.
-- Results and revisions: [nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md),
+- Results and revisions: [nightly validation, 2026-10-06](https://github.com/Thornbots/thornbots_workspace/blob/6bd0692ddd6f553a156eab624f7c85975c501136/docs/testing/nightly-2026-10-06.md),
   the 2026-10-08 sim sweep in
   [workspace e0f2425](https://github.com/Thornbots/thornbots_workspace/commit/e0f2425) (open problems in
   [ROADMAP issues](docs/ROADMAP.md#issues-found)), and firmware validation at

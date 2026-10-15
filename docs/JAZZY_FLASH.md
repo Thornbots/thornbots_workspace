@@ -74,7 +74,7 @@ sudo cmp -n "$(stat -c%s "$ISO")" "$ISO" "$DEV" && echo "stick OK"
 ```
 
 A forum user fixed an install that hung mid-way by rewriting the stick
-([post #29](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/29)),
+([post #29](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/29)),
 so do the `cmp`.
 
 For a keyboard-free stick for one robot, use
@@ -87,7 +87,7 @@ nothing about the stick.
 
 ## 3. Flash (at the board)
 
-From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-standardkit/user-guide/latest/quick_start.html).
+From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/quick_start.html).
 
 1. Firmware gate: press Esc at the NVIDIA splash and read the version
    line (must be 36.0 or later).
@@ -95,7 +95,7 @@ From the [Orin Nano quick start](https://docs.nvidia.com/jetson/orin-nano-standa
    leaving the NVMe in place. Apply power.
 3. Press Esc at the NVIDIA logo, then Boot Manager, then the USB disk. Pick
    it explicitly; auto-boot times out on the capsule step
-   ([post #8](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/8)).
+   ([post #8](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/8)).
 4. **Press Y at the firmware update prompt.** It waits 30 s. If you miss
    it, the install fails later; start over.
 5. The UEFI capsule update runs in two passes and may reboot between them.
@@ -110,9 +110,9 @@ If the installer dies at "Step 9/13 Updating boot firmware" with
 `command_34 ... nvidia-l4t-bootloader ... exit status 100`, press Enter for
 the shell and run `journalctl --no-pager | grep -B5 -A40 nvidia-l4t-bootloader`.
 A "does not match any known boards" line is the board-spec bug from
-[post #102](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/102).
+[post #102](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/102).
 Someone on an Orin Nano Super with NVMe hit this on 2026-09-18
-([post #118](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/118))
+([post #118](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/118))
 and it was unresolved at the time. Save the journal to a spare stick and
 stop there.
 
@@ -149,7 +149,7 @@ skips the firmware update: the installer logs "Using ISO to update the
 QSPI version 2360327 is not supported", so 36.4.7 firmware stays under
 R39. Hero then booted recovery (black screen) until the `setvar` above.
 The firmware update then went in from Linux, the same capsule-on-disk the
-launcher stages (board `jetson-orin-nano-standardkit-super` →
+launcher stages (board `jetson-orin-nano-devkit-super` →
 `TEGRA_BL_3767_super.Cap`, from the stick's ESP):
 
 ```bash
@@ -185,7 +185,7 @@ sudo nvpmodel -q; grep POWER_MODEL /etc/nvpmodel.conf
 7.2.1's ISO flashes the Super config by default
 ([JetsonHacks](https://jetsonhacks.com/2026/08/12/jetpack-7-2-1-released/)).
 On 7.2.0 some boards came up with only 7 W and 15 W modes
-([post #6](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/6)).
+([post #6](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/6)).
 If MAXN_SUPER isn't in the list, note it and move on; it doesn't block
 step 1. If it is, select it (top-bar power menu, or
 `sudo nvpmodel -m <id>` with the id from `nvpmodel.conf`) and run
@@ -259,7 +259,7 @@ Order follows the [Isaac ROS 4.6 getting started](https://nvidia-isaac-ros.githu
 page. Its Jetson steps are written for AGX Orin; the Orin Nano docs cover
 Docker.
 
-JetPack components ("Install via apt"; [Orin Nano JetPack setup](https://docs.nvidia.com/jetson/orin-nano-standardkit/user-guide/latest/setup_jetpack.html)):
+JetPack components ("Install via apt"; [Orin Nano JetPack setup](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/setup_jetpack.html)):
 
 ```bash
 sudo apt update && sudo apt install -y nvidia-jetpack
@@ -289,7 +289,7 @@ sudo apt-get update
 sudo apt-get install -y isaac-ros-cli
 ```
 
-Docker and the container toolkit ([Orin Nano Docker setup](https://docs.nvidia.com/jetson/orin-nano-standardkit/user-guide/latest/setup_docker.html)):
+Docker and the container toolkit ([Orin Nano Docker setup](https://docs.nvidia.com/jetson/orin-nano-devkit/user-guide/latest/setup_docker.html)):
 
 ```bash
 sudo apt install -y nvidia-container curl jq
@@ -354,7 +354,7 @@ Optional GPU check, if the ONNX is in place:
 
 `CUDA failed to initialize ... error 801` is the failure an AGX Orin user
 reported on 7.2.1 in containers
-([post #115](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-standardeloper-kit-getting-started-and-feedback-thread/372151/115)).
+([post #115](https://forums.developer.nvidia.com/t/jetpack-7-2-jetson-linux-r39-2-on-jetson-orin-nano-developer-kit-getting-started-and-feedback-thread/372151/115)).
 Record it and stop.
 
 The stock image works when `activate` starts it and `tegrastats` prints
