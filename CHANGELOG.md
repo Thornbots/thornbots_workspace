@@ -18,11 +18,15 @@ impact, and link the corresponding package changes.
   Rules and Participant manuals, the shared Robot Building Specifications
   Manual and the rule-change preview, checked against rendered pages. The RMUL
   Rules Manual includes translated contents, table and figure lists. The game context
-  gains an [RMUL 2027 summary](ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
+  gains an [RMUL 2027 summary](docs/ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
   of Sentry, field and armor changes. See the
   [translation index](docs/rules/rm2027/README.md).
 
 ### Changed
+
+- Move standalone workspace reference documents into `docs/` and update
+  incoming links in the workspace and its packages. Conventional root files
+  (README, CHANGELOG, AGENTS and CLAUDE) stay at the repository root.
 
 - Complete T31 reporting: firmware retains the latest hit through control cycles
   until a complete REF_SYS write reports it. The report uses radians relative
@@ -172,7 +176,7 @@ impact, and link the corresponding package changes.
   [firmware verification](sim/docs/patrol-flag-2026-10-11.md).
 
 - A fresh clone stays on the pinned package commits; the README and
-  [JAZZY_FLASH](JAZZY_FLASH.md#8-our-image) no longer check out every
+  [JAZZY_FLASH](docs/JAZZY_FLASH.md#8-our-image) no longer check out every
   submodule's branch tip. Start work with `git switch -c` in the package. See
   [Working with submodules](README.md#working-with-submodules).
 
@@ -294,12 +298,12 @@ impact, and link the corresponding package changes.
   hosted. See [MCBV3 33e853e](https://github.com/Thornbots/MCBV3/commit/33e853e).
 - `humble` is read-only in thornbots_workspace, sentry_localization, sim and
   thornbots_pkg (a ruleset blocks pushes and deletion, admins included); other
-  repos are in [ROADMAP T36](ROADMAP.md#short-todos).
+  repos are in [ROADMAP T36](docs/ROADMAP.md#short-todos).
 - Workspace merges no longer advance package branches automatically; merge
   package PRs first. See
   [coordinated package integration](docs/CI.md#coordinated-package-integration).
 - Docs: migration and hardware status consolidated in `JAZZY_FLASH.md`, CV
-  interfaces in package READMEs and open work in `ROADMAP.md`; package
+  interfaces in package READMEs and open work in `docs/ROADMAP.md`; package
   guidance updated for compiled firmware, match-stage patrol and saved-map
   startup.
 - rf2o repository CI integrated with repaired workflow pins. See
@@ -344,5 +348,5 @@ impact, and link the corresponding package changes.
 - Results and revisions: [nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md),
   the 2026-10-08 sim sweep in
   [workspace e0f2425](https://github.com/Thornbots/thornbots_workspace/commit/e0f2425) (open problems in
-  [ROADMAP issues](ROADMAP.md#issues-found)), and firmware validation at
+  [ROADMAP issues](docs/ROADMAP.md#issues-found)), and firmware validation at
   [MCBV3 a2ea519](https://github.com/Thornbots/MCBV3/commit/a2ea519).

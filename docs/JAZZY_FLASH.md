@@ -394,7 +394,7 @@ Flashing alone does not validate the stack.
   `Thornbots/trained-models` (LFS, `detect/yolo11s_realsense/v1/weights/`).
   The engine is tied to the TensorRT version.
 - Check RealSense at 60 fps using `isaac_ros_common/docker/config/*_60fps.yaml`;
-  run the [full robot pipeline](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline)
+  run the [full robot pipeline](../realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline)
   and measure YOLO FPS and camera-to-`TargetState` latency. Compare with
   Humble only if a baseline exists; otherwise record Jazzy numbers and
   leave that comparison unverified.
@@ -410,7 +410,7 @@ Flashing alone does not validate the stack.
 - Count aarch64 image layers against the roughly 128-layer cap. The x86
   image had 42 layers (8 ours); Humble had reached 127.
 - Check host dotfiles and CLI mounts before the first run; the owning
-  [common package notes](isaac_ros_common/AGENTS.md#open) describe them.
+  [common package notes](../isaac_ros_common/AGENTS.md#open) describe them.
 - Time a full build on the 8 GB Orin. The `-j6` / three-worker caps came
   from the old toolchain. Watch for localization lifecycle-reply stalls
   during boot (see [roadmap track E](ROADMAP.md#e-benches-that-start-and-stop-cleanly)).

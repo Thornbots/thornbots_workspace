@@ -4,7 +4,7 @@ Unofficial English translations of the RoboMaster 2027 University League
 (RMUL) and University Championship (RMUC) rule documents, released
 2026-10-15. ARCC treats itself as an RMUL
 event, so these are the closest published base for ARCC 2027 until ARC
-releases its own rules. The [game context](../../../ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
+releases its own rules. The [game context](../../ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
 summarizes the Sentry and CV deltas.
 
 The Chinese PDFs govern; these translations are for team reference only.
@@ -47,7 +47,7 @@ filename).
   The English PDFs include the original technical artwork and English keys;
   flowcharts and the talent-development pyramid are redrawn in English.
   PDF text is reflowed, so English pagination differs from the Chinese source.
-- Terms follow the [game context](../../../ARCC_2026_SENTRY_CONTEXT.md)
+- Terms follow the [game context](../../ARCC_2026_SENTRY_CONTEXT.md)
   (for example Infantry Robot for 步兵机器人, Bumpy Road for 起伏路段).
 
 Translated from the extracted text and checked against a render of every

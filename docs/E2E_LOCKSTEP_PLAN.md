@@ -1,15 +1,15 @@
 # Plan: E2E tests independent of machine speed
 
 **Status: partial implementation (2026-10-12).** The done bar below is not
-met. The pinned sim implements the [native MCB-batch gate and coordinator](sim/README.md#mcb-emulator),
+met. The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
-outputs ([motor plant](sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
+outputs ([motor plant](../sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
 and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
 every stage runs the MCB emulator, so step 8 is done.
 
-The optional [Type C backend](sim/README.md#type-c-board-execution-with-renode)
+The optional [Type C backend](../sim/README.md#type-c-board-execution-with-renode)
 executes the normal board ELF and its drivers during each virtual step. This
 does not establish cycle-accurate STM32 deadlines or finish the remaining UART
 serialization and consumption-chain gates.
@@ -102,7 +102,7 @@ only; the remaining hold points are in step 4. Its contract:
 ### 2. The MCB firmware inside the physics step
 
 Implemented with CAN feedback and motor forces; usage and limits live in
-[sim's MCB emulator](sim/README.md#mcb-emulator). The following is the original
+[sim's MCB emulator](../sim/README.md#mcb-emulator). The following is the original
 proposal; its setpoint PD and chassis-velocity shortcut were replaced by the
 motor plant so firmware motor control is exercised.
 
@@ -128,7 +128,7 @@ hosted firmware process. It replaces `mcb_emulator_node` in e2e:
   them to a gz topic, or to a thin ROS node that forwards them. The scorer's
   `Scorer::sync_referee()` (`sim/test/e2e/e2e_harness.cpp`) sets them.
 - **Physics step:** keep it at 1 ms (2-4 ms sent the head PID unstable;
-  [sim rules](sim/AGENTS.md#standing-rules)).
+  [sim rules](../sim/AGENTS.md#standing-rules)).
 
 ### 3. UART in sim time
 
@@ -244,5 +244,5 @@ Only then take three runs per cell for `FLOORS` (`E2E_PLAN.md` Scoring).
 ## Running it
 
 - Container lifecycle, sim/bench approval and live-session checks follow
-  [workspace rules](AGENTS.md#containers-and-runs).
+  [workspace rules](../AGENTS.md#containers-and-runs).
 - **Firmware:** rebuild it after edits with `sim/tools/build_mcb_firmware.sh`.

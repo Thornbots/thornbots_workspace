@@ -240,7 +240,7 @@ Fetched from: https://www.arc-robotics.org/_files/ugd/df0c37_85f8332e4e464f12ad4
 This is a short (5-page) diff on top of the base
 **"2026 RoboMaster University Series Robot Building Specifications V1.3.0"**
 (hosted on RoboMaster's community hub `bbs.robomaster.com/wiki/20204847`;
-[rm2027 sources](docs/rules/rm2027/README.md#sources) shows how to fetch its
+[rm2027 sources](../docs/rules/rm2027/README.md#sources) shows how to fetch its
 PDFs). ARCC applies all RMUS rules
 except where noted here, and interprets RMUC-only rules (e.g. Custom
 Clients, Dart/Aerial-specific rules) as not applicable since ARCC is
@@ -286,10 +286,10 @@ treated like an RMUL event.
 
 RMUL 2027 V1.0.0 (2026-10-15) is the likely base for ARCC 2027; ARC has not
 published 2027 rules yet. Full English translations live in
-[docs/rules/rm2027](docs/rules/rm2027/README.md). Differences from the
+[docs/rules/rm2027](../docs/rules/rm2027/README.md). Differences from the
 ARCC 2026 facts above:
 
-- **Sentry unchanged** ([§3.1.3](docs/rules/rm2027/rmul-rules-manual.md#313-sentry-robot)):
+- **Sentry unchanged** ([§3.1.3](../docs/rules/rm2027/rmul-rules-manual.md#313-sentry-robot)):
   fully automatic, at most one debug remote controller, no inter-robot
   communication, 17mm at 25 m/s, 400 HP, 100 W, heat limit 260, cooling
   30/s, Projectile Allowance 750 fixed for the five-minute Round. Table 3-5
@@ -300,13 +300,13 @@ ARCC 2026 facts above:
   launcher fitted at the Workbench and one recognised shot to reach full
   performance), Infantry Robot, Sentry Robot. Custom Controller and Custom
   Client merge into one Custom Terminal. The Engineer Challenge is dropped.
-- **Field** ([§3.2](docs/rules/rm2027/rmul-rules-manual.md#32-competition-field)):
+- **Field** ([§3.2](../docs/rules/rm2027/rmul-rules-manual.md#32-competition-field)):
   still 12 m x 8 m. Starting Zone = Supply Zone (2500 x 2000 mm) with a
   Workbench; new Tunnel. Three Control Zones (Red Highland, Central, Blue
   Highland) replace the single Capture Point, still detected by Field
   Interaction Module cards with dead zones and an extra flooring layer.
 - **Win condition is Control Points, not base HP**
-  ([§3.3.4](docs/rules/rm2027/rmul-rules-manual.md#334-control-zones-and-control-points-mechanism)):
+  ([§3.3.4](../docs/rules/rm2027/rmul-rules-manual.md#334-control-zones-and-control-points-mechanism)):
   each side starts with 600; each Control Zone held costs the opponent 1/s
   and each death costs 10. Reaching 0 ends the round. A gap of 200 or 400
   shortens the trailing side's revival and speeds its Supply Zone healing.
@@ -319,7 +319,7 @@ ARCC 2026 facts above:
   and deducts 15% of its max HP.
   Damage, overspeed, heat, chassis-power and module-offline numbers match
   the Combat mechanics section above; only the Small Armor Module is listed.
-- **Build spec** ([robot building specifications](docs/rules/rm2027/robot-building-specifications.md)):
+- **Build spec** ([robot building specifications](../docs/rules/rm2027/robot-building-specifications.md)):
   Sentry max 28 kg, 600 mm cube stowed, 800 mm cube extended, 300 Wh, 30 V.
   RMUL needs no Positioning Module or fluorescent charging device (ARCC 2026
   A7 overrode the latter). Supercapacitor Management Module is mandatory
