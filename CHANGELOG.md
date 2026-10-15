@@ -26,8 +26,8 @@ impact, and link the corresponding package changes.
 
 - Add opt-in tracker innovation diagnostics and estimation-bench radius/prior
   controls. G.1 trials expose regressions in the full matrix, so tracker tuning,
-  validity and estimation limits stay unchanged. The hosted three-stage
-  nonregression gate remains pending. See
+  validity and estimation limits stay unchanged; defaults are numerically
+  identical to before. See
   [tracker #16](https://github.com/Thornbots/thornbots_pkg/pull/16),
   [sim #25](https://github.com/Thornbots/sim/pull/25) and the
   [dated investigation](sim/docs/cv-estimation-g1-2026-10-15.md).
