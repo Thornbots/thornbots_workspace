@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 449" role="img" aria-labelledby="title desc">
+<title id="title">RMUC Figure 6-2 — Pre-Match Inspection Flowchart</title><desc id="desc">English flowchart based on the 2027 Chinese rules manual source diagram.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#2f80d5"/></marker></defs>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#263746}.shape{fill:#fff;stroke:#2f80d5;stroke-width:2}.decision{fill:#fff;stroke:#2f80d5;stroke-width:2}.arrow{fill:none;stroke:#2f80d5;stroke-width:2;marker-end:url(#arrow)}.branch{font-size:19px;font-weight:bold;fill:#2f80d5}.node{font-size:22px;text-anchor:middle}.small{font-size:19px;text-anchor:middle}.note{font-size:18px;text-anchor:start}.heading{font-size:25px;font-weight:bold;text-anchor:middle}</style>
+<rect x="125.0" y="55" width="380" height="82" rx="8" class="shape"/>
+<text x="315.0" y="89.5" class="small"><tspan x="315.0" dy="0">Team brings robots into</tspan><tspan x="315.0" dy="27">inspection area</tspan></text>
+<path d="M505 103.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="55" width="620" height="96" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="73" class="note">At most 2 team members per robot bring it in; 1 additional</text>
+<text x="554" y="97" class="note">team member/advisor coordinates. Others need Chief</text>
+<text x="554" y="121" class="note">Inspector approval. No entry before robots arrive.</text>
+<path d="M315 152 V169" class="arrow"/>
+<rect x="125.0" y="169" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="214.0" class="small"><tspan x="315.0" dy="0">Robots undergo inspection</tspan></text>
+<path d="M505 241.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="169" width="620" height="144" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="187" class="note">Staff mark Ground Robots, Combined System units, and</text>
+<text x="554" y="211" class="note">Auxiliary Equipment. Marking may include PASS cards,</text>
+<text x="554" y="235" class="note">onboard timestamps, or lineup registration. Only fully</text>
+<text x="554" y="259" class="note">marked robots may enter waiting/field areas. Correct</text>
+<text x="554" y="283" class="note">failures and verify Referee System structure/functions.</text>
+<path d="M315 314 V331" class="arrow"/>
+<rect x="125.0" y="331" width="380" height="82" rx="8" class="shape"/>
+<text x="315.0" y="365.5" class="small"><tspan x="315.0" dy="0">Captain confirms inspection</tspan><tspan x="315.0" dy="27">result</tspan></text>
+<path d="M505 372.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="331" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="349" class="note">After signing, the result cannot be challenged.</text>
+</svg>

@@ -67,30 +67,288 @@ The version numbers of competition rules documents use the semantic versioning f
 | --- | --- | --- |
 | 2026.10.15 | V1.0.0 | First release |
 
-<!-- p.4: contents list omitted -->
+<!-- p.4 -->
 
-<!-- p.5: contents list omitted -->
+## Contents
 
-<!-- p.6: contents list omitted -->
+Page numbers in these lists are the printed Chinese manual page numbers;
+physical PDF page numbers in the markers are one higher.
 
-<!-- p.7: contents list omitted -->
+| Entry | Printed page |
+| --- | --- |
+| [Intellectual Property Statement](#intellectual-property-statement) | 1 |
+| [Reading Notice](#reading-notice) | 1 |
+| [Version Number Description](#version-number-description) | 1 |
+| [Field Drawing Legend](#field-drawing-legend) | 2 |
+| [Revision Log](#revision-log) | 2 |
+| [1 Preface](#1-preface) | 12 |
+| [1.1 About the Competition](#11-about-the-competition) | 12 |
+| [1.2 Major Changes in the New Season](#12-major-changes-in-the-new-season) | 13 |
+| [1.3 About the Competition Rules Documents](#13-about-the-competition-rules-documents) | 14 |
+| [1.4 About Q&A](#14-about-qa) | 14 |
+| [2 Important Concepts](#2-important-concepts) | 16 |
+| [3 Robots and Operators](#3-robots-and-operators) | 20 |
+| [3.1 Robots](#31-robots) | 22 |
+| [3.1.1 Heavy Robot](#311-heavy-robot) | 22 |
+| [3.1.2 Infantry Robot](#312-infantry-robot) | 23 |
+| [3.1.3 Sentry Robot](#313-sentry-robot) | 25 |
+| [3.2 Combined Systems](#32-combined-systems) | 27 |
+| [3.2.1 Aerial System](#321-aerial-system) | 27 |
+| [3.2.2 Dart System](#322-dart-system) | 27 |
+| [3.2.3 Radar System](#323-radar-system) | 28 |
+| [3.3 Auxiliary Equipment](#33-auxiliary-equipment) | 28 |
+| [3.3.1 Custom Terminal](#331-custom-terminal) | 28 |
+| [4 Battlefield](#4-battlefield) | 29 |
+| [4.1 Battlefield overview](#41-battlefield-overview) | 29 |
+| [4.2 Base Zone](#42-base-zone) | 35 |
 
-<!-- p.8: contents list omitted -->
+<!-- p.5 -->
 
-<!-- p.9: contents list omitted -->
+| Entry | Printed page |
+| --- | --- |
+| [4.2.1 Starting Zone](#421-starting-zone) | 36 |
+| [4.2.2 Base](#422-base) | 37 |
+| [4.2.3 Dart Launching Station](#423-dart-launching-station) | 40 |
+| [4.2.4 High Point](#424-high-point) | 41 |
+| [4.2.5 Radar Base](#425-radar-base) | 42 |
+| [4.2.6 Supply Zone](#426-supply-zone) | 44 |
+| [4.2.7 Fortress](#427-fortress) | 48 |
+| [4.3 Highland Zone](#43-highland-zone) | 49 |
+| [4.3.1 Trapezoidal Highland](#431-trapezoidal-highland) | 49 |
+| [4.3.2 Central Highland](#432-central-highland) | 50 |
+| [4.4 Road Zone](#44-road-zone) | 57 |
+| [4.4.1 Bumpy Road](#441-bumpy-road) | 58 |
+| [4.4.2 Tunnel](#442-tunnel) | 59 |
+| [4.5 Other](#45-other) | 59 |
+| [4.5.1 Movable Props](#451-movable-props) | 59 |
+| [4.5.2 Projectiles](#452-projectiles) | 61 |
+| [4.5.3 Operator Room](#453-operator-room) | 61 |
+| [5 Match Mechanics](#5-match-mechanics) | 64 |
+| [5.1 HP Deduction and Limit-Exceeding Penalty Mechanisms](#51-hp-deduction-and-limit-exceeding-penalty-mechanisms) | 64 |
+| [5.1.1 Attack Damage or Collision](#511-attack-damage-or-collision) | 64 |
+| [5.1.2 Initial Launch Speed Exceeding the Limit](#512-initial-launch-speed-exceeding-the-limit) | 66 |
+| [5.1.3 Barrel Heat Exceeding the Limit and Cooling](#513-barrel-heat-exceeding-the-limit-and-cooling) | 66 |
+| [5.1.4 Chassis Power Exceeding the Limit](#514-chassis-power-exceeding-the-limit) | 67 |
+| [5.1.5 Referee System Module Offline](#515-referee-system-module-offline) | 68 |
+| [5.1.6 Penalty Damage](#516-penalty-damage) | 71 |
+| [5.2 Adaptive Armor Mechanism](#52-adaptive-armor-mechanism) | 72 |
+| [5.3 HP Recovery and Revival Mechanism](#53-hp-recovery-and-revival-mechanism) | 73 |
 
-<!-- p.10: contents list omitted -->
+<!-- p.6 -->
 
-<!-- p.11: contents list omitted -->
+| Entry | Printed page |
+| --- | --- |
+| [5.3.1 HP Recovery Mechanism](#531-hp-recovery-mechanism) | 73 |
+| [5.3.2 Revival Mechanism](#532-revival-mechanism) | 74 |
+| [5.4 Economy System](#54-economy-system) | 75 |
+| [5.4.1 Economy System Overview](#541-economy-system-overview) | 75 |
+| [5.4.2 Projectile Allowance Mechanism](#542-projectile-allowance-mechanism) | 76 |
+| [5.4.3 Tech Core - Energy Unit Mechanism](#543-tech-core---energy-unit-mechanism) | 77 |
+| [5.5 Experience and Performance System](#55-experience-and-performance-system) | 89 |
+| [5.5.1 Experience System](#551-experience-system) | 89 |
+| [5.5.2 Performance System](#552-performance-system) | 91 |
+| [5.6 Field-Related Mechanisms](#56-field-related-mechanisms) | 94 |
+| [5.6.1 Base and Outpost Mechanisms](#561-base-and-outpost-mechanisms) | 94 |
+| [5.6.2 Battlefield Control Mechanism](#562-battlefield-control-mechanism) | 96 |
+| [5.6.3 Power Rune Mechanism](#563-power-rune-mechanism) | 97 |
+| [5.6.4 Field Buff Mechanisms](#564-field-buff-mechanisms) | 102 |
+| [5.7 Robot Special Mechanisms](#57-robot-special-mechanisms) | 108 |
+| [5.7.1 Heavy Robot Special Mechanisms](#571-heavy-robot-special-mechanisms) | 108 |
+| [5.7.2 Sentry Robot Special Mechanisms](#572-sentry-robot-special-mechanisms) | 108 |
+| [5.7.3 Dart System Special Mechanisms](#573-dart-system-special-mechanisms) | 110 |
+| [5.7.4 Radar System Special Mechanisms](#574-radar-system-special-mechanisms) | 112 |
+| [5.8 Competition Format and Victory Conditions](#58-competition-format-and-victory-conditions) | 114 |
+| [6 Match Procedure](#6-match-procedure) | 116 |
+| [6.1 Pre-Match Inspection](#61-pre-match-inspection) | 117 |
+| [6.2 Waiting Zone](#62-waiting-zone) | 118 |
+| [6.3 Three-Minute Setup Period](#63-three-minute-setup-period) | 118 |
+| [6.3.1 Official Technical Pause](#631-official-technical-pause) | 120 |
+| [6.3.2 Team Technical Pause](#632-team-technical-pause) | 120 |
+| [6.4 15-Second Referee System Self-Check Period](#64-15-second-referee-system-self-check-period) | 121 |
 
-<!-- p.12: contents list omitted -->
+<!-- p.7 -->
+
+| Entry | Printed page |
+| --- | --- |
+| [6.5 Five-Second Referee System Self-Check Period](#65-five-second-referee-system-self-check-period) | 121 |
+| [6.6 Seven-Minute Round](#66-seven-minute-round) | 121 |
+| [6.7 Match End](#67-match-end) | 121 |
+| [6.8 Result Confirmation](#68-result-confirmation) | 122 |
+| [6.9 Leaving the Field](#69-leaving-the-field) | 122 |
+| [7 Violations and Penalties](#7-violations-and-penalties) | 123 |
+| [7.1 Penalty System](#71-penalty-system) | 123 |
+| [7.1.1 Penalty Methods](#711-penalty-methods) | 123 |
+| [7.1.2 Penalty Types](#712-penalty-types) | 123 |
+| [7.2 Penalty Details](#72-penalty-details) | 126 |
+| [7.2.1 Personnel](#721-personnel) | 126 |
+| [7.2.2 Robots](#722-robots) | 129 |
+| [7.2.3 Interaction](#723-interaction) | 131 |
+| [7.3 Serious Violations](#73-serious-violations) | 134 |
+| [8 Abnormal Situations](#8-abnormal-situations) | 136 |
+| [9 Appeals](#9-appeals) | 137 |
+| [9.1 Appeal Procedure](#91-appeal-procedure) | 138 |
+| [9.2 Appeal Materials](#92-appeal-materials) | 138 |
+| [9.3 Appeal Results](#93-appeal-results) | 139 |
+| [Appendix 1 Pre-Match Procedure Description](#appendix-1-pre-match-procedure-description) | 140 |
+| [Pre-Inspection](#pre-inspection) | 140 |
+| [Field Prop Training](#field-prop-training) | 140 |
+| [Adaptive Training](#adaptive-training) | 141 |
+| [Appendix 2 Future Rules Planning](#appendix-2-future-rules-planning) | 142 |
+
+<!-- p.8 -->
+
+## List of Tables
+
+| Entry | Printed page |
+| --- | --- |
+| Table 2-1 Overview of Important Concepts | 16 |
+| Table 3-1 Robot lineup | 20 |
+| Table 3-2 Operator lineup | 21 |
+| Table 3-3 Key characteristics of the Heavy Robot | 22 |
+| Table 3-4 Key characteristics of the modular 42mm launching mechanism | 23 |
+| Table 3-5 Key characteristics of the Infantry Robot | 23 |
+| Table 3-6 Key characteristics of the Sentry Robot | 25 |
+| Table 3-7 Key characteristics of the Aerial Robot | 27 |
+| Table 3-8 Key characteristics of the Hangar | 27 |
+| Table 3-9 Key characteristics of the Dart System | 27 |
+| Table 3-10 Key characteristics of the Radar System | 28 |
+| Table 4-1 Projectile parameters and usage arrangements | 61 |
+| Table 5-1 Effective detection speed of Armor Modules for different types of projectiles | 64 |
+| Table 5-2 HP deduction mechanism for attack damage or collision | 65 |
+| Table 5-3 Penalty mechanism for Initial Launch Speed exceeding the limit | 66 |
+| Table 5-4 Penalty mechanism for robot abnormal offline | 69 |
+| Table 5-5 Damage multipliers for each region of the Armor Module | 72 |
+| Table 5-6 Overview of periodic Gold increments for robots | 75 |
+| Table 5-7 Exchange rules | 76 |
+| Table 5-8 Minimum exchange unit of Projectile Allowance for different projectile types (for Buff Point exchange) | 77 |
+| Table 5-9 Minimum exchange unit of Projectile Allowance for different projectile types (for remote exchange) | 77 |
+| Table 5-10 Relationship between Tech Core pose and difficulty level | 82 |
+| Table 5-11 Heavy Robot assembly difficulty level unlock schedule | 82 |
+| Table 5-12 Heavy Robot assembly difficulty rewards | 83 |
+| Table 5-13 Summary of Tech Core light effects | 84 |
+
+<!-- p.9 -->
+
+| Entry | Printed page |
+| --- | --- |
+| Table 5-14 Experience gain and settlement mechanism | 89 |
+| Table 5-15 Infantry Robot Levels and Experience | 91 |
+| Table 5-16 Heavy Robot Overall Attributes | 91 |
+| Table 5-17 Infantry Robot Chassis Attributes | 92 |
+| Table 5-18 Infantry Robot 17mm Launching Mechanism Attributes | 93 |
+| Table 5-19 Logistics Capability Parameter Calculation Logic | 95 |
+| Table 5-20 Relationship Between Positions and Control | 96 |
+| Table 5-21 Position Control State Transition Mechanisms | 96 |
+| Table 5-22 Average Ring Number and Corresponding Buffs | 98 |
+| Table 5-23 Number of Activated Light Arms and Corresponding Buff Duration | 98 |
+| Table 5-24 Relationship Between Large Power Rune Activation Count and Effective Detected Rings | 99 |
+| Table 5-25 Buff Effect Types | 103 |
+| Table 5-26 Buff Source Types and Behavior | 104 |
+| Table 5-27 Tunnel Buff Trigger Logic and Effects | 106 |
+| Table 5-28 Sentry Robot Posture Effects | 109 |
+| Table 5-29 Calculation Logic of "Marked Progress" P | 112 |
+| Table 5-30 Thresholds of P and Effects Obtained by the Corresponding Target | 113 |
+| Table 6-1 Malfunction Situations | 120 |
+| Table 6-2 Team Technical Pause Arrangements | 121 |
+| Table 7-1 Penalty Methods | 123 |
+| Table 7-2 Penalty Types | 123 |
+| Table 7-3 Collision Violation Penalty Standards | 132 |
+| Table 7-4 Battlefield Restricted Zone Access Rules | 133 |
+| Table 7-5 Types of Serious Violations | 135 |
+
+<!-- p.10 -->
+
+## List of Figures
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 1-1 Talent Cultivation Philosophy | 12 |
+| Figure 4-1 Top-view rendering of the Battlefield | 29 |
+| Figure 4-2 Oblique-view rendering of the Battlefield | 30 |
+| Figure 4-3 Axonometric rendering of the Battlefield | 30 |
+| Figure 4-4 Battlefield module diagram | 31 |
+| Figure 4-5 Battlefield module positioning dimension drawing | 32 |
+| Figure 4-6 Battlefield slope diagram | 33 |
+| Figure 4-7 Fan diagram | 34 |
+| Figure 4-8 Base Zone diagram | 35 |
+| Figure 4-9 Schematic of the robot Starting Zone | 36 |
+| Figure 4-10 Schematic of the Base mount | 37 |
+| Figure 4-11 Dimensions of the Base with armor closed | 37 |
+| Figure 4-12 Dimensions of the Base with armor open | 38 |
+| Figure 4-13 Schematic of the Dart detection module | 39 |
+| Figure 4-14 Schematic of the Dart Launching Station | 40 |
+| Figure 4-15 Schematic of the sliding platform extended | 40 |
+| Figure 4-16 Dimensions of the sliding platform | 41 |
+| Figure 4-17 Schematic of the High Point | 41 |
+| Figure 4-18 Schematic of the Radar Base | 42 |
+| Figure 4-19 Schematic of the relative position of the Radar Base | 43 |
+| Figure 4-20 Schematic of the Supply Zone | 44 |
+| Figure 4-21 Schematic of the resource station | 45 |
+| Figure 4-22 Schematic of the Energy Unit placement area | 46 |
+| Figure 4-23 Schematic of the Workbench | 46 |
+| Figure 4-24 Schematic of the vision tags | 47 |
+
+<!-- p.11 -->
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 4-25 Schematic of the Fortress | 48 |
+| Figure 4-26 Schematic of the Trapezoidal Highland | 49 |
+| Figure 4-27 Schematic of the Central Highland | 50 |
+| Figure 4-28 Isometric view of the Assembly Zone | 51 |
+| Figure 4-29 Dimensions of the Assembly Zone | 52 |
+| Figure 4-30 Schematic of the Hangar platform | 53 |
+| Figure 4-31 Power Rune diagram | 54 |
+| Figure 4-32 Power Rune light arm dimensions diagram | 54 |
+| Figure 4-33 Power Rune center marking dimensions diagram | 55 |
+| Figure 4-34 Outpost diagram | 56 |
+| Figure 4-35 Road Zone diagram | 57 |
+| Figure 4-36 Bumpy Road diagram | 58 |
+| Figure 4-37 Bump diagram | 58 |
+| Figure 4-38 Far Highland Tunnel diagram | 59 |
+| Figure 4-39 Energy Unit diagram | 60 |
+| Figure 4-40 Operator Room layout diagram | 62 |
+| Figure 5-1 Barrel Heat exceeding the limit and cooling mechanism | 67 |
+| Figure 5-2 Robot Chassis Power detection and limit-exceeding penalty mechanism | 68 |
+| Figure 5-3 HP deduction mechanism for Armor Module and Supercapacitor Management Module offline | 70 |
+| Figure 5-4 Power-off mechanism for Speed Monitor Module offline | 71 |
+| Figure 5-5 Schematic of the relative position of the robot Video Transmitter Module and the visual tag | 74 |
+| Figure 5-6 Schematic of the Tech Core | 78 |
+| Figure 5-7 Schematic of Tech Core coordinates | 80 |
+| Figure 5-8 Schematic of Tech Core MARK light dimensions | 80 |
+| Figure 5-9 Schematic of Tech Core dimensions | 81 |
+| Figure 5-10 Schematic of the spherical coordinate system | 81 |
+| Figure 5-11 Schematic of Tech Core light effects | 84 |
+
+<!-- p.12 -->
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 5-12 Schematic of Step 2 | 86 |
+| Figure 5-13 Schematic of Step 3 | 86 |
+| Figure 5-14 Schematic of Step 4 | 87 |
+| Figure 5-15 Schematic of Step 5 Tech Core light effects | 87 |
+| Figure 5-16 Illustration of video transmission clarity at λ=1, 0.75, 0.5 | 95 |
+| Figure 5-17 Illustration of Power Rune hit zones | 98 |
+| Figure 5-18 Illustration of the Power Rune inactive state | 99 |
+| Figure 5-19 Illustration of the Small Power Rune activating state | 100 |
+| Figure 5-20 Illustration of the Large Power Rune activating state | 100 |
+| Figure 5-21 Illustration of the Power Rune activatable indicator | 101 |
+| Figure 5-22 Illustration of the Power Rune activated state | 101 |
+| Figure 5-23 Illustration of Battlefield Buff Point distribution | 102 |
+| Figure 5-24 Illustration of Field Interaction Module card installation | 103 |
+| Figure 6-1 Single Match Flowchart | 116 |
+| Figure 6-2 Pre-Match Inspection Flowchart | 117 |
+| Figure 6-3 Setup Period Debugging Area Diagram | 119 |
+| Figure 7-1 Battlefield Restricted Zones | 133 |
+| Figure 9-1 Appeal Flowchart | 138 |
 
 <!-- p.13 -->
 ## 1 Preface
 
 ### 1.1 About the Competition
 
-The National University Robot Competition RoboMaster University Championship (RMUC, RoboMaster University Championship) was initiated by DJI. Its core format is tactical confrontation between robots. Participating teams must design, develop and build multiple robots that comply with the specifications, and form a robot team to compete. In a seven-minute timed match, the two sides engage in tactical confrontation by operating their robots, and the side that destroys the opponent's Base wins the match.
+The National University Student Robot Competition RoboMaster University Championship (RMUC, RoboMaster University Championship) was initiated by DJI. Its core format is tactical confrontation between robots. Participating teams must design, develop and build multiple robots that comply with the specifications, and form a robot team to compete. In a seven-minute timed match, the two sides engage in tactical confrontation by operating their robots, and the side that destroys the opponent's Base wins the match.
 
 RMUC is committed to cultivating outstanding young engineers and encourages team members to combine what they have learned with practical application, so that they continue to grow through participation.
 
@@ -209,7 +467,7 @@ This chapter briefly explains common important concepts related to the competiti
 | Referee System | The Referee System is an electronic penalty system for robot competitions that integrates computing, communication and control. It includes the onboard modules and the competition engine installed on PC hosts (server, referee client, player client), and has functions such as monitoring robot power, projectile launching and damage, and automatically determining the winner according to the competition rules. |
 | Multi-robot communication | The interaction method in which robots communicate with each other through the Referee System serial port. |
 | Chassis | The mechanism that carries the power system of a Ground Robot and its auxiliary components, and supports the body of the Ground Robot. |
-| Chassis Power | The power consumption of the mechanism that, based on rotary motion and relying on ground friction, does work for the robot's planar horizontal movement or rotation. For the definition of Chassis Power, see the "Referee System Installation Specifications" chapter of the "RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual". |
+| Chassis Power | The power consumption of the mechanism that, based on rotary motion and relying on ground friction, does work for the robot's planar horizontal movement or rotation. For the definition of Chassis Power, see the "Referee System Installation Specifications" chapter of the "RoboMaster 2027 University Series Robot Building Specifications Manual". |
 | Launching mechanism | A mechanism that lets a projectile leave the robot along a fixed path and with a certain initial speed. |
 | Launching mechanism locked | If the launching mechanism is locked, it is powered off. |
 | Launching mechanism unlocked | If the launching mechanism is unlocked, it is powered on or off depending on its Projectile Allowance. |
@@ -503,7 +761,7 @@ The core competition field of RMUC is called the "Battlefield". The Battlefield 
 
 <!-- p.33 -->
 - Dimension labels (mm): horizontal 28000, 25589, 17024, 9180, 6571, 2075; vertical 15000, 7500, 3600, 826; also 2600, 1480, 2186, 1838; angles 10.5°, 15.8°.
-- [1] Parallel to the long side of the Battlefield and in the facing direction of the Dart Launching Station
+- [1] Parallel to the Battlefield's long side and aligned with the direction the Dart Launching Station faces
 
 *Figure 4-5 Battlefield module positioning dimension drawing*
 
@@ -596,7 +854,7 @@ The Dart armor module of the Dart detection module can detect Dart hits; the Dar
 <!-- p.41 -->
 #### 4.2.3 Dart Launching Station
 
-The Dart Launching Station is the only placement area for the Dart System, and consists of a station body, a sliding platform and a gate. The Dart Launching Station contains a lighting device that cannot be turned off. During the Referee System self-check period, the Dart Launching Station gate opens briefly (about 5 s); while it is open, the Dart detection module remains stationary at the position corresponding to the Base fixed target. During the three-minute Setup Period and the 15-Second Referee System Initialization Period, the Dart guidance lights of both the Outpost and the Base are lit.
+The Dart Launching Station is the only placement area for the Dart System, and consists of a station body, a sliding platform and a gate. The Dart Launching Station contains a lighting device that cannot be turned off. During the Referee System self-check period, the Dart Launching Station gate opens briefly (about 5 s); while it is open, the Dart detection module remains stationary at the position corresponding to the Base fixed target. During the three-minute Setup Period and the 15-Second Referee System Self-Check Period, the Dart guidance lights of both the Outpost and the Base are lit.
 
 *Figure 4-14 Schematic of the Dart Launching Station*
 
@@ -995,7 +1253,7 @@ Let Z be the Buffer Energy, Q be the Buffer Energy upper limit (Q=60J), Pr be th
 
 #### 5.1.5 Referee System Module Offline
 
-Participating teams must install the robot's corresponding Referee System modules as required by the "RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual" and must keep each Referee System module's connection to the server stable during the match. The Referee System server checks the connection status of each module at a frequency of 2Hz.
+Participating teams must install the robot's corresponding Referee System modules as required by the "RoboMaster 2027 University Series Robot Building Specifications Manual" and must keep each Referee System module's connection to the server stable during the match. The Referee System server checks the connection status of each module at a frequency of 2Hz.
 
 <!-- p.70 -->
 ##### 5.1.5.1 Abnormal Offline
@@ -1923,7 +2181,7 @@ The attributes of the Heavy Robot differ by match stage; see "Table 5-16 Heavy R
 
 #### 5.7.2 Sentry Robot Special Mechanisms
 
-After the three-minute Setup Period begins and before the 15-Second Referee System Initialization Period, the Commander may choose the control mode of the corresponding Sentry Robot: automatic control or semi-automatic control. If no control mode is chosen within the specified time, the Sentry Robot defaults to automatic control after the seven-minute Round begins. The Sentry Robot can autonomously exchange for Projectile Allowance, remotely exchange for Projectile Allowance, remotely exchange for HP, confirm Revival, exchange for immediate Revival, and switch posture, by sending messages to the Referee System server.
+After the three-minute Setup Period begins and before the 15-Second Referee System Self-Check Period, the Commander may choose the control mode of the corresponding Sentry Robot: automatic control or semi-automatic control. If no control mode is chosen within the specified time, the Sentry Robot defaults to automatic control after the seven-minute Round begins. The Sentry Robot can autonomously exchange for Projectile Allowance, remotely exchange for Projectile Allowance, remotely exchange for HP, confirm Revival, exchange for immediate Revival, and switch posture, by sending messages to the Referee System server.
 
 In addition, the Commander can intervene in the Sentry Robot's actions through the relevant commands of the Referee System Client. The specific commands are:
 
@@ -2074,7 +2332,7 @@ The information wave will contain the following information about the opponent:
 - Activation status of each of the opponent's Buff Points
 - Armor hit information
 
-> Note: For the specific communication protocol structure, see: "RoboMaster 2027 RoboMaster University Series Communication Protocol".
+> Note: For the specific communication protocol structure, see: "RoboMaster 2027 University Series Communication Protocol".
 
 The interference wave contains no specific information, but contains a 6-character (alphanumeric combination) key customized by the opponent. The key is reset to a random value at the start of the round and whenever the difficulty of the corresponding side's interference wave changes.
 
@@ -2108,7 +2366,7 @@ Flowchart boxes (left) with their annotations (right):
 - Arrive at the waiting zone. Annotation: (1) Arrive at the waiting zone at the specified time before the match; (2) Follow the order of the waiting zone; (3) Teams wait to enter the field for the match.
 - Arrive at the field waiting area.
 - Setup Period begins. Annotation: (1) Power on the robots and check that the robots are normal; (2) Connect to the Referee System server; (3) Obtain the initial projectiles; (4) Operators enter the Operator Room; (5) All robots must be powered on for the last 30 seconds; team members must leave the Battlefield; (6) Special situations, technical pause.
-- 15-Second Referee System Initialization Period and Five-Second Countdown. Annotation: (1) Referee System self-check; (2) After the Referee System self-check ends, enter the match countdown.
+- 15-Second Referee System Self-Check Period and Five-Second Countdown. Annotation: (1) Referee System self-check; (2) After the Referee System self-check ends, enter the match countdown.
 - Match start to end. Annotation: (1) Robots from both sides engage in shooting combat within the Battlefield; (2) The winner is determined according to the match rules.
 - Decision: Is there a next round? YES: return to the "Setup Period begins" step. NO: continue.
 - One match ends. Annotation: (1) Robots are powered off and leave the Battlefield; (2) Within 5 minutes, the team captain signs to confirm the result or initiates an Appeal.
@@ -2123,7 +2381,7 @@ Flowchart boxes (left) with their annotations (right):
 > - The inspection result of an official match is valid only for that match.
 > - Passing the inspection only proves that the robot met the inspection pass criteria at the time of inspection. Teams must themselves ensure that their robots always meet the requirements of the Robot Building Specifications Manual. During inspection, all functions of the robot must be proactively demonstrated to the inspectors.
 
-To ensure that the robots built by teams comply with the requirements of the "RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual", teams are advised to arrive at the inspection area 60 minutes before the start of each match. If a team has not started inspection 55 minutes before the start of each match, the team's eligibility to field spare robots is cancelled. If a team has not started inspection 50 minutes before the start of each match, the eligibility of 1 Ground Robot to take the field is cancelled. Robots that have not arrived at the inspection area 45 minutes before the start of the match are stopped from entering the inspection area. The inspection procedure is as follows:
+To ensure that the robots built by teams comply with the requirements of the "RoboMaster 2027 University Series Robot Building Specifications Manual", teams are advised to arrive at the inspection area 60 minutes before the start of each match. If a team has not started inspection 55 minutes before the start of each match, the team's eligibility to field spare robots is cancelled. If a team has not started inspection 50 minutes before the start of each match, the eligibility of 1 Ground Robot to take the field is cancelled. Robots that have not arrived at the inspection area 45 minutes before the start of the match are stopped from entering the inspection area. The inspection procedure is as follows:
 
 *Figure 6-2 Pre-Match Inspection Flowchart*
 
@@ -2190,7 +2448,7 @@ When 30 seconds remain in the three-minute Setup Period, all robots in the Battl
 
 During the three-minute Setup Period, when the Referee System or official equipment malfunctions, or a robot needs temporary inspection (the malfunction situations are shown in the table below), the Head Referee may initiate an official technical pause and pause the countdown. The time at which the pause is initiated is decided by the Head Referee according to the situation.
 
-During an official technical pause, on-site personnel must cooperate with the Referee's requirements to eliminate faults related to the Referee System or official equipment, and may not repair other faults. If the Referee System malfunctions and needs replacement, the time limits for replacing the Referee System on-board end in the "RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual" must be followed. After the faults related to the Referee System or official equipment are eliminated and the Head Referee resumes the countdown, on-site personnel must follow the standards of the three-minute Setup Period and leave the Battlefield at the specified time points.
+During an official technical pause, on-site personnel must cooperate with the Referee's requirements to eliminate faults related to the Referee System or official equipment, and may not repair other faults. If the Referee System malfunctions and needs replacement, the time limits for replacing the Referee System on-board end in the "RoboMaster 2027 University Series Robot Building Specifications Manual" must be followed. After the faults related to the Referee System or official equipment are eliminated and the Head Referee resumes the countdown, on-site personnel must follow the standards of the three-minute Setup Period and leave the Battlefield at the specified time points.
 
 **Table 6-1 Malfunction Situations**
 
@@ -2227,13 +2485,13 @@ The team technical pause arrangements for different schedule stages within the s
 | Regional Competition | Group stage | 2 two-minute technical pauses. |
 | Regional Competition | Knockout stage | 1 three-minute technical pause. If the technical pause opportunities in the group stage are not used up, they can carry over to the knockout stage. |
 
-### 6.4 15-Second Referee System Initialization Period
+### 6.4 15-Second Referee System Self-Check Period
 
-After the three-minute Setup Period ends, the match enters the 15-Second Referee System Initialization Period. During the self-check, the Referee System server automatically checks the connection status of the Referee System Clients, the status of the robots' Referee System modules, and the status of the field props, and resets all robots' HP, ensuring that all robots are at full HP when the match starts.
+After the three-minute Setup Period ends, the match enters the 15-Second Referee System Self-Check Period. During the self-check, the Referee System server automatically checks the connection status of the Referee System Clients, the status of the robots' Referee System modules, and the status of the field props, and resets all robots' HP, ensuring that all robots are at full HP when the match starts.
 
 ### 6.5 Five-Second Referee System Self-Check Period
 
-After the 15-Second Referee System Initialization Period ends, the match enters the Five-Second Countdown. During this time, the Referee System Client does not respond to robot control commands (including the Custom Terminal). After the countdown ends, the Referee System Client resumes responding to robot control commands, and the match starts immediately.
+After the 15-Second Referee System Self-Check Period ends, the match enters the Five-Second Countdown. During this time, the Referee System Client does not respond to robot control commands (including the Custom Terminal). After the countdown ends, the Referee System Client resumes responding to robot control commands, and the match starts immediately.
 
 ### 6.6 Seven-Minute Round
 
@@ -2292,13 +2550,13 @@ The types of manual penalties during the match are shown in the table below:
 | Penalty type | Description |
 | --- | --- |
 | Yellow Card Warning | &nbsp;&nbsp;- If the violating robot is a Sentry Robot, its chassis is powered off for 2 seconds, and other robots' operation interfaces are blocked for 2 seconds.<br>&nbsp;&nbsp;- If the violating robot is not a Sentry Robot, its operation interface is blocked for 5 seconds, and other robots' operation interfaces are blocked for 2 seconds.<br>&nbsp;&nbsp;- The Referee System automatically deducts 15% of the violating robot's current Max HP, and the other surviving robots are deducted 5% of their current Max HP. If a robot receives another Yellow Card Warning within 30 seconds of each Yellow Card Warning, the percentage of current Max HP deducted is 2 times the previous one, and the other surviving robots are deducted 5% of their current Max HP.<br>&nbsp;&nbsp;- In each round, when all robots have cumulatively received 3 Yellow Card Warnings, a Red Card Warning is received at the same time.<br>- Both-side Yellow Card: All operators' operation interfaces are blocked for 2 seconds, and all robots are deducted 5% of Max HP, which does not count toward a single robot's cumulative Yellow Card count.<br>> Note: (1) If Yellow Card Warnings are received consecutively, the interface blocking times are added together, and the 30-second timer is reset. (2) If a robot's remaining HP is less than or equal to the HP to be deducted by the penalty, the robot's HP is reduced to 1. (3) The durations of chassis power-off, interface blocking, etc. caused by violation penalties are independent of match mechanisms and do not stack with them. (4) When the interface is blocked due to a Yellow Card Warning, the video transmission feed, mini-map, and custom UI are all unavailable. |
-| Red Card Warning (Ejection) | - Ejected robot:<br>&nbsp;&nbsp;- If a robot is ejected before the 15-Second Referee System Initialization Period, the violating robot is not allowed to take the field and must be moved out of the Battlefield, and no other robot may substitute for it in all rounds of that match.<br>&nbsp;&nbsp;- If a robot is ejected during the 15-Second Referee System Initialization Period, the Red Card Warning is issued after the match starts.<br>&nbsp;&nbsp;- If the aerial system is ejected during the match, the Hangar is powered off. If the Aerial Robot is in flight, the safety officer must immediately take control of the Remote Controller and stop the propellers, and the Aerial Robot may not fly again. If the Dart System is ejected during the match, the dart launch button is immediately disabled and the Dart Launching Station gate cannot be opened; |
+| Red Card Warning (Ejection) | - Ejected robot:<br>&nbsp;&nbsp;- If a robot is ejected before the 15-Second Referee System Self-Check Period, the violating robot is not allowed to take the field and must be moved out of the Battlefield, and no other robot may substitute for it in all rounds of that match.<br>&nbsp;&nbsp;- If a robot is ejected during the 15-Second Referee System Self-Check Period, the Red Card Warning is issued after the match starts.<br>&nbsp;&nbsp;- If the aerial system is ejected during the match, the Hangar is powered off. If the Aerial Robot is in flight, the safety officer must immediately take control of the Remote Controller and stop the propellers, and the Aerial Robot may not fly again. If the Dart System is ejected during the match, the dart launch button is immediately disabled and the Dart Launching Station gate cannot be opened; |
 
 <!-- p.126 -->
 | Penalty type | Description |
 | --- | --- |
 | Red Card Warning (Ejection) | &nbsp;&nbsp;if the gate is already open, it is closed immediately.<br>&nbsp;&nbsp;- If the Radar is ejected during the match, the Radar's multi-machine communication is disconnected (it can only receive one-way and can no longer send).<br>&nbsp;&nbsp;- If a Ground Robot is ejected during the match, the robot's HP immediately becomes 0, its video transmission feed is disconnected, its multi-machine communication is disconnected, and it cannot be Revived.<br>- Ejected Auxiliary Equipment: the corresponding equipment is not allowed to take the field.<br>- Ejected on-site personnel: the Referee requires the ejected on-site personnel to leave the competition area immediately, and no other on-site personnel may substitute for them in all rounds of that match. If an operator is ejected, the robot they operate is ejected for that round and is not allowed to take the field in all rounds of that match, and no robot may substitute for it; if the Commander is ejected, both the aerial system and the Dart System are ejected and are not allowed to take the field in all rounds of that match, and no robot may substitute for them. |
-| Loss by forfeit | - If a Loss by forfeit penalty is issued for a round (hereinafter "round forfeit"), the details are as follows:<br>&nbsp;&nbsp;- If the forfeit penalty is issued before the seven-minute Round (including the three-minute Setup Period and the 15-Second Referee System Initialization Period), the violating side's Base HP is 0 and control degree is 0, and its other robots have full HP. The other side's Base and robots have full HP, and its control degree is 1680. Both teams' total team damage is considered 0. The round time is considered 420s.<br>&nbsp;&nbsp;- If the forfeit penalty is issued during the seven-minute Round, the round ends immediately. The violating side's Base HP is 0, its other robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The other side's Base and robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The round time is the actual match time elapsed when the forfeit was issued.<br>&nbsp;&nbsp;- If the forfeit penalty is issued after the seven-minute Round ends, the violating side's Base HP is 0, its other robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The other side's Base and robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The round time is the actual match time elapsed when the forfeit was issued.<br>- If a forfeit penalty is issued for a match (hereinafter "match forfeit"), that is, a forfeit penalty is issued for all rounds of that match, the HP settlement of each round follows the description above. |
+| Loss by forfeit | - If a Loss by forfeit penalty is issued for a round (hereinafter "round forfeit"), the details are as follows:<br>&nbsp;&nbsp;- If the forfeit penalty is issued before the seven-minute Round (including the three-minute Setup Period and the 15-Second Referee System Self-Check Period), the violating side's Base HP is 0 and control degree is 0, and its other robots have full HP. The other side's Base and robots have full HP, and its control degree is 1680. Both teams' total team damage is considered 0. The round time is considered 420s.<br>&nbsp;&nbsp;- If the forfeit penalty is issued during the seven-minute Round, the round ends immediately. The violating side's Base HP is 0, its other robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The other side's Base and robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The round time is the actual match time elapsed when the forfeit was issued.<br>&nbsp;&nbsp;- If the forfeit penalty is issued after the seven-minute Round ends, the violating side's Base HP is 0, its other robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The other side's Base and robots' HP is as of the end of the match, and its control degree is the value at the end of the match. The round time is the actual match time elapsed when the forfeit was issued.<br>- If a forfeit penalty is issued for a match (hereinafter "match forfeit"), that is, a forfeit penalty is issued for all rounds of that match, the HP settlement of each round follows the description above. |
 | Disqualification from awards | - Participants are disqualified from awards.<br>- Teams are disqualified from awards. |
 
 <!-- p.127 -->
@@ -2314,7 +2572,7 @@ This section describes the detailed violation penalties. Items numbered R# are r
 
 ##### 7.2.1.1 General Requirements
 
-**R1** Participating teams must meet the requirements of the *RoboMaster 2027 RoboMaster University Championship Participant Manual*.
+**R1** Participating teams must meet the requirements of the *RoboMaster 2027 University Championship Participant Manual*.
 Violation penalty: up to disqualification of the violating party.
 
 **R2** Participants and their actions must not interfere with the normal operation of official equipment or competition procedures, or the normal work of RMOC staff.
@@ -2402,7 +2660,7 @@ Violation penalty: the violating party bears the corresponding responsibility.
 **R26** During the three-minute Setup Period, in addition to the Operators and Commander corresponding to the robots on the field, at most 1 additional person is allowed in the Operator Room, and persons other than the Operators and Commander corresponding to the robots on the field must leave the Operator Room before the three-minute Setup Period ends.
 Violation penalty: verbal warning. If the warning is ineffective, a Red Card Warning is issued to the violating personnel.
 
-**R27** Without the Referee's permission, during the 15-Second Referee System Initialization Period and the seven-minute Round, Operators must be in the corresponding Operator Room, operate the control devices of the corresponding robot, wear the corresponding headset, and must not change position after the three-minute Setup Period ends.
+**R27** Without the Referee's permission, during the 15-Second Referee System Self-Check Period and the seven-minute Round, Operators must be in the corresponding Operator Room, operate the control devices of the corresponding robot, wear the corresponding headset, and must not change position after the three-minute Setup Period ends.
 Violation penalty: verbal warning. If the warning is ineffective, a Red Card Warning is issued to the violating personnel.
 
 **R28** An Operator has not arrived at the Operator Room before the Five-Second Countdown, or leaves the Operator Room during the seven-minute Round.
@@ -2434,7 +2692,7 @@ Violation penalty: Loss by forfeit for the round.
 **R35** In the first round of a match, the robots must meet the minimum lineup for taking the field.
 Violation penalty: Loss by forfeit for the match.
 
-**R36** Robots must meet the requirements of the *RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual*.
+**R36** Robots must meet the requirements of the *RoboMaster 2027 University Series Robot Building Specifications Manual*.
 Violation penalty: up to disqualification of the violating party.
 
 > Note:
@@ -2458,7 +2716,7 @@ Violation penalty: verbal warning. If the warning is ineffective, a Red Card War
 **R41** The Dart System must not launch darts out of the Battlefield.
 Violation penalty: a Red Card Warning is issued to the violating robot.
 
-**R42** From the three-minute Setup Period until the Battlefield is cleared, robots inside the Battlefield must not leave their corresponding debugging area. After the Battlefield is cleared, through the 15-Second Referee System Initialization Period and the Five-Second Countdown, robots inside the Battlefield must not leave their corresponding starting area.
+**R42** From the three-minute Setup Period until the Battlefield is cleared, robots inside the Battlefield must not leave their corresponding debugging area. After the Battlefield is cleared, through the 15-Second Referee System Self-Check Period and the Five-Second Countdown, robots inside the Battlefield must not leave their corresponding starting area.
 Violation penalty: up to a Red Card Warning for the violating robot.
 
 **R43** During the three-minute Setup Period, if projectiles need to be launched, they must be launched into the projectile clearing bag.
@@ -2660,6 +2918,13 @@ A participating team that needs to make an Appeal should follow this procedure:
 6. **Continued Appeal.** If a round is replayed because the Appeal arbitration result was "both sides replay", then after the replayed round ends, teams that still have an Appeal opportunity may appeal the replayed round. In this case, if the original appealing party appeals again (called a "Continued Appeal"), because it seriously affects the schedule, the original appealing party's Appeal opportunity is consumed whether or not the Appeal succeeds.
 
 *Figure 9-1 Appeal Flowchart*
+
+- Team submits Appeal
+- Team fills in Appeal form and signs to confirm
+- Team collects evidence or defense materials
+- Appeal result is announced to both parties
+- Appeal result is confirmed
+- Continued Appeal
 
 ### 9.2 Appeal Materials
 

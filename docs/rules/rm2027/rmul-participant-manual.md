@@ -30,9 +30,63 @@ Participants must not engage in or take part in any conduct that the RoboMaster 
 | --- | --- | --- |
 | 2026.10.15 | V1.0.0 | First release |
 
-<!-- p.3: contents list omitted -->
+<!-- p.3 -->
 
-<!-- p.4: contents list omitted -->
+## Contents
+
+| Entry | Printed page |
+| --- | --- |
+| [Statement](#statement) | 2 |
+| [Revision Log](#revision-log) | 2 |
+| [1 Preface](#1-preface) | 5 |
+| [2 Participation](#2-participation) | 6 |
+| [2.1 Registration Requirements](#21-registration-requirements) | 6 |
+| [2.2 Participating Teams](#22-participating-teams) | 6 |
+| [2.3 Participants](#23-participants) | 7 |
+| [2.4 Personnel Directions](#24-personnel-directions) | 11 |
+| [2.5 Rules Communication](#25-rules-communication) | 12 |
+| [3 Season Schedule](#3-season-schedule) | 13 |
+| [4 Technical Assessment](#4-technical-assessment) | 15 |
+| [4.1 Referee System Basic Assessment](#41-referee-system-basic-assessment) | 15 |
+| [4.2 Full-Form Assessment](#42-full-form-assessment) | 16 |
+| [5 Awards](#5-awards) | 17 |
+| [5.1 3V3 Match](#51-3v3-match) | 17 |
+| [5.2 Infantry Match](#52-infantry-match) | 18 |
+| [5.3 Robot Competition Awards](#53-robot-competition-awards) | 18 |
+| [5.3.1 Award Settings](#531-award-settings) | 18 |
+| [5.3.2 Selection Criteria and Process](#532-selection-criteria-and-process) | 19 |
+| [5.4 Outstanding Contribution Awards](#54-outstanding-contribution-awards) | 20 |
+| [5.4.1 Award Settings](#541-award-settings) | 20 |
+| [5.4.2 Selection Criteria and Process](#542-selection-criteria-and-process) | 21 |
+| [5.5 Organization Awards](#55-organization-awards) | 24 |
+| [5.5.1 Award Settings](#551-award-settings) | 24 |
+| [5.5.2 Selection Criteria and Process](#552-selection-criteria-and-process) | 24 |
+| [Appendix Participation Safety Notice](#appendix-participation-safety-notice) | 26 |
+
+<!-- p.4 -->
+
+## List of Tables
+
+| Entry | Printed page |
+| --- | --- |
+| Table 2-1 Participant Positions and Responsibilities | 8 |
+| Table 2-2 Official Team Member Positions and Responsibilities | 9 |
+| Table 2-3 Personnel Direction Classification | 11 |
+| Table 2-4 Communication Channels | 12 |
+| Table 3-1 Online Schedule | 13 |
+| Table 3-2 Offline Schedule | 13 |
+| Table 4-1 Submission Content Specifications | 15 |
+| Table 5-1 Tier A Team Awards | 17 |
+| Table 5-2 Non-Tier A Team Awards | 17 |
+| Table 5-3 Infantry Match Awards | 18 |
+| Table 5-4 3V3 Match Robot Competition Award Settings | 18 |
+| Table 5-5 Infantry Match Robot Competition Award Settings | 19 |
+| Table 5-6 3V3 Match Robot Data Selection | 19 |
+| Table 5-7 Infantry Match Robot Data Selection | 20 |
+| Table 5-8 Outstanding Contribution Award Settings | 20 |
+| Table 5-9 Outstanding Contribution Award Selection Criteria and Process | 21 |
+| Table 5-10 Organization Award Settings | 24 |
+| Table 5-11 Organization Award Selection Criteria and Process | 24 |
 
 <!-- p.5 -->
 ## 1 Preface

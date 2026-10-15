@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Six English RoboMaster 2027 PDF editions and their original Chinese sources,
+  linked from the [translation index](docs/rules/rm2027/README.md), with a
+  reproducible renderer and English flowcharts. Completed the RMUC page review
+  and translated contents lists across the full document set.
+
 - Unofficial English translations of the RoboMaster 2027 RMUL and RMUC
   Rules and Participant manuals, the shared Robot Building Specifications
   Manual and the rule-change preview, checked against rendered pages. The RMUL

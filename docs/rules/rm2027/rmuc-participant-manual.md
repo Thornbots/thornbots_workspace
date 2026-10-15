@@ -27,9 +27,81 @@ Participants must not engage in or take part in any conduct that the RoboMaster 
 | --- | --- | --- |
 | 2026.10.15 | V1.0.0 | First release |
 
-<!-- p.3: contents list omitted -->
-<!-- p.4: contents list omitted -->
-<!-- p.5: contents list omitted -->
+<!-- p.3 -->
+
+## Contents
+
+| Entry | Printed page |
+| --- | --- |
+| [Statement](#statement) | 2 |
+| [Revision Log](#revision-log) | 2 |
+| [1 Preface](#1-preface) | 6 |
+| [2 Participation](#2-participation) | 7 |
+| [2.1 Registration Requirements](#21-registration-requirements) | 7 |
+| [2.2 Participating Teams](#22-participating-teams) | 7 |
+| [2.3 Participants](#23-participants) | 9 |
+| [2.4 Personnel Directions](#24-personnel-directions) | 13 |
+| [2.5 Rules Communication](#25-rules-communication) | 14 |
+| [3 Season Schedule](#3-season-schedule) | 15 |
+| [4 Technical Assessment](#4-technical-assessment) | 17 |
+| [4.1 Season Planning](#41-season-planning) | 18 |
+| [4.2 Rules Test](#42-rules-test) | 18 |
+| [4.3 Mid-Term Progress Document](#43-mid-term-progress-document) | 18 |
+| [4.4 Referee System Assessment](#44-referee-system-assessment) | 18 |
+| [4.5 Full-Form Assessment](#45-full-form-assessment) | 19 |
+| [4.6 Season Summary](#46-season-summary) | 19 |
+| [5 Awards](#5-awards) | 20 |
+| [5.1 Regional Competition](#51-regional-competition) | 20 |
+| [5.2 Final Tournament](#52-final-tournament) | 21 |
+| [5.3 Open-Source Awards](#53-open-source-awards) | 22 |
+| [5.3.1 Award Settings](#531-award-settings) | 23 |
+| [5.3.2 Selection Criteria and Process](#532-selection-criteria-and-process) | 23 |
+| [5.4 Organization Awards](#54-organization-awards) | 24 |
+| [5.4.1 Award Settings](#541-award-settings) | 24 |
+<!-- p.4 -->
+
+| Entry | Printed page |
+| --- | --- |
+| [5.4.2 Selection Criteria and Process](#542-selection-criteria-and-process) | 25 |
+| [5.5 Robot Competition Awards](#55-robot-competition-awards) | 27 |
+| [5.5.1 Award Settings](#551-award-settings) | 27 |
+| [5.5.2 Selection Criteria and Process](#552-selection-criteria-and-process) | 28 |
+| [5.6 Annual Technology Breakthrough Awards](#56-annual-technology-breakthrough-awards) | 29 |
+| [5.6.1 Award Settings](#561-award-settings) | 29 |
+| [5.6.2 Selection Criteria and Process](#562-selection-criteria-and-process) | 30 |
+| [5.7 Outstanding Contribution Awards](#57-outstanding-contribution-awards) | 30 |
+| [5.7.1 Award Settings](#571-award-settings) | 30 |
+| [5.7.2 Selection Criteria and Process](#572-selection-criteria-and-process) | 31 |
+| [5.8 RM Award](#58-rm-award) | 32 |
+| [5.8.1 Award Settings](#581-award-settings) | 32 |
+| [5.8.2 Selection Criteria and Process](#582-selection-criteria-and-process) | 33 |
+| [Appendix Competition Safety Notice](#appendix-competition-safety-notice) | 35 |
+<!-- p.5 -->
+
+## List of Tables
+
+| Entry | Printed page |
+| --- | --- |
+| Table 2-1 Participant Positions and Responsibilities | 9 |
+| Table 2-2 Official Team Member Positions and Responsibilities | 10 |
+| Table 2-3 Concurrent Positions | 12 |
+| Table 2-4 Personnel Direction Categories | 13 |
+| Table 2-5 Communication Channels | 14 |
+| Table 3-1 Online Schedule | 15 |
+| Table 3-2 Offline Schedule | 16 |
+| Table 4-1 Submission Content Standards | 17 |
+| Table 5-1 Regional Competition Awards | 20 |
+| Table 5-2 Final Tournament Awards | 21 |
+| Table 5-3 Open-Source Awards | 23 |
+| Table 5-4 Organization Awards | 24 |
+| Table 5-5 Organization Award Selection Criteria and Process | 25 |
+| Table 5-6 Robot Competition Awards | 27 |
+| Table 5-7 Robot Competition Award Selection Criteria and Process | 28 |
+| Table 5-8 Annual Technology Breakthrough Awards | 29 |
+| Table 5-9 Outstanding Contribution Awards | 30 |
+| Table 5-10 Outstanding Contribution Award Selection Criteria and Process | 31 |
+| Table 5-11 RM Award Settings | 32 |
+| Table 5-12 RM Award Selection Criteria and Process | 33 |
 <!-- p.6 -->
 ## 1 Preface
 
@@ -491,7 +563,7 @@ The team of an Outstanding Contribution Award winner must show good sportsmanshi
 
 > Note:
 > - In the RMUC, the selection processes for Outstanding Team Leader (group) and Outstanding Project Management will not be set up separately. Team leaders (groups) and project managers may take part in the RM Award (Management) selection process, and the final winners will also receive the corresponding certificate (individual, electronic version).
-> - Winners of Outstanding Operations Manager and Outstanding Team Advisor must, within one month 2 weeks (as printed in the source) after the selection results are announced, publish a management/operations experience share on the RoboMaster forum, and are obliged to attend exchange meetings and surveys held by the RMOC.
+> - Winners of Outstanding Operations Manager and Outstanding Team Advisor must, within one month and two weeks after the selection results are announced, publish a management/operations experience share on the RoboMaster forum, and are obliged to attend exchange meetings and surveys held by the RMOC.
 
 #### 5.7.1 Award Settings
 

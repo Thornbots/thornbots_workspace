@@ -29,11 +29,62 @@ For suggestions on open-source materials, see: https://bbs.robomaster.com/articl
 
 The RoboMaster competition is a robot competition whose purpose is to cultivate young engineering talent. The related documents may involve sensitive wording, names, operations, technologies and other content. Such content does not reflect any technology or action that exists in reality, and is not intended to refer to any specific country, organization or individual. This manual is intended to explain the robot competition rules. It must not be used for any purpose other than the RoboMaster competition, and should not be considered to be associated with any real events or entities.
 
-<!-- p.3: contents list omitted -->
+<!-- p.3 -->
 
-<!-- p.4: contents list omitted -->
+## Contents
 
-<!-- p.5: contents list omitted -->
+| Entry | Printed page |
+| --- | --- |
+| [Intellectual Property Statement](#intellectual-property-statement) | 1 |
+| [Reading Notice](#reading-notice) | 1 |
+| [1 Overview of Main Changes in the New Season](#1-overview-of-main-changes-in-the-new-season) | 5 |
+| [2 Robot System Mechanics and Building Specifications](#2-robot-system-mechanics-and-building-specifications) | 6 |
+| [2.1 Robots and Operators](#21-robots-and-operators) | 6 |
+| [2.1.1 Heavy Robot](#211-heavy-robot) | 7 |
+| [2.1.1.1 Special Mechanics](#2111-special-mechanics) | 7 |
+| [2.1.1.2 Building Specifications](#2112-building-specifications) | 8 |
+| [2.1.2 Aerial Robot and Hangar](#212-aerial-robot-and-hangar) | 10 |
+| [2.1.2.1 Building Specifications](#2121-building-specifications) | 11 |
+| [2.2 Custom Terminal](#22-custom-terminal) | 12 |
+| [2.2.1 Building Specifications](#221-building-specifications) | 13 |
+| [3 Battlefield and Related Mechanics](#3-battlefield-and-related-mechanics) | 14 |
+| [3.1 High Point](#31-high-point) | 14 |
+| [3.1.1 Buff Point Mechanics](#311-buff-point-mechanics) | 14 |
+| [3.2 Tunnel](#32-tunnel) | 14 |
+| [3.2.1 Buff Point Mechanics](#321-buff-point-mechanics) | 15 |
+| [3.3 Supply Zone](#33-supply-zone) | 15 |
+| [3.3.1 Workbench](#331-workbench) | 16 |
+| [3.4 Hangar Placement Zone](#34-hangar-placement-zone) | 17 |
+| [3.5 Operator Room](#35-operator-room) | 17 |
+
+<!-- p.4 -->
+
+## List of Tables
+
+| Entry | Printed page |
+| --- | --- |
+| Table 2-1 Robot Lineup | 6 |
+| Table 2-2 Operator Lineup | 6 |
+| Table 2-3 Heavy Robot Key Features | 7 |
+| Table 2-4 Heavy Robot Assembly Level Attributes | 7 |
+| Table 2-5 Heavy Robot Building Parameters | 8 |
+| Table 2-6 Modular 42mm Launching Mechanism Building Parameters | 9 |
+| Table 2-7 Aerial Robot and Hangar Key Features | 10 |
+| Table 2-8 Aerial Robot Building Parameters | 11 |
+| Table 2-9 Hangar Building Parameters | 12 |
+| Table 2-10 Custom Terminal Building Parameters | 13 |
+| Table 3-1 Tunnel Buff Trigger Logic and Effects | 15 |
+
+<!-- p.5 -->
+
+## List of Figures
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 3-1 High Point Diagram | 14 |
+| Figure 3-2 Tunnel Diagram | 15 |
+| Figure 3-3 Workbench Diagram | 16 |
+| Figure 3-4 Hangar Placement Zone Diagram | 17 |
 
 <!-- p.6 -->
 ## 1 Overview of Main Changes in the New Season
