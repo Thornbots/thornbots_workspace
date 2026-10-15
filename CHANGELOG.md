@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- REF_SYS hit angles now use radians relative to the current chassis heading,
+  positive CCW, with firmware and hosted UART tests at nonzero head and chassis
+  yaw. The wire payload is unchanged. Report latching and per-frame Jetson
+  permission remain the next T31 change.
+  See [firmware correction](https://github.com/Thornbots/MCBV3/pull/93) and
+  [hit-angle contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ref_sys-id3--referee-system-status).
+
 - E2E GUI stages use a dedicated RViz view and scene-only gz layout. The
   sim recorder produces synchronized 1080p H.264 demos retimed from `/clock`,
   with stage/time/score captions and scored shot markers. See
