@@ -29,15 +29,14 @@ until after the Midwest competition.
 
 ### A. The match test
 
-- **T17 — sim / thornbots_pkg — open:** Finish remaining lockstep gates and repeat the board parked-cell sweep. Inspect
-  lost tracks and stamped detection/odometry inputs before tracker tuning.
-  [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when),
-  [hosted baseline](sim/docs/match-check-2026-10-11.md#parked-cells).
-- **A-combat — sim / thornbots_pkg — open:** Add calibrated combat floors; drive rejects zero native hits, while
-  match still uses diagnostic checks. Raw aim no longer follows EKF/RELOCALIZE. Spin alignment gating clears the
-  hosted near-range spinning floors. Three accepted board drive/match repeats improve hits over nightly;
-  calibrated combat floors and board parked-cell repeatability remain open. Retain navigation startup
-  failures in the acceptance record.
+- **T17 — sim / thornbots_pkg — open:** Finish consumption barriers and deterministic bring-up,
+  then identical-shot gates and the board parked-cell sweep. Strict stamped TF and the input ledger are implemented;
+  [sim-time UART](sim/docs/track-a-uart-2026-10-15.md) remains opt-in after a rejected late-delivery run;
+  keep tracker tuning behind the [input audit](sim/docs/track-a-stamped-inputs-2026-10-14.md#inspect-inputs-before-tracker-tuning).
+  [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
+- **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
+  diagnostic tier. Retain navigation startup failures and rejected profiles in the
+  [acceptance record](sim/docs/track-a-stamped-inputs-2026-10-14.md).
   [Diagnostic design](sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 
 ### G. Estimation accuracy
