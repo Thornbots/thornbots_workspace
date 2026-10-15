@@ -9,10 +9,16 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Pair the chassis-relative firmware hit-angle correction with per-frame Jetson
+  hit-turn permission. Any held target estimate, including coasting/predicted
+  tracks, clears `turn_to_hit`; no estimate, including patrol, permits it without
+  a cooldown. Remove the incorrect gun-relative Jetson hit reaction. See
+  [thornbots_pkg #14](https://github.com/Thornbots/thornbots_pkg/pull/14) and its
+  [three-run hosted comparison](thornbots_pkg/docs/hit-permission-2026-10-15.md).
+
 - REF_SYS hit angles now use radians relative to the current chassis heading,
   positive CCW, with firmware and hosted UART tests at nonzero head and chassis
-  yaw. The wire payload is unchanged. Report latching and per-frame Jetson
-  permission remain the next T31 change.
+  yaw. The wire payload is unchanged. Report latching remains the next T31 change.
   See [firmware correction](https://github.com/Thornbots/MCBV3/pull/93) and
   [hit-angle contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ref_sys-id3--referee-system-status).
 

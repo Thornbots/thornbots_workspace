@@ -14,8 +14,8 @@ work; usage, design and measurements stay in linked docs.
 
 ## Short todos
 
-- **T31 — bridge / MCBV3 — open:** Decide hit-turn permission per frame; clear it while holding valid `TargetState`,
-  including Jetson patrol. Latch hit angles until REF_SYS reports them. On the robot, confirm hit direction and which
+- **T31 — bridge / MCBV3 — open:** Latch hit angles until REF_SYS reports them. Per-frame Jetson
+  permission and chassis-relative radians are implemented in the preceding package changes. On the robot, confirm hit direction and which
   armor ID each face reports; CAD faces sit on the diagonals, firmware assumes ID 0 faces forward.
   [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
