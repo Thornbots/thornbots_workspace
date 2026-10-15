@@ -24,6 +24,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- English RoboMaster PDFs now preserve each Chinese source's page count,
+  page breaks, tables and artwork positions. Contents, table and figure lists
+  link to their destination pages; source-region translations prevent reflow
+  from moving material onto different pages.
+
 - Move standalone workspace reference documents into `docs/` and update
   incoming links in the workspace and its packages. Conventional root files
   (README, CHANGELOG, AGENTS and CLAUDE) stay at the repository root.
