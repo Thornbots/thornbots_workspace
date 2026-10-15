@@ -11,7 +11,8 @@ impact, and link the corresponding package changes.
 
 - Unofficial English translations of the RoboMaster 2027 RMUL and RMUC
   Rules and Participant manuals, the shared Robot Building Specifications
-  Manual and the rule-change preview, checked against rendered pages. The game context
+  Manual and the rule-change preview, checked against rendered pages. The RMUL
+  Rules Manual includes translated contents, table and figure lists. The game context
   gains an [RMUL 2027 summary](ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
   of Sentry, field and armor changes. See the
   [translation index](docs/rules/rm2027/README.md).

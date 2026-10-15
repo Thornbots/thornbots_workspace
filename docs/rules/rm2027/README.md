@@ -38,9 +38,11 @@ filename).
 
 ## Conventions
 
-- `<!-- p.N -->` marks the start of physical PDF page N; running headers,
-  footers and contents pages are dropped. Table rows split across pages are
-  joined on the page where the row begins.
+- `<!-- p.N -->` marks the start of physical PDF page N; running headers
+  and footers are dropped. The RMUL Rules Manual includes translated contents,
+  table and figure lists with the source's printed page numbers; other manuals
+  omit contents pages. Table rows split across pages are joined on the page
+  where the row begins.
 - Rule IDs, section, table and figure numbers, values and units are copied
   as printed, including apparent source typos.
 - Figures are not reproduced: each has its caption plus a list of the labels

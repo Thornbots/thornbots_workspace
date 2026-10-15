@@ -47,17 +47,158 @@ The RoboMaster competition is a robot competition whose purpose is to cultivate 
 | --- | --- | --- |
 | 2026.10.15 | V1.0.0 | First release |
 
-<!-- p.4: contents list omitted -->
+<!-- p.4 -->
 
-<!-- p.5: contents list omitted -->
+## Contents
 
-<!-- p.6: contents list omitted -->
+Page numbers in these lists are the printed Chinese manual page numbers;
+physical PDF page numbers in the markers are one higher.
 
-<!-- p.7: contents list omitted -->
+| Entry | Printed page |
+| --- | --- |
+| [Intellectual Property Statement](#intellectual-property-statement) | 1 |
+| [Reading Notes](#reading-notes) | 1 |
+| [Field Drawing Legend](#field-drawing-legend) | 1 |
+| [Revision Log](#revision-log) | 2 |
+| [1 Introduction](#1-introduction) | 9 |
+| [1.1 About the Competition](#11-about-the-competition) | 9 |
+| [1.2 Main Changes in the New Season](#12-main-changes-in-the-new-season) | 10 |
+| [1.3 About the Competition Rules Documents](#13-about-the-competition-rules-documents) | 10 |
+| [1.4 About Q&A](#14-about-qa) | 11 |
+| [2 Important Concepts](#2-important-concepts) | 12 |
+| [3 3V3 Match](#3-3v3-match) | 16 |
+| [3.1 Robots and Operators](#31-robots-and-operators) | 16 |
+| [3.1.1 Heavy Robot](#311-heavy-robot) | 16 |
+| [3.1.2 Infantry Robot](#312-infantry-robot) | 18 |
+| [3.1.3 Sentry Robot](#313-sentry-robot) | 20 |
+| [3.1.4 Custom Terminal](#314-custom-terminal) | 21 |
+| [3.2 Competition Field](#32-competition-field) | 21 |
+| [3.2.1 Battlefield Overview](#321-battlefield-overview) | 21 |
+| [3.2.2 Starting Zone and Supply Zone](#322-starting-zone-and-supply-zone) | 24 |
+| [3.2.3 Highland and Tunnel](#323-highland-and-tunnel) | 25 |
+| [3.2.4 Control Zone](#324-control-zone) | 27 |
+| [3.2.5 Other](#325-other) | 28 |
+| [3.3 Match Mechanisms](#33-match-mechanisms) | 29 |
+| [3.3.1 HP Deduction and Exceeding-the-Limit Penalty Mechanisms](#331-hp-deduction-and-exceeding-the-limit-penalty-mechanisms) | 29 |
+| [3.3.2 HP Recovery and Revival Mechanism](#332-hp-recovery-and-revival-mechanism) | 34 |
 
-<!-- p.8: contents list omitted -->
+<!-- p.5 -->
 
-<!-- p.9: contents list omitted -->
+| Entry | Printed page |
+| --- | --- |
+| [3.3.3 Economy System](#333-economy-system) | 35 |
+| [3.3.4 Control Zones and Control Points Mechanism](#334-control-zones-and-control-points-mechanism) | 36 |
+| [3.3.5 Field Buffs Mechanism](#335-field-buffs-mechanism) | 37 |
+| [3.3.6 Heavy Robot Special Mechanism](#336-heavy-robot-special-mechanism) | 37 |
+| [3.3.7 Competition Format and Victory Conditions](#337-competition-format-and-victory-conditions) | 38 |
+| [4 Infantry Match](#4-infantry-match) | 39 |
+| [4.1 Robots and Operators](#41-robots-and-operators) | 39 |
+| [4.1.1 Infantry Robot](#411-infantry-robot) | 39 |
+| [4.1.2 Custom Terminal](#412-custom-terminal) | 40 |
+| [4.2 Competition Area](#42-competition-area) | 41 |
+| [4.3 Match Mechanisms](#43-match-mechanisms) | 44 |
+| [4.3.1 HP Recovery Mechanism](#431-hp-recovery-mechanism) | 44 |
+| [4.4 Competition Format and Victory Conditions](#44-competition-format-and-victory-conditions) | 44 |
+| [4.4.1 Special Cases in the Infantry Match](#441-special-cases-in-the-infantry-match) | 44 |
+| [5 Match Procedure](#5-match-procedure) | 45 |
+| [5.1 Pre-Match Inspection](#51-pre-match-inspection) | 46 |
+| [5.2 Waiting Area](#52-waiting-area) | 46 |
+| [5.3 Setup Period](#53-setup-period) | 47 |
+| [5.3.1 Official Technical Timeout](#531-official-technical-timeout) | 48 |
+| [5.3.2 Team Technical Timeout](#532-team-technical-timeout) | 49 |
+| [5.4 15-Second Referee System Self-Check Period](#54-15-second-referee-system-self-check-period) | 49 |
+| [5.5 Five-Second Referee System Self-Check Period](#55-five-second-referee-system-self-check-period) | 49 |
+| [5.6 Round Stage](#56-round-stage) | 49 |
+| [5.7 End of Match](#57-end-of-match) | 49 |
+| [5.8 Result Confirmation](#58-result-confirmation) | 49 |
+| [5.9 Exit](#59-exit) | 50 |
+| [6 Violations and Penalties](#6-violations-and-penalties) | 51 |
+
+<!-- p.6 -->
+
+| Entry | Printed page |
+| --- | --- |
+| [6.1 Penalty System](#61-penalty-system) | 51 |
+| [6.1.1 Penalty Methods](#611-penalty-methods) | 51 |
+| [6.1.2 Penalty Types](#612-penalty-types) | 51 |
+| [6.2 Detailed Penalty Rules](#62-detailed-penalty-rules) | 54 |
+| [6.2.1 Personnel](#621-personnel) | 54 |
+| [6.2.2 Interaction](#622-interaction) | 58 |
+| [6.3 Serious Violations](#63-serious-violations) | 60 |
+| [7 Abnormal Situations](#7-abnormal-situations) | 61 |
+| [8 Appeals](#8-appeals) | 62 |
+| [8.1 Appeal Process](#81-appeal-process) | 63 |
+| [8.2 Appeal Materials](#82-appeal-materials) | 63 |
+| [8.3 Appeal Results](#83-appeal-results) | 64 |
+| [Appendix Pre-Match Procedure Description](#appendix-pre-match-procedure-description) | 65 |
+| [Pre-Inspection](#pre-inspection) | 65 |
+| [Adaptation Training](#adaptation-training) | 65 |
+
+<!-- p.7 -->
+
+## List of Tables
+
+| Entry | Printed page |
+| --- | --- |
+| Table 2-1 Overview of Important Concepts | 12 |
+| Table 3-1 3V3 Match Robot and Operator Lineup | 16 |
+| Table 3-2 Key Features of the Heavy Robot | 16 |
+| Table 3-3 Key characteristics of the modular 42mm launching mechanism | 18 |
+| Table 3-4 Key characteristics of the Infantry Robot | 18 |
+| Table 3-5 Key characteristics of the Sentry Robot | 20 |
+| Table 3-6 Projectile parameters and usage arrangements | 28 |
+| Table 3-7 Effective detection speeds of Armor Modules for different projectile types | 29 |
+| Table 3-8 Attack damage HP deduction mechanism | 29 |
+| Table 3-9 Penalty mechanism for Initial Launch Speed exceeding the limit | 30 |
+| Table 3-10 Penalty mechanism for robot abnormal offline | 33 |
+| Table 3-11 Periodic Gold increments for robots | 35 |
+| Table 3-12 Exchange rules | 36 |
+| Table 4-1 Infantry Match robot and Operator lineup | 39 |
+| Table 4-2 Key characteristics of the Infantry Robot | 39 |
+| Table 5-1 Failure situations | 48 |
+| Table 6-1 Penalty Methods | 51 |
+| Table 6-2 Penalty Types | 51 |
+| Table 6-3 Collision Violation Penalty Standards | 58 |
+| Table 6-4 Types of Serious Violations | 60 |
+
+<!-- p.8 -->
+
+## List of Figures
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 1-1 Talent Development Philosophy | 9 |
+| Figure 3-1 Top-view rendering of the 3V3 Match field | 22 |
+| Figure 3-2 Oblique-view rendering of the 3V3 Match field | 22 |
+| Figure 3-3 Isometric rendering of the 3V3 Match field | 23 |
+| Figure 3-4 Schematic of the 3V3 Match field modules | 23 |
+| Figure 3-5 Schematic of the 3V3 Match field dimensions | 24 |
+| Figure 3-6 Schematic of the Starting Zone and Supply Zone | 24 |
+| Figure 3-7 Schematic of the Starting Zone and Supply Zone Restricted Zone | 25 |
+| Figure 3-8 Schematic of the Highland | 25 |
+| Figure 3-9 Schematic of the Tunnel | 26 |
+| Figure 3-10 Schematic of the Control Zones | 27 |
+| Figure 3-11 Field Interaction Module card laying grid | 27 |
+| Figure 3-12 Barrel Heat exceeding the limit and cooling mechanism | 31 |
+| Figure 3-13 Robot chassis detection and Chassis Power exceeding-the-limit penalty mechanism | 32 |
+| Figure 3-14 HP deduction mechanism for Armor Module and Supercapacitor Management Module offline | 33 |
+| Figure 3-15 Power-off mechanism for Speed Monitor Module offline | 34 |
+| Figure 4-1 Top-view render of the Infantry Match field | 41 |
+| Figure 4-2 Oblique-view render of the Infantry Match field | 41 |
+| Figure 4-3 Isometric render of the Infantry Match field | 42 |
+| Figure 4-4 Top view of the Infantry Match field | 42 |
+| Figure 4-5 Dimension diagram of the Infantry Match field | 43 |
+| Figure 4-6 Cover diagram | 43 |
+| Figure 5-1 Single-match flowchart | 45 |
+| Figure 5-2 Pre-Match Inspection flowchart | 46 |
+| Figure 5-3 Diagram of the two sides' designated debugging zones | 47 |
+
+<!-- p.9 -->
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 6-1 Schematic of Battlefield Restricted Zones | 59 |
+| Figure 8-1 Appeal Flowchart | 63 |
 
 <!-- p.10 -->
 ## 1 Introduction
@@ -215,9 +356,9 @@ This section briefly explains common important concepts related to the competiti
 | Concept | Definition |
 | --- | --- |
 | **Match procedure** | |
-| Round | A complete match comprising the Setup Period, the Referee System Initialization Period, the Five-Second Countdown and the Round period. |
+| Round | A complete match comprising the Setup Period, the Referee System Self-Check Period, the Five-Second Countdown and the Round period. |
 | Match | Depending on the Competition Format, a match may include several rounds. |
-| Official technical pause | A technical pause initiated by the Head Referee during the Setup Period or the Referee System Initialization Period. |
+| Official technical pause | A technical pause initiated by the Head Referee during the Setup Period or the Referee System Self-Check Period. |
 | Team technical pause | A technical pause requested by a participating team during the Setup Period. |
 | Routine battle damage | A failure of the Referee System onboard module during the inter-round Setup Period or the Round period of a match. |
 | **Determination of victory or defeat** | |
@@ -857,7 +998,7 @@ Flowchart steps (left) and their annotations (right):
 - Arrive at the waiting area. Annotations: (1) Arrive at the waiting area at the time designated before the match. (2) Follow the waiting-area order. (3) The team waits to enter the field for the match.
 - Arrive at the match-field waiting zone.
 - Setup Period begins. Annotations: (1) Power on the robots and check that the robots are normal. (2) Connect to the Referee System server. (3) Obtain initial projectiles. (4) Operators enter the Operator Room. (5) In the last 30 seconds, all robots must be powered on; team members must leave the Battlefield. (6) Special situations, technical timeout.
-- 15-Second Referee System Initialization Period & Five-Second Countdown. Annotations: (1) Referee System self-check. (2) After the Referee System self-check ends, enter the match countdown.
+- 15-Second Referee System Self-Check Period & Five-Second Countdown. Annotations: (1) Referee System self-check. (2) After the Referee System self-check ends, enter the match countdown.
 - Match start to end. Annotations: (1) Robots of both sides engage in shooting combat in the Battlefield. (2) Determine the winner according to the match rules.
 - Decision: Is there a next round? YES: return to the start of the Setup Period. NO: continue.
 - One match ends. Annotations: (1) Robots are powered off and leave the Battlefield. (2) Within 5 minutes, the team captain signs to confirm the result or files an Appeal.
@@ -901,11 +1042,11 @@ The Setup Period of the 3V3 Match is 3 minutes, and the Setup Period of the Infa
 - [2] Blue designated debugging zone
 
 > Note:
-> - Equivalent parts: standard modules or parts of the same material, form and function, such as motors of the same model or self-made friction wheel modules
+> - Equivalent parts: standard modules or parts of the same material, form and function, such as motors of the same model or self-made friction wheel modules.
 
 <!-- p.49 -->
 > Note (continued):
-> etc. The main structure that carries the robot body cannot be replaced as an equivalent part, such as the robot's chassis.
+> The main structure that carries the robot body cannot be replaced by an equivalent part, such as the robot chassis.
 > - If the "equivalent parts" include a Referee System onboard module, the team must itself ensure that the Referee System onboard module can be used normally (including version number, sensor calibration, installation standards, etc.). When an anomaly occurs in a Referee System onboard module among the "equivalent parts", an official technical timeout will not be triggered.
 
 When 1 minute 30 seconds remain in the Setup Period, Operators are advised to enter the Operator Room to finish debugging the keyboard and mouse and to check and confirm that robot control and the official equipment are operating normally. If the official equipment cannot operate normally, team members on site must raise it before 15 seconds remain in the Setup Period; otherwise the referee will not grant a technical timeout. Except for the Operators corresponding to the robots on the field, other team members on site may not enter the Operator Room.
@@ -944,13 +1085,13 @@ To ensure the subsequent schedule runs on time, both sides together can initiate
 
 In the 3V3 Match and the Infantry Match, each team has 2 two-minute technical timeout opportunities.
 
-### 5.4 15-Second Referee System Initialization Period
+### 5.4 15-Second Referee System Self-Check Period
 
-After the Setup Period ends, the match enters the 15-Second Referee System Initialization Period. During the self-check, the Referee System server automatically checks the Referee System Client connection status, the robots' Referee System onboard module status and the field prop status, and resets all robots' HP to ensure all robots are at full HP at the start of the match.
+After the Setup Period ends, the match enters the 15-Second Referee System Self-Check Period. During the self-check, the Referee System server automatically checks the Referee System Client connection status, the robots' Referee System onboard module status and the field prop status, and resets all robots' HP to ensure all robots are at full HP at the start of the match.
 
-### 5.5 Five-Second Referee System Initialization Period
+### 5.5 Five-Second Referee System Self-Check Period
 
-After the 15-Second Referee System Initialization Period ends, the match enters the Five-Second Countdown. At this time, the Referee System Client will not respond to robot control commands (including from Custom Terminals); after the countdown ends, the Referee System Client resumes responding to robot control commands and the match starts immediately.
+After the 15-Second Referee System Self-Check Period ends, the match enters the Five-Second Countdown. At this time, the Referee System Client will not respond to robot control commands (including from Custom Terminals); after the countdown ends, the Referee System Client resumes responding to robot control commands and the match starts immediately.
 
 ### 5.6 Round Stage
 
@@ -1006,9 +1147,9 @@ The types of manual penalties during the match are shown in the following table:
 | Yellow Card Warning | - One-side Yellow Card: |
 <!-- p.53 -->
 |  | &nbsp;&nbsp;&nbsp;&nbsp;- If the violating robot is a Sentry Robot, its chassis power is cut for 2 s, and the operator interfaces of the other robots are obscured for 2 s.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the violating robot is not a Sentry Robot, its operator interface is obscured for 5 s, and the operator interfaces of the other robots are obscured for 2 s.<br>&nbsp;&nbsp;&nbsp;&nbsp;- The Referee System automatically deducts 15% of the violating robot's current Max HP, and the other surviving robots each have 5% of their current Max HP deducted. If a robot receives another Yellow Card Warning within 30 s after each Yellow Card Warning, the percentage of current Max HP deducted is 2 times that of the previous one, and the other surviving robots each have 5% of their current Max HP deducted.<br>&nbsp;&nbsp;&nbsp;&nbsp;- In each round, when a robot accumulates 3 Yellow Card Warnings, it will simultaneously receive a Red Card Warning.<br>- Two-side Yellow Card:<br>The operator interfaces of all Operators are obscured for 2 s, and all robots have 5% of their Max HP deducted. This is not counted toward the accumulated Yellow Card count of any single robot.<br><br>> Note:<br>> - If Yellow Card Warnings are received consecutively, the operator interface obscuring times are added together, and the 30 s timer is reset.<br>> - If a robot's remaining HP is less than or equal to the HP to be deducted by the penalty, its HP is reduced to 1.<br>> - The chassis power-cut and operator interface obscuring durations caused by violation penalties are independent of the match mechanisms and are not added to them. |
-| Red Card Warning (Ejection) | - Ejecting a robot:<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the robot is ejected before the 15-Second Referee System Initialization Period, the violating robot is not allowed to take the field and must be removed from the battlefield, and no other robot is allowed to substitute for it in all rounds of that match.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the robot is ejected during the 15-Second Referee System Initialization Period, the Red Card Warning will be issued after the match starts.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If a robot is ejected during the match, its HP immediately becomes 0, its video transmission feed is disconnected, multi-robot communication is disconnected, and it cannot be revived.<br>- Ejecting a field team member: The referees require the ejected field team member to leave the match area immediately, and no other field team member is allowed to substitute for them in all rounds of that match. The robot controlled by the ejected Operator is ejected for that round, is not allowed to take the field in all rounds of that match, and no robot may substitute for it. |
+| Red Card Warning (Ejection) | - Ejecting a robot:<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the robot is ejected before the 15-Second Referee System Self-Check Period, the violating robot is not allowed to take the field and must be removed from the battlefield, and no other robot is allowed to substitute for it in all rounds of that match.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the robot is ejected during the 15-Second Referee System Self-Check Period, the Red Card Warning will be issued after the match starts.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If a robot is ejected during the match, its HP immediately becomes 0, its video transmission feed is disconnected, multi-robot communication is disconnected, and it cannot be revived.<br>- Ejecting a field team member: The referees require the ejected field team member to leave the match area immediately, and no other field team member is allowed to substitute for them in all rounds of that match. The robot controlled by the ejected Operator is ejected for that round, is not allowed to take the field in all rounds of that match, and no robot may substitute for it. |
 <!-- p.54 -->
-| Loss by forfeit | - If a Loss by forfeit penalty is issued for one round (hereinafter "round forfeit"), the detailed rules are as follows:<br><br>**3V3 Match:**<br><br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued before the five-minute Round (including the Setup Period and the 15-Second Referee System Initialization Period), the violating side's control is 0, the violating side's remaining robots have full HP, and the other side's control and robot HP are full. The round time is regarded as 300 s.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued during the five-minute Round, the round ends immediately, the violating side's control is 0, the violating side's remaining robots' HP is that at the end of the round, and the other side's control and robot HP are the control and HP at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued after the five-minute Round, the violating side's control is 0, the violating side's remaining robots' HP is that at the end of the round, and the other side's control and robot HP are the control and HP at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br><br>**Infantry Match:**<br><br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued before the two-minute Round (including the Setup Period and the 15-Second Referee System Initialization Period), the violating side's robot HP is 0 and the other side's robot HP is full. The round time is regarded as 120 s.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued during the two-minute Round, the round ends immediately, and both sides' robot HP is that at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued after the two-minute Round, both sides' robot HP is that at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br><br>- If a Loss by forfeit penalty is issued for one match (hereinafter "match forfeit"), the forfeit penalty is issued for all rounds of that match, and the HP settlement for each round follows the descriptions above. |
+| Loss by forfeit | - If a Loss by forfeit penalty is issued for one round (hereinafter "round forfeit"), the detailed rules are as follows:<br><br>**3V3 Match:**<br><br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued before the five-minute Round (including the Setup Period and the 15-Second Referee System Self-Check Period), the violating side's control is 0, the violating side's remaining robots have full HP, and the other side's control and robot HP are full. The round time is regarded as 300 s.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued during the five-minute Round, the round ends immediately, the violating side's control is 0, the violating side's remaining robots' HP is that at the end of the round, and the other side's control and robot HP are the control and HP at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued after the five-minute Round, the violating side's control is 0, the violating side's remaining robots' HP is that at the end of the round, and the other side's control and robot HP are the control and HP at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br><br>**Infantry Match:**<br><br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued before the two-minute Round (including the Setup Period and the 15-Second Referee System Self-Check Period), the violating side's robot HP is 0 and the other side's robot HP is full. The round time is regarded as 120 s.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued during the two-minute Round, the round ends immediately, and both sides' robot HP is that at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br>&nbsp;&nbsp;&nbsp;&nbsp;- If the forfeit penalty is issued after the two-minute Round, both sides' robot HP is that at the end of the round. The round time is the actual elapsed match time when the forfeit is issued.<br><br>- If a Loss by forfeit penalty is issued for one match (hereinafter "match forfeit"), the forfeit penalty is issued for all rounds of that match, and the HP settlement for each round follows the descriptions above. |
 | Disqualification from awards | - The participant is disqualified from awards.<br>- The participating team is disqualified from awards. |
 | Disqualification from the competition | - The participant is disqualified from the competition and from awards.<br>- The participating team is disqualified from the competition and from awards. The team's results this season are retained as a reference for the advancement of other teams. |
 
@@ -1131,7 +1272,7 @@ Violation penalty: The violating side bears the corresponding responsibility.
 
 Violation penalty: Verbal Warning. If the warning is ineffective, a Red Card Warning is issued to the violating person.
 
-**R26** Without the referee's permission, during the 15-Second Referee System Initialization Period and the Round, Operators must be inside the corresponding Operator Room operating the control devices for the corresponding robots, and must not change positions after the Setup Period ends.
+**R26** Without the referee's permission, during the 15-Second Referee System Self-Check Period and the Round, Operators must be inside the corresponding Operator Room operating the control devices for the corresponding robots, and must not change positions after the Setup Period ends.
 
 Violation penalty: Verbal Warning. If the warning is ineffective, a Red Card Warning is issued to the violating person.
 
@@ -1179,7 +1320,7 @@ Violation penalty: Before the field is cleared, field team members must resolve 
 
 Violation penalty: Verbal Warning. If the warning is ineffective, a Red Card Warning is issued to the violating robot.
 
-**R36** During the Setup Period and the 15-Second Referee System Initialization Period, robots on the battlefield must not leave their corresponding starting areas.
+**R36** During the Setup Period and the 15-Second Referee System Self-Check Period, robots on the battlefield must not leave their corresponding starting areas.
 
 Violation penalty: A Red Card Warning to the violating robot, at most.
 
