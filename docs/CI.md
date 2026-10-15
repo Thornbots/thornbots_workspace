@@ -155,7 +155,7 @@ so coordinated merges remain possible. `--branch nightly` selects integration
 protection, requiring only the cheap checks its PRs run; the default is `main`. MCBV3 is skipped for nightly because its
 policy targets only main.
 
-This port does not apply or change GitHub protection settings. `--apply`
-replaces the policy and requires repo admin access; review the printed payload
-and existing settings before using it. Accounts without admin access are
+Without `--apply` it changes no GitHub settings. `--apply` replaces the
+policy and requires repo admin access; review the printed payload and existing
+settings before using it. Repos where the account lacks admin access are
 skipped.
