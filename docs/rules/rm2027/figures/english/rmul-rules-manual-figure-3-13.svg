@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 1080" role="img" aria-labelledby="title desc">
+<title id="title">RMUL Figure 3-13 Chassis Power Limit Monitoring</title><desc id="desc">English flowchart translated from the 2027 Chinese rules manual.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#2f80d5"/></marker></defs>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#263746}.shape{fill:white;stroke:#2f80d5;stroke-width:2}.decision{fill:#fff;stroke:#2f80d5;stroke-width:2}.arrow{fill:none;stroke:#2f80d5;stroke-width:2;marker-end:url(#arrow)}.branch{font-size:18px;font-weight:700;fill:#2f80d5}.node{font-size:20px;text-anchor:middle}.small{font-size:17px;text-anchor:middle}.step{font-size:19px;font-weight:700}.anno{font-size:16px;text-anchor:middle}.title{font-size:26px;font-weight:700}</style>
+<ellipse cx="525.0" cy="82.0" rx="175.0" ry="32.0" class="shape"/>
+<text x="525.0" y="88.0" class="node"><tspan x="525.0" dy="0">Start</tspan></text>
+<path d="M525 114 V150" class="arrow"/>
+<rect x="355" y="150" width="340" height="76" rx="8" class="shape"/>
+<text x="525.0" y="194.0" class="node"><tspan x="525.0" dy="0">Initialize buffer: Z = Q</tspan></text>
+<path d="M525 226 V270" class="arrow"/>
+<polygon points="525.0,270 660,325.0 525.0,380 390,325.0" class="decision"/>
+<text x="525.0" y="318.5" class="small"><tspan x="525.0" dy="0">100 ms detection</tspan><tspan x="525.0" dy="25">cycle reached?</tspan></text>
+<text x="690" y="330" class="branch">NO</text>
+<path d="M660 325 H840 V250 H525 V270" class="arrow"/>
+<text x="525" y="415" class="branch">YES</text>
+<path d="M525 380 V430" class="arrow"/>
+<rect x="340" y="430" width="370" height="94" rx="8" class="shape"/>
+<text x="525.0" y="470.5" class="node"><tspan x="525.0" dy="0">Calculate work consumed</tspan><tspan x="525.0" dy="25">Z = Z − (P_r − P_l) × 0.1</tspan></text>
+<path d="M525 524 V565" class="arrow"/>
+<polygon points="525.0,565 660,620.0 525.0,675 390,620.0" class="decision"/>
+<text x="525.0" y="626.0" class="small"><tspan x="525.0" dy="0">Z ≤ 0?</tspan></text>
+<text x="690" y="623" class="branch">YES</text>
+<path d="M660 620 H760" class="arrow"/>
+<rect x="760" y="580" width="250" height="86" rx="8" class="shape"/>
+<text x="885.0" y="616.5" class="node"><tspan x="885.0" dy="0">Set Z = 0; chassis</tspan><tspan x="885.0" dy="25">off for 5 seconds</tspan></text>
+<text x="525" y="710" class="branch">NO</text>
+<path d="M525 675 V725" class="arrow"/>
+<polygon points="525.0,725 660,780.0 525.0,835 390,780.0" class="decision"/>
+<text x="525.0" y="786.0" class="small"><tspan x="525.0" dy="0">Z &gt; Q?</tspan></text>
+<text x="690" y="785" class="branch">YES</text>
+<path d="M660 780 H760" class="arrow"/>
+<rect x="760" y="740" width="250" height="80" rx="8" class="shape"/>
+<text x="885.0" y="786.0" class="node"><tspan x="885.0" dy="0">Set Z = Q</tspan></text>
+<text x="525" y="870" class="branch">NO</text>
+<path d="M525 835 V900" class="arrow"/>
+<path d="M885 666 V900 H700" class="arrow"/>
+<path d="M885 820 V900" class="arrow"/>
+<ellipse cx="525.0" cy="932.5" rx="135.0" ry="32.5" class="shape"/>
+<text x="525.0" y="938.5" class="node"><tspan x="525.0" dy="0">Next 100 ms check</tspan></text>
+<path d="M390 932 H180 V325 H390" class="arrow"/>
+<text x="525" y="1030" class="small">Q = buffer-energy limit (60 J) · P_r = instantaneous chassis power · P_l = power limit</text>
+</svg>

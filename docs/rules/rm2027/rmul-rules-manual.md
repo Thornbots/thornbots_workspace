@@ -313,7 +313,7 @@ This section briefly explains common important concepts related to the competiti
 <!-- p.14 -->
 | Concept | Definition |
 | --- | --- |
-| Chassis Power | The power consumed by the mechanism that, based on rotary motion and relying on ground friction, does work to move or rotate the robot horizontally on a plane. See the definition of Chassis Power in the "Referee System Installation Specifications" section of the "RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual". |
+| Chassis Power | The power consumed by the mechanism that, based on rotary motion and relying on ground friction, does work to move or rotate the robot horizontally on a plane. See the definition of Chassis Power in the "Referee System Installation Specifications" section of the "RoboMaster 2027 University Series Robot Building Specifications Manual". |
 | Launching mechanism | A mechanism that enables a projectile to leave the robot along a fixed path at a certain initial speed. |
 | Launching mechanism locked | If the launching mechanism is locked, it is in the power-off state. |
 | Launching mechanism unlocked | If the launching mechanism is unlocked, it is powered on or off depending on its Projectile Allowance. |
@@ -347,7 +347,7 @@ This section briefly explains common important concepts related to the competiti
 | Chief Inspector | The referee responsible for leading and assigning Pre-Match Inspection work, who holds the final right of interpretation of the Pre-Match Inspection standards. |
 | Participating team | A team registered for this season and entered in the registration system. |
 | Participant | A person registered for this season and entered in the registration system. |
-| Field personnel | Official team members, team advisors and supervising teachers who are registered for this season, entered in the registration system, and permitted to enter the waiting area and the field area.<br><br>Note: Member role divisions differ between events; refer to the "RoboMaster 2027 RoboMaster University League Participant Manual" for specifics. |
+| Field personnel | Official team members, team advisors and supervising teachers who are registered for this season, entered in the registration system, and permitted to enter the waiting area and the field area.<br><br>Note: Member role divisions differ between events; refer to the "RoboMaster 2027 University League Participant Manual" for specifics. |
 | Operator | Field personnel responsible for controlling a robot during the match. |
 | Violating party | A participating team that has committed a violation. |
 | Violating personnel | A participant who has committed a violation. |
@@ -375,7 +375,7 @@ In the five-minute time-limited Round, the two sides engage in tactical confront
 
 ### 3.1 Robots and Operators
 
-RoboMaster emphasizes that robots take part as teams, requiring balanced cooperation among robots. For robot building specifications, see the "RoboMaster 2027 RoboMaster University Series Robot Building Specifications Manual".
+RoboMaster emphasizes that robots take part as teams, requiring balanced cooperation among robots. For robot building specifications, see the "RoboMaster 2027 University Series Robot Building Specifications Manual".
 
 The robot and Operator lineup is as follows:
 
@@ -1162,7 +1162,7 @@ This section describes the detailed violation penalty rules. Rules numbered R# e
 
 ##### 6.2.1.1 General Rules
 
-**R1** Participating teams must meet the requirements of the *RoboMaster 2027 RoboMaster University League Participant Manual*.
+**R1** Participating teams must meet the requirements of the *RoboMaster 2027 University League Participant Manual*.
 
 Violation penalty: Disqualification from the competition for the violating side, at most.
 

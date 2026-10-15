@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1169" role="img" aria-labelledby="title desc">
+<title id="title">RMUL Figure 5-1 — Single Match Flowchart</title><desc id="desc">English flowchart based on the 2027 Chinese rules manual source diagram.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#2f80d5"/></marker></defs>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#263746}.shape{fill:#fff;stroke:#2f80d5;stroke-width:2}.decision{fill:#fff;stroke:#2f80d5;stroke-width:2}.arrow{fill:none;stroke:#2f80d5;stroke-width:2;marker-end:url(#arrow)}.branch{font-size:19px;font-weight:bold;fill:#2f80d5}.node{font-size:22px;text-anchor:middle}.small{font-size:19px;text-anchor:middle}.note{font-size:18px;text-anchor:start}.heading{font-size:25px;font-weight:bold;text-anchor:middle}</style>
+<rect x="125.0" y="55" width="380" height="82" rx="8" class="shape"/>
+<text x="315.0" y="89.5" class="small"><tspan x="315.0" dy="0">Wait in staging area for</tspan><tspan x="315.0" dy="27">inspection</tspan></text>
+<path d="M505 96.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="55" width="620" height="72" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="73" class="note">1. Install the Referee System correctly.</text>
+<text x="554" y="97" class="note">2. Confirm compliance with the competition rules.</text>
+<path d="M315 138 V155" class="arrow"/>
+<polygon points="315.0,155 505.0,193.0 315.0,231 125.0,193.0" class="decision"/>
+<text x="315.0" y="200.0" class="small"><tspan x="315.0" dy="0">Pre-Match Inspection passed?</tspan></text>
+<path d="M505 193.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="155" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="173" class="note">Arrive on time; captain confirms the inspection result.</text>
+<text x="517.0" y="193.0" class="branch">NO → staging</text>
+<text x="333" y="250" class="branch">YES</text>
+<path d="M125.0 193.0 H28 V96.0 H125.0" class="arrow"/>
+<path d="M315 232 V249" class="arrow"/>
+<rect x="125.0" y="249" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="294.0" class="small"><tspan x="315.0" dy="0">Arrive at waiting zone</tspan></text>
+<path d="M505 287.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="249" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="267" class="note">Arrive on time, follow the queue, and wait to enter.</text>
+<path d="M315 326 V343" class="arrow"/>
+<rect x="125.0" y="343" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="388.0" class="small"><tspan x="315.0" dy="0">Arrive at field waiting area</tspan></text>
+<path d="M505 381.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="343" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="361" class="note">Place robots in the field waiting area.</text>
+<path d="M315 420 V437" class="arrow"/>
+<rect x="125.0" y="437" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="482.0" class="small"><tspan x="315.0" dy="0">Setup Period begins</tspan></text>
+<path d="M505 497.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="437" width="620" height="120" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="455" class="note">Power on and check robots; connect server; obtain</text>
+<text x="554" y="479" class="note">projectiles. Operators enter. Clear the Battlefield for</text>
+<text x="554" y="503" class="note">the final 30 seconds; handle special cases/technical</text>
+<text x="554" y="527" class="note">pauses.</text>
+<path d="M315 558 V575" class="arrow"/>
+<rect x="125.0" y="575" width="380" height="82" rx="8" class="shape"/>
+<text x="315.0" y="609.5" class="small"><tspan x="315.0" dy="0">15-second Self-Check +</tspan><tspan x="315.0" dy="27">5-second countdown</tspan></text>
+<path d="M505 616.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="575" width="620" height="72" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="593" class="note">Run the Referee System self-check, then the match</text>
+<text x="554" y="617" class="note">countdown.</text>
+<path d="M315 658 V675" class="arrow"/>
+<rect x="125.0" y="675" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="720.0" class="small"><tspan x="315.0" dy="0">Match starts and ends</tspan></text>
+<path d="M505 713.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="675" width="620" height="72" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="693" class="note">Robots engage in the Battlefield; determine the winner</text>
+<text x="554" y="717" class="note">under the rules.</text>
+<path d="M315 752 V769" class="arrow"/>
+<polygon points="315.0,769 505.0,807.0 315.0,845 125.0,807.0" class="decision"/>
+<text x="315.0" y="814.0" class="small"><tspan x="315.0" dy="0">Next round?</tspan></text>
+<path d="M505 807.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="769" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="787" class="note">YES returns to Setup Period; NO ends the match.</text>
+<text x="517.0" y="807.0" class="branch">YES → setup</text>
+<text x="333" y="864" class="branch">NO</text>
+<path d="M125.0 807.0 H28 V475.0 H125.0" class="arrow"/>
+<path d="M315 846 V863" class="arrow"/>
+<rect x="125.0" y="863" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="908.0" class="small"><tspan x="315.0" dy="0">One match ends</tspan></text>
+<path d="M505 901.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="863" width="620" height="72" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="881" class="note">Power off and clear the Battlefield. Captain confirms</text>
+<text x="554" y="905" class="note">results or files an Appeal within 5 minutes.</text>
+<path d="M315 940 V957" class="arrow"/>
+<rect x="125.0" y="957" width="380" height="82" rx="8" class="shape"/>
+<text x="315.0" y="991.5" class="small"><tspan x="315.0" dy="0">Leave field; return</tspan><tspan x="315.0" dy="27">projectiles</tspan></text>
+<path d="M505 998.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="957" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="975" class="note">Recover projectiles, PASS cards, and other items.</text>
+<path d="M315 1040 V1057" class="arrow"/>
+<rect x="125.0" y="1057" width="380" height="76" rx="8" class="shape"/>
+<text x="315.0" y="1102.0" class="small"><tspan x="315.0" dy="0">Return to staging area</tspan></text>
+<path d="M505 1095.0 H530" stroke="#8aaed3" stroke-width="2" stroke-dasharray="5 6"/>
+<rect x="540" y="1057" width="620" height="68" rx="10" fill="#f4f8fc" stroke="#2f80d5" stroke-width="2"/>
+<text x="554" y="1075" class="note">Match procedure complete.</text>
+</svg>

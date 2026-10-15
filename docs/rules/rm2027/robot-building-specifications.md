@@ -33,25 +33,182 @@ The RoboMaster competition is a robot competition whose purpose is to cultivate 
 | 2026.10.15 | V1.0.0 | First release |
 
 <!-- p.3 -->
-<!-- p.3: contents list omitted -->
+
+## Contents
+
+| Entry | Printed page |
+| --- | --- |
+| [Intellectual Property Statement](#intellectual-property-statement) | 1 |
+| [Reading Notice](#reading-notice) | 1 |
+| [Revision Log](#revision-log) | 1 |
+| [1 Foreword](#1-foreword) | 9 |
+| [2 Technical Specifications](#2-technical-specifications) | 10 |
+| [2.1 General Technical Specifications](#21-general-technical-specifications) | 10 |
+| [2.1.1 Energy](#211-energy) | 10 |
+| [2.1.2 Communication Equipment](#212-communication-equipment) | 12 |
+| [2.1.3 Optical Means](#213-optical-means) | 14 |
+| [2.1.4 Visual Features](#214-visual-features) | 15 |
+| [2.1.5 Appearance Design](#215-appearance-design) | 15 |
+| [2.1.6 Launching Mechanism](#216-launching-mechanism) | 17 |
+| [2.1.7 Custom Terminal](#217-custom-terminal) | 17 |
+| [2.1.8 17mm Fluorescent Projectile Charging Device](#218-17mm-fluorescent-projectile-charging-device) | 18 |
+| [2.1.9 Others](#219-others) | 20 |
+| [2.2 Specifications for Complete Finished Robots and Open-Source Robots](#22-specifications-for-complete-finished-robots-and-open-source-robots) | 20 |
+| [2.2.1 Sufficient Redesign](#221-sufficient-redesign) | 21 |
+| [2.2.2 Non-Sufficient Redesign](#222-non-sufficient-redesign) | 22 |
+| [2.2.3 Invalid Redesign](#223-invalid-redesign) | 23 |
+| [2.3 Definition and Scope of Third-Party Finished Modules and Finished Systems](#23-definition-and-scope-of-third-party-finished-modules-and-finished-systems) | 23 |
+| [2.4 Robot Technical Specifications](#24-robot-technical-specifications) | 26 |
+| [2.4.1 Heavy Robot](#241-heavy-robot) | 26 |
+| [2.4.2 Infantry Robot](#242-infantry-robot) | 29 |
+| [2.4.3 Sentry Robot](#243-sentry-robot) | 30 |
+| [2.4.4 Aerial System](#244-aerial-system) | 31 |
 
 <!-- p.4 -->
-<!-- p.4: contents list omitted -->
+
+| Entry | Printed page |
+| --- | --- |
+| [2.4.5 Dart System](#245-dart-system) | 35 |
+| [2.4.6 Radar System](#246-radar-system) | 41 |
+| [3 Referee System Installation Specifications](#3-referee-system-installation-specifications) | 44 |
+| [3.1 Referee System Overview](#31-referee-system-overview) | 45 |
+| [3.2 Robot Referee System Onboard End Configuration](#32-robot-referee-system-onboard-end-configuration) | 46 |
+| [3.3 Main Controller Module Installation Specifications](#33-main-controller-module-installation-specifications) | 48 |
+| [3.3.1 Installation Steps](#331-installation-steps) | 48 |
+| [3.3.2 Installation Requirements](#332-installation-requirements) | 49 |
+| [3.4 Power Management Module Installation Specifications](#34-power-management-module-installation-specifications) | 53 |
+| [3.4.1 Installation Steps](#341-installation-steps) | 54 |
+| [3.4.2 Installation Requirements](#342-installation-requirements) | 56 |
+| [3.5 Light Indicator Module Installation Specifications](#35-light-indicator-module-installation-specifications) | 58 |
+| [3.5.1 Installation Steps](#351-installation-steps) | 59 |
+| [3.5.2 Installation Requirements](#352-installation-requirements) | 60 |
+| [3.6 Armor Module Installation Specifications](#36-armor-module-installation-specifications) | 60 |
+| [3.6.1 General Specifications](#361-general-specifications) | 61 |
+| [3.6.2 Installation Steps](#362-installation-steps) | 63 |
+| [3.6.3 Installation Requirements](#363-installation-requirements) | 66 |
+| [3.7 Speed Monitor Module Installation Specifications](#37-speed-monitor-module-installation-specifications) | 68 |
+| [3.7.1 Installation Steps](#371-installation-steps) | 70 |
+| [3.7.2 Installation Requirements](#372-installation-requirements) | 74 |
+| [3.8 Field Interaction Module Installation Specifications](#38-field-interaction-module-installation-specifications) | 77 |
+| [3.8.1 Installation Steps](#381-installation-steps) | 77 |
+| [3.8.2 Installation Requirements](#382-installation-requirements) | 78 |
+| [3.9 Camera Video Transmitter Module (Transmitter) Installation Specifications](#39-camera-video-transmitter-module-transmitter-installation-specifications) | 79 |
+| [3.9.1 Installation Steps](#391-installation-steps) | 80 |
+| [3.9.2 Installation Requirements](#392-installation-requirements) | 80 |
 
 <!-- p.5 -->
-<!-- p.5: contents list omitted -->
+
+| Entry | Printed page |
+| --- | --- |
+| [3.10 Camera Video Transmitter Module (Receiver) Usage Specifications](#310-camera-video-transmitter-module-receiver-usage-specifications) | 81 |
+| [3.10.1 Installation Requirements](#3101-installation-requirements) | 82 |
+| [3.11 Positioning Module Installation Specifications](#311-positioning-module-installation-specifications) | 82 |
+| [3.11.1 Installation Steps](#3111-installation-steps) | 82 |
+| [3.11.2 Installation Requirements](#3112-installation-requirements) | 83 |
+| [3.12 Supercapacitor Management Module Installation Specifications](#312-supercapacitor-management-module-installation-specifications) | 84 |
+| [3.12.1 Installation Steps](#3121-installation-steps) | 84 |
+| [3.12.2 Installation Requirements](#3122-installation-requirements) | 85 |
+| [Appendix 1 17mm Speed Monitor Module Adapter Part Engineering Drawing](#appendix-1-17mm-speed-monitor-module-adapter-part-engineering-drawing) | 87 |
+| [Appendix 2 Reference Drawings](#appendix-2-reference-drawings) | 88 |
 
 <!-- p.6 -->
-<!-- p.6: contents list omitted -->
+
+## List of Tables
+
+| Entry | Printed page |
+| --- | --- |
+| Table 2-1 Summary of Battery Types | 10 |
+| Table 2-2 Summary of Control Methods | 12 |
+| Table 2-3 Summary of Remote Controllers | 13 |
+| Table 2-4 Custom Terminal Build Parameters | 17 |
+| Table 2-5 Heavy Robot build parameter description | 26 |
+| Table 2-6 Modular 42mm launching mechanism build parameter description | 29 |
+| Table 2-7 Infantry Robot build parameter description | 29 |
+| Table 2-8 Sentry Robot build parameter description | 30 |
+| Table 2-9 Aerial Robot build parameter description | 32 |
+| Table 2-10 Hangar build parameter description | 34 |
+| Table 2-11 Dart build parameter description | 35 |
+| Table 2-12 Dart launcher build parameter description | 36 |
+| Table 2-13 Radar computing platform end manufacturing parameters | 41 |
+| Table 2-14 Radar sensor end parameters | 41 |
+| Table 3-1 Maximum replacement time for each Referee System onboard end module | 44 |
+| Table 3-2 Referee System modules | 45 |
+| Table 3-3 Robot Referee System onboard end module configuration | 46 |
+| Table 3-4 Power Management Module interface description | 57 |
 
 <!-- p.7 -->
-<!-- p.7: contents list omitted -->
+
+## List of Figures
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 2-1 Installation Diagram of the 17mm Fluorescent Projectile Charging Device | 18 |
+| Figure 2-2 Aerial Robot Pre-Match Inspection diagram | 32 |
+| Figure 2-3 Aerial Robot propeller guard diagram | 33 |
+| Figure 2-4 Light group diagram | 34 |
+| Figure 2-5 Dart flight direction diagram | 36 |
+| Figure 2-6 Dart System size limit diagram | 37 |
+| Figure 2-7 Dart trigger device diagram | 39 |
+| Figure 2-8 Dart trigger device no-obstruction zone diagram | 40 |
+| Figure 2-9 Dart trigger device internal cavity diagram | 40 |
+| Figure 3-1 Main Controller Module diagram | 48 |
+| Figure 3-2 Main Controller Module wiring diagram | 49 |
+| Figure 3-3 Main Controller Module no-obstruction zone | 49 |
+| Figure 3-4 Main Controller Module installation position diagram | 50 |
+| Figure 3-5 Hangar Main Controller Module installation diagram | 51 |
+| Figure 3-6 Dart Launching Station Referee System aviation cable position diagram | 52 |
+| Figure 3-7 Power Management Module diagram | 53 |
+| Figure 3-8 Power Management Module installation diagram | 54 |
+| Figure 3-9 Power Management Module interface diagram | 55 |
+| Figure 3-10 Power Management Module wiring diagram | 56 |
+| Figure 3-11 Light Indicator module diagram | 58 |
+| Figure 3-12 Light Indicator module screw installation positions | 59 |
+| Figure 3-13 Light Indicator module bottom view | 59 |
+| Figure 3-14 Light Indicator module wiring diagram | 59 |
+| Figure 3-15 Designated armor support bracket diagram | 60 |
+| Figure 3-16 Robot coordinate system diagram | 61 |
 
 <!-- p.8 -->
-<!-- p.8: contents list omitted -->
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 3-17 X axis diagram for different robot chassis configurations | 61 |
+| Figure 3-18 Armor Module force diagram | 62 |
+| Figure 3-19 Robot protection diagram | 63 |
+| Figure 3-20 Armor support bracket installation diagram | 64 |
+| Figure 3-21 Armor Module installation diagram | 64 |
+| Figure 3-22 Armor Module wiring diagram | 65 |
+| Figure 3-23 Armor Module installation specification diagram | 66 |
+| Figure 3-24 No-obstruction zone of Infantry Robot and Sentry Robot Armor Modules | 66 |
+| Figure 3-25 No-obstruction zone of Heavy Robot Armor Modules | 67 |
+| Figure 3-26 17mm Speed Monitor Module diagram | 68 |
+| Figure 3-27 42mm Speed Monitor Module diagram | 69 |
+| Figure 3-28 17mm launch tube diagram | 70 |
+| Figure 3-29 Speed Monitor Module installation diagram | 71 |
+| Figure 3-30 17mm adapter part diagram | 71 |
+| Figure 3-31 17mm adapter part fixing method diagram | 72 |
+| Figure 3-32 17mm short launch tube installation diagram | 73 |
+| Figure 3-33 42mm launch tube diagram | 74 |
+| Figure 3-34 Speed Monitor Module installation diagram | 75 |
+| Figure 3-35 Speed Monitor Module installation specification diagram | 76 |
+| Figure 3-36 Referee System wire sequence diagram | 76 |
+| Figure 3-37 Field Interaction Module diagram | 77 |
+| Figure 3-38 Field Interaction Module wiring diagram | 77 |
+| Figure 3-39 Field Interaction Module installation diagram | 78 |
+| Figure 3-40 Camera Video Transmitter Module (transmitter) diagram | 79 |
+| Figure 3-41 Camera Video Transmitter Module (transmitter) installation diagram | 80 |
+| Figure 3-42 No-obstruction zone of the Camera Video Transmitter Module (transmitter) | 81 |
+| Figure 3-43 Camera Video Transmitter Module (receiver) diagram | 81 |
 
 <!-- p.9 -->
-<!-- p.9: contents list omitted -->
+
+| Entry | Printed page |
+| --- | --- |
+| Figure 3-44 Positioning Module diagram | 82 |
+| Figure 3-45 Positioning Module installation diagram | 82 |
+| Figure 3-46 Positioning Module wiring diagram | 83 |
+| Figure 3-47 Positioning Module installation diagram | 83 |
+| Figure 3-48 Supercapacitor Management Module wiring diagram | 85 |
 
 <!-- p.10 -->
 ## 1 Foreword
