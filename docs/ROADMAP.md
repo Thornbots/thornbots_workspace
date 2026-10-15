@@ -10,17 +10,28 @@ work; usage, design and measurements stay in linked docs.
 | Localization | Native suite passes recorded | [Drift](../sim/README.md#localization-drift-suite), [EKF](../sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
 | Estimation | Bench baseline recorded | [Bench](../sim/README.md#run-the-tests), [baseline](../sim/docs/cv-bench-results-2026-09-28.md) |
 | Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](../sim/README.md#type-c-board-execution-with-renode), [board verification](../sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](../sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
-| Robots | Flashing and acceptance remain (C) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
+| Robots | Standard still needs the Jazzy flash; acceptance remains ([T38](#short-todos)) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
 
 ## Short todos
 
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
   isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
   [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
+- **T38 — standard — open:** Only `ts-nano-standard` still needs Jazzy: flash it per
+  [Jazzy flash](JAZZY_FLASH.md#hardware-status), then run the [hardware checklist](JAZZY_FLASH.md#hardware-checklist). T20/T25 can use emulator validation.
+- **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
+  DIAG on `/diagnostics`; test free-space pruning of per-run bags.
+  [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
+- **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
+  and UART bandwidth, then specify and implement both ends.
+  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **T29 — startup / common — decision open:** Validate [image pulling](../docs/CI.md#robot-registry) versus local builds.
+  If builds stay, assess compression/caches/overlays and USB versus reverse SSH.
+  [Image workflow](../isaac_ros_common/docker/README.md#on-the-x86-laptop).
 
 ## Tracks, in order of work
 
-Sim first; robot work waits (2026-10-08). Address A, G, then sim parts of B and C; D supports A. Administration is
+Sim first; robot work waits (2026-10-08). Address A, G, then sim parts of B; D supports A. Administration is
 independent. E, F, H and J are unscheduled, with robot checks under [later](#later-needs-a-robot). Navigation waits
 until after the Midwest competition.
 
@@ -68,20 +79,6 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 - **B-moving — sim / thornbots_pkg — open:** Run radial/diagonal aiming paths and add missing floors; each moving match
   segment must finish within 10 percentage points of the same target cell with our robot parked.
   [Bench](../sim/README.md#run-the-tests).
-
-### C. Jazzy on the robots
-
-[Deployment acceptance](JAZZY_FLASH.md#hardware-checklist) is pending; T20/T25 can use emulator validation.
-
-- **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
-  DIAG on `/diagnostics`; test free-space pruning of per-run bags.
-  [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
-- **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
-  and UART bandwidth, then specify and implement both ends.
-  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T29 — startup / common — decision open:** Validate [image pulling](../docs/CI.md#robot-registry) versus local builds.
-  If builds stay, assess compression/caches/overlays and USB versus reverse SSH.
-  [Image workflow](../isaac_ros_common/docker/README.md#on-the-x86-laptop).
 
 ### D. Faster suites
 
