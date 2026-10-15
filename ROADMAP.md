@@ -30,7 +30,9 @@ until after the Midwest competition.
 ### A. The match test
 
 - **T17 — sim / localization / thornbots_pkg — open:** Finish remaining stage/backend repeatability gates
-  and the board parked-cell sweep. Opt-in ordered localization and fixed scoring now compare exactly
+  and the board parked-cell sweep. Close the remaining EKF rejection diagnosis;
+  first-tick reader matching and relocalization UART barriers are implemented.
+  Opt-in ordered localization and fixed scoring compare exactly
   across three unthrottled stationary repeats;
   [measurements](sim/docs/track-a-uart-2026-10-15.md#ordered-localization-and-fixed-scoring);
   keep tracker tuning behind the [input audit](sim/docs/track-a-stamped-inputs-2026-10-14.md#inspect-inputs-before-tracker-tuning).

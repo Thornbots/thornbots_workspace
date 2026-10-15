@@ -9,6 +9,14 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Experimental E2E relocalization now pairs captured EKF/raw inputs, preserves
+  correction application stamps and holds UART decision delivery. Paused
+  startup waits for both sides of the first MCB tick connection. Default
+  robot settings are unchanged; see the
+  [acceptance record](sim/docs/track-a-uart-2026-10-15.md#rejected-stationary-attempts-and-relocalization-barrier)
+  ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
+  [bridge #14](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/14)).
+
 - E2E can opt into modeled UART byte deadlines and capture-stamped bridge
   packets, paused startup, fixed detector captures and exact path/CV/POSE
   consumption acknowledgments. Late delivery rejects the experiment;
