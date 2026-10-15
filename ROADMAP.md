@@ -15,8 +15,9 @@ work; usage, design and measurements stay in linked docs.
 ## Short todos
 
 - **T31 — bridge / MCBV3 — open:** Decide hit-turn permission per frame; clear it while holding valid `TargetState`,
-  including Jetson patrol. Define hit-angle units/reference, latch until REF_SYS reports hits, and verify sign with
-  nonzero head/chassis yaw. [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
+  including Jetson patrol. Latch hit angles until REF_SYS reports them. On the robot, confirm hit direction and which
+  armor ID each face reports; CAD faces sit on the diagonals, firmware assumes ID 0 faces forward.
+  [Firmware coordination](ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
   isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
   [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
