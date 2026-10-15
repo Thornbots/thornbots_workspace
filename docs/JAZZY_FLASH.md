@@ -418,7 +418,7 @@ Flashing alone does not validate the stack.
 Record dated results in [hardware status](#hardware-status). Migration is
 complete when the laptop comparison and robot acceptance checks pass;
 report any unavailable Humble performance comparison explicitly. Then
-remove unused Humble images and retire ROADMAP track C.
+remove unused Humble images and close [ROADMAP T38](ROADMAP.md#short-todos).
 
 ## Laptop validation (2026-09-30)
 
