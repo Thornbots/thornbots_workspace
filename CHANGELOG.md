@@ -10,8 +10,10 @@ impact, and link the corresponding package changes.
 ### Changed
 
 - E2E can opt into modeled UART byte deadlines and capture-stamped bridge
-  packets. Late delivery rejects the experiment; complete consumption gates
-  remain open. See the [investigation](sim/docs/track-a-uart-2026-10-15.md)
+  packets, paused startup, fixed detector captures and exact path/CV/POSE
+  consumption acknowledgments. Late delivery rejects the experiment;
+  localization and complete repeatability gates remain open. See the
+  [investigation](sim/docs/track-a-uart-2026-10-15.md)
   ([bridge #14](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/14),
   [sim #23](https://github.com/Thornbots/sim/pull/23)).
 
