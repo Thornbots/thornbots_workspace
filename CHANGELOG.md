@@ -17,6 +17,14 @@ impact, and link the corresponding package changes.
   ([bridge #14](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/14),
   [sim #23](https://github.com/Thornbots/sim/pull/23)).
 
+- The experimental E2E localization profile orders captured inputs through
+  the installed EKF, waits for strict scan prerequisites, seeds lidar noise,
+  and holds fixed scoring windows. Three stationary repeats compare exactly;
+  remaining stage/backend gates and calibration stay open. See
+  [measurements](sim/docs/track-a-uart-2026-10-15.md#ordered-localization-and-fixed-scoring)
+  ([localization #7](https://github.com/Thornbots/sentry_localization/pull/7),
+  [rf2o #9](https://github.com/Thornbots/rf2o_laser_odometry/pull/9)).
+
 - E2E disables latest-TF fallback, requires its counter to be present and zero,
   and records stamped CV/odometry inputs. The aimer retains a usable same-track
   state while newer stamped TF arrives. Run comparison rejects empty evidence;

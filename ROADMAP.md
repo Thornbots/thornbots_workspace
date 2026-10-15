@@ -29,10 +29,10 @@ until after the Midwest competition.
 
 ### A. The match test
 
-- **T17 — sim / thornbots_pkg — open:** Finish localization/scorer barriers and fixed cell boundaries,
-  then identical-shot gates and the board parked-cell sweep. Opt-in paused startup and path/CV/POSE barriers
-  pass three stationary repeats but exact comparison still differs in localization;
-  [measurements](sim/docs/track-a-uart-2026-10-15.md#paused-startup-and-consumption-experiment);
+- **T17 — sim / localization / thornbots_pkg — open:** Finish remaining stage/backend repeatability gates
+  and the board parked-cell sweep. Opt-in ordered localization and fixed scoring now compare exactly
+  across three unthrottled stationary repeats;
+  [measurements](sim/docs/track-a-uart-2026-10-15.md#ordered-localization-and-fixed-scoring);
   keep tracker tuning behind the [input audit](sim/docs/track-a-stamped-inputs-2026-10-14.md#inspect-inputs-before-tracker-tuning).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
 - **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
