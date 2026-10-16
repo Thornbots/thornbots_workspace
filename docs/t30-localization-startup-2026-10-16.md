@@ -133,6 +133,11 @@ focused control/fixed repeats are queued to assess that threshold crossing;
 no threshold or covariance was changed. Mapping startup and on-demand EKF remain
 pending.
 
+The first manually dispatched sim portable CI build exposed a stale dependency
+workspace pin: it supplied a pre-`patrol` CVTarget message to the existing current
+wire-contract test. Both changed packages now pin current nightly `63a2453` for
+CI dependencies. The test and message contract were retained; fresh CI is running.
+
 Host Python 3.12 quality checks and actionlint pass in both packages without
 baseline changes. Registered colcon tests report 237 tests, zero errors,
 failures or skips. Package CI and the full scored after cohort are pending.

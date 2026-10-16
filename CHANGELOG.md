@@ -26,7 +26,8 @@ impact, and link the corresponding package changes.
 
 - Construct localization backends and their lifecycle managers in one process
   to avoid startup service-response discovery races, and remove the drift suite's
-  automatic robot restart. Startup errors identify the missing TF link. See
+  automatic robot restart. Startup errors identify the missing TF link.
+  Portable CI dependency pins now follow the integrated current UART contract. See
   [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
   [sim #26](https://github.com/Thornbots/sim/pull/26) and
   [T30 validation](docs/t30-localization-startup-2026-10-16.md).
