@@ -88,8 +88,10 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### E. Benches that start and stop cleanly
 
-- **T30 — sim / sentry_localization — open:** Fix missing `root` TF and localization bring-up stalls; do not rely on the
-  suite's single retry. [Localization launch](../sentry_localization/README.md#launchlocalizationlaunchpy).
+- **T30 — sim / sentry_localization — review blocked:** Static backend construction removes the lifecycle
+  response-discovery race; the suite's startup retry is removed. Follow-up pooled drive is 179/190 nightly
+  versus 176/187 fixed; fixed full drift is 8/9 with an additional EKF clock-start stall. PRs remain draft.
+  [Evidence and remaining gates](t30-localization-startup-2026-10-16.md#alternating-follow-up-2026-10-16).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).
