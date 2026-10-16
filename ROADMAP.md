@@ -29,12 +29,10 @@ until after the Midwest competition.
 
 ### A. The match test
 
-- **T17 — sim / localization / thornbots_pkg — open:** Finish remaining stage/backend repeatability gates
-  and the board parked-cell sweep. Close the remaining EKF rejection diagnosis;
-  first-tick reader matching and relocalization UART barriers are implemented.
-  Stationary-lateral Mac controls compare exactly, including RTF=1 and Gazebo CPU2;
-  [measurements](sim/docs/track-a-uart-2026-10-15.md#frozen-profile-stationary-mac-gates);
-  keep tracker tuning behind the [input audit](sim/docs/track-a-stamped-inputs-2026-10-14.md#inspect-inputs-before-tracker-tuning).
+- **T17 — sim / localization / thornbots_pkg — open:** Fix variable path application phase, repeat remaining
+  stage/backend gates and the board parked sweep; original EKF rejection remains unproved.
+  Stationary Mac gates and default localization regressions pass; two full hosted sweeps
+  pass natively but differ exactly. [Evidence and remaining work](sim/docs/track-a-runtime-2026-10-16.md).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
 - **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
   diagnostic tier. Retain navigation startup failures and rejected profiles in the

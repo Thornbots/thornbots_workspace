@@ -9,6 +9,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- E2E diagnostic ledgers retain detection geometry, target path commands and
+  their first physics application steps. Two full hosted parked sweeps pass
+  native checks but fail exact comparison; calibrated combat floors remain
+  blocked. See the [investigation](sim/docs/track-a-runtime-2026-10-16.md)
+  ([sim #23](https://github.com/Thornbots/sim/pull/23)).
+
 - Experimental E2E relocalization now pairs captured EKF/raw inputs, preserves
   correction application stamps and holds UART decision delivery. Paused
   startup waits for both sides of the first MCB tick connection; raw-input
