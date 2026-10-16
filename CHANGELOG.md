@@ -24,6 +24,13 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Construct localization backends and their lifecycle managers in one process
+  to avoid startup service-response discovery races, and remove the drift suite's
+  automatic robot restart. Startup errors identify the missing TF link. See
+  [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
+  [sim #26](https://github.com/Thornbots/sim/pull/26) and
+  [T30 validation](docs/t30-localization-startup-2026-10-16.md).
+
 - Add opt-in tracker innovation diagnostics and estimation-bench radius/prior
   controls. G.1 trials expose regressions in the full matrix, so tracker tuning,
   validity and estimation limits stay unchanged; defaults are numerically
