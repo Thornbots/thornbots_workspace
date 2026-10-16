@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- The acknowledged simulator path fixture queues captures for the following
+  physics step and waits for current path publication before cell parameter
+  resets. Regression tests cover early, late and out-of-order deliveries
+  ([sim #23](https://github.com/Thornbots/sim/pull/23)).
+
 - E2E diagnostic ledgers retain detection geometry, target path commands and
   their first physics application steps. Two full hosted parked sweeps pass
   native checks but fail exact comparison; calibrated combat floors remain
