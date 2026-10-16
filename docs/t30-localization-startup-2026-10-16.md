@@ -1,7 +1,8 @@
 # T30: localization startup, 2026-10-15–16
 
-Status: startup fix validated; PRs remain draft because accuracy/non-regression
-acceptance is incomplete (drive aggregate declined and full drift failed accuracy).
+Status: PRs remain draft. The alternating follow-up leaves the pooled drive rate
+0.09 percentage points lower and exposes an additional EKF clock-start stall in
+the fixed full drift suite. See the follow-up below for the current disposition.
 Package changes: [localization #9](https://github.com/Thornbots/sentry_localization/pull/9)
 and [sim #26](https://github.com/Thornbots/sim/pull/26).
 
@@ -88,7 +89,7 @@ robot to rescue the case. Drift and E2E errors distinguish the raw, navigation
 and map links. The old automatic retry masked a broken startup and was not an
 acceptable reliability mechanism.
 
-## Startup counts
+## Original startup counts
 
 Counts are failures/attempts; no automatic stage reruns are included.
 
@@ -109,7 +110,7 @@ A lighter synthetic-clock/pose probe also had 0/20 failures before the fix and
 did not reproduce the fault. An early observer that could consume queued TF or
 miss its own get-state response was discarded and is excluded from these counts.
 
-## Scored stages
+## Original scored stages
 
 All default parked cells and default drive/match durations are retained. Counts
 are the harness's scored physical MCB hits/shots (`scores.jsonl`, and match
@@ -163,21 +164,153 @@ failures or skips. Workspace PR policy, quality and both host-helper jobs pass;
 nightly policy skips the GPU/image jobs. No GPU or board-firmware execution
 acceptance is claimed.
 
-T30 remains open for accuracy acceptance: investigate the drive aggregate decline
-and obtain a passing full drift suite under controlled load. All three PRs stay
-draft despite green CI. No thresholds, baselines, tuning or UART compatibility
-were relaxed to make these gates pass.
+At original closeout, drive non-regression and full drift acceptance remained
+open. The follow-up below reports the additional comparisons and current blockers.
+No thresholds, baselines, tuning or UART compatibility were relaxed.
 No physical robot work was performed. Existing Gazebo/bridge teardown failures
 remain outside this startup change and are tracked separately in track E.
 
 ## Evidence retention
 
-Raw logs, probe results, scored JSON and runner scripts are retained in the host
-archive `/Users/blaise/ros2_t30_evidence_20261016.tar.gz`. The archive includes
-rejected experiments in explicitly named directories; they are excluded from
-final acceptance counts. The separate T30 clone/worktrees are removed after
-publication. At final cleanup the shared Colima VM was already stopped and both
-Docker sockets were unavailable. No shared VM was restarted; deletion of the
-T30 container `thornbots_t30_20261015` could not be verified and remains to be
-done when Docker is available. No task-owned VM was created. Track A resources
-were not stopped or modified.
+Original raw logs, probe results, scored JSON and runner scripts remain in
+`/Users/blaise/ros2_t30_evidence_20261016.tar.gz`. Follow-up logs, per-second
+VM/host load, shot analysis, CI-head verification and cleanup records are in
+`/Users/blaise/ros2_t30_followup_evidence_20261016.tar.gz`. The latter includes
+the original six drive runs needed to reproduce pooling; rejected experiments
+remain labeled in the original archive and are excluded from acceptance counts.
+
+The original T30 container could not be deleted at the first closeout because
+shared Colima was stopped. During the follow-up, Track A started that shared VM
+externally. Both `thornbots_t30_20261015` and `thornbots_t30_followup_20261016`
+were then removed and verified absent through their respective Docker daemons.
+The private `t30-followup` VM was stopped and deleted. Shared Colima and Track A
+containers were not stopped or restarted. Task-owned clones and the host venv
+are removed after publication.
+
+## Alternating follow-up, 2026-10-16
+
+An additional three hosted drive runs per side ran in the order nightly/fixed,
+nightly/fixed, nightly/fixed. The control is the captured nightly localization
+launch at `955bfda`; the fixed launch is `6822eeb`. Both use the same built
+T30 sim harness (`d58b1b5`), robot (`e54361a`) and firmware (`ad13759`) as the
+original controlled comparison. The sim runtime/scoring is unchanged; its
+readiness diagnostics and no-retry harness are shared. Each run starts a fresh
+stack. No scored attempt was discarded or replaced.
+
+The shared default Colima VM was stopped at setup. A separate task-owned
+`t30-followup` VM (10 CPUs, 24 GiB) and `thornbots_t30_followup_20261016` container
+used the same host, 2 GiB shared memory, ROS domain 137 and the checkout overlay.
+A fresh `ros:jazzy-ros-base` container received the manifest dependencies; Nav2
+1.3.13 and rmw_fastrtps_cpp 8.4.4 match the original cohort. The image digest and
+all installed package versions are archived. No image was built.
+
+Each new drive run waited for private-VM one-minute load to fall to 3 or below
+(up to 180 seconds), then sampled load every second. Track A started the shared
+VM and its containers externally during the first nightly run. They were not
+stopped or restarted. Host load was also sampled from the end of that first
+run onward. Consequently this is a paired comparison under concurrent load,
+not a claim of identical CPU scheduling or an exact replay of the first cohort.
+Pooled six-run counts below are descriptive across both environments.
+
+| New run | Nightly hits/shots | VM load start / max | Fixed hits/shots | VM load start / max |
+| --- | --- | --- | --- | --- |
+| 4 | 29/33 | 2.93 / 5.13 | 31/32 | 2.91 / 4.11 |
+| 5 | 30/30 | 2.94 / 5.04 | 31/31 | 2.76 / 4.20 |
+| 6 | 30/32 | 2.77 / 5.82 | 28/30 | 2.98 / 5.17 |
+
+| Cohort | Nightly hits/shots | Fixed hits/shots |
+| --- | --- | --- |
+| Original three | 90/95 (94.74%) | 86/94 (91.49%) |
+| New alternating three | 89/95 (93.68%) | 90/93 (96.77%) |
+| Pooled six | **179/190 (94.21%)** | **176/187 (94.12%)** |
+
+All six new runs passed GTest and native log checks, with zero lifecycle
+response failures and zero lockstep timeouts. Both pooled sides have eleven
+misses; the fix issued three fewer scored shots. The new cohort favors the fix,
+but its pooled hit rate is still 0.09 percentage points lower. The literal
+non-regression gate therefore remains unmet; these samples do not establish
+statistical equivalence. No further repeats replace the low runs.
+
+### Inspection of the low drive runs
+
+The original fixed run 3 (25/31) had zero invalid tracks at issued-shot times,
+a maximum tracker age of 47 ms and one normal tracker reseed. Its six misses
+were 0.0708–0.0934 m, with head TF attitude errors 0.071–2.126 degrees. The
+native diagnostic flags head-pitch attitude error, not a startup failure.
+Its first shot was 7.444 s after the first scored route sample; other original
+fixed runs began at 7.594–7.644 s. No lost-track or lockstep-timeout evidence
+explains the six misses.
+
+New nightly run 4 was also low (29/33), with valid tracks at every shot, one
+reseed, tracker age at most 55 ms and head TF errors of 1.16–2.63 degrees on
+its misses. New fixed run 6 (28/30) had valid tracks at every shot and tracker
+age at most 47 ms; its two misses have 1.07/2.76 degree head TF error. It has
+three shot gaps above 0.8 s (maximum 1.170 s). Such gaps are not unique to the
+fix: the perfect nightly run 5 (30/30) has two (maximum 1.028 s). No new drive
+run fired with an invalid track. In the three low runs above, invalid route
+samples all precede the first physical shot; none occur after firing begins.
+Detailed shot records and gaps are archived
+in `followup-summary.json`.
+
+Activation from the first ROS log was 8.67–9.35 s nightly and 8.39–8.92 s fixed,
+including the existing sim head start. Scored-stage starting sim time varies
+in both directions across the paired runs; first-shot delays overlap. Static
+composition plausibly changes message scheduling and initial scan/physics phase,
+so an indirect timing effect cannot be ruled out. However, the reversed ranking
+in the new cohort, ordinary head-attitude misses on both sides and absence of
+a track-loss/startup pattern do not support a systematic accuracy regression
+caused by the localization change. That inference does not waive the numerical
+gate.
+
+### Back-to-back full drift and disposition
+
+The full drift suites ran back to back without an intervening test, tuning
+change or automatic startup retry:
+
+| Backend path | Native full-suite result | scan_degraded before / during / after error |
+| --- | --- | --- |
+| Nightly | **9/9 pass**, native checker accepted | 0.1813 / 0.4028 / 0.1976 m; pass |
+| Fixed | **8/9 pass**, native checker rejected | Not measured: startup failed after 30 seconds |
+
+The fixed run passed its first eight scenarios. At `scan_degraded`, raw
+`odom->root` was ready, while `nav_odom->odom` and `map->nav_odom` were missing.
+`robot_9.log` shows an additional failure class:
+
+| Event | Wall timestamp |
+| --- | --- |
+| EKF logs “Waiting for clock to start...” | `1792185334.562353240` |
+| Lifecycle manager starts bring-up | `1792185334.587439584` |
+| Nav2 logs “Managed nodes are active” | `1792185334.819586273` |
+| RF2O receives its first laser scan | `1792185335.668513032` |
+| Harness interrupts the failed startup | `1792185364.263000537` |
+
+Nav2 activated in 232 ms, with no lifecycle response timeout. EKF stayed in its
+clock-start wait for the entire readiness window. On SIGINT it threw an invalid
+rcl context publisher exception and exited -6; that happened after the startup
+failure. The static backend exited cleanly. The new logs localize the missing
+navigation TF to EKF clock initialization but do not establish whether clock
+discovery/delivery, constructor/executor initialization or machine load caused
+it. This does not validate the original fixed `scan_degraded` accuracy miss:
+the new attempt never reached accuracy scoring.
+
+Private-VM load start/max was 5.17/9.54 for nightly drift and 7.29/12.01 for
+fixed drift; simultaneous host load ranges were 7.54–12.57 and 9.09–13.29.
+The original lifecycle fault was not reproduced in the follow-up, but the
+additional fixed startup failure means whole-stack startup acceptance is still
+incomplete. Follow-up drive startup failures were 0/3 per side; drift startup
+failures were 0/9 nightly and 1/9 fixed. No failed attempt was retried.
+
+Both package portable ROS runs were verified successful on the unchanged pushed
+heads: localization `6822eeb` in run 38897508783 and sim `d58b1b5` in run
+38897515514 (linked above). PRs into nightly intentionally skip the reusable ROS
+job; these successful manual-dispatch runs include the portable build and tests.
+No redundant dispatch was required. Host Python 3.12 quality checks and actionlint
+also pass without baseline growth.
+
+**Merge recommendation: hold all three draft PRs.** The pooled drive hit rate
+remains numerically lower, although the new cohort favors the fix and the shot
+inspection gives no consistent causal regression signal. More decisively, the
+fixed full drift rerun exposes an unresolved EKF clock-start bring-up stall.
+Investigate that owner path and obtain full-suite acceptance before promotion;
+do not add a retry or weaken the accuracy limits. No runtime change was made
+in this follow-up, and both package heads remain unchanged.
