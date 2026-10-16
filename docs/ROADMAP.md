@@ -90,7 +90,8 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 - **T30 — sim / sentry_localization — validation in progress:** Static backend construction removes the lifecycle
   response-discovery race; the suite's startup retry is removed. Final startup trials pass 20/20;
-  scored repeats and CI remain pending. [Evidence and gates](t30-localization-startup-2026-10-16.md).
+  scored drive hits/shots declined and full drift failed accuracy, so PRs remain draft.
+  [Evidence and gates](t30-localization-startup-2026-10-16.md).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).

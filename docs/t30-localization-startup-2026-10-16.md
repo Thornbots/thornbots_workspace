@@ -1,6 +1,7 @@
 # T30: localization startup, 2026-10-15–16
 
-Status: startup fix validated; final scored repeats and CI are in progress.
+Status: startup fix validated; PRs remain draft because accuracy/non-regression
+acceptance is incomplete (drive aggregate declined and full drift failed accuracy).
 Package changes: [localization #9](https://github.com/Thornbots/sentry_localization/pull/9)
 and [sim #26](https://github.com/Thornbots/sim/pull/26).
 
@@ -94,12 +95,16 @@ Counts are failures/attempts; no automatic stage reruns are included.
 | Series | Nightly | Final fix |
 | --- | --- | --- |
 | Hosted drive startup-only, fresh launch each time | 0/20 | 0/20 |
-| Full scored stage launches, including initial reproduction | 1/10 | pending |
+| Full scored stage launches, including initial reproduction | 1/10 | 0/9 |
+| Drift scenario startup failures (single attempt each) | 0/9 | 0/9 |
 | Abnormal final backend shutdowns in startup-only series | n/a | 0/20 |
 
 The startup-only probe waits for lifecycle activation and all three TF links,
 then stops its own process group. These are diagnostic launch trials, not scored
 accuracy samples. Activation was 9.17–10.34 s before and 8.79–9.66 s after.
+These small cohorts do not establish a statistical failure-rate reduction: the
+full drive failure and the rejected remote-loader failure provide direct fault
+evidence, while the final batch verifies the new path.
 A lighter synthetic-clock/pose probe also had 0/20 failures before the fix and
 did not reproduce the fault. An early observer that could consume queued TF or
 miss its own get-state response was discarded and is excluded from these counts.
@@ -112,11 +117,17 @@ segment summaries); ghost, requested-shot and unscored boundary events are exclu
 
 | Hosted stage | Nightly runs 1 / 2 / 3 | Final runs 1 / 2 / 3 |
 | --- | --- | --- |
-| mcb_parked | 359/428; 351/428; 354/415 | pending |
-| mcb_drive | 31/32; 30/32; 29/31 | pending |
-| mcb_match | 20/37; 20/36; 20/37 | pending |
+| mcb_parked | 359/428; 351/428; 354/415 | 359/429; 366/432; 366/422 |
+| mcb_drive | 31/32; 30/32; 29/31 | 31/32; 30/31; 25/31 |
+| mcb_match | 20/37; 20/36; 20/37 | 20/35; 20/37; 20/36 |
 
-All nine scheduled nightly stage runs passed GTest and the native log checker.
+All nine scheduled stage runs in each cohort passed GTest and the native log checker.
+There were zero lockstep timeouts. Aggregates were parked 1064/1271 to 1091/1283,
+drive 90/95 to 86/94, and match 60/110 to 60/108. The drive decline means the
+requested per-stage non-regression gate is **not established**. No extra scored
+repeats replace these results. Concurrent load reached a one-minute VM average
+of 18.81 during the after drive cohort; this confounds timing and does not
+justify dismissing the accuracy decline.
 The initial failed drive reproduction is retained separately and has no scored
 accuracy sample. Every scored run must pass the native checker before its
 numbers are accepted.
@@ -128,18 +139,42 @@ failed accuracy at 2.6547 m against 0.4 m; its whole-run checker rejected that
 run, so it is diagnostic evidence rather than accepted accuracy evidence.
 After drift also completed 8/9 scenarios without startup failure or retry.
 `moving_obstacles` passed; `scan_degraded` instead crossed its 0.5000 m limit
-at 0.5012 m. This whole-run checker also rejected accuracy acceptance. Alternating
-focused control/fixed repeats are queued to assess that threshold crossing;
-no threshold or covariance was changed. Mapping startup and on-demand EKF remain
-pending.
+at 0.5012 m. This whole-run checker also rejected accuracy acceptance. All three alternating focused control repeats and all three fixed repeats
+passed their native checkers. During-degradation maxima were 0.4539/0.4677/0.4576 m
+for control and 0.4002/0.3881/0.4386 m for fixed. These diagnostic repeats
+do not replace the failed full-suite result. No threshold or covariance was changed. Mapping baseline startup and the on-demand
+EKF suite both passed their native checkers. Mapping had zero map drift over
+ten simulated seconds; no backend shutdown fault occurred. An existing
+parameter_bridge exit -6 appeared during EKF sim teardown and was accepted by
+the native checker; it is not a clean whole-stack teardown claim.
 
 The first manually dispatched sim portable CI build exposed a stale dependency
 workspace pin: it supplied a pre-`patrol` CVTarget message to the existing current
 wire-contract test. Both changed packages now pin current nightly `63a2453` for
-CI dependencies. The test and message contract were retained; fresh CI is running.
+CI dependencies. The test and message contract were retained. Fresh portable
+ROS CI passed for [localization](https://github.com/Thornbots/sentry_localization/actions/runs/38897508783)
+and [sim](https://github.com/Thornbots/sim/actions/runs/38897515514).
+Final package heads are `6822eeb28ee65400befe064541ad3a508e40eb8b` and
+`d58b1b5933a7dab5840fbc42afe9baa44fa12472`, respectively.
 
 Host Python 3.12 quality checks and actionlint pass in both packages without
 baseline changes. Registered colcon tests report 237 tests, zero errors,
-failures or skips. Package CI and the full scored after cohort are pending.
+failures or skips. Workspace PR policy, quality and both host-helper jobs pass;
+nightly policy skips the GPU/image jobs. No GPU or board-firmware execution
+acceptance is claimed.
+
+T30 remains open for accuracy acceptance: investigate the drive aggregate decline
+and obtain a passing full drift suite under controlled load. All three PRs stay
+draft despite green CI. No thresholds, baselines, tuning or UART compatibility
+were relaxed to make these gates pass.
 No physical robot work was performed. Existing Gazebo/bridge teardown failures
 remain outside this startup change and are tracked separately in track E.
+
+## Evidence retention
+
+Raw logs, probe results, scored JSON and runner scripts are retained in the host
+archive `/Users/blaise/ros2_t30_evidence_20261016.tar.gz`. The archive includes
+rejected experiments in explicitly named directories; they are excluded from
+final acceptance counts. The separate T30 container and clone/worktrees are
+removed after final publication; the shared Colima VM and Track A resources
+are left running.
