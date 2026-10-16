@@ -32,9 +32,8 @@ until after the Midwest competition.
 - **T17 — sim / localization / thornbots_pkg — open:** Finish remaining stage/backend repeatability gates
   and the board parked-cell sweep. Close the remaining EKF rejection diagnosis;
   first-tick reader matching and relocalization UART barriers are implemented.
-  Opt-in ordered localization and fixed scoring compare exactly
-  across three unthrottled stationary repeats;
-  [measurements](sim/docs/track-a-uart-2026-10-15.md#ordered-localization-and-fixed-scoring);
+  Stationary-lateral Mac controls compare exactly, including RTF=1 and Gazebo CPU2;
+  [measurements](sim/docs/track-a-uart-2026-10-15.md#frozen-profile-stationary-mac-gates);
   keep tracker tuning behind the [input audit](sim/docs/track-a-stamped-inputs-2026-10-14.md#inspect-inputs-before-tracker-tuning).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
 - **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
