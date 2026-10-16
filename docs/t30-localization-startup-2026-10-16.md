@@ -107,11 +107,12 @@ miss its own get-state response was discarded and is excluded from these counts.
 ## Scored stages
 
 All default parked cells and default drive/match durations are retained. Counts
-are physical MCB hits/shots; ghost and requested-shot streams are excluded.
+are the harness's scored physical MCB hits/shots (`scores.jsonl`, and match
+segment summaries); ghost, requested-shot and unscored boundary events are excluded.
 
 | Hosted stage | Nightly runs 1 / 2 / 3 | Final runs 1 / 2 / 3 |
 | --- | --- | --- |
-| mcb_parked | 361/432; 354/431; 358/419 | pending |
+| mcb_parked | 359/428; 351/428; 354/415 | pending |
 | mcb_drive | 31/32; 30/32; 29/31 | pending |
 | mcb_match | 20/37; 20/36; 20/37 | pending |
 
@@ -125,7 +126,12 @@ numbers are accepted.
 Nightly drift completed 8/9 scenarios, with no startup retry. `moving_obstacles`
 failed accuracy at 2.6547 m against 0.4 m; its whole-run checker rejected that
 run, so it is diagnostic evidence rather than accepted accuracy evidence.
-After drift, mapping startup and the on-demand EKF suite are pending.
+After drift also completed 8/9 scenarios without startup failure or retry.
+`moving_obstacles` passed; `scan_degraded` instead crossed its 0.5000 m limit
+at 0.5012 m. This whole-run checker also rejected accuracy acceptance. Alternating
+focused control/fixed repeats are queued to assess that threshold crossing;
+no threshold or covariance was changed. Mapping startup and on-demand EKF remain
+pending.
 
 Host Python 3.12 quality checks and actionlint pass in both packages without
 baseline changes. Registered colcon tests report 237 tests, zero errors,
