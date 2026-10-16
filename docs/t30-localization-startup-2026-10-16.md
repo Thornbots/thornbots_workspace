@@ -175,6 +175,9 @@ remain outside this startup change and are tracked separately in track E.
 Raw logs, probe results, scored JSON and runner scripts are retained in the host
 archive `/Users/blaise/ros2_t30_evidence_20261016.tar.gz`. The archive includes
 rejected experiments in explicitly named directories; they are excluded from
-final acceptance counts. The separate T30 container and clone/worktrees are
-removed after final publication; the shared Colima VM and Track A resources
-are left running.
+final acceptance counts. The separate T30 clone/worktrees are removed after
+publication. At final cleanup the shared Colima VM was already stopped and both
+Docker sockets were unavailable. No shared VM was restarted; deletion of the
+T30 container `thornbots_t30_20261015` could not be verified and remains to be
+done when Docker is available. No task-owned VM was created. Track A resources
+were not stopped or modified.
