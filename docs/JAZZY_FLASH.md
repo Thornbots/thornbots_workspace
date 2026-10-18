@@ -25,6 +25,29 @@ Follow [Before flashing](#1-before-flashing) through [Our image](#8-our-image)
 for standard, then complete the [hardware checklist](#hardware-checklist).
 The [laptop comparison](#laptop-validation-2026-09-30) is historical evidence.
 
+### Experimental aim/navigation frame split
+
+**Experimental; hardware acceptance outstanding (2026-10-18).** Nightly
+separates raw aiming odometry from corrected navigation odometry. This is
+an architecture change, not a validated localization improvement. The frame
+contract lives in [UART_PROTOCOL](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types);
+the Jetson implementation is documented under
+[pose_translator](../thornbots_pkg/README.md#pose_translator) and
+[mcb_relay](../thornbots_pkg/README.md#mcb_relay).
+
+Acceptance requires matching Jetson and MCB firmware; topic rates from a
+mixed-version stack do not validate frame semantics. Before hardware acceptance:
+
+- Verify that RELOCALIZE changes navigation position while raw POSE and a
+  held aim point remain continuous, parked and while translating/turning.
+- Measure raw pod drift and aiming error over a run; navigation corrections
+  no longer correct the aim frame. Verify team/start reanchors separately.
+- Check timestamp interpolation, TF continuity and EKF behavior against
+  measured motion, including delayed samples and startup/reinitialization.
+- Measure correction delivery under concurrent CV_TARGET traffic, UART/read
+  delays and repeated-correction behavior. The MCB mailbox has no correction
+  acknowledgement; a sent correction is not proof it was applied.
+
 ## Reflash setup
 
 Target: Orin Nano Super 8 GB devkit, NVMe, JetPack 6.2.x / L4T R36.5 to
