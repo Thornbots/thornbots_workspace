@@ -464,3 +464,113 @@ reports are preserved in
 Earlier archives remain separate. Only the T30 clock container and isolated
 checkout are cleaned up; shared Colima, Track A and the user's container remain
 running.
+
+
+## Shared-sim comparison and acceptance, 2026-10-18
+
+This section supersedes the previous draft/hold recommendation.
+
+The experiment left running at the previous thread's usage limit completed
+without intervention. Recovery found no live stack in the task-owned
+`thornbots_t30_accel_20261017` container (domain 139), only three defunct Python
+children. `full.py` is coherent: it runs the two nightly controls before the two
+fixed suites, and the control script restores both source files in `finally`.
+The installed overlay resolves to the isolated workspace, and restored launch
+sources match the pushed package heads (`6822eeb` and `2d78e66`).
+
+Controls restore nightly's localization launch and the original clock bridge
+transport; the no-retry harness, model, physics, backend configuration, scoring
+and deadlines remain common. Fresh-launch `real_accel` passed 6/6 per side:
+nightly maxima 0.1500–0.1836 m, fixed 0.1632–0.2059 m, against the unchanged
+0.4 m bound. Ten consecutive `real_accel` cases within one shared sim also
+passed on both sides: nightly 10/10, maxima 0.1565–0.2069 m; fixed 10/10,
+0.1419–0.2114 m. The GTest repeat keeps one sim alive across iterations;
+robot startup occurs once per case. True yaw remained within 0.87 degrees of
+nominal on nightly and 0.25 degrees on fixed in these repeated cases.
+
+The subsequent full shared-sim suites retain every failure:
+
+| Side / run | Passed | Startup failures | `real_accel` max | Other scored failure |
+| --- | --- | --- | --- | --- |
+| Nightly 1 | 9/9 | 0/9 | 0.1523 m | None |
+| Nightly 2 | 7/9 | 0/9 | 0.1504 m | `drift_correction` 2.1275 m; obstacle 0.8006 m (both limits 0.4 m) |
+| Fixed 1 | 9/9 | 0/9 | 0.1436 m | None |
+| Fixed 2 | 8/9 | 0/9 | 0.1559 m | `scan_degraded` during 0.5285 m (limit 0.5 m) |
+
+Nightly 2's failed drift case recorded true yaw −113.43 to −89.98 degrees
+and head yaw −2.20 to +84.72 degrees. The failed obstacle case recorded true
+yaw −94.73 to −89.73 degrees and head yaw −1.62 to +61.06 degrees. The
+observer recorded zero commanded angular velocity throughout all four full
+suites. Fixed 1 also had an obstacle-case yaw excursion to −70.35 degrees,
+although its score passed. Nightly 2 logged 230 ODE contact-overflow warnings.
+This reproduces large uncommanded chassis/head excursions and associated
+accuracy failures on the nightly control: they are pre-existing simulator
+behavior, rather than evidence of a branch-specific localization regression.
+The exact original
+`real_accel` miss was not reproduced, and these observations alone do not prove
+which reset/physics interleaving caused it. The existing model permits reaction
+torque to escape the nominal yaw lock; see
+[the motion model](../sim/README.md#sentry_v2urdfxacro-motion-model).
+
+The teleport helper issues model-only resets before and after `set_pose`; it
+currently ignores both reset return values. Treating a successful pose write
+as proof of a complete joint reset is weaker than standard checked-service
+practice. No reset, physics, estimator or accuracy-limit change is folded into
+this startup fix.
+
+
+### Required branch confirmation pair
+
+Two further full default shared-sim suites passed consecutively on the same
+pushed heads. Each used `run_suite.sh drift headless:=true foxglove:=false`,
+with one simulator launch and exactly nine robot starts. Both native log checks
+end in `bench ok`; startup failures are 0/18. Thresholds, scoring, deadlines,
+physics step and backend parameters are unchanged; there are no startup retries
+or replacement attempts within either suite.
+
+| Confirmation | Passed | `real_accel` max (limit 0.4 m) | `scan_degraded` truth error before / during / after (limits 0.4 / 0.5 / 0.4 m) | Suite wall time | VM load start / max |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 9/9 | 0.2023 m | 0.2750 / 0.4750 / 0.2842 m | 185.07 s | 0.35 / 23.87 |
+| 2 | 9/9 | 0.2028 m | 0.2371 / 0.4831 / 0.2774 m | 204.52 s | 23.87 / 28.49 |
+
+These meet the requested pair of full 9/9 results. They do not erase the
+retained earlier accuracy failures or establish a deterministic simulator
+accuracy floor. The startup implementation and clock-transport fix remain
+narrowly scoped; the observed simulator yaw fault is also present on nightly.
+
+[Sim portable ROS CI at final head `2d78e66`](https://github.com/Thornbots/sim/actions/runs/39085241245)
+completed successfully, superseding the pending status in the previous section.
+Localization's previously linked portable ROS CI remains successful at
+`6822eeb`. Package PR lint is green; PRs into nightly intentionally skip the
+portable ROS job, which is validated by the separate dispatches.
+
+
+### Restart control and disposition
+
+A further full suite per side used the documented `restart_sim:=true` control,
+with a fresh sim and one startup per case. Both passed 9/9 and the native log
+checker. Nightly / fixed `real_accel` maxima were 0.1918 / 0.1718 m;
+`scan_degraded` before/during/after was 0.2676/0.4159/0.2680 m nightly and
+0.2612/0.4513/0.2884 m fixed. Logged driving-case chassis yaw stayed within
+0.74 degrees of nominal nightly and 0.81 degrees fixed. This supports a
+shared-sim/reset-state contribution to the earlier yaw failures, but a single
+restart control per side does not isolate a particular reset operation from
+physics/contact timing. The failure mode exists on nightly; no branch-specific
+runtime fix is warranted by this comparison.
+
+The required default shared-sim pair, rather than these restart controls, is
+the acceptance evidence. All three PRs are ready for review; **do not merge**
+from this task. Merge timing remains the orchestrator's decision. Host Python
+3.12 quality checks and actionlint pass, with no baseline growth; changed local
+documentation paths and anchors resolve. No package code or gitlink changes
+were needed in this resumption.
+
+Fresh/repeated comparisons, all four recovered full suites, both new default
+confirmations, both restart controls, truth/command traces, load samples,
+source hashes and experiment scripts are preserved in
+`/Users/blaise/ros2_t30_reset_evidence_20261018.tar.gz`, with a SHA-256 sidecar.
+The earlier clock archive remains separate. The task-owned acceleration
+container and its processes are removed after archiving; shared Colima,
+`isaac_ros_jazzy_container`, `track-a-rebased-20261017` and
+`thornbots_t25_data_20261017` are left alone. The isolated source/evidence
+directory remains available for inspection.

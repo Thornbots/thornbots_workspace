@@ -46,6 +46,8 @@ impact, and link the corresponding package changes.
   The sim clock bridge now uses UDP-only DDS so a stale shared-memory reader
   port cannot block global time publication; a focused clock-delivery test
   checks fresh contexts and the transport invariant.
+  Two final full drift confirmations pass 9/9 each without startup retries or
+  relaxed limits; large simulator yaw excursions also reproduce on nightly.
   Portable CI dependency pins now follow the integrated current UART contract. See
   [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
   [sim #26](https://github.com/Thornbots/sim/pull/26) and

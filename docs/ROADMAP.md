@@ -88,11 +88,12 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### E. Benches that start and stop cleanly
 
-- **T30 — sim / sentry_localization — review blocked:** Static backend construction removes the lifecycle
+- **T30 — sim / sentry_localization — ready for review:** Static backend construction removes the lifecycle
   response-discovery race; the suite's startup retry is removed. Drive non-regression is accepted.
-  A blocked clock-bridge SHM publication explains the EKF stall; the UDP-only fix has 0/18 startup failures.
-  Full drift is 8/9 then 9/9: `real_accel` accuracy still blocks two 9/9 results. PRs remain draft.
-  [Evidence and remaining gates](t30-localization-startup-2026-10-16.md#clock-transport-follow-up-2026-10-17).
+  The clock bridge uses UDP-only DDS after a captured SHM publication stall.
+  Final full drift confirmations pass 9/9 twice with 0/18 startup failures and unchanged scoring.
+  Large uncommanded simulator yaw excursions also reproduce on nightly; earlier failures are retained.
+  [Evidence and limitations](t30-localization-startup-2026-10-16.md#shared-sim-comparison-and-acceptance-2026-10-18).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).
