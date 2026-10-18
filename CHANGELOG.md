@@ -31,6 +31,9 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
+  for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
+
 - isaac_ros_common's README now links this fork's clone, image and Mac
   setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
   Standalone MCB flashing points at this repo's GitHub CI ELF artifacts and
