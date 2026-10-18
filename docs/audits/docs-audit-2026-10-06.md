@@ -22,6 +22,8 @@ Rechecked against package `nightly` branches on 2026-10-15; git history keeps th
 - #11 Firmware branch in README: matches `.gitmodules`.
 - #12 Conflicting hardware status: one table in [JAZZY_FLASH](../JAZZY_FLASH.md#hardware-status).
 - #13 Humble internals in the YOLO README: [realsense-yolov8-nitros-bridge #4](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/4) and [#5](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/5).
+- #14c Common README: fork section links the container and Mac setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
+- #14d Firmware deployment docs: GitHub CI artifacts and a working build link ([MCBV3 #95](https://github.com/Thornbots/MCBV3/pull/95)).
 - #14e Dockerfile 'LAYER 5' references: none remain.
 
 ## Open: supporting docs are hard to follow from a fresh checkout (#14)
@@ -37,18 +39,6 @@ sllidar README's udev recipe uses nonexistent `src/rpldiar_ros/`; its shell setu
 **Status (2026-10-15):** open.
 
 rf2o README describes the algorithm but sends all fork-specific setup, parameters and tests into AGENTS. Add a short human-facing fork usage section.
-
-#### 14c — Common README
-
-**Status (2026-10-15):** open.
-
-isaac_ros_common's README is upstream-only and never leads the reader to this fork's Docker or native Mac setup.
-
-#### 14d — Firmware deployment docs
-
-**Status (2026-10-15):** open.
-
-Firmware standalone deployment sends the reader to GitLab develop artifacts and a nonexistent build anchor, without identifying this GitHub repo's artifact location.
 
 #### 14f — Simulation docs
 
