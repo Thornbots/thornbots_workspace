@@ -135,6 +135,14 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   [patrol](../thornbots_pkg/README.md#point_to_cv_target).
 - **T19 — thornbots_pkg — untested:** Determine whether depth is needed or colour-only ranging suffices.
   [Depth input](../thornbots_pkg/README.md#target_tracker).
+- **LIDAR-grid — sentry_localization / startup — open:** Run the RPLIDAR with `angle_compensate:=true` (fixed 720 grid
+  vs 340–359 varying beams). [Scan format](investigations/sentry-sim-to-real-2026-10-18.md#lidar-scan-format).
+- **RF2O-size — rf2o — open:** Validate scan size/angles against the first scan instead of reading past the vector.
+  [Drift](investigations/sentry-sim-to-real-2026-10-18.md#stationary-localization-drift).
+- **SIM-lidar — sim — open:** Align sim lidar (800 beams) with real (720 bins).
+  [Scan format](investigations/sentry-sim-to-real-2026-10-18.md#lidar-scan-format).
+- **SIM-spin — sim / MCBV3 — open:** Explain sim spin wander under beyblade (0.067–0.070 m) versus real in-place spin.
+  [Parked hold](investigations/sentry-sim-to-real-2026-10-18.md#parked-hold-firmware).
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
 
