@@ -24,6 +24,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- isaac_ros_common's README now links this fork's clone, image and Mac
+  setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
+  Standalone MCB flashing points at this repo's GitHub CI ELF artifacts and
+  the current build path instead of GitLab
+  ([MCBV3 #95](https://github.com/Thornbots/MCBV3/pull/95)).
+
 - Add opt-in tracker innovation diagnostics and estimation-bench radius/prior
   controls. G.1 trials expose regressions in the full matrix, so tracker tuning,
   validity and estimation limits stay unchanged; defaults are numerically

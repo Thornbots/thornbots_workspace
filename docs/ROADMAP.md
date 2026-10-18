@@ -162,10 +162,8 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 
 Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-06.md):
 
-- **DOC14b/c — rf2o / common — open:** Add human-facing fork usage and onboarding (#14b/#14c).
-  [rf2o README](../rf2o_laser_odometry/README.md), [common README](../isaac_ros_common/README.md).
-- **DOC14d — MCBV3 — open:** Replace obsolete artifact guidance and dead build anchor (#14d).
-  [Deployment README](../firmware/MCBV3/isolated-deploy/README.md).
+- **DOC14b — rf2o — open:** Add human-facing fork usage (#14b).
+  [rf2o README](../rf2o_laser_odometry/README.md).
 - **DOC14f — sim — open:** Shorten current instructions and separate historical experiments (#14f).
   [Sim README](../sim/README.md).
 - **DOC14g — workspace — audit open:** Finish source/page audit and extract missing base-building specifications (#14g).
