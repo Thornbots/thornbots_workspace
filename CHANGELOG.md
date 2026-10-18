@@ -9,6 +9,11 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Untested setup notes for running the container on Windows: Docker inside
+  WSL2, with the Isaac ROS image on NVIDIA GPUs or `Dockerfile.mac` without one.
+  See [Windows (WSL2)](isaac_ros_common/docker/README.md#windows-wsl2) and
+  [isaac_ros_common #9](https://github.com/Thornbots/isaac_ros_common/pull/9).
+
 - Six English RoboMaster 2027 PDF editions and their original Chinese sources,
   linked from the [translation index](docs/rules/rm2027/README.md), with a
   reproducible renderer and English flowcharts. Completed the RMUC page review
