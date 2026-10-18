@@ -424,7 +424,8 @@ No replacement attempt was run. Scored totals are nightly 55/61 (90.16%) and
 fixed 87/96 (90.63%); these unequal small cohorts provide confirmation, not a
 new calibrated accuracy floor. Startup failures are 1/3 nightly and 0/3 fixed.
 
-Final sim head is `6a97660` (the follow-up adds explicit test headers only).
+Final sim head is `2d78e66`; follow-ups to the runtime fix add explicit test
+headers and isolate the focused bridge from CI's RMW discovery override.
 The focused clock test plus registered copyright/flake8/pep257 checks pass:
 four tests, zero failures. Host Python 3.12 quality checks and actionlint pass
 for sim and workspace with zero new diagnostics and no baseline growth; changed
@@ -432,6 +433,21 @@ local documentation paths and the new anchor resolve. The sim PR's lint job is
 green. [Portable ROS validation at the implementation commit](https://github.com/Thornbots/sim/actions/runs/39084258551)
 is recorded separately from PR lint; PRs into nightly intentionally skip ROS.
 Localization code remains at its previously validated `6822eeb`.
+
+The first portable ROS dispatch failed the new test's SHM invariant while all
+other registered tests passed. CI globally sets `ROS_LOCALHOST_ONLY=1`.
+Jazzy's [RMW localhost-discovery branch](https://github.com/ros2/rmw_fastrtps/blob/8.4.4/rmw_fastrtps_shared_cpp/src/participant.cpp#L185) appends a SHM transport after loading
+XML, so it overrides the profile's transport exclusion. The test now explicitly
+sets `ROS_LOCALHOST_ONLY=0` and `ROS_AUTOMATIC_DISCOVERY_RANGE=SYSTEM_DEFAULT`
+for the bridge, matching the production discovery profile; its late-joining
+readers retain CI's localhost-only setting. This is a test-fixture correction,
+not a weakened SHM assertion or a production discovery change. A deployment
+that explicitly selects localhost-only discovery still needs this RMW caveat
+considered; the captured sim runs used normal discovery.
+With CI's localhost-only setting inherited, the corrected focused clock and
+Python lint checks pass locally again (four tests, zero failures). A fresh
+portable dispatch validates this test-only follow-up separately; its status is
+linked from the sim PR rather than assumed successful here.
 
 **Merge recommendation: keep all three PRs draft.** The clock failure path is
 removed and the requested drive confirmations pass, but the required pair of
