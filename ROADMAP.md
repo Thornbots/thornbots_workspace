@@ -29,10 +29,10 @@ until after the Midwest competition.
 
 ### A. The match test
 
-- **T17 — sim / localization / thornbots_pkg — open:** Fix variable path application phase, repeat remaining
-  stage/backend gates and the board parked sweep; original EKF rejection remains unproved.
-  Stationary Mac gates and default localization regressions pass; two full hosted sweeps
-  pass natively but differ exactly. [Evidence and remaining work](sim/docs/track-a-runtime-2026-10-16.md).
+- **T17 — sim / localization / thornbots_pkg — open:** Repeat remaining stage/backend gates
+  and the board parked sweep; original EKF rejection remains unproved. The path
+  timing fix passes two byte-identical full hosted sweeps; stationary Mac controls
+  and prior-profile localization regressions pass. [Evidence and remaining work](sim/docs/track-a-runtime-2026-10-16.md).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
 - **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
   diagnostic tier. Retain navigation startup failures and rejected profiles in the

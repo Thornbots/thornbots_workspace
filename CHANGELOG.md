@@ -9,15 +9,20 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Experimental lockstep drive/match activation waits for the fixed 2 s
+  boundary so raw odometry can overlap AMCL's initially future-dated map TF.
+  Parked timing and acceptance thresholds are unchanged
+  ([sim #23](https://github.com/Thornbots/sim/pull/23)).
+
 - The acknowledged simulator path fixture queues captures for the following
   physics step and waits for current path publication before cell parameter
   resets. Regression tests cover early, late and out-of-order deliveries
   ([sim #23](https://github.com/Thornbots/sim/pull/23)).
 
 - E2E diagnostic ledgers retain detection geometry, target path commands and
-  their first physics application steps. Two full hosted parked sweeps pass
-  native checks but fail exact comparison; calibrated combat floors remain
-  blocked. See the [investigation](sim/docs/track-a-runtime-2026-10-16.md)
+  their first physics application steps. After fixing path eligibility, two
+  full hosted parked sweeps pass native checks and compare byte-for-byte;
+  full T17 and calibrated combat floors remain open. See the [investigation](sim/docs/track-a-runtime-2026-10-16.md)
   ([sim #23](https://github.com/Thornbots/sim/pull/23)).
 
 - Experimental E2E relocalization now pairs captured EKF/raw inputs, preserves
