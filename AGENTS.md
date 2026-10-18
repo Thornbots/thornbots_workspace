@@ -7,8 +7,9 @@ Memory is disabled: do not read or write agent memory.
 
 ## Delegation
 
-Delegate well-specified, high-volume repetitive edits to lower-cost agents
-(Haiku/Luna). The delegating agent defines scope and acceptance checks,
+Delegate other tasks to a Sol agent (Codex `gpt-6.1-sol` via T3
+`delegate_task`) running on archlinux. Delegate well-specified, high-volume
+repetitive edits to lower-cost agents (Haiku/Luna). The delegating agent defines scope and acceptance checks,
 resolves ambiguity, then reviews the diff and runs the checks itself. It
 names other user-approved actions in the brief and owns asking the user.
 Delegated agents never wait on user input: they skip anything outside the
