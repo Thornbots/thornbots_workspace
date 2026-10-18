@@ -14,18 +14,11 @@ Updated 2026-10-06 from the user's confirmation.
 | `ts-nano-dev` | Jazzy flash complete (test box) |
 | `ts-nano-standard` | Not yet flashed; frozen Humble tree |
 
-**2026-10-18 — sentry nightly `4f9e73a`, Jetson-only checks:** compressed
-color 59.54 Hz, YOLO 59.07 Hz, visible-panel depth/tracking present, lidar
-11.13 Hz and localization 30.00 Hz. **Localization failed stationary testing:
-0.873 m EKF/map drift in 60 s; remains experimental.** Serial diagnostic
-PING had 3/10 unanswered and echoes delayed up to 3.52 s; old firmware
-semantics remain untrusted. Raw color/depth observer delivery was below
-60 fps; calibrated depth, aiming, firing and matched-firmware acceptance
-remain open. See the [dated investigation](investigations/sentry-nightly-jetson-2026-10-18.md)
-for revisions, raw evidence, latency, SSD/health measurements and limitations.
-This partial run does not establish promotion readiness. Other robots'
-hardware acceptance remains unverified. No comparable Humble hardware
-FPS/latency baseline is recorded here.
+**2026-10-18 — sentry validation remains partial; localization experimental.**
+See the [dated investigation](investigations/sentry-nightly-jetson-2026-10-18.md)
+for CV results, firmware flashes, workspace/build status and acceptance grades.
+SLAM scan rejection, localization drift and serial gaps remain open; this
+record does not establish promotion readiness or other robots' acceptance.
 
 Follow [Before flashing](#1-before-flashing) through [Our image](#8-our-image)
 for standard, then complete the [hardware checklist](#hardware-checklist).

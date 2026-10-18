@@ -1,12 +1,13 @@
 # Sentry nightly Jetson checks — 2026-10-18
 
-Jetson-only observation of the already-running sentry stack. No firmware
-flash, controller use, actuation, or MCB behavior changes. This is partial
-hardware evidence, not acceptance of aiming, firing, or matched firmware.
+The initial run observed the already-running Jetson stack without firmware
+changes, controller use or actuation. Later explicitly authorized firmware
+flashes and follow-ups are recorded below. This is partial hardware evidence,
+not acceptance of aiming, firing or controller interlocks.
 
 ## Configuration and evidence
 
-Workspace: `4f9e73a945c99292eaa869d4c38d44dc2b991d1e` (`nightly`, clean
+Initial workspace: `4f9e73a945c99292eaa869d4c38d44dc2b991d1e` (`nightly`, clean
 robot source tree). Runtime uses the image's `/workspaces/ros2_ws/install`,
 with `USE_WS_OVERLAY=false`, ROS domain 1, mapping and `use_rf2o:=true`.
 
@@ -32,9 +33,10 @@ kernel `6.8.12-1021-tegra`, MAXN_SUPER. TensorRT Python runtime: `10.16.2.10`.
 | firmware/MCBV3 source pin | `3f14d5b4e5c5ae06541229452af4338943d6e8ae` |
 
 The source firmware pin does **not** identify the firmware running on the
-MCB. The MCB still runs its previous firmware; its exact flashed revision
-is unknown. POSE/REF_SYS frame and semantic values remain untrusted until
-firmware matches. No controller-on tests were performed.
+MCB. During the initial run the MCB ran its previous firmware; its exact flashed
+revision was unknown. Initial POSE/REF_SYS frame and semantic values remain
+untrusted. The follow-up below identifies the subsequently flashed build.
+No controller-on tests were performed.
 
 Raw evidence is on archlinux at
 `/home/blaise/sentry-deploy/2026-10-18/jetson-validation/`:
@@ -257,7 +259,7 @@ frame split remains experimental. No localization or MCB behavior was changed.
   direct docker-exec graph enumeration remains incomplete and is not used
   as proof that nodes are missing.
 
-## Bugs and warnings
+## Initial bugs and warnings
 
 1. **Localization blocker:** stationary position drift quantified above.
    Approximate push cannot establish distance accuracy under this drift.
@@ -278,7 +280,7 @@ frame split remains experimental. No localization or MCB behavior was changed.
    example 359 readings, expected 500). Impact on saved-map integrity is
    untested; retain the journal and verify reload before map acceptance.
 
-## Sim-to-real differences and promotion
+## Initial sim-to-real differences and promotion
 
 - Hardware provides ~59.53 fps rather than an exact simulated 60 Hz; raw
   DDS observer delivery, USB warnings and real depth validity need separate
@@ -291,9 +293,217 @@ frame split remains experimental. No localization or MCB behavior was changed.
 - Cold boot without valid clock led to a deliberate clock-guard restart;
   battery exhaustion and USB disconnection were physical interruptions.
 - Hosted firmware fixtures cannot establish controller-loss behavior.
-  Controller/MCB behavior, aiming, firing and flashing were excluded.
+  Controller/MCB behavior, aiming, firing and flashing were excluded from
+  the initial observation; later flashes are recorded below.
 
-**Promotion: no-go from this record.** Localization drift, serial diagnostic
+**Initial promotion assessment: no-go.** Localization drift, serial diagnostic
 loss/delay, unresolved raw-depth delivery, calibrated depth and matched-firmware
 acceptance remain open. The user's promotion decision is separate. No main
 merge was performed by this investigation.
+
+## Authorized firmware follow-up — 20:10 UTC onward
+
+The user explicitly authorized the parked-hold fix build from
+[MCBV3 PR #97](https://github.com/Thornbots/MCBV3/pull/97), commit
+**`276e99e0144472d7225f8e0a39776d9749dd7f66`**, instead of raw nightly
+`3f14d5b`. No fallback artifact was used and no firmware source was changed.
+For this first flash the Jetson image/workspace stayed at the revisions above;
+the running localization stack was not reset around the MCB flash, so its previous state
+and absolute offsets persisted. Compare increments, not absolute positions.
+
+### Physical setup, backup and build
+
+The user confirmed controller OFF and staying off; wheels raised or chassis
+chocked; flywheel/indexer/gimbal clear. Motor/main power **remained on**.
+The connected probe was Horco CMSIS-DAP, VID:PID `faed:4870`, firmware v0.2,
+not ST-Link. A deployment-only copy of `isolated-deploy/openocd.cfg` selected
+`interface/cmsis-dap.cfg` and `transport select swd`; the repository source
+configuration was untouched. OpenOCD identified Cortex-M4, device
+`0x10076413`, 1024 KiB flash. It reported SWD at 2000 kHz.
+
+The pre-flash full backup is retained at:
+
+`/home/blaise/sentry-deploy/2026-10-18/firmware/mcb-before-276e99e-20261018.bin`
+
+Size: **1,048,576 bytes**. SHA-256:
+`3c2d8280bf2452d49dbda52fdf02445ce7447674135cd6669f96ea4399a398d9`.
+The saved `backup.log` ends after a halt-state warning and does not document
+successful dump/verify; the retained binary's size and checksum were checked.
+No new full backup was taken for either later flash.
+
+The initial build attempts failed on removed `telnetlib` and an RWX
+LOAD-segment warning. The successful build selected CI's Ubuntu linker;
+its build log and deployment-only OpenOCD config are retained beside the ELF.
+
+The flash began **20:10:51 UTC**. OpenOCD logged **Programming Finished**
+and **Verified OK**, then the deployment procedure issued `reset run`.
+ELF:
+
+`/home/blaise/sentry-deploy/2026-10-18/firmware/hold-fix-276e99e/MCB-project.elf`
+
+SHA-256:
+**`281ad265e459817d7ac3072896f59f2316d8dc347a5e1fb82c075137d5b67ce2`**.
+
+[Backup log](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/firmware/hold-fix-276e99e/backup.log),
+[successful build log](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/firmware/hold-fix-276e99e/build-ubuntu-linker.log),
+[flash/verify log](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/firmware/hold-fix-276e99e/flash.log)
+and the exact deployment config are retained beside the ELF.
+
+The user reported **“motors are all still off”** after reboot. No motion was
+reported and the controller remained off. Motor current was not independently
+instrumented; this is a physical observation, not proof of zero CAN current
+words. Disconnect/reconnect interlock acceptance remains outside this
+controller-off run.
+
+### Serial after flash
+
+PASS for the short diagnostic exchange: **10/10 PINGs** returned in
+**3.877120–10.808032 ms**, median **8.129328 ms**; none unanswered in the
+25.006 s sample. POSE and REF_SYS continued flowing.
+
+The subsequent two-minute sample received POSE at **87.006148 Hz** and
+REF_SYS at **9.668519 Hz**, including a serial interruption. Maximum receipt
+gaps were **4.008811 s** for POSE and **4.088794 s** for REF_SYS.
+At **20:14:09 UTC**
+the journal again logged `NO DATA ... ~1000 ms` and rf2o's missing odom-at-scan
+prior fallback. Therefore the initial good PING exchange does **not** close
+the intermittent serial-stability finding. Frame wiring/calibration accuracy
+is still unaccepted despite the known firmware revision.
+
+### Stationary chassis with moving people: graded stability result
+
+The robot was confirmed physically stationary while people moved nearby.
+**Raw MCB `/odom`: PASS**, exactly still over the 120 s analysis window.
+**rf2o/EKF/map stability in a dynamic scene: FAIL. Distance accuracy: UNTESTED.**
+The user skipped the clean stationary rerun and tape-measured push; neither
+is claimed here. The changing estimates below are software motion, with no
+reported chassis movement.
+
+Analysis uses a common 120 s interval beginning **20:12:28.719 UTC**, with
+per-topic received spans below. Moving people are part of this stability
+result; the data do not establish clean-scene drift or its cause.
+
+| Output | Messages / received span | Rate | Net reported displacement |
+| --- | --- | --- | --- |
+| `/odom` | 10,441 / 119.990248 s | 87.007071 Hz | **0.000000 m** |
+| `/scan_odom` | 1,335 / 119.867650 s | 11.128941 Hz | **2.065879 m** |
+| `/localization/odom` | 3,524 / 119.967848 s | 29.366202 Hz | **2.022134 m** |
+| `/localization/map_odom` | 3,525 / 119.995610 s | 29.367741 Hz | **2.022808 m** |
+
+POSE stayed at `(-4.625, 0)` m, `odom_status=ODOM_PODS` for all 10,440
+samples. Accumulated XY paths were 0 m raw, 9.484391 m rf2o and about
+2.300 m EKF/map. Moving people can confound scan matching; robust
+rejection/uncertainty handling remains open. The stability failure does not
+assign a root cause or establish physical distance accuracy.
+The old-firmware initial drift result above is a separate historical window;
+its lidar-scene control was not independently documented.
+
+Decoded `/scan_odom/quality` (1,336 messages, 11.130078 Hz):
+
+| Grade / reason | Count |
+| --- | --- |
+| good | 976 (73.05%) |
+| degraded total | 360 (26.95%) |
+| degraded: valid_fraction | 315 |
+| degraded: valid_fraction,sigma | 2 |
+| degraded: extrinsic_stale | 27 |
+| degraded: valid_fraction,extrinsic_stale | 16 |
+| failed | 0 |
+
+All 1,336 reported `applied=true`, `increment=scan`; 43 flagged stale
+extrinsics. Valid-point fraction min/median/max: **0.432787 / 0.527869 /
+0.568852**. Reported speed median **0.062480 m/s**, p95 **0.277872 m/s**,
+max **0.754533 m/s**. Quality was mostly good despite aggregate false motion;
+its internal match grade is not ground-truth position confidence.
+
+### Confirmed SLAM beam-count rejection / sim-to-real gap
+
+Still present after flash: repeated
+`LaserRangeScan contains 356 range readings, expected 580` (also 343–359
+in the journal). The observer received **1,335 scans with 340–361 beams**;
+none had 580. Angular increments also varied **0.017152745–0.017601019 rad**.
+
+In [Karto 2.8.5 LaserRangeFinder::Validate](https://github.com/SteveMacenski/slam_toolbox/blob/2.8.5/lib/karto_sdk/src/Karto.cpp#L209),
+the exact message is followed by `return false` when the incoming count
+differs from the registered sensor count. Thus these are rejected scans,
+not harmless log noise. Logs alone do not quantify all rejected scans or
+prove no map updates occurred. Fixed-beam simulated scans do not exercise
+this variable-count hardware registration problem. Normalize/validate scan
+geometry or sensor registration in a separate change, then verify map updates
+and saved-map reload on hardware. The suspected cause is `angle_compensate`
+being false in `thornbots_pkg/launch/auto.launch.py`; that setting is under
+test. SLAM scan rejection remains open in this record.
+
+[Full post-flash journal](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/jetson-validation/postflash-final-journal.txt),
+[decoded raw messages](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/jetson-validation/20261018T201227Z-postflash-stationary.jsonl),
+[diagnostic PING results](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/jetson-validation/20261018T201154Z-postflash-serial.json)
+and [processed measurements](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/jetson-validation/postflash-analysis.json)
+are retained with the collector and analysis sources. The saved analysis's
+`NOT SCORED` verdict predates the delegating agent's revised grades above;
+its measurements are retained unchanged. The finite observers
+exited; the original stack remained active with `NRestarts=1` (the earlier
+clock-guard restart), and no manual stack restart was performed.
+
+## Later firmware flashes and controller-off checks
+
+[MCBV3 #97](https://github.com/Thornbots/MCBV3/pull/97) and
+[workspace #63](https://github.com/Thornbots/thornbots_workspace/pull/63)
+are closed as superseded by [MCBV3 #98](https://github.com/Thornbots/MCBV3/pull/98).
+The first flash above remains part of today's history. The replacement
+restores main's parked hold: main's controller-on hold is the behavior already
+confirmed on the real robot, per the delegating agent's verified report.
+Today's follow-ups kept the controller off and do not repeat that acceptance.
+
+Both later ELFs were programmed and verified with OpenOCD via CMSIS-DAP;
+each `flash.log` records **Programming Finished** and **Verified OK**.
+
+| Flash start (UTC) | MCBV3 source commit | ELF SHA-256 |
+| --- | --- | --- |
+| 20:59:02 | `412d10268844e50834c0ae368a3721397d38fd8f` | `45c2efd8663a07b2e2c5a1e6d949cd74ded3c35630ff44de414e71a26715fac1` |
+| 21:17:59 | `0e421d8484f44644f133979b3d6745c4e943053a` (#98 head) | `60490d955e543e7cea6a087a2fda8b634b6063672185f10a0d4c645c6f19555e` |
+
+At `0e421d8`, sentry drivetrain and controls match main exactly, as described
+in #98. Source IDs, timestamps, checksums and flash logs are retained in
+[restore-main-412d102](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/firmware/restore-main-412d102/)
+and [main-only-0e421d8](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/firmware/main-only-0e421d8/).
+The former's `backup.log` records a failed CMSIS-DAP probe attempt, not a new
+backup; the pre-first-flash binary above remains the full backup.
+
+The delegating agent verified that after each flash bridge POSE resumed at
+about **90 Hz** following an approximately **15 s** reset gap. Separate saved
+raw `/odom` captures confirm exactly constant x **−4.625 m**, y **0 m**, yaw
+**0 rad** and zero twist, with the controller off:
+
+| Firmware | Samples | Header-stamp span | Result / evidence |
+| --- | --- | --- | --- |
+| `412d102` | 2,000 | 22.267073 s | PASS: still; [CSV](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/postflash-412d102/odom.csv) |
+| `0e421d8` | 3,000 | 33.316804 s | PASS: still; [CSV](ssh://archlinux/home/blaise/sentry-deploy/2026-10-18/firmware/main-only-0e421d8/odom.csv) |
+
+These short raw-odom checks do not regrade rf2o/EKF/map or measure distance
+accuracy. Controller-on, aiming and firing tests were not performed here.
+
+## Robot workspace and full build follow-up
+
+Per the delegating agent's verified report, the robot source workspace was
+updated to nightly **`6f7a166`**; `sim` and `firmware/MCBV3` were deinited and
+marked inactive on the Jetson. A full workspace build in a throwaway
+container from the robot image passed **19/19 packages**, **`BUILD_RC=0`**, in
+about **8 min**. Only vendored sllidar SDK warnings and GCC psabi notes were
+reported. These build and deployment details are attributed to that report;
+the local evidence set does not contain their build log.
+
+The image remains the initial **`sha-4f9e73a…`** image identified above: pulling
+the `6f7a166` image failed because the robot had no ghcr login. The workspace
+diff from `4f9e73a` to `6f7a166` contains CHANGELOG documentation and an
+`isaac_ros_common` pin update whose package diff changes only README files;
+the effective change is docs-only. A successful source build does not imply
+that a new runtime image was installed.
+
+## Remaining acceptance
+
+Flash/verify, the short diagnostic PING exchange and raw-odom stillness passed.
+Dynamic-scene rf2o/EKF/map stability failed; physical distance accuracy remains
+untested. SLAM scan rejection, rf2o/EKF stationary drift and intermittent
+POSE/REF_SYS gaps remain open. See [ROADMAP](../ROADMAP.md) for ongoing work.
+Raw image delivery and calibrated depth also remain unresolved. This record
+does not establish promotion readiness. No main merge was performed here.
