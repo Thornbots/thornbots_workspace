@@ -37,14 +37,20 @@ until after the Midwest competition.
 
 ### A. The match test
 
-- **T17 — sim / localization / thornbots_pkg — open:** Repeat remaining stage/backend gates
-  and the board parked sweep; original EKF rejection remains unproved. The path
-  timing fix passes three byte-identical full hosted sweeps; stationary Mac controls
-  and prior-profile localization regressions pass. [Evidence and remaining work](../sim/docs/track-a-runtime-2026-10-16.md).
+- **T17 — sim / localization / thornbots_pkg — open:** Complete remaining stage/backend gates
+  and the board parked sweep; original EKF rejection remains unproved. Reconciled
+  stationary repeats, RTF=1 and Gazebo CPU2 controls compare exactly; whole-launch
+  CPU2 retains a lifecycle startup failure. Hosted match repeats have identical
+  hit sequences but fail strict log comparison on continuous diagnostics.
+  Earlier full parked proofs and localization checks
+  retain their historical pins. [Current evidence and remaining work](../sim/docs/track-a-reconciled-2026-10-18.md).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
-- **A-combat — sim / thornbots_pkg — open:** Resolve the hosted match hit-rate regression
-  (52.63% vs nightly 55.05%, three pooled runs), then calibrate board/hosted floors
-  after T17; match remains diagnostic tier. Retain navigation startup failures and rejected profiles in the
+- **A-combat — sim / thornbots_pkg — open:** Resolve defeated-target firing and define
+  combat acceptance before calibrating board/hosted floors after T17. Fresh
+  common-firmware match differences do not establish a regression or win given
+  observed run noise; damage-hit rate also counts firing at defeated targets.
+  [Comparison and diagnosis](../sim/docs/track-a-reconciled-2026-10-18.md#match-diagnosis).
+  Match remains diagnostic tier. Retain navigation startup failures and rejected profiles in the
   [acceptance record](../sim/docs/track-a-stamped-inputs-2026-10-14.md).
   [Diagnostic design](../sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 

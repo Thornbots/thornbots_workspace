@@ -31,6 +31,11 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Track A acceptance now separates the fresh common-firmware match comparison
+  from historical pools, reports run-level noise and retains defeated-target
+  firing and strict repeatability as open gates
+  ([reconciled checks](sim/docs/track-a-reconciled-2026-10-18.md)).
+
 - Refresh the Track A lockstep stack onto nightly, preserving newer package
   and firmware pins. Aiming keeps capture-stamped TF and consumption receipts
   while firmware owns hit reactions and each CV frame gates them by estimate

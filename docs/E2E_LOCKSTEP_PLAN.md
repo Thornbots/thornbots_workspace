@@ -1,12 +1,15 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: partial implementation (2026-10-15).** The done bar below is not
-met. The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
+**Status: partial implementation (2026-10-18).** The done bar below is not
+met. Reconciled hosted match runs pass native checks with identical hit
+sequences, but strict logs still differ in continuous diagnostics
+([current evidence](../sim/docs/track-a-reconciled-2026-10-18.md)).
+The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
-outputs ([motor plant](../sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
-and deterministic bring-up remain open. An opt-in sim-time UART fixture has
-byte-deadline and bridge-stamp tests; its first whole-stack attempt was
+outputs ([motor plant](../sim/README.md#mcb-emulator)). Completion of UART,
+consumption-chain and deterministic bring-up gates remains open. The opt-in sim-time UART fixture has
+byte-deadline and bridge-stamp tests; its historical first whole-stack attempt was
 [rejected for late outgoing delivery](../sim/docs/track-a-uart-2026-10-15.md).
 E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
