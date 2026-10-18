@@ -330,6 +330,11 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Sentry parked chassis hold cuts motor current and clears its saved position
+  when the controller disconnects; reconnect holds the current position.
+  Hosted disconnect/reconnect regression tests pass; physical validation and
+  the other controller interlock findings remain open. See
+  [MCBV3 276e99e](https://github.com/Thornbots/MCBV3/commit/276e99e0144472d7225f8e0a39776d9749dd7f66).
 - Native harnesses keep service responses while reading results and shut down
   cleanly after the ROS context stops; CI disables background Git maintenance
   before cleanup, and `COLCON_IGNORE` keeps host startup helpers out of
