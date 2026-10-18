@@ -1,7 +1,7 @@
 # isaac_ros-dev workspace
 
 Call out code that doesn't follow standard practice. CV detection/tracking
-comes first; [game context](ARCC_2026_SENTRY_CONTEXT.md) defines the field.
+comes first; [game context](docs/ARCC_2026_SENTRY_CONTEXT.md) defines the field.
 Use terse bullets for status/checklists; give rationale when asked.
 Memory is disabled: do not read or write agent memory.
 
@@ -79,8 +79,8 @@ or dated investigations linked to current status.
 | Usage and design | Owning package's `README.md` |
 | Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
 | Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
-| Hardware/migration status | [JAZZY_FLASH](JAZZY_FLASH.md#hardware-status) |
-| Open work | [ROADMAP](ROADMAP.md) |
+| Hardware/migration status | [JAZZY_FLASH](docs/JAZZY_FLASH.md#hardware-status) |
+| Open work | [ROADMAP](docs/ROADMAP.md) |
 | Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
 | Defaults/message fields | Source declarations |
 

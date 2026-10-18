@@ -7,15 +7,13 @@ every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
 more work, and stays only for robots not yet reflashed to JetPack 7.2.
 A GitHub ruleset makes it read-only (no pushes or deletion, admins
 included); the repos still unlocked are listed in
-[ROADMAP T36](ROADMAP.md#short-todos).
+[ROADMAP T36](docs/ROADMAP.md#short-todos).
 
 `nightly` integrates changes across the workspace and all eleven package repos.
 On this branch, `.gitmodules` tracks each package's `nightly` branch while
 keeping exact commit pins. [CHANGELOG.md](CHANGELOG.md) records unreleased
 changes to carry into `main`; update it when adding work to nightly.
 
-[Nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md) records
-the tested revisions, results, coverage limits, and commands to reproduce them.
 ## Working with submodules
 
 Each package is a submodule:
@@ -68,9 +66,9 @@ this repo's branch bumping the gitlinks. Follow the
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
-Start with [ROADMAP.md](ROADMAP.md) for open work and links to its plans,
-[JAZZY_FLASH.md](JAZZY_FLASH.md) for migration status, robot checks and reflashing.
-[ARCC_2026_SENTRY_CONTEXT.md](ARCC_2026_SENTRY_CONTEXT.md) covers competition
+Start with [ROADMAP.md](docs/ROADMAP.md) for open work and links to its plans,
+[JAZZY_FLASH.md](docs/JAZZY_FLASH.md) for migration status, robot checks and reflashing.
+[ARCC_2026_SENTRY_CONTEXT.md](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
 rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
 identifies where shared information belongs; link there instead of copying it.
 

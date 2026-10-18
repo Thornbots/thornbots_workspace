@@ -7,7 +7,28 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+### Added
+
+- Six English RoboMaster 2027 PDF editions and their original Chinese sources,
+  linked from the [translation index](docs/rules/rm2027/README.md), with a
+  reproducible renderer and English flowcharts. Completed the RMUC page review
+  and translated contents lists across the full document set.
+
+- Unofficial English translations of the RoboMaster 2027 RMUL and RMUC
+  Rules and Participant manuals, the shared Robot Building Specifications
+  Manual and the rule-change preview, checked against rendered pages. The RMUL
+  Rules Manual includes translated contents, table and figure lists. The game context
+  gains an [RMUL 2027 summary](docs/ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
+  of Sentry, field and armor changes. See the
+  [translation index](docs/rules/rm2027/README.md).
+
 ### Changed
+
+- Refresh the Track A lockstep stack onto nightly, preserving newer package
+  and firmware pins. Aiming keeps capture-stamped TF and consumption receipts
+  while firmware owns hit reactions and each CV frame gates them by estimate
+  availability ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
+  [workspace #50](https://github.com/Thornbots/thornbots_workspace/pull/50)).
 
 - Experimental lockstep drive/match activation waits for the fixed 2 s
   boundary so raw odometry can overlap AMCL's initially future-dated map TF.
@@ -58,6 +79,50 @@ impact, and link the corresponding package changes.
   [investigation](sim/docs/track-a-stamped-inputs-2026-10-14.md)
   ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
   [sim #23](https://github.com/Thornbots/sim/pull/23)).
+- isaac_ros_common's README now links this fork's clone, image and Mac
+  setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
+  Standalone MCB flashing points at this repo's GitHub CI ELF artifacts and
+  the current build path instead of GitLab
+  ([MCBV3 #95](https://github.com/Thornbots/MCBV3/pull/95)).
+
+- Add opt-in tracker innovation diagnostics and estimation-bench radius/prior
+  controls. G.1 trials expose regressions in the full matrix, so tracker tuning,
+  validity and estimation limits stay unchanged; defaults are numerically
+  identical to before. See
+  [tracker #16](https://github.com/Thornbots/thornbots_pkg/pull/16),
+  [sim #25](https://github.com/Thornbots/sim/pull/25) and the
+  [dated investigation](sim/docs/cv-estimation-g1-2026-10-15.md).
+
+- English RoboMaster PDFs now preserve each Chinese source's page count,
+  page breaks, tables and artwork positions. Contents, table and figure lists
+  link to their destination pages; source-region translations prevent reflow
+  from moving material onto different pages.
+
+- Move standalone workspace reference documents into `docs/` and update
+  incoming links in the workspace and its packages. Conventional root files
+  (README, CHANGELOG, AGENTS and CLAUDE) stay at the repository root.
+
+- Complete T31 reporting: firmware retains the latest hit through control cycles
+  until a complete REF_SYS write reports it. The report uses radians relative
+  to the current chassis heading, positive CCW; the next report uses 123 until
+  another hit. One-cycle control/UI reactions remain independent of this latch.
+  See [firmware latch](https://github.com/Thornbots/MCBV3/pull/94),
+  [emulator tests](https://github.com/Thornbots/sim/pull/22),
+  [wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ref_sys-id3--referee-system-status)
+  and [T31 validation](sim/docs/t31-hit-contract-2026-10-14.md).
+
+- Pair the chassis-relative firmware hit-angle correction with per-frame Jetson
+  hit-turn permission. Any held target estimate, including coasting/predicted
+  tracks, clears `turn_to_hit`; no estimate, including patrol, permits it without
+  a cooldown. Remove the incorrect gun-relative Jetson hit reaction. See
+  [thornbots_pkg #14](https://github.com/Thornbots/thornbots_pkg/pull/14) and its
+  [three-run hosted comparison](thornbots_pkg/docs/hit-permission-2026-10-15.md).
+
+- REF_SYS hit angles now use radians relative to the current chassis heading,
+  positive CCW, with firmware and hosted UART tests at nonzero head and chassis
+  yaw. The wire payload is unchanged.
+  See [firmware correction](https://github.com/Thornbots/MCBV3/pull/93) and
+  [hit-angle contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ref_sys-id3--referee-system-status).
 
 - E2E GUI stages use a dedicated RViz view and scene-only gz layout. The
   sim recorder produces synchronized 1080p H.264 demos retimed from `/clock`,
@@ -185,7 +250,7 @@ impact, and link the corresponding package changes.
   [firmware verification](sim/docs/patrol-flag-2026-10-11.md).
 
 - A fresh clone stays on the pinned package commits; the README and
-  [JAZZY_FLASH](JAZZY_FLASH.md#8-our-image) no longer check out every
+  [JAZZY_FLASH](docs/JAZZY_FLASH.md#8-our-image) no longer check out every
   submodule's branch tip. Start work with `git switch -c` in the package. See
   [Working with submodules](README.md#working-with-submodules).
 
@@ -296,8 +361,8 @@ impact, and link the corresponding package changes.
   upstream poses must carry a real stamp. See
   [thornbots_pkg 61725e1](https://github.com/Thornbots/thornbots_pkg/commit/61725e1).
 - MCBV3 uses HitTracker for hit reactions and the UI hit ring. `CV_TARGET`
-  bit 2 enables a 500 ms hit turn that can interrupt a live CV aim. Per-frame
-  gating (T31) and HitTracker's radian scaling remain open; see
+  bit 2 enables a 500 ms hit turn during no-estimate patrol. Per-frame
+  gating, radian scaling and report latching were completed by T31 above; see
   [firmware limitations](ros2_dji_serial_bridge/README.md#where-the-firmware-stands)
   and [MCBV3 529fc4e](https://github.com/Thornbots/MCBV3/commit/529fc4e).
 - MCBV3 drops the hopper lid indicator and Ctrl-only lid closing. The old
@@ -307,12 +372,12 @@ impact, and link the corresponding package changes.
   hosted. See [MCBV3 33e853e](https://github.com/Thornbots/MCBV3/commit/33e853e).
 - `humble` is read-only in thornbots_workspace, sentry_localization, sim and
   thornbots_pkg (a ruleset blocks pushes and deletion, admins included); other
-  repos are in [ROADMAP T36](ROADMAP.md#short-todos).
+  repos are in [ROADMAP T36](docs/ROADMAP.md#short-todos).
 - Workspace merges no longer advance package branches automatically; merge
   package PRs first. See
   [coordinated package integration](docs/CI.md#coordinated-package-integration).
 - Docs: migration and hardware status consolidated in `JAZZY_FLASH.md`, CV
-  interfaces in package READMEs and open work in `ROADMAP.md`; package
+  interfaces in package READMEs and open work in `docs/ROADMAP.md`; package
   guidance updated for compiled firmware, match-stage patrol and saved-map
   startup.
 - rf2o repository CI integrated with repaired workflow pins. See
@@ -354,8 +419,8 @@ impact, and link the corresponding package changes.
 - Fake interfaces are active only in hosted builds. Physical motor dynamics,
   STM32 timing, boot calibration and projectile exit are outside the test
   boundary; none of this was flashed or verified on a physical robot.
-- Results and revisions: [nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md),
+- Results and revisions: [nightly validation, 2026-10-06](https://github.com/Thornbots/thornbots_workspace/blob/6bd0692ddd6f553a156eab624f7c85975c501136/docs/testing/nightly-2026-10-06.md),
   the 2026-10-08 sim sweep in
   [workspace e0f2425](https://github.com/Thornbots/thornbots_workspace/commit/e0f2425) (open problems in
-  [ROADMAP issues](ROADMAP.md#issues-found)), and firmware validation at
+  [ROADMAP issues](docs/ROADMAP.md#issues-found)), and firmware validation at
   [MCBV3 a2ea519](https://github.com/Thornbots/MCBV3/commit/a2ea519).
