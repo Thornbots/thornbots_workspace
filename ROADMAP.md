@@ -31,11 +31,12 @@ until after the Midwest competition.
 
 - **T17 — sim / localization / thornbots_pkg — open:** Repeat remaining stage/backend gates
   and the board parked sweep; original EKF rejection remains unproved. The path
-  timing fix passes two byte-identical full hosted sweeps; stationary Mac controls
+  timing fix passes three byte-identical full hosted sweeps; stationary Mac controls
   and prior-profile localization regressions pass. [Evidence and remaining work](sim/docs/track-a-runtime-2026-10-16.md).
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when).
-- **A-combat — sim / thornbots_pkg — open:** Calibrate board/hosted drive and match floors after T17; match remains
-  diagnostic tier. Retain navigation startup failures and rejected profiles in the
+- **A-combat — sim / thornbots_pkg — open:** Resolve the hosted match hit-rate regression
+  (52.63% vs nightly 55.05%, three pooled runs), then calibrate board/hosted floors
+  after T17; match remains diagnostic tier. Retain navigation startup failures and rejected profiles in the
   [acceptance record](sim/docs/track-a-stamped-inputs-2026-10-14.md).
   [Diagnostic design](sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 
