@@ -43,6 +43,9 @@ impact, and link the corresponding package changes.
 - Construct localization backends and their lifecycle managers in one process
   to avoid startup service-response discovery races, and remove the drift suite's
   automatic robot restart. Startup errors identify the missing TF link.
+  The sim clock bridge now uses UDP-only DDS so a stale shared-memory reader
+  port cannot block global time publication; a focused clock-delivery test
+  checks fresh contexts and the transport invariant.
   Portable CI dependency pins now follow the integrated current UART contract. See
   [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
   [sim #26](https://github.com/Thornbots/sim/pull/26) and

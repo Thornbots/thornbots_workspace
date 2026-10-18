@@ -1,8 +1,10 @@
-# T30: localization startup, 2026-10-15–16
+# T30: localization startup, 2026-10-15–17
 
-Status: PRs remain draft. The alternating follow-up leaves the pooled drive rate
-0.09 percentage points lower and exposes an additional EKF clock-start stall in
-the fixed full drift suite. See the follow-up below for the current disposition.
+Status: PRs remain draft pending full drift acceptance. The orchestrator accepted
+drive non-regression: both pooled cohorts have eleven misses and the ranking
+reverses between cohorts. The clock follow-up identifies a blocked Fast DDS SHM
+publication in the global clock bridge and removes that transport path. See
+[clock follow-up](#clock-transport-follow-up-2026-10-17) for current evidence.
 Package changes: [localization #9](https://github.com/Thornbots/sentry_localization/pull/9)
 and [sim #26](https://github.com/Thornbots/sim/pull/26).
 
@@ -314,3 +316,135 @@ fixed full drift rerun exposes an unresolved EKF clock-start bring-up stall.
 Investigate that owner path and obtain full-suite acceptance before promotion;
 do not add a retry or weaken the accuracy limits. No runtime change was made
 in this follow-up, and both package heads remain unchanged.
+
+## Clock transport follow-up, 2026-10-17
+
+The earlier hold recommendation is superseded here. The orchestrator accepted
+the pooled drive comparison; the remaining requested gates are two full 9/9
+drift suites and three drive confirmations after diagnosing the clock stall.
+
+### Clock wait and transport evidence
+
+The two previously archived nightly drift cohorts logged `Waiting for clock to
+start` in all nine scenarios and continued. That message alone is normal during
+startup. EKF is still a separate `robot_localization` process with its own ROS
+context and clock subscription; the static backend's executors do not spin it.
+One hundred fresh EKF starts with a plain clock publisher and one hundred with
+the Gazebo bridge all initialized. An additional 1,000 in-process clock waits
+completed. None of these probes reproduced an intrinsic clock-wait wakeup bug.
+
+A full fixed-backend diagnostic reproduced the failure: five scenarios passed,
+then four consecutive scenarios failed startup without retries. An independent
+observer saw the last `/clock` value freeze at 202.512 s; its clock age grew to
+162 s. EKF was blocked in `rclcpp::Clock::wait_until_started`. The clock bridge's
+Gazebo callback was blocked in `SharedMemTransport::push_discard`, beneath DDS
+publication. Its mutex address `0xf9f3e32f8188` falls inside the mapped interval
+`0xf9f3e32f3000–0xf9f3e3300000` for the deleted
+`/dev/shm/fastrtps_port41943`. DDS discovery threads were waiting behind the
+publisher's locks. This is a blocked global publisher, not an EKF executor
+waiting to process an otherwise advancing clock.
+
+The installed Fast DDS 2.14.6 source acquires the port's `empty_cv_mutex` in
+[`SharedMemGlobal::Port::try_push`](https://github.com/eProsima/Fast-DDS/blob/v2.14.6/src/cpp/rtps/transport/shared_mem/SharedMemGlobal.hpp#L521).
+Deleted mappings identify departed port lifetimes; they do not establish which
+process deleted the file or the exact interleaving that stranded the mutex.
+The latter was not captured, so this investigation does not attribute deletion
+to logind, a suite cleanup script, or another container.
+
+A subsequent full nightly-backend diagnostic passed 9/9, with maximum observer
+clock age 0.854 s. Eight scenarios logged the initial clock wait and recovered.
+Thus the fatal runtime stall has been captured only with the fixed backend;
+it has **not** been reproduced on nightly. The bridge implementation and SHM
+transport are unchanged between backends. The backend-free focused comparison
+below confirms that nightly already exposes this shared-memory publication
+path. Composition can change participant churn and scheduling, but it neither
+owns the bridge nor introduces that transport hazard. Treat this as a common
+transport vulnerability exposed by the new launch timing, rather than claiming
+an observed nightly stall or proving that composition has no timing effect.
+
+### Fix and focused check
+
+Sim commit `fcb998e` pins only the clock bridge to the existing
+`thornbots_pkg/config/fastdds_udp_only.xml`. The same node factory serves the
+full sim launch and a focused bridge launch; the original process-start event
+and two-second robot-spawn delay remain intact. The discovery peers, `/clock`
+QoS, Gazebo timestamps, EKF/backend settings, timeouts and no-retry policy are
+unchanged. Existing readers can use UDP even when they also enable SHM.
+
+The registered C++ `test_clock_bridge` supplies Gazebo clock messages without a
+world or localization backend, creates five fresh ROS contexts in sequence,
+requires each clock to start and advance, checks that the bridge maps no
+Fast DDS SHM ports, and requires clean shutdown. With the original bridge
+transport it receives time but fails the SHM invariant; with the fix it passes.
+This checks the removed failure path without relying on a stochastic deadlock.
+
+### Acceptance runs
+
+Runs reuse `thornbots_t30_clock_20261016` on the already-running shared Colima
+VM (six CPUs, 8 GiB). The default Docker context has a dead socket; commands use
+the `colima` context. Track A and the user's containers are left untouched.
+Each run records VM load once per wall second. Host load at confirmation setup
+was 8.52 / 5.47 / 3.26; shared-machine load is a timing confounder.
+
+The first full fixed drift suite completed 8/9 with **zero startup failures**.
+`scan_degraded` reached scoring; `real_accel` failed the unchanged 0.4 m bound
+at 2.4695 m. Its measured chassis yaw was −109.47 to −103.77 degrees rather
+than the nominal −90 degrees. This is a scored accuracy failure, not a clock
+wait. It is retained and is not replaced by a retry.
+
+| Full fixed drift run | Result | Startup failures | `scan_degraded` truth error before / during / after | VM load start / max |
+| --- | --- | --- | --- | --- |
+| 1 | 8/9; `real_accel` accuracy failure | 0/9 | 0.2093 / 0.4239 / 0.2568 m | 4.26 / 25.12 |
+| 2 | 9/9; native checker passes | 0/9 | 0.2650 / 0.4538 / 0.3091 m | 12.79 / 26.23 |
+
+Both `scan_degraded` cases pass their unchanged 0.4 / 0.5 / 0.4 m limits.
+There are no lifecycle-response timeouts or clock-start failures in these
+eighteen fixed startups. Two full 9/9 results have **not** been obtained. The
+`real_accel` yaw excursion's cause is not established; estimator tuning and
+accuracy-floor changes are outside this clock fix.
+
+The clock change can affect drive timing, so three nightly/fixed drive pairs
+ran alternately with the same robot `e54361a`, firmware `ad13759`, hosted
+backend, lockstep, zero target translation/spin and existing default duration.
+The nightly side restores the original localization launch and clock transport;
+the sim no-retry harness remains common. Neither source is edited mid-run.
+
+| Drive attempt | Nightly hits/shots | Fixed hits/shots | Nightly VM load start / max | Fixed VM load start / max |
+| --- | --- | --- | --- | --- |
+| 1 | 30/32 | 26/30 | 23.13 / 23.13 | 17.72 / 19.73 |
+| 2 | Startup failure; unscored | 30/32 | 18.71 / 24.40 | 21.23 / 21.23 |
+| 3 | 25/29 | 31/34 | 20.16 / 20.16 | 14.89 / 16.87 |
+
+All three fixed runs pass native checks, with zero startup failures and zero
+lockstep timeouts. The two scored controls also pass with zero lockstep
+timeouts. The unscored control is retained as a startup failure:
+AMCL completed configuration but could not send its `/amcl/change_state`
+response. That reproduces the original lifecycle fault, not the clock stall.
+No replacement attempt was run. Scored totals are nightly 55/61 (90.16%) and
+fixed 87/96 (90.63%); these unequal small cohorts provide confirmation, not a
+new calibrated accuracy floor. Startup failures are 1/3 nightly and 0/3 fixed.
+
+Final sim head is `6a97660` (the follow-up adds explicit test headers only).
+The focused clock test plus registered copyright/flake8/pep257 checks pass:
+four tests, zero failures. Host Python 3.12 quality checks and actionlint pass
+for sim and workspace with zero new diagnostics and no baseline growth; changed
+local documentation paths and the new anchor resolve. The sim PR's lint job is
+green. [Portable ROS validation at the implementation commit](https://github.com/Thornbots/sim/actions/runs/39084258551)
+is recorded separately from PR lint; PRs into nightly intentionally skip ROS.
+Localization code remains at its previously validated `6822eeb`.
+
+**Merge recommendation: keep all three PRs draft.** The clock failure path is
+removed and the requested drive confirmations pass, but the required pair of
+9/9 full drift results is not met. Investigate `real_accel`'s scored yaw/position
+excursion before declaring full acceptance. The exact natural interleaving that
+stranded the old SHM mutex, and a fatal clock-stall reproduction on nightly,
+remain unproven; the captured transport block and removed SHM path are the
+evidence for this narrowly scoped fix.
+
+Raw clock diagnosis, both full drift runs (including the failed one), all six
+drive attempts, per-second VM load, focused before/after checks and final test
+reports are preserved in
+`/Users/blaise/ros2_t30_clock_evidence_20261017.tar.gz`, with a SHA-256 sidecar.
+Earlier archives remain separate. Only the T30 clock container and isolated
+checkout are cleaned up; shared Colima, Track A and the user's container remain
+running.
