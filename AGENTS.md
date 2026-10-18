@@ -9,6 +9,8 @@ Memory is disabled: do not read or write agent memory.
 
 Delegate other tasks to a Sol agent (Codex `gpt-6.1-sol` via T3
 `delegate_task`, medium reasoning, Standard tier) running on archlinux.
+Never pick the Fast tier; if the user asks for it, push back once with the
+cost, then use it if they still want it.
 Delegate well-specified, high-volume repetitive edits to lower-cost agents
 (Haiku/Luna). The delegating agent defines scope and acceptance checks,
 resolves ambiguity, then reviews the diff and runs the checks itself. It
