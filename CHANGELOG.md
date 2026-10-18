@@ -31,6 +31,66 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Track A acceptance now separates the fresh common-firmware match comparison
+  from historical pools, reports run-level noise and retains defeated-target
+  firing and strict repeatability as open gates
+  ([reconciled checks](sim/docs/track-a-reconciled-2026-10-18.md)).
+
+- Refresh the Track A lockstep stack onto nightly, preserving newer package
+  and firmware pins. Aiming keeps capture-stamped TF and consumption receipts
+  while firmware owns hit reactions and each CV frame gates them by estimate
+  availability ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
+  [workspace #50](https://github.com/Thornbots/thornbots_workspace/pull/50)).
+
+- Experimental lockstep drive/match activation waits for the fixed 2 s
+  boundary so raw odometry can overlap AMCL's initially future-dated map TF.
+  Parked timing and acceptance thresholds are unchanged
+  ([sim #23](https://github.com/Thornbots/sim/pull/23)).
+
+- The acknowledged simulator path fixture queues captures for the following
+  physics step and waits for current path publication before cell parameter
+  resets. Regression tests cover early, late and out-of-order deliveries
+  ([sim #23](https://github.com/Thornbots/sim/pull/23)).
+
+- E2E diagnostic ledgers retain detection geometry, target path commands and
+  their first physics application steps. After fixing path eligibility, two
+  full hosted parked sweeps pass native checks and compare byte-for-byte;
+  full T17 and calibrated combat floors remain open. See the [investigation](sim/docs/track-a-runtime-2026-10-16.md)
+  ([sim #23](https://github.com/Thornbots/sim/pull/23)).
+
+- Experimental E2E relocalization now pairs captured EKF/raw inputs, preserves
+  correction application stamps and holds UART decision delivery. Paused
+  startup waits for both sides of the first MCB tick connection; raw-input
+  failures identify missing acknowledgments and exact transform waits. Default
+  robot settings are unchanged; see the
+  [acceptance record](sim/docs/track-a-uart-2026-10-15.md#rejected-stationary-attempts-and-relocalization-barrier)
+  ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
+  [bridge #14](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/14)).
+
+- E2E can opt into modeled UART byte deadlines and capture-stamped bridge
+  packets, paused startup, fixed detector captures and exact path/CV/POSE
+  consumption acknowledgments. Late delivery rejects the experiment;
+  localization and complete repeatability gates remain open. See the
+  [investigation](sim/docs/track-a-uart-2026-10-15.md)
+  ([bridge #14](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/14),
+  [sim #23](https://github.com/Thornbots/sim/pull/23)).
+
+- The experimental E2E localization profile orders captured inputs through
+  the installed EKF, waits for strict scan prerequisites, seeds lidar noise,
+  and holds fixed scoring windows. Three stationary repeats compare exactly;
+  remaining stage/backend gates and calibration stay open. See
+  [measurements](sim/docs/track-a-uart-2026-10-15.md#ordered-localization-and-fixed-scoring)
+  ([localization #7](https://github.com/Thornbots/sentry_localization/pull/7),
+  [rf2o #9](https://github.com/Thornbots/rf2o_laser_odometry/pull/9)).
+
+- E2E disables latest-TF fallback, requires its counter to be present and zero,
+  and records stamped CV/odometry inputs. The aimer retains a usable same-track
+  state while newer stamped TF arrives. Run comparison rejects empty evidence;
+  repeat auditing preserves startup failures, source pins and rejected controls.
+  T17 and combat-floor calibration remain open. See the
+  [investigation](sim/docs/track-a-stamped-inputs-2026-10-14.md)
+  ([thornbots #15](https://github.com/Thornbots/thornbots_pkg/pull/15),
+  [sim #23](https://github.com/Thornbots/sim/pull/23)).
 - isaac_ros_common's README now links this fork's clone, image and Mac
   setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
   Standalone MCB flashing points at this repo's GitHub CI ELF artifacts and

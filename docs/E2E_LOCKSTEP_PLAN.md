@@ -1,11 +1,17 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: partial implementation (2026-10-12).** The done bar below is not
-met. The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
+**Status: partial implementation (2026-10-18).** The done bar below is not
+met. Reconciled hosted match runs pass native checks with identical hit
+sequences, but strict logs still differ in continuous diagnostics
+([current evidence](../sim/docs/track-a-reconciled-2026-10-18.md)).
+The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
-outputs ([motor plant](../sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
-and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
+outputs ([motor plant](../sim/README.md#mcb-emulator)). Completion of UART,
+consumption-chain and deterministic bring-up gates remains open. The opt-in sim-time UART fixture has
+byte-deadline and bridge-stamp tests; its historical first whole-stack attempt was
+[rejected for late outgoing delivery](../sim/docs/track-a-uart-2026-10-15.md).
+E1-E4 below predate the rename to `mcb_parked`,
 `mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
 every stage runs the MCB emulator, so step 8 is done.
 
@@ -184,11 +190,12 @@ a fixed sim-time boundary, as `case_align_s` does on the estimation bench.
 
 ### 6. The other non-deterministic inputs
 
-- **`point_to_cv_target`:** add `allow_latest_tf` (default true for the
-  robot, false in e2e). Count fallbacks, and have the harness assert 0. This
-  also applies to `_gun_pose`, which feeds the patrol and hit-turn. The
-  workspace stamping rule calls for this; flag the hardware default in its
-  `README.md`.
+- **`point_to_cv_target`:** implemented `allow_latest_tf` (default true for the
+  robot, false in E2E), a cumulative fallback counter and a present/zero
+  assertion in the harness. Aim uses the target-state stamp, patrol uses
+  the carried raw POSE stamp, and firmware owns hit turns. Zero stamps
+  cannot silently request latest TF. The [aimer](../thornbots_pkg/README.md#point_to_cv_target)
+  owns the robot default. This guard does not establish deterministic delivery.
 - **Seeds:** draw `detector_standin` noise (when enabled), ghost aim noise
   and ghost fire timing per (seed, robot, frame or shot index), not from one
   stream, as `bench_world` does.
@@ -209,6 +216,9 @@ a fixed sim-time boundary, as `case_align_s` does on the estimation bench.
   position against TF `odom->root` at the stamp).
 - **Run comparison:** done, `ros2 run sim compare_runs LOG_DIR_A LOG_DIR_B`
   (`sim/tools/compare_runs.cpp`) prints the first divergence per jsonl log.
+  Missing/empty shot or state logs fail comparison. The harness also records
+  capture/arrival stamps and valid/invalid tracks in
+  [`inputs.jsonl`](../sim/README.md#mcb-emulator), before any tracker tuning.
 
 ### 8. The MCB emulator for every stage
 
@@ -217,7 +227,7 @@ Done: every stage runs the MCB emulator and E1's `cv_head_aim` +
 `sim/test/e2e/e2e_harness.cpp`; `E2E_PLAN.md`'s Stages match.
 
 Keep `pose_emulator` and `cv_head_aim` themselves. The drift suite and the
-benches still use them (`sim/AGENTS.md`).
+benches still use them (`../sim/AGENTS.md`).
 
 ## Order and done-when
 
