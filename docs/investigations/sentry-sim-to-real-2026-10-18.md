@@ -31,7 +31,7 @@ Express mode, 60 s probes.
 | `/scan_raw` beams | 340–359, 13 distinct counts | 720 fixed | pending |
 | `/scan` after self filter | 340–359 | 720 | pending |
 | Angle increment | ~1.00–1.01° | 0.5007° | pending |
-| slam_toolbox `expected N` warnings | warning counter 174 → 181 in the probe window; per-run logs (`11_`) show up to 499 `expected` mismatches per run | counter 194 → 195 across the probe; 0 after a fresh slam start (`21_`) | pending |
+| slam_toolbox `expected N` warnings | warning counter 174 → 181 in the probe window; per-run logs (`11_`) show up to 499 `expected` mismatches per run | counter 194 → 195 across the 60 s probe without restarting slam_toolbox; fresh-start acceptance not measured (`21_` holds only the start count, 0; the probe was cut off) | pending |
 
 - Sim: scans are a fixed 800 beams (source: `localization-drift/report.md`). Sim lidar measurement is in progress by
   another agent.
