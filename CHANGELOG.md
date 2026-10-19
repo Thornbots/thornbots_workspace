@@ -274,6 +274,18 @@ impact, and link the corresponding package changes.
   held one maintainer's personal permissions and paths. Pulling this removes
   the tracked copy, so keep a backup first if you edited it locally.
 
+### Fixed
+
+- RF2O skips scans whose range count or angular geometry differs from its
+  initialized grid, with a throttled warning, instead of reading past the
+  scan. Regression tests cover shorter/longer scans, angle changes and
+  recovery. See [rf2o_laser_odometry #10](https://github.com/Thornbots/rf2o_laser_odometry/pull/10).
+
+- The sentry hardware launch enables lidar angle compensation, so RF2O and
+  slam_toolbox receive a fixed angular grid (720 bins on the measured A2M8)
+  rather than a varying beam count. Stationary drift after this change still
+  needs a robot run. See [thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18).
+
 ## 2026-10-10
 
 ### Added
