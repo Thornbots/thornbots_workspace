@@ -9,6 +9,16 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Lidar range documentation and a real-format rf2o test. No behavior change:
+  the 0.15 m SLAM/AMCL range floor stays (the A2M8 minimum is 0.05 m; the
+  self-filter's body coverage is unproven on hardware, see
+  [sentry_localization #11](https://github.com/Thornbots/sentry_localization/pull/11)),
+  rf2o gains a 720-beam -pi..+pi scan test
+  ([rf2o #11](https://github.com/Thornbots/rf2o_laser_odometry/pull/11)), and stale
+  sim/lidar text is corrected
+  ([thornbots_pkg #20](https://github.com/Thornbots/thornbots_pkg/pull/20),
+  [sim #34](https://github.com/Thornbots/sim/pull/34)).
+
 - Untested step-by-step setup for running the Isaac ROS container on Windows
   with Docker Desktop on WSL2; an NVIDIA GPU is required. See
   [Windows (WSL2)](isaac_ros_common/docker/README.md#windows-wsl2),
