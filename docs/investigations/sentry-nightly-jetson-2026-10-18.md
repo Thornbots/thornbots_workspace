@@ -79,7 +79,7 @@ python "$EVIDENCE/observe_jetson.py" --duration 65 --label baseline
 python "$EVIDENCE/observe_jetson.py" --duration 30 --label panel-postboot
 tailscale --socket=/run/tailscale-thornbots/tailscaled.sock ping --timeout=4s --c=2 ts-nano-sentry
 ssh -o 'ProxyCommand=tailscale --socket=/run/tailscale-thornbots/tailscaled.sock nc %h %p' \
-  nano-sentry@100.110.38.3 'systemctl show thornbots -p ActiveState -p NRestarts'
+  nano-sentry@ts-nano-sentry 'systemctl show thornbots -p ActiveState -p NRestarts'
 ```
 
 The Docker skill's `dexec.sh` targeted `thornbots-runtime`. Probes cleared
@@ -653,7 +653,7 @@ Oct 18 15:37:46 archlinux kernel: cdc_ncm 3-3:1.5 enp0s20f0u3i5: unregister 'cdc
 
 15:37:46 EDT is 19:37:46 UTC. The same capture shows the USB-network
 link gone (the route to the Jetson's USB address `192.168.55.1` resolving via
-the laptop's Wi-Fi) and the Tailscale peer list showing `ts-nano-sentry` (`100.110.38.3`) as
+the laptop's Wi-Fi) and the Tailscale peer list showing `ts-nano-sentry` as
 `offline, last seen 1m ago`. The user confirmed the battery died.
 
 ### A6. Postboot panel capture
