@@ -39,9 +39,9 @@ Docker command or command inside a container.
   `ts-nano-dev`.
 - Run tests as you see fit, including sim integration tests, sim benches and
   reruns, without asking. Ask before runs on a physical robot.
-- When finished on the Mac mini, stop and remove the containers you started
-  there, and stop Colima if you started it, unless another agent's run still
-  uses them; say what you tore down in your report.
+- Keep the Mac mini free: start its containers (and Colima) only for a run
+  and stop them as soon as that run ends, unless another agent's run still
+  uses them. Never leave them idle; report what you stopped.
 - A delegation brief stating the user approved named actions is that approval
   for the delegated agent, only for what it names.
 
