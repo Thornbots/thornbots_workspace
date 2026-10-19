@@ -1,10 +1,9 @@
 #!/bin/bash
-# smoke.sh -- prove the running Isaac ROS container is usable, without
-# creating one. Read-only by default.
+# smoke.sh -- prove an Isaac ROS container is usable. Read-only by default.
 #
-# This script NEVER starts a container or builds an image (see SKILL.md's
-# attach-only rule). If nothing is running it says so and exits 1, and the
-# fix is for the USER to run `isaac-ros activate`.
+# This script never starts a container or builds an image. Point it at your
+# own agent container (SKILL.md: agent_container.sh up <task>, then
+# `eval "$(agent_container.sh env <task>)"`); if that is not running it exits 1.
 #
 # Usage:
 #   .claude/skills/isaac-ros-docker/smoke.sh            # checks only
@@ -28,8 +27,7 @@ ok()   { echo "  ok: $*"; }
 echo "== 1. container running?"
 if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" != "true" ]; then
     echo "No container named '$CONTAINER' is running." >&2
-    echo "Do NOT start one yourself. Ask the user to run:" >&2
-    echo "  ISAAC_ROS_WS=<workspace> isaac-ros activate" >&2
+    echo "Create your own: $SCRIPTS/agent_container.sh up <task>; export ISAAC_ROS_CONTAINER=isaac-agent-<task>" >&2
     exit 1
 fi
 ok "$CONTAINER up"
@@ -48,18 +46,30 @@ fi
 echo "== 2. bind mount is the workspace ROOT (build/ install/ log/ src/)"
 docker inspect -f '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}' "$CONTAINER" | grep isaac_ros-dev
 "$DEXEC" -- ls /workspaces/isaac_ros-dev | tr '\n' ' '; echo
-"$DEXEC" -- test -d /workspaces/isaac_ros-dev/src || fail "no src/ in the mount (ISAAC_ROS_WS wrong when isaac-ros activate ran?)"
+"$DEXEC" -- test -d /workspaces/isaac_ros-dev/src || fail "no src/ in the mount (wrong -w for agent_container.sh, or ISAAC_ROS_WS wrong when isaac-ros activate ran?)"
 ok "src/ present"
-WS_ROOT="$(cd "$SKILL_DIR/../../../.." && pwd)"
-MOUNT_SRC=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/workspaces/isaac_ros-dev"}}{{.Source}}{{end}}{{end}}' "$CONTAINER")
-if [ "$MOUNT_SRC" = "$WS_ROOT" ]; then
-    ok "mount is this checkout's workspace ($WS_ROOT)"
+if [ -n "$(docker inspect -f '{{index .Config.Labels "thornbots.agent"}}' "$CONTAINER")" ]; then
+    # Agent container: this checkout is mounted at .../src, build/install/log are its own volumes.
+    WS_SRC="$(cd "$SKILL_DIR/../../.." && pwd -P)"
+    MOUNT_SRC=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/workspaces/isaac_ros-dev/src"}}{{.Source}}{{end}}{{end}}' "$CONTAINER")
+    if [ "$MOUNT_SRC" = "$WS_SRC" ]; then
+        ok "agent container mounts this checkout ($WS_SRC)"
+    else
+        echo "  WARN: mounts $MOUNT_SRC, not this checkout's $WS_SRC; edits here won't run there" >&2
+    fi
 else
-    echo "  WARN: mount is $MOUNT_SRC, not this checkout's $WS_ROOT; edits here won't run there" >&2
+    WS_ROOT="$(cd "$SKILL_DIR/../../../.." && pwd)"
+    MOUNT_SRC=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/workspaces/isaac_ros-dev"}}{{.Source}}{{end}}{{end}}' "$CONTAINER")
+    if [ "$MOUNT_SRC" = "$WS_ROOT" ]; then
+        ok "mount is this checkout's workspace ($WS_ROOT)"
+    else
+        echo "  WARN: mount is $MOUNT_SRC, not this checkout's $WS_ROOT; edits here won't run there" >&2
+    fi
 fi
 
 echo "== 3. env parity through dexec.sh (bare 'docker exec' gets none of this)"
-"$DEXEC" -- bash -c 'echo "  user=$(whoami) ROS_DOMAIN_ID=$ROS_DOMAIN_ID RMW=$RMW_IMPLEMENTATION"
+"$DEXEC" -- bash -c 'echo "  user=$(whoami) ROS_DOMAIN_ID=$ROS_DOMAIN_ID GZ_PARTITION=$GZ_PARTITION RMW=$RMW_IMPLEMENTATION"
+echo "  MCB PTY link: /tmp/mcb_emulator_pty-$GZ_PARTITION-$ROS_DOMAIN_ID"
 echo "  FASTRTPS_DEFAULT_PROFILES_FILE=$FASTRTPS_DEFAULT_PROFILES_FILE DISPLAY=$DISPLAY"' \
     || fail "dexec.sh env probe failed"
 
@@ -79,7 +89,7 @@ echo "== 6. nothing already running (do not kill what you did not start)"
 LIVE=$("$DEXEC" -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep)
 if [ -n "$LIVE" ]; then
     echo "$LIVE"
-    echo "  ^ a session is already live. ASK the user before touching it." >&2
+    echo "  ^ a session is already live. Do not touch what you did not start; in the user's container, ask." >&2
     [ "$RUN_SIM" -eq 1 ] && fail "refusing to launch sim on top of a live session"
 else
     ok "clean"

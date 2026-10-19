@@ -7,14 +7,15 @@ disagree, `SKILL.md` is newer and wins.
 
 The container comes from `isaac-ros-cli` (release-4.6), which replaced the
 fork's `run_dev.sh` and `build_image_layers.sh`. Host `$ISAAC_ROS_WS` is
-bind-mounted at `/workspaces/isaac_ros-dev`, so edits outside the container
-are visible inside it and vice versa. Rebuild the image only when
+bind-mounted at `/workspaces/isaac_ros-dev` in the user's container (an agent
+container mounts just its worktree at `.../src`, see `SKILL.md`), so edits
+outside the container are visible inside it and vice versa. Rebuild the image only when
 dependencies or the baked package sources change, never for ordinary source
 edits: the bind mount already carries those.
 
 Every command in the next three sections is **for the user to run**. An agent
-never runs `isaac-ros activate` in any form (the rule at the top of
-`SKILL.md`).
+never runs `isaac-ros activate` in any form; it makes its own container with
+`agent_container.sh` (`SKILL.md`, Your own container).
 
 ## Container lifecycle
 
@@ -486,9 +487,10 @@ numbers or empty samples. The suites' own
 does this exact check and only *warns*, it doesn't
 block, so don't skip it just because the script ran.
 
-If something is already running, **don't kill it yourself**: it may be
-the user's own in-progress work (e.g. a manual CV/rviz session). Ask before
-stopping anything you didn't start.
+If something is already running, **don't kill it yourself**: in the user's
+container it may be their in-progress work (e.g. a manual CV/rviz session).
+Ask before stopping anything you didn't start. Your own agent container is
+isolated by domain and partition (`SKILL.md`), so this only matters there.
 
 **After** your own test/probe finishes (including when it errors out or
 you interrupt it), clean up what *you* started rather than leaving it for
@@ -512,6 +514,9 @@ isaac_ros_common/scripts/dexec.sh -d -- ros2 launch sim localization_tests.launc
 
 
 ## Testing a git worktree's changes in docker without merging first
+
+(Agent containers mount the worktree itself at `.../src`, so none of this is
+needed there; it applies to the user's shared container.)
 
 Worktrees created by `EnterWorktree` live *inside* the package directory
 (e.g. `sim/.claude/worktrees/<name>/`), which is inside the bind-mounted

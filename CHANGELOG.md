@@ -31,9 +31,13 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
-- Agents start Mac mini containers (and Colima) only for a run and stop them
-  when it ends, unless another run still uses them, keeping the mini free
-  ([AGENTS](AGENTS.md#containers-and-runs)).
+- Each agent task makes and removes its own container (`isaac-agent-<task>`)
+  instead of attaching to the user's, with a unique ROS domain, gz partition,
+  worktree mount and build volumes enforced by `agent_container.sh`; stale ones
+  are cleaned by label. On the Mac mini Colima runs only while an agent
+  container does ([AGENTS](AGENTS.md#containers-and-runs),
+  [skill](.claude/skills/isaac-ros-docker/SKILL.md#your-own-container),
+  [isaac_ros_common #12](https://github.com/Thornbots/isaac_ros_common/pull/12)).
 
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
