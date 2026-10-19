@@ -31,6 +31,24 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Simulation uses the real field assembly (sim #29) for Gazebo geometry and
+  match shot occlusion while preserving the field frame; existing routes keep
+  their clearance. Saved localization maps need regeneration before use with
+  this geometry. See [the sim world frame](sim/README.md#the-world-frame) and
+  [sim #30](https://github.com/Thornbots/sim/pull/30).
+
+- Sim lidar uses the measured angle-compensated sentry A2M8 grid (720 bins),
+  range limits and cadence, with scan timing and infinity return handling
+  before the shared self-filter. Model approximations remain documented at the
+  [sensor owner](sim/README.md#lidar-format-and-model-limits)
+  ([sim #31](https://github.com/Thornbots/sim/pull/31)).
+
+- The sim MCB emulator's PTY link is unique per stack
+  (`/tmp/mcb_emulator_pty-<GZ_PARTITION>-<ROS_DOMAIN_ID>`), so concurrent sim
+  stacks no longer steal each other's UART; a link owned by a live stack is
+  refused. Sim only; no robot or wire change
+  ([sim #32](https://github.com/Thornbots/sim/pull/32)).
+
 - The sentry drivetrain matches `main` again: the default stop command cuts
   wheel current and centred manual drive holds a zero wheel-velocity setpoint;
   nightly's latched pod-position hold is removed. The sim parked-hold checks
