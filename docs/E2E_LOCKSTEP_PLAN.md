@@ -155,7 +155,7 @@ of hold points, each waiting on acks:
 |---|---|
 | POSE frame (plugin announces its cycle) | `/dji_serial_bridge/pose` and `/odom` stamped k |
 | EKF tick (30 Hz) | `/localization/odom`, and `nav_odom->odom` on `/tf`, at that tick |
-| `/scan` (10 Hz) | rf2o's output stamped T |
+| `/scan` ([sensor cadence](../sim/README.md#lidar-format-and-model-limits)) | rf2o's output stamped T |
 | `detector_standin` tick (60 Hz) | `/cv/tracker/measurement` echoes T, as on the estimation bench |
 | `point_to_cv_target` tick (40 Hz) | its `tick_pub` header at T, then the plugin reports any CV_TARGET bytes read |
 | `match_environment` (100 Hz), scorer fire tick (10 Hz) | their outputs for T |

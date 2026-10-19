@@ -31,6 +31,13 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Sim lidar uses the measured angle-compensated sentry A2M8 grid, range
+  limits and cadence, with scan timing and infinity return handling before
+  the shared self-filter. Model approximations remain documented at the
+  [sensor owner](sim/README.md#lidar-format-and-model-limits)
+  ([sim #31](https://github.com/Thornbots/sim/pull/31), stacked on
+  [real field #30](https://github.com/Thornbots/sim/pull/30)).
+
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
 
