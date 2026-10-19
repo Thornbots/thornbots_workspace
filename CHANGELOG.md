@@ -31,6 +31,14 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- The sentry drivetrain matches `main` again: the default stop command cuts
+  wheel current and centred manual drive holds a zero wheel-velocity setpoint;
+  nightly's latched pod-position hold is removed. The sim parked-hold checks
+  pin that behaviour. Nightly's chassis-power and peek gates moved to
+  `feat/drivetrain-power-and-peek-gates`. See
+  [MCBV3 #98](https://github.com/Thornbots/MCBV3/pull/98) and
+  [sim #28](https://github.com/Thornbots/sim/pull/28).
+
 - Each agent task makes and removes its own container (`isaac-agent-<task>`)
   instead of attaching to the user's, with a unique ROS domain, gz partition,
   worktree mount and build volumes enforced by `agent_container.sh`; stale ones
