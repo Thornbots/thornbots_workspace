@@ -135,14 +135,15 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   [patrol](../thornbots_pkg/README.md#point_to_cv_target).
 - **T19 — thornbots_pkg — untested:** Determine whether depth is needed or colour-only ranging suffices.
   [Depth input](../thornbots_pkg/README.md#target_tracker).
-- **LIDAR-grid — sentry_localization / startup — open:** Run the RPLIDAR with `angle_compensate:=true` (fixed 720 grid
-  vs 340–359 varying beams). [Scan format](investigations/sentry-sim-to-real-2026-10-18.md#lidar-scan-format).
-- **RF2O-size — rf2o — open:** Validate scan size/angles against the first scan instead of reading past the vector.
+- **SENTRY-drift — robot run — open:** Angle compensation ([thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18))
+  and the RF2O scan-size guard ([rf2o #10](https://github.com/Thornbots/rf2o_laser_odometry/pull/10)) are merged; measure
+  stationary drift (was 1–2 m) and moving SLAM scan acceptance on the robot.
   [Drift](investigations/sentry-sim-to-real-2026-10-18.md#stationary-localization-drift).
-- **SIM-lidar — sim — open:** Align sim lidar (800 beams) with real (720 bins).
-  [Scan format](investigations/sentry-sim-to-real-2026-10-18.md#lidar-scan-format).
-- **SIM-spin — sim / MCBV3 — open:** Explain sim spin wander under beyblade (0.067–0.070 m) versus real in-place spin.
-  [Parked hold](investigations/sentry-sim-to-real-2026-10-18.md#parked-hold-firmware).
+- **SIM-returns — sim — open:** Sim lidar matches the real 720-bin grid ([sim #31](https://github.com/Thornbots/sim/pull/31))
+  but has no no-return (`inf`) beams beyond the self-filter; real has about 40%. SLAM drift in sim rose from
+  0.08–0.13 m to 0.15–0.22 m with the new grid (limit 0.40 m, 3 trials); cause unknown.
+- **LIDAR-range — sentry_localization — open:** `slam.yaml` and `amcl.yaml` drop returns under 0.15 m and call it the
+  hardware minimum; the A2M8 minimum is 0.05 m.
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
 

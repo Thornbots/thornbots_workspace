@@ -132,7 +132,7 @@ off, `sushi serve` at ~220% CPU). Clean robot rates come from the run without im
 
 Recommendations (not applied):
 - Confirm whether `/cv/target` is a prediction (fresh stamp allowed) or a measurement echo (stamp should be capture time).
-- Run the robot lidar with `angle_compensate:=true` ([LIDAR-grid](../ROADMAP.md)), then repeat the slam acceptance with
+- Run the robot lidar with `angle_compensate:=true` ([SENTRY-drift](../ROADMAP.md)), then repeat the slam acceptance with
   the robot driven, to see later scans accepted.
 
 ## Not measured
