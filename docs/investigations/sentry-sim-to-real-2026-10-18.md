@@ -117,8 +117,10 @@ off, `sushi serve` at ~220% CPU). Clean robot rates come from the run without im
 
 - Serial stall: one 4.09 s receive stall at a fixed 180.0 s period, covering POSE and REF_SYS. The bridge RX byte counter
   stops while `cv_target` TX continues. The period survives a service restart but its phase changed after the MCB flash
-  reset, which points at the MCB or its UART transmit path. The hosted firmware in sim shows none. Not proven: MCB vs
-  Jetson `ttyTHS1`.
+  reset, which points at the MCB or its UART transmit path. The hosted firmware in sim shows none.
+  Explained (2026-10-19, team): the MCB's periodic IMU recalibration
+  ([`ImuRecalibration`](../../firmware/MCBV3/MCB-project/src/drivers.hpp)) pauses its UART output. It does not run in
+  matches, so no fix is planned.
 - Camera (robot, no image subscription): color and depth `camera_info` 59.6 Hz, no gap over 100 ms, stamp skew 0.10 ms.
   `/detections_output` 55.6 Hz, age p50 52.5 / max 251 ms. `roi_depth_node` rejections (`Depth too stale`, 0.050 s): 91 in the
   journal, 82 in the first run with no observer.
@@ -129,7 +131,6 @@ off, `sushi serve` at ~220% CPU). Clean robot rates come from the run without im
   topics. Camera frames to `odom` fail on the robot in every run (not investigated).
 
 Recommendations (not applied):
-- Capture an MCB-side counter or logic-analyzer trace at a 180 s boundary to place the stall.
 - Confirm whether `/cv/target` is a prediction (fresh stamp allowed) or a measurement echo (stamp should be capture time).
 - Run the robot lidar with `angle_compensate:=true` ([LIDAR-grid](../ROADMAP.md)), then repeat the slam acceptance with
   the robot driven, to see later scans accepted.

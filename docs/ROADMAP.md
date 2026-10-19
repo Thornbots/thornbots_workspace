@@ -143,8 +143,6 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   [Scan format](investigations/sentry-sim-to-real-2026-10-18.md#lidar-scan-format).
 - **SIM-spin — sim / MCBV3 — open:** Explain sim spin wander under beyblade (0.067–0.070 m) versus real in-place spin.
   [Parked hold](investigations/sentry-sim-to-real-2026-10-18.md#parked-hold-firmware).
-- **SERIAL-stall — MCBV3 / ros2_dji_serial_bridge — open:** Find the 4.09 s serial receive stall every 180 s on the robot
-  (MCB-phased; absent in sim). [Serial](investigations/sentry-sim-to-real-2026-10-18.md#serial-camera-and-stamps).
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
 
