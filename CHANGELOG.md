@@ -31,6 +31,10 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Agents tear down the Mac mini containers (and Colima) they started when
+  done, unless another run still uses them
+  ([AGENTS](AGENTS.md#containers-and-runs)).
+
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
 
