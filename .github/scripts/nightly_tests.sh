@@ -82,16 +82,17 @@ dispatch_ci() { # outfile
     done
 }
 
+LOCK="$ROOT/.lock"
 cmd_run() {
-    local day out n lock="$ROOT/.lock" pid
+    local day out n pid
     mkdir -p "$ROOT/results"
-    while ! mkdir "$lock" 2>/dev/null; do
-        pid="$(cat "$lock/pid" 2>/dev/null)"
+    while ! mkdir "$LOCK" 2>/dev/null; do
+        pid="$(cat "$LOCK/pid" 2>/dev/null)"
         if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then log "another nightly run (pid $pid) is active"; exit 0; fi
-        rm -rf "$lock"
+        rm -rf "$LOCK"
     done
-    echo $$ >"$lock/pid"
-    trap 'rm -rf "$lock"' EXIT
+    echo $$ >"$LOCK/pid"
+    trap 'rm -rf "$LOCK"' EXIT
 
     day="$(date +%F)"; out="$ROOT/results/$day"
     [ ! -e "$out" ] || out="$ROOT/results/$day-$(date +%H%M)"
