@@ -88,8 +88,12 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### E. Benches that start and stop cleanly
 
-- **T30 — sim / sentry_localization — open:** Fix missing `root` TF and localization bring-up stalls; do not rely on the
-  suite's single retry. [Localization launch](../sentry_localization/README.md#launchlocalizationlaunchpy).
+- **T30 — sim / sentry_localization — ready for review:** Static backend construction removes the lifecycle
+  response-discovery race; the suite's startup retry is removed. Drive non-regression is accepted.
+  The clock bridge uses UDP-only DDS after a captured SHM publication stall.
+  Final full drift confirmations pass 9/9 twice with 0/18 startup failures and unchanged scoring.
+  Large uncommanded simulator yaw excursions also reproduce on nightly; earlier failures are retained.
+  [Evidence and limitations](t30-localization-startup-2026-10-16.md#shared-sim-comparison-and-acceptance-2026-10-18).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).

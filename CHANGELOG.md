@@ -48,6 +48,19 @@ impact, and link the corresponding package changes.
   the current build path instead of GitLab
   ([MCBV3 #95](https://github.com/Thornbots/MCBV3/pull/95)).
 
+- Construct localization backends and their lifecycle managers in one process
+  to avoid startup service-response discovery races, and remove the drift suite's
+  automatic robot restart. Startup errors identify the missing TF link.
+  The sim clock bridge now uses UDP-only DDS so a stale shared-memory reader
+  port cannot block global time publication; a focused clock-delivery test
+  checks fresh contexts and the transport invariant.
+  Two final full drift confirmations pass 9/9 each without startup retries or
+  relaxed limits; large simulator yaw excursions also reproduce on nightly.
+  Portable CI dependency pins now follow the integrated current UART contract. See
+  [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
+  [sim #26](https://github.com/Thornbots/sim/pull/26) and
+  [T30 validation](docs/t30-localization-startup-2026-10-16.md).
+
 - Add opt-in tracker innovation diagnostics and estimation-bench radius/prior
   controls. G.1 trials expose regressions in the full matrix, so tracker tuning,
   validity and estimation limits stay unchanged; defaults are numerically
