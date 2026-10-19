@@ -75,6 +75,11 @@ impact, and link the corresponding package changes.
   [skill](.claude/skills/isaac-ros-docker/SKILL.md#your-own-container),
   [isaac_ros_common #12](https://github.com/Thornbots/isaac_ros_common/pull/12)).
 
+- PRs into `nightly` no longer run CI; CI runs on pushes to `nightly`/`main`,
+  PRs into `main` and manual dispatch. Authors run the
+  [local checks](docs/CI.md#local-checks-for-prs-into-nightly) before merging
+  into `nightly`.
+
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
 

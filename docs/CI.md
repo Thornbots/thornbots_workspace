@@ -1,11 +1,9 @@
 # CI and robot images
 
 `nightly` integrates package changes; `main` receives promoted releases.
-Workspace and package CI run on PRs targeting either branch and on pushes to
-either branch. PRs into `nightly` stay cheap: lint, policy, host helpers and
-MCBV3 hosted tests. Jazzy ROS builds, the robot image and MCBV3 ARM builds run
-on `nightly`/`main` pushes, PRs into `main` and manual dispatch; dispatch a
-feature branch to run them before merging. All eleven `.gitmodules` entries track `nightly`
+Workspace and package CI run on pushes to `nightly`/`main`, on PRs into `main`
+and on manual dispatch. PRs into `nightly` run no CI; authors run the
+[local checks](#local-checks-for-prs-into-nightly) before merging. All eleven `.gitmodules` entries track `nightly`
 on this integration branch, with exact gitlink pins. Sim is initialized by
 normal submodule checkout; only MCB firmware remains opt-in.
 
@@ -17,7 +15,7 @@ normal submodule checkout; only MCB firmware remains opt-in.
 | Workspace and isaac_ros_common | [Subprocess](../isaac_ros_common/isaac_common_py/tests) and [robot-image helper](../isaac_ros_common/tests) tests |
 | Workspace | Native arm64 robot-image build and package tests |
 | Workspace, covering bumped package commits | [Repository policy](#repository-policy) and its [regression tests](../.github/quality/test_policy.py) |
-| MCBV3 | ARM builds in all robot/sysid combinations and hosted control/UART tests on main/nightly pushes and PRs |
+| MCBV3 | ARM builds in all robot/sysid combinations and hosted control/UART tests on main/nightly pushes and PRs into main |
 
 Portable packages are thornbots_pkg, sim, sentry_localization,
 rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
@@ -30,6 +28,23 @@ must continue to describe nightly. The workspace uses its own tested revision.
 Host helper jobs use the workspace's exact package pins and archive their JUnit
 reports. Package quality workflows use the same
 [host test runner](../.github/scripts/test_host_packages.sh).
+
+## Local checks for PRs into nightly
+
+Before merging into `nightly`, in each changed repo (workspace included):
+
+- Python 3.12 venv with `.github/quality/requirements.txt`: `python
+  .github/quality/check.py` and `actionlint -shellcheck=""`; checker changes
+  also need `python -m unittest discover -s .github/quality -v`.
+- ROS packages: `colcon build` and `colcon test --packages-select <pkg>` in
+  your own agent container (`isaac_ros_common/scripts/agent_container.sh`,
+  see the [Docker skill](../.claude/skills/isaac-ros-docker/SKILL.md)).
+- MCBV3 firmware: `tools/test_cpp.sh` for hosted tests; ARM builds run only
+  for PRs into `main` (or dispatch).
+- Optional GitHub run on a pushed branch:
+  `gh workflow run CI -R Thornbots/<repo> --ref <branch>`.
+
+Push-time [policy hooks](#repository-policy) still check commits and gitlinks.
 
 ## Coordinated package integration
 
@@ -152,7 +167,8 @@ matching mandatory gitlinks, and retags the image for isaac-ros-cli. Usage:
 checks and an up-to-date branch, blocking force pushes/deletion, applying to
 administrators, and requiring zero reviews. It leaves linear history optional
 so coordinated merges remain possible. `--branch nightly` selects integration
-protection, requiring only the cheap checks its PRs run; the default is `main`. MCBV3 is skipped for nightly because its
+protection, requiring checks that PRs into `nightly` no longer run, so do not
+apply it there; the default is `main`. MCBV3 is skipped for nightly because its
 policy targets only main.
 
 Without `--apply` it changes no GitHub settings. `--apply` replaces the

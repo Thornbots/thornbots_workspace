@@ -40,7 +40,8 @@ submodules have no configured branch.
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
 [CI and validation](docs/CI.md) covers repository checks, lint debt, and
-robot images. PRs into `nightly` or `main` run CI; pushes to either branch
+robot images. PRs into `main` run CI (PRs into `nightly` do not; see
+[local checks](docs/CI.md#local-checks-for-prs-into-nightly)); pushes to either branch
 publish tested images to `ghcr.io/thornbots/isaac-ros`, using exact gitlinks.
 
 One logical change, one bump: a bump may move several gitlinks when they belong
