@@ -14,12 +14,11 @@ Updated 2026-10-06 from the user's confirmation.
 | `ts-nano-dev` | Jazzy flash complete (test box) |
 | `ts-nano-standard` | Not yet flashed; frozen Humble tree |
 
-**No hardware checks have been run on the robot yet** (user, 2026-10-06).
-Camera/YOLO, ROI depth, tracking and aiming, serial link, lidar/localization, and firing are all
-unverified on the robot. Earlier boot logs, detections and timing samples
-in ROADMAP and package notes are historical observations, not acceptance
-results. No Humble FPS/latency baseline is recorded here; its availability
-is unconfirmed. Remaining setup problems have not been confirmed resolved.
+**2026-10-18 — sentry validation remains partial; localization experimental.**
+See the [dated investigation](investigations/sentry-nightly-jetson-2026-10-18.md)
+for CV results, firmware flashes, workspace/build status and acceptance grades.
+SLAM scan rejection, localization drift and serial gaps remain open; this
+record does not establish promotion readiness or other robots' acceptance.
 
 Follow [Before flashing](#1-before-flashing) through [Our image](#8-our-image)
 for standard, then complete the [hardware checklist](#hardware-checklist).
