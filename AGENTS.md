@@ -31,14 +31,19 @@ CI check commits and message contracts;
 Load [isaac-ros-docker](.claude/skills/isaac-ros-docker/SKILL.md) for every
 Docker command or command inside a container.
 
-- Start laptop containers, VMs (including Colima) and stacks as needed
-  without asking, following the skill. Check for running ones first
-  and reuse them; ask before restarting or stopping anything you did not
-  start, and clean up what you started. On `ts-nano-*`, carry out requested
-  container/image lifecycle work without separate confirmation. “dev” means
-  `ts-nano-dev`.
+- Each agent task creates its own container with
+  [`agent_container.sh`](.claude/skills/isaac-ros-docker/SKILL.md#your-own-container)
+  and removes it when done, even on failure. The script enforces unique
+  ROS domain, gz partition, worktree mount and volumes; never stop, restart or
+  remove a container you did not create (notably `isaac_ros_jazzy_container`).
+  Start VMs (including Colima) as needed without asking. On `ts-nano-*`, carry
+  out requested container/image lifecycle work without separate confirmation.
+  “dev” means `ts-nano-dev`.
 - Run tests as you see fit, including sim integration tests, sim benches and
   reruns, without asking. Ask before runs on a physical robot.
+- Keep the Mac mini free: its Colima runs only while an agent container does;
+  the script stops it when none is left. Never leave either idle; report
+  what you stopped.
 - A delegation brief stating the user approved named actions is that approval
   for the delegated agent, only for what it names.
 
