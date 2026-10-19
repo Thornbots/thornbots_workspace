@@ -64,6 +64,7 @@ test_all() {
     return $rc
 }
 e2e() { # stage
+    source /opt/ros/jazzy/setup.bash && source install/setup.bash || return 1
     export MCB_FIRMWARE_BINARY="$ELF"
     src/sim/tools/run_suite.sh "$1" backend:=hosted headless:=true foxglove:=false \
         "log_dir:=$EV/e2e-$1"
