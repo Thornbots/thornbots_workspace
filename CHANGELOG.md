@@ -266,6 +266,13 @@ impact, and link the corresponding package changes.
   held one maintainer's personal permissions and paths. Pulling this removes
   the tracked copy, so keep a backup first if you edited it locally.
 
+### Fixed
+
+- The sentry hardware launch enables lidar angle compensation, so RF2O and
+  slam_toolbox receive a fixed angular grid (720 bins on the measured A2M8)
+  rather than a varying beam count. Stationary drift after this change still
+  needs a robot run. See [thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18).
+
 ## 2026-10-10
 
 ### Added
