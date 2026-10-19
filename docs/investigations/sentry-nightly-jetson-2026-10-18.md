@@ -197,7 +197,7 @@ failure of steady tracking. **Depth accuracy at 1/2/4 m remains untested**.
 | `/localization/odom` | 1,948 / 64.899290 s | 30.000328 Hz | PASS: EKF output |
 
 TF `map→nav_odom→odom→root` and URDF camera/lidar/muzzle links were present.
-Median bridge ages: odom→root 4.527 ms, nav_odom→odom 14.205 ms.
+Median bridge ages: odom→root 4.527 ms, nav_odom→odom 14.203 ms.
 map→nav_odom was future-dated about 0.864 s, consistent with SLAM's 1 s
 transform tolerance; this alone is not a TF freshness bug.
 
@@ -207,8 +207,13 @@ measurement were supplied. Wi-Fi SSH was confirmed with USB interfaces down;
 all four streams continued recording to SSD. Approximate travel comparison
 is contaminated by drift and is not a calibrated scale-accuracy test.
 
-Stationary interval: **19:52:25.161–19:53:25.161 UTC**. First/last
-received samples span slightly less than the full 60 s window:
+Stationary interval: **19:52:25.161–19:53:25.161 UTC**. The start and end
+marker files cover only the first 30 s (19:52:25–19:52:55); the last 30 s rest
+on the user's report of no movement ([A11](#a11-hand-push-and-stationary-csv)).
+Within the marked 30 s, net reported motion was already 0.442 m (`/odom`),
+0.413 m (`/scan_odom`) and 0.443 m (`/localization/odom`), the same rate as
+the full window. First/last received samples span slightly less than the
+full 60 s window:
 
 | Output | Samples / observed span | Net reported motion while stationary | Accumulated XY path |
 | --- | --- | --- | --- |
@@ -275,7 +280,8 @@ frame split remains experimental. No localization or MCB behavior was changed.
    successful load. Validate/rebuild for this Jetson before performance
    acceptance if required by the owning model workflow.
 5. Transient TF drops after restart/serial gap recovered. One preboot CRC8
-   mismatch at 19:31:04 (CRC8=1, CRC16=0); duplicate rf2o logger name and
+   mismatch at 19:31:04 (the CRC8=1, CRC16=0 counters were read live and are
+   not in the retained logs; [A1](#a1-preflight-and-startup-log-extracts)); duplicate rf2o logger name and
    Foxglove TensorList schema warning remain. Standard tested topics worked.
 6. Postboot SLAM serialization logged variable lidar range counts (for
    example 359 readings, expected 500). Impact on saved-map integrity is
@@ -599,8 +605,7 @@ future-dated):
 | `nav_odom`→`odom` | 1,946 | 14.203 | 5.392 / 41.943 |
 | `map`→`nav_odom` | 3,243 | −863.696 | −911.807 / −809.931 |
 
-The doc's 14.205 ms for `nav_odom`→`odom` differs from this recomputed
-14.203 ms by 2 µs. Static TF contains `armor_0–3`, `camera`, camera color/depth
+Static TF contains `armor_0–3`, `camera`, camera color/depth
 (optical) frames, `carrier_0–3`, `lidar`, `muzzle` and `wheel_0–3`.
 
 Camera metadata frame counters (all 3,859 / 3,811 messages):
