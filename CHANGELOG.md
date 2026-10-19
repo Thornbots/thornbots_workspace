@@ -31,6 +31,13 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Simulation uses the real field assembly for Gazebo geometry and match shot
+  occlusion while preserving the field frame; existing routes retain their
+  clearance. Saved localization maps need regeneration before use with this
+  geometry. See [the sim world frame](sim/README.md#the-world-frame) and
+  [sim #30](https://github.com/Thornbots/sim/pull/30), stacked on
+  [sim #29](https://github.com/Thornbots/sim/pull/29).
+
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
 
