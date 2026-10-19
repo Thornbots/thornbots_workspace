@@ -31,6 +31,21 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- The saved AMCL maps (`clean_map`, loaded by default on the robot and in sim,
+  and `ARCC26`) are regenerated from the real field's `Field.stl` at the 0.354 m
+  lidar height, so the robot localizes against the real field geometry instead
+  of the previous image. Same file names, resolution and origin. Barrier and
+  wall positions agree with the previous map; the previous map also had a bar at
+  y = +3 and a maze inside the bottom box that `Field.stl` lacks, so confirm
+  those on the real field. A slam_toolbox sweep in sim was tried and rejected
+  (frame offset, ghost returns, one failed AMCL bring-up in eight); in sim,
+  `mcb_drive` AMCL pooled p95 error is 0.47 m (8/8) against 0.45 m (8/8)
+  before. See [saved maps](sentry_localization/README.md#saved-maps) and
+  [sentry_localization](https://github.com/Thornbots/sentry_localization/pull/10);
+  reproducing the comparison needs
+  [sim #30](https://github.com/Thornbots/sim/pull/30) and
+  [#31](https://github.com/Thornbots/sim/pull/31).
+
 - The sentry drivetrain matches `main` again: the default stop command cuts
   wheel current and centred manual drive holds a zero wheel-velocity setpoint;
   nightly's latched pod-position hold is removed. The sim parked-hold checks
