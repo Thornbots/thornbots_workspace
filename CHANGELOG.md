@@ -31,6 +31,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- The sim MCB emulator's PTY link is now unique per stack
+  (`/tmp/mcb_emulator_pty-<GZ_PARTITION>-<ROS_DOMAIN_ID>`), so concurrent sim
+  stacks no longer steal each other's UART; a link owned by a live stack is
+  refused. Sim only; no robot or wire change. See the
+  [sim PR](https://github.com/Thornbots/sim/pull/32).
+
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
 
