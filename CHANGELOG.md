@@ -16,6 +16,17 @@ impact, and link the corresponding package changes.
   [#10](https://github.com/Thornbots/isaac_ros_common/pull/10) and
   [#11](https://github.com/Thornbots/isaac_ros_common/pull/11).
 
+- T25 on-demand firmware data: MCB_DATA carries firmware-owned channel bytes
+  through a bounded idle-gap UART queue to a stamped ROS topic and each run's
+  SSD bag. PING echoes share telemetry-safe scheduling; overflow counts remain
+  visible. Foxglove supports live wireless inspection, and the host decoder
+  decodes channel data to CSV using firmware-defined layouts. See
+  [wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb_data-id6--firmware-owned-opaque-data),
+  [MCBV3 #96](https://github.com/Thornbots/MCBV3/pull/96),
+  [bridge #16](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/16),
+  [sim #27](https://github.com/Thornbots/sim/pull/27) and
+  [startup #6](https://github.com/Thornbots/isaac-ros-startup/pull/6).
+
 - Six English RoboMaster 2027 PDF editions and their original Chinese sources,
   linked from the [translation index](docs/rules/rm2027/README.md), with a
   reproducible renderer and English flowcharts. Completed the RMUC page review
