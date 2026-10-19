@@ -4,7 +4,7 @@
 # ros.yml, then runs the sim E2E stages GitHub cannot. Writes /evidence/*.log
 # and /evidence/status.tsv (name, PASS|FAIL|SKIP, seconds); always exits 0 so
 # the host decides from status.tsv.
-set -uo pipefail
+set -o pipefail  # no -u: ROS setup.bash reads unset variables
 
 EV=/evidence
 WS=/workspaces/isaac_ros-dev
