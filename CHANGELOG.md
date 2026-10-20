@@ -78,14 +78,11 @@ impact, and link the corresponding package changes.
 - Only `main` builds an image and runs CI on push; `nightly` runs its tests
   each night on the Mac mini (hosted firmware, colcon tests and the
   `mcb_parked`/`mcb_drive` sim E2E, then a dispatch of GitHub CI on nightly).
+  PRs into `nightly` run no CI; authors run the
+  [local checks](docs/CI.md#local-checks-for-prs-into-nightly) first.
   Build a nightly image on demand with `gh workflow run`; see
   [Nightly tests](docs/CI.md#nightly-tests) and the package PRs
   (e.g. [sim #36](https://github.com/Thornbots/sim/pull/36)).
-
-- PRs into `nightly` no longer run CI; CI runs on pushes to `nightly`/`main`,
-  PRs into `main` and manual dispatch. Authors run the
-  [local checks](docs/CI.md#local-checks-for-prs-into-nightly) before merging
-  into `nightly`.
 
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
