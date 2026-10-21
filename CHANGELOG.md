@@ -41,10 +41,20 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Simulation and AMCL use the corrected field export, including the restored
+  bar near y = +3 m. Localization ships one canonical `clean_map`, regenerated
+  at 2 cm resolution with one-cell obstacle growth; the alternate map and old
+  annotated image are removed. The map YAML and localization tuning stay
+  unchanged. See [sim #37](https://github.com/Thornbots/sim/pull/37),
+  [field geometry](sim/README.md#the-world-frame),
+  [saved map](sentry_localization/README.md#saved-map) and
+  [sentry_localization #14](https://github.com/Thornbots/sentry_localization/pull/14).
+  Host geometry and map checks pass; corrected-world runtime AMCL validation
+  remains pending.
+
 - Simulation uses the real field assembly (sim #29) for Gazebo geometry and
   match shot occlusion while preserving the field frame; existing routes keep
-  their clearance. Saved localization maps need regeneration before use with
-  this geometry. See [the sim world frame](sim/README.md#the-world-frame) and
+  their clearance. See [the sim world frame](sim/README.md#the-world-frame) and
   [sim #30](https://github.com/Thornbots/sim/pull/30).
 
 - Sim lidar uses the measured angle-compensated sentry A2M8 grid (720 bins),
