@@ -324,6 +324,11 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Nightly results require a zero runner exit and the complete valid stage
+  report, so interrupted runs cannot pass after setup alone. Failure-driven
+  SKIPs remain visible; malformed, duplicate or impossible records fail.
+  See [nightly tests](docs/CI.md#nightly-tests).
+
 - Automatic agent-container cleanup now removes only resources labelled for
   the creating invocation, including partial startup; duplicate task refusal
   preserves the existing container and volumes. Existing volumes are not
