@@ -324,6 +324,12 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- The UART bridge drops CV decisions aged 200 ms or more, invalid/future
+  stamps and frames behind a busy TX queue at the final nonblocking write
+  boundary. Fresh aim/fire payloads and ROS/simulation decision stamps stay
+  intact. See [bridge #19](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/19)
+  and the [freshness contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#cv-decision-freshness).
+
 - Nightly results require a zero runner exit and the complete valid stage
   report, so interrupted runs cannot pass after setup alone. Failure-driven
   SKIPs remain visible; malformed, duplicate or impossible records fail.
