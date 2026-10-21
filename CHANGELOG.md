@@ -338,7 +338,8 @@ impact, and link the corresponding package changes.
 - Automatic agent-container cleanup now removes only resources labelled for
   the creating invocation, including partial startup; duplicate task refusal
   preserves the existing container and volumes. Interruptible command waits
-  let signal cleanup run while the helper is active. Existing volumes are not
+  let signal cleanup run while the helper is active and preserve piped input.
+  Existing volumes are not
   silently reused. See [isaac_ros_common #15](https://github.com/Thornbots/isaac_ros_common/pull/15).
 
 - RF2O skips scans whose range count or angular geometry differs from its
