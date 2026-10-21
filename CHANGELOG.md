@@ -324,6 +324,11 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Automatic agent-container cleanup now removes only resources labelled for
+  the creating invocation, including partial startup; duplicate task refusal
+  preserves the existing container and volumes. Existing volumes are not
+  silently reused. See [isaac_ros_common #15](https://github.com/Thornbots/isaac_ros_common/pull/15).
+
 - RF2O skips scans whose range count or angular geometry differs from its
   initialized grid, with a throttled warning, instead of reading past the
   scan. Regression tests cover shorter/longer scans, angle changes and
