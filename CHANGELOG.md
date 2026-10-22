@@ -329,6 +329,8 @@ impact, and link the corresponding package changes.
   boundary. Fresh aim/fire payloads and ROS/simulation decision stamps stay
   intact. See [bridge #19](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/19)
   and the [freshness contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#cv-decision-freshness).
+  The real-bridge PTY fixtures stamp each newly created decision to follow this
+  contract ([sim #38](https://github.com/Thornbots/sim/pull/38)).
 
 - Nightly results require a zero runner exit and the complete valid stage
   report, so interrupted runs cannot pass after setup alone. Failure-driven
