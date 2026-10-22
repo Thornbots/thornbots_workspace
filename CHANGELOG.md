@@ -49,8 +49,9 @@ impact, and link the corresponding package changes.
   [field geometry](sim/README.md#the-world-frame),
   [saved map](sentry_localization/README.md#saved-map) and
   [sentry_localization #14](https://github.com/Thornbots/sentry_localization/pull/14).
-  Host geometry and map checks pass; corrected-world runtime AMCL validation
-  remains pending.
+  Host geometry and 16 map checks pass; the portable workspace builds and
+  all 267 sim/localization colcon tests pass. Corrected-world runtime AMCL
+  validation remains pending.
 
 - Simulation uses the real field assembly (sim #29) for Gazebo geometry and
   match shot occlusion while preserving the field frame; existing routes keep
