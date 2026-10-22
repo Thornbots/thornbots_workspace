@@ -341,6 +341,14 @@ impact, and link the corresponding package changes.
   [rf2o notes](sentry_localization/README.md#configrf2oyaml) and
   [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level).
 
+- The sentry's rough auto-drive route keeps the spinning chassis clear of the
+  wall end beside its start. The wall leg moves from 2.236 m to 2.5 m to the
+  side. Only the two wall-leg waypoints use a 0.2 m arrival tolerance; all
+  other waypoints retain 0.5 m, preventing corner cutting near the wall without
+  tightening other routes. The old route could strike the wall end and wedge
+  until the 15 s stuck timer. Not yet driven on the real field. See
+  [MCBV3 #101](https://github.com/Thornbots/MCBV3/pull/101).
+
 - The UART bridge drops CV decisions aged 200 ms or more, invalid/future
   stamps and frames behind a busy TX queue at the final nonblocking write
   boundary. Fresh aim/fire payloads and ROS/simulation decision stamps stay
