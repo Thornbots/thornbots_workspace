@@ -324,6 +324,23 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- A parked robot no longer gains 0.1-0.4 m of localization error when the
+  head slews onto a target. This affects the real robot as well as sim.
+  The head TF now publishes at the 90 Hz POSE rate, not the 20 Hz
+  `robot_state_publisher` default
+  ([thornbots_pkg #23](https://github.com/Thornbots/thornbots_pkg/pull/23)).
+  rf2o seeds and dead-reckons through the head's swing between scans, and
+  skips scans whose head TF is more than 50 ms stale
+  ([rf2o #14](https://github.com/Thornbots/rf2o_laser_odometry/pull/14),
+  [sentry_localization #15](https://github.com/Thornbots/sentry_localization/pull/15)).
+  `mcb_parked` now fails any cell whose map localization has p95 above 0.15 m,
+  max above 0.20 m or under 95% stamped coverage
+  ([sim #41](https://github.com/Thornbots/sim/pull/41)). Slow scan-odometry
+  drift while parked is still uncorrected, because AMCL needs 0.1 m of motion
+  before it updates; see the
+  [rf2o notes](sentry_localization/README.md#configrf2oyaml) and
+  [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level).
+
 - The UART bridge drops CV decisions aged 200 ms or more, invalid/future
   stamps and frames behind a busy TX queue at the final nonblocking write
   boundary. Fresh aim/fire payloads and ROS/simulation decision stamps stay

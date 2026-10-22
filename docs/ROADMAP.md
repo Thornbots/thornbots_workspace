@@ -121,6 +121,12 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 - **H-anomalies — sentry_localization / sim — unverified:** Recheck historical EKF/map anomalies on comparable
   truth-error metrics; bisect the field-frame change if reproduced. [Metrics](../sim/README.md#localization-drift-suite),
   [history](https://github.com/Thornbots/thornbots_workspace/blob/3b8163141f919e61b4bf5dafb857130b61d78869/ROADMAP.md#issues-found).
+- **T39 — sentry_localization — open:** Bound parked rf2o drift. Parked, rf2o's scan-match noise integrates at
+  about 1 mm/s (cell p95 up to 0.107 m over 50 s on the fixed stack; old-map nightlies 0.17-0.25 m), and AMCL never
+  corrects it: it updates only after 0.1 m or 0.05 rad of odometry motion (`update_min_d`/`update_min_a`). Do not
+  clamp to zero velocity when the wheels read still: an enemy pushing the sentry skids it with its wheels held, and
+  only the scan sees that motion. `mcb_parked` gates p95 at 0.15 m meanwhile.
+  [rf2o grading](../sentry_localization/README.md#configrf2oyaml), [parked gate](../sim/README.md#more-on-the-tests).
 
 Acceptance: SLAM+EKF passes amcl drift and game scenarios within 0.05 m on the same metric; error does not grow across
 carried-map games, and maps do not accumulate robots or duplicate walls.
