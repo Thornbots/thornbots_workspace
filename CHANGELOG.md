@@ -324,6 +324,26 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- The UART bridge drops CV decisions aged 200 ms or more, invalid/future
+  stamps and frames behind a busy TX queue at the final nonblocking write
+  boundary. Fresh aim/fire payloads and ROS/simulation decision stamps stay
+  intact. See [bridge #19](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/19)
+  and the [freshness contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#cv-decision-freshness).
+  The real-bridge PTY fixtures stamp each newly created decision to follow this
+  contract ([sim #38](https://github.com/Thornbots/sim/pull/38)).
+
+- Nightly results require a zero runner exit and the complete valid stage
+  report, so interrupted runs cannot pass after setup alone. Failure-driven
+  SKIPs remain visible; malformed, duplicate or impossible records fail.
+  See [nightly tests](docs/CI.md#nightly-tests).
+
+- Automatic agent-container cleanup now removes only resources labelled for
+  the creating invocation, including partial startup; duplicate task refusal
+  preserves the existing container and volumes. Interruptible command waits
+  let signal cleanup run while the helper is active and preserve piped input.
+  Existing volumes are not
+  silently reused. See [isaac_ros_common #15](https://github.com/Thornbots/isaac_ros_common/pull/15).
+
 - RF2O skips scans whose range count or angular geometry differs from its
   initialized grid, with a throttled warning, instead of reading past the
   scan. Regression tests cover shorter/longer scans, angle changes and

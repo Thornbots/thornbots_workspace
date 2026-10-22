@@ -82,6 +82,34 @@ dispatch_ci() { # outfile
     done
 }
 
+# The inner runner writes exactly these stages, including dependency SKIPs.
+validate_status() {
+    awk -F '\t' '
+        BEGIN { split("setup firmware build test e2e_mcb_parked e2e_mcb_drive", stages, " ") }
+        {
+            if (NR > 6 || NF != 3 || $1 != stages[NR] ||
+                $2 !~ /^(PASS|FAIL|SKIP)$/ || $3 !~ /^[0-9]+$/) {
+                print "invalid status record " NR > "/dev/stderr"; bad=1; next
+            }
+            outcome[$1]=$2
+            parts=parts " " $1 "=" $2
+        }
+        END {
+            if (NR != 6) { print "incomplete status: expected six stages" > "/dev/stderr"; bad=1 }
+            for (i=1; i<=6; i++) {
+                blocked=(i>1 && outcome["setup"] != "PASS") ||
+                    (i>3 && outcome["build"] != "PASS") ||
+                    (i>4 && outcome["firmware"] != "PASS")
+                if ((outcome[stages[i]] == "SKIP") != blocked) {
+                    print "invalid dependency outcome: " stages[i] > "/dev/stderr"; bad=1
+                }
+            }
+            if (bad) exit 1
+            print parts
+        }
+    ' "$1"
+}
+
 LOCK="$ROOT/.lock"
 cmd_run() {
     local day out n pid
@@ -122,15 +150,19 @@ cmd_run() {
     # A leftover from a crashed night has our task name and label.
     "$acm" down "$TASK" >/dev/null 2>&1
     : >"$out/status.tsv"
+    local runner_rc
     "$acm" run "$TASK" -w "$SRC" -e "$out" -- bash src/.github/scripts/nightly_tests_inside.sh
-    log "container run exit $?; container and Colima cleanup done by agent_container.sh"
+    runner_rc=$?
+    log "container run exit $runner_rc; container and Colima cleanup done by agent_container.sh"
 
-    local parts="" name res
-    while IFS="$(printf '\t')" read -r name res _; do
-        parts="$parts $name=$res"
-        [ "$res" = FAIL ] && verdict=FAIL
-    done <"$out/status.tsv"
-    [ -n "$parts" ] || { parts=" no-results"; verdict=FAIL; }
+    local parts
+    if ! parts="$(validate_status "$out/status.tsv")"; then
+        parts=" invalid-status"; verdict=FAIL
+    fi
+    case "$parts" in *"=FAIL"*) verdict=FAIL ;; esac
+    if [ "$runner_rc" -ne 0 ]; then
+        parts="$parts runner=FAIL($runner_rc)"; verdict=FAIL
+    fi
     echo "$verdict $day$parts | $(awk '{printf "%s@%s ", $1, $2}' "$out/shas.txt")| $(( ($(date +%s) - t0) / 60 )) min" >"$out/summary.txt"
     # Sorted to oldest-first; drop all but the newest $KEEP.
     ls -1d "$ROOT"/results/2* 2>/dev/null | sort | awk -v k="$KEEP" '{a[NR]=$0} END{for(i=1;i<=NR-k;i++) print a[i]}' \

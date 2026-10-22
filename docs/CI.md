@@ -71,6 +71,11 @@ the workspace's pins and drives `agent_container.sh`.
   PASS/FAIL/SKIP per stage plus workspace and package SHAs); the newest 14 are
   kept and `results/launchd.log` has the job's own output. The exit status is
   the local result.
+- A PASS requires a zero runner exit and exactly one ordered record for each
+  of setup, firmware, build, test and the two E2E stages. Invalid outcomes,
+  malformed durations, missing/extra/duplicate records and impossible SKIPs
+  fail the run. Setup/build/firmware failures retain their dependency SKIPs;
+  those completed failure reports still return FAIL.
 - After the local run it dispatches GitHub `CI` on `nightly` in every repo with
   that workflow (and MCBV3's `firmware.yml`) using the mini's `gh`, appends the
   run URLs to `summary.txt` and does not wait for them.
