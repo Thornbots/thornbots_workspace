@@ -229,10 +229,8 @@ trusted by `check_bench_log`.
 - `drift` (AMCL backend, rf2o): 9/9 passed; `drift_correction` max change 0.0948 m.
 - `ekf`: 1/1 passed.
 - `mcb_parked`, hosted firmware build of the pinned, unchanged MCBV3 sources:
-  12/12 passed. Map error over 4,922 stamped samples: mean 0.0367 m, p95
-  0.1146 m, max 0.1193 m. The 2026-10-22 mini run
-  (`~/ros2_ws/map83-evidence-20261022/REPORT.md`) recorded p95 0.4033 m.
-  The pass is the stage's own gate; the error is diagnostic.
+  12/12 passed; worst cell p95 0.119 m. This is within the
+  [parked odometry spread](#parked-odometry-ab), not a regression.
 - `drift backend:=mapping use_rf2o:=false`: **4/9 passed, 5 failed** with the
   lidar base. The same suite with `base_frame: root` restored also failed
   the same five: `drift_correction` 0.4268 vs 0.4476 m,
@@ -247,6 +245,30 @@ trusted by `check_bench_log`.
 
 Renode `mcb_parked` was not run: this arm64 image has no ARM GCC. The hosted
 backend matches the workspace nightly runner.
+
+### Parked odometry A/B
+
+`mcb_parked` runs AMCL with rf2o/EKF (`sim/launch/e2e.launch.py`), not
+slam_toolbox. Nine hosted runs on the Mac mini, three each of: this head
+(`2f348c3`); the same with `base_frame: root`; and nightly `b88b4ce`'s
+pins (sentry_localization `f3e4514`, thornbots_pkg `4054dd0`, firmware
+`5950960`). All passed 12/12. Diagonal cells, p95 m:
+
+| Variant | stationary | speed1 | speed2 | speed4 |
+| --- | --- | --- | --- | --- |
+| Head, 3 runs | 0.026-0.048 | 0.018-0.063 | 0.025-0.082 | 0.021-0.088 |
+| `root` base, 3 runs | 0.034-0.085 | 0.017-0.081 | 0.024-0.092 | 0.022-0.133 |
+| `b88b4ce` pins, 3 runs | 0.014-0.060 | 0.023-0.073 | 0.042-0.085 | 0.042-0.102 |
+| `b88b4ce` nightly gate, 1 run | 0.022 | 0.020 | 0.038 | 0.042 |
+
+Lateral and radial cells stayed at or below 0.072 m in every variant. The
+error is `nav_odom` (rf2o/EKF) drift: AMCL's `map->nav_odom` correction
+stayed at or below 0.008 m p95, because parked AMCL never reaches its motion
+update thresholds. Odometry is not reset between cells and the diagonal cells
+run last, so error grows with elapsed time, not head speed. `b88b4ce`
+itself reached 0.102 m; the single gate run was a low draw. This is
+[ROADMAP T39](../ROADMAP.md#h-slam-at-amcls-level). Evidence:
+`~/ros2_ws/mcb-parked-ab-20261023/SUMMARY.md`.
 
 ## Hardware risks
 
