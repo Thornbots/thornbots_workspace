@@ -41,6 +41,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Clean up the YOLO bridge package description and RealSense configuration:
+  remove an unused JSON preset and Humble-only bare `profile` keys. Launch
+  behavior is unchanged. See
+  [YOLO bridge #6](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/6)
+  and [workspace #38](https://github.com/Thornbots/thornbots_workspace/pull/38).
+
 - Simulation and AMCL use the corrected field export, including the restored
   bar near y = +3 m. Localization ships one canonical `clean_map`, regenerated
   at 2 cm resolution with one-cell obstacle growth; the alternate map and old
@@ -49,13 +55,16 @@ impact, and link the corresponding package changes.
   [field geometry](sim/README.md#the-world-frame),
   [saved map](sentry_localization/README.md#saved-map) and
   [sentry_localization #14](https://github.com/Thornbots/sentry_localization/pull/14).
-  Host geometry and 16 map checks pass; the portable workspace builds and
-  all 267 sim/localization colcon tests pass. Corrected-world runtime AMCL
-  validation remains pending.
+  At integration, host geometry and 16 map checks passed, the portable
+  workspace built and all 267 sim/localization colcon tests passed. Subsequent
+  runtime checks exposed head-slew localization errors, addressed by the
+  parked-localization fixes below; the map itself was not the cause.
 
 - Simulation uses the real field assembly (sim #29) for Gazebo geometry and
-  match shot occlusion while preserving the field frame; existing routes keep
-  their clearance. See [the sim world frame](sim/README.md#the-world-frame) and
+  match shot occlusion while preserving the field frame. This initial
+  integration preceded the corrected export and regenerated map above; it
+  does not establish clearance for every firmware route. See
+  [the sim world frame](sim/README.md#the-world-frame) and
   [sim #30](https://github.com/Thornbots/sim/pull/30).
 
 - Sim lidar uses the measured angle-compensated sentry A2M8 grid (720 bins),
@@ -67,13 +76,14 @@ impact, and link the corresponding package changes.
 - The sim MCB emulator's PTY link is unique per stack
   (`/tmp/mcb_emulator_pty-<GZ_PARTITION>-<ROS_DOMAIN_ID>`), so concurrent sim
   stacks no longer steal each other's UART; a link owned by a live stack is
-  refused. Sim only; no robot or wire change
+  refused, except when a stale link points to the new stack's own reused PTY
+  (see the fix below). Sim only; no robot or wire change
   ([sim #32](https://github.com/Thornbots/sim/pull/32)).
 
 - The sentry drivetrain matches `main` again: the default stop command cuts
   wheel current and centred manual drive holds a zero wheel-velocity setpoint;
-  nightly's latched pod-position hold is removed. The sim parked-hold checks
-  pin that behaviour. Nightly's chassis-power and peek gates moved to
+  the earlier nightly latched pod-position hold was removed. The sim
+  parked-hold checks pin that behaviour. Nightly's chassis-power and peek gates moved to
   `feat/drivetrain-power-and-peek-gates`. See
   [MCBV3 #98](https://github.com/Thornbots/MCBV3/pull/98) and
   [sim #28](https://github.com/Thornbots/sim/pull/28).
@@ -86,7 +96,8 @@ impact, and link the corresponding package changes.
   [skill](.claude/skills/isaac-ros-docker/SKILL.md#your-own-container),
   [isaac_ros_common #12](https://github.com/Thornbots/isaac_ros_common/pull/12)).
 
-- Only `main` builds an image and runs CI on push; `nightly` runs its tests
+- Full GitHub CI and robot-image builds run on `main` pushes, PRs into
+  `main` and manual dispatch; `nightly` runs its tests
   each night on the Mac mini (hosted firmware, colcon tests and the
   `mcb_parked`/`mcb_drive` sim E2E, then a dispatch of GitHub CI on nightly).
   PRs into `nightly` run no CI; authors run the
@@ -110,8 +121,10 @@ impact, and link the corresponding package changes.
   The sim clock bridge now uses UDP-only DDS so a stale shared-memory reader
   port cannot block global time publication; a focused clock-delivery test
   checks fresh contexts and the transport invariant.
-  Two final full drift confirmations pass 9/9 each without startup retries or
-  relaxed limits; large simulator yaw excursions also reproduce on nightly.
+  At the T30 revision, two final full drift confirmations passed 9/9 each
+  without startup retries or relaxed limits; large simulator yaw excursions
+  also reproduced. These results predate the field/map and parked-localization
+  fixes below and do not validate the final release candidate.
   Portable CI dependency pins now follow the integrated current UART contract. See
   [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
   [sim #26](https://github.com/Thornbots/sim/pull/26) and
@@ -165,18 +178,20 @@ impact, and link the corresponding package changes.
 - Aim now defaults to spin alignment gating: hold a steady center-to-shooter
   line and schedule fire for the predicted facing panel. The yaw rate filter,
   zero residual hosted lead and 94 ms indexing calibration remain unchanged.
-  Three fresh Mac hosted repeats clear every spinning cell, with pooled hits
-  of 97.1% versus nightly's observed 17.3%; parked, drive, match and moving
-  improve to 85.5%, 93.5%, 54.5% and 79.6%. Failed nightly accuracy checks
-  remain diagnostic observations; clock-invalid attempts are excluded.
+  At the linked investigation revision, three Mac hosted repeats cleared
+  every spinning cell, with pooled hits of 97.1% versus the then-nightly
+  baseline's 17.3%; parked, drive, match and moving reached 85.5%, 93.5%,
+  54.5% and 79.6%. Failed baseline accuracy checks remained diagnostic
+  observations; clock-invalid attempts were excluded.
   Nonspinning prediction retains panel lead and hysteresis. Board lockstep learns one 5 ms batch ahead while retaining wall
   deadlines and timeout rejection. Renode installation now avoids the
   temporary-directory cleanup prefix that deleted writable fixtures. Firmware
   sleeps between SysTick interrupts during the three-second power-on guard;
   three complete Mac board boots take 102–116 wall seconds under the unchanged
-  600-second startup limit. Three native-accepted board repeats improve drive
-  hits from 30.5% to 85.1% and match from 23.7% to 54.1%, with zero lockstep
-  timeouts in the selected runs. See the
+  600-second startup limit. Three native-accepted Renode board repeats in that
+  investigation improved drive hits from 30.5% to 85.1% and match from 23.7% to 54.1%, with zero
+  lockstep timeouts in the selected runs. These are historical simulation
+  measurements, not physical-board or final-release acceptance. See the
   [spinning and board investigation](sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison).
 
 - Calibrate the hosted direct-sensor aim fixture's 8 ms gyro age and model
@@ -184,10 +199,12 @@ impact, and link the corresponding package changes.
   muzzle motion and pose-latency controls. The 8 ms delay is fixture-specific;
   board execution uses its full IMU filter. Firmware yaw prediction now uses
   geared torque and configured friction, control integration uses the actual
-  1 ms interval, and the in-game parked command holds zero wheel velocity.
-  Sim adds estimated passive rolling resistance and a 3 cm parked-displacement
-  limit. Three hosted pre-track-I repeats measured maximum chassis displacement
-  of 19.2, 28.9 and 22.4 mm versus the 132.0 mm coasting observation. These
+  1 ms interval. That experiment introduced a zero-wheel-velocity parked
+  hold and a 3 cm displacement limit, with estimated passive rolling
+  resistance in sim. The later drivetrain reversion above removed the
+  automatic hold: the default stop cuts wheel current; centred manual drive
+  still holds zero wheel velocity. Three hosted pre-track-I repeats measured
+  maximum chassis displacement of 19.2, 28.9 and 22.4 mm versus the 132.0 mm coasting observation. These
   scores are not controlled comparisons with the new board auto-drive route.
   Native failures remain failures, not accepted accuracy results; moving-shot
   accuracy remains an acceptance gate. See the [dated accuracy investigation](sim/docs/aim-accuracy-2026-10-12.md).
@@ -198,7 +215,9 @@ impact, and link the corresponding package changes.
   [follow-up investigation](sim/docs/aim-followup-2026-10-12.md) checks TF
   composition, startup gaps, nightly localization behavior and combat
   repeatability. `mcb_parked` first used a 0.10 m displacement bound; the
-  accuracy work tightens it to 0.03 m and adds powered velocity holding.
+  accuracy experiment tightened it to 0.03 m and added powered velocity
+  holding, which the later drivetrain reversion above removed. Those earlier
+  measurements are not acceptance evidence for the current stop behavior.
   Capture-stamp and native accuracy failures remain visible.
 
 - Aim and tracking use raw, never-relocalized MCB `odom`; EKF and RELOCALIZE
@@ -230,8 +249,9 @@ impact, and link the corresponding package changes.
 - Automatic firmware aiming now releases the indexer's stop flag when shooting
   becomes allowed after calibration/SETUP. Existing shot-eligibility gates and
   manual aiming are retained. Sim models a loaded-cartridge reverse homing
-  stop and checks CAN output as well as issued requests. The real-board parked
-  cell passes; repeatability remains open. See
+  stop and checks CAN output as well as issued requests. The Renode board parked
+  cell passed at that revision; physical-robot validation and repeatability
+  remain open. See
   [MCBV3 #91](https://github.com/Thornbots/MCBV3/pull/91),
   [sim #18](https://github.com/Thornbots/sim/pull/18),
   [bridge #10](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/10), and
@@ -255,20 +275,22 @@ impact, and link the corresponding package changes.
   [thornbots_pkg #12](https://github.com/Thornbots/thornbots_pkg/pull/12) and
   [relay timing](thornbots_pkg/README.md#mcb_relay).
 
-- Verified all three hosted-firmware match stages after T32/T33. Parked
-  moving cells still fail; drive/match pass diagnostic completion with zero
-  native hits. Current status links the
+- At the T32/T33 revision, all three hosted-firmware match stages were
+  checked: parked moving cells failed, while drive/match passed diagnostic
+  completion with zero native hits. Later aim and board-stage work above
+  superseded these results; retain the historical
   [per-cell/segment results and native checker verdicts](sim/docs/match-check-2026-10-11.md).
 
 - Sim runs one native MCB control tick per gz physics step, supplies DJI motor
   feedback and applies motor outputs as forces instead of gz setpoint
-  controllers. The UART bridge waits for the PTY. This completes track I's
-  motor path; STM32 execution and firmware auto-drive remain. See
+  controllers. The UART bridge waits for the PTY. This completed track I's
+  motor path at that revision; the later Renode board and firmware auto-drive
+  work above completed those simulation paths. See
   [sim #14](https://github.com/Thornbots/sim/pull/14),
   [MCBV3 #88](https://github.com/Thornbots/MCBV3/pull/88),
   [bridge #7](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/7) and the
   [motor validation](sim/docs/mcb-motor-plant-2026-10-11.md). Drive/match diagnostics
-  pass; parked hit-path repeatability remains unresolved.
+  passed at that revision; parked hit-path repeatability remained unresolved.
 
 - `CVTarget.patrol` identifies every Jetson sweep and hit-turn patrol point
   on UART bit 3. The 15-byte payload and current firmware behavior stay
@@ -306,26 +328,28 @@ impact, and link the corresponding package changes.
   [sim #10](https://github.com/Thornbots/sim/pull/10) and the
   [verification and shutdown findings](sim/docs/mcb-hosted-check-2026-10-11.md).
 
-- PRs into `nightly` run only cheap CI (lint, policy, host helpers, MCBV3
-  hosted tests). Jazzy ROS builds, the robot image and MCBV3 ARM builds run on
-  `nightly`/`main` pushes, PRs into `main` and manual dispatch, and nightly
-  branch protection requires only the cheap checks. See
-  [CI](docs/CI.md), [thornbots_pkg #8](https://github.com/Thornbots/thornbots_pkg/pull/8),
-  [sim #9](https://github.com/Thornbots/sim/pull/9),
-  [sentry_localization #4](https://github.com/Thornbots/sentry_localization/pull/4),
-  [rf2o_laser_odometry #8](https://github.com/Thornbots/rf2o_laser_odometry/pull/8),
-  [ros2_dji_serial_bridge #4](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/4),
-  [Realsense_ROI_Depth_Rectifier #4](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/4),
-  [sllidar_ros2 #4](https://github.com/Thornbots/sllidar_ros2/pull/4) and
-  [MCBV3 #85](https://github.com/Thornbots/MCBV3/pull/85).
 - `.claude/settings.local.json` is no longer tracked and is now gitignored; it
   held one maintainer's personal permissions and paths. Pulling this removes
   the tracked copy, so keep a backup first if you edited it locally.
 
 ### Fixed
 
-- A parked robot no longer gains 0.1-0.4 m of localization error when the
-  head slews onto a target. This affects the real robot as well as sim.
+- E2E referee parameter requests have a two-second response deadline and
+  bounded retries of the current desired state, so a lost bring-up response
+  no longer permanently blocks a later `drive=simple` update. Sim fixture
+  only; see [sim #39](https://github.com/Thornbots/sim/pull/39) and
+  [workspace #85](https://github.com/Thornbots/thornbots_workspace/pull/85).
+
+- A new sim stack replaces a stale MCB PTY link pointing to its own reused
+  `/dev/pts` number after an interrupted teardown. Links to other live PTYs
+  remain protected, preventing one failed teardown from aborting subsequent
+  E2E stages. Sim fixture only; see
+  [sim #40](https://github.com/Thornbots/sim/pull/40) and
+  [workspace #87](https://github.com/Thornbots/thornbots_workspace/pull/87).
+
+- Fix the head-TF timing and rf2o head-motion handling that caused 0.1-0.4 m
+  parked-localization errors during simulated target-acquisition slews. The
+  shared robot path receives the same fixes; hardware validation is pending.
   The head TF now publishes at the 90 Hz POSE rate, not the 20 Hz
   `robot_state_publisher` default
   ([thornbots_pkg #23](https://github.com/Thornbots/thornbots_pkg/pull/23)).
@@ -336,10 +360,14 @@ impact, and link the corresponding package changes.
   `mcb_parked` now fails any cell whose map localization has p95 above 0.15 m,
   max above 0.20 m or under 95% stamped coverage
   ([sim #41](https://github.com/Thornbots/sim/pull/41)). Slow scan-odometry
-  drift while parked is still uncorrected, because AMCL needs 0.1 m of motion
-  before it updates; see the
+  drift while parked is still uncorrected below AMCL's update thresholds
+  (0.1 m translation or 0.05 rad odometry rotation); see the
   [rf2o notes](sentry_localization/README.md#configrf2oyaml) and
-  [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level).
+  [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level). The merged-package
+  tree passed three hosted parked runs (12/12 cells each) and 560 colcon
+  tests; earlier fix validation also passed AMCL `drift_correction`. See
+  [workspace #88](https://github.com/Thornbots/thornbots_workspace/pull/88)
+  for revisions and measurements.
 
 - The UART bridge drops CV decisions aged 200 ms or more, invalid/future
   stamps and frames behind a busy TX queue at the final nonblocking write
@@ -370,6 +398,23 @@ impact, and link the corresponding package changes.
   slam_toolbox receive a fixed angular grid (720 bins on the measured A2M8)
   rather than a varying beam count. Stationary drift after this change still
   needs a robot run. See [thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18).
+
+### Real-robot impact and validation limits
+
+- Deploy matching firmware and ROS packages together: this batch separates
+  raw aiming odometry from navigation corrections, changes hit-turn/reporting
+  behavior, and rejects stale CV decisions at UART transmission. Head-TF/rf2o
+  fixes and lidar angle compensation also affect robot localization. The
+  default drivetrain stop cuts wheel current; centred manual drive holds
+  zero wheel velocity.
+- No physical-robot validation has been performed for this batch. Historical
+  hosted/Renode results above and package test runs do not establish final
+  release, camera/GPU, physical drivetrain, firing or combat acceptance. Final
+  candidate CI/image checks remain release checks; see [CI limits](docs/CI.md#validation-boundaries).
+- Slow parked scan-odometry drift remains open under
+  [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level). The sim parked gate
+  requires p95 ≤ 0.15 m, max ≤ 0.20 m and at least 95% stamped coverage;
+  passing it does not establish long-duration stationary accuracy on hardware.
 
 ## 2026-10-10
 
