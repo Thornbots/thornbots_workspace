@@ -22,6 +22,9 @@ impact, and link the corresponding package changes.
   automatically during localization. No firmware or movement changes.
   Both team-start rehearsals passed after nonzero registration and restart;
   see the [operator safety results](docs/investigations/fieldday-operator-safety-2026-10-22.md).
+  Room sessions now capture and prepare without referee input (`robot_id: 0`);
+  practice fields can explicitly select `--no-referee --team red|blue` while
+  retaining the raw-odometry start check.
 
 - Lidar range documentation and a real-format rf2o test. No behavior change:
   the 0.15 m SLAM/AMCL range floor stays (the A2M8 minimum is 0.05 m; the
