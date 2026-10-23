@@ -63,6 +63,11 @@ max 0.04802 m. Reverse coverage was only 60.19% within 0.15 m; reverse p95 was
 or arbitrary-heading field registration on hardware. Rotation, raster sampling
 and nonzero boot registration are covered by offline regression tests.
 
+The [follow-up divergence investigation](fieldmap-divergence-2026-10-22.md)
+isolates the moving-lidar mount bug and simulated vertical-motion artifact, and
+records broad mapping from level stations. The partial-coverage result above
+describes this original rehearsal.
+
 Build and registered tests passed: **201 tests, zero failures/errors/skips**.
 Python 3.12 repository quality checks, explicit Ruff on the extensionless CLI,
 and actionlint passed. Native sim log checking accepted the successful runs;

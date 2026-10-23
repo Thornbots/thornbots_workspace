@@ -13,9 +13,13 @@ impact, and link the corresponding package changes.
   convergence workflow, with live raw-odometry EKF seeding and measured AMCL starts
   ([sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16),
   [thornbots_pkg #24](https://github.com/Thornbots/thornbots_pkg/pull/24)).
-  Room and flat central-field sim rehearsals passed parked/head-slew and short-drive
-  accuracy gates; broad-field mapping failed and successful coverage is partial.
-  See the [measured results and hardware limits](docs/investigations/fieldday-slam-amcl-2026-10-22.md).
+  Room and flat central-field sim rehearsals are in the
+  [initial results](docs/investigations/fieldday-slam-amcl-2026-10-22.md).
+  Full-field mapping uses level observation stations with `pause`/`resume`
+  scan insertion; field mapping and localization default to raw wheel input
+  (`--rf2o` opts in). A sim full-field map reached 97.55% `clean_map` coverage
+  and passed raw-input AMCL parked/drive gates; see the
+  [follow-up](docs/investigations/fieldmap-divergence-2026-10-22.md).
   The operator card now uses one session directory, derives the referee team,
   rejects wrong-side/heading registrations and stale boot captures, retains
   separate autosave backups, warns on unsaved stops, and runs parked gates
@@ -350,6 +354,16 @@ impact, and link the corresponding package changes.
   the tracked copy, so keep a backup first if you edited it locally.
 
 ### Fixed
+
+- SLAM and AMCL no longer treat head motion as robot motion. Both cached the
+  head-mounted lidar's mount from the first scan; slam_toolbox now tracks the
+  `lidar` frame (`slam.yaml`, also the default robot launch) and AMCL refreshes
+  the mount position each scan. In sim, a flat head-sweep SLAM circuit went
+  from 0.735 m to 0.012 m p95 error, and a head-sweeping AMCL drive from
+  0.205 m to 0.10 m max. Start new mapping sessions; old serialized graphs used
+  the `root` base. See the
+  [investigation](docs/investigations/fieldmap-divergence-2026-10-22.md) and
+  [sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16).
 
 - E2E referee parameter requests have a two-second response deadline and
   bounded retries of the current desired state, so a lost bring-up response
