@@ -29,6 +29,11 @@ impact, and link the corresponding package changes.
   Room sessions now capture and prepare without referee input (`robot_id: 0`);
   practice fields can explicitly select `--no-referee --team red|blue` while
   retaining the raw-odometry start check.
+  Field startup now verifies team/start before the backend and gates EKF seeding
+  on referee re-anchoring; field maps support either live team. Contract starts
+  are the default, surveyed refinements are bounded to 0.3 m, automatic parked
+  gates use 3 s freshness, and EKF/unsaved-launch exits are supervised explicitly.
+  See the [round-2 validation and remaining limits](docs/investigations/fieldday-round2-2026-10-23.md).
 
 - Lidar range documentation and a real-format rf2o test. No behavior change:
   the 0.15 m SLAM/AMCL range floor stays (the A2M8 minimum is 0.05 m; the
