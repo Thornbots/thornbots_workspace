@@ -9,6 +9,34 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Container-terminal room/field SLAM snapshot, occupancy registration and AMCL
+  convergence workflow, with live raw-odometry EKF seeding and measured AMCL starts
+  ([sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16),
+  [thornbots_pkg #24](https://github.com/Thornbots/thornbots_pkg/pull/24)).
+  Room and flat central-field sim rehearsals are in the
+  [initial results](docs/investigations/fieldday-slam-amcl-2026-10-22.md).
+  Full-field mapping uses level observation stations with `pause`/`resume`
+  scan insertion; field mapping and localization default to raw wheel input
+  (`--rf2o` opts in). A sim full-field map reached 97.55% `clean_map` coverage
+  and passed raw-input AMCL parked/drive gates; see the
+  [follow-up](docs/investigations/fieldmap-divergence-2026-10-22.md).
+  The operator card now uses one session directory, derives the referee team,
+  rejects wrong-side/heading registrations and stale boot captures, retains
+  separate autosave backups, warns on unsaved stops, and runs parked gates
+  automatically during localization. No firmware or movement changes.
+  Both team-start rehearsals passed after nonzero registration and restart;
+  see the [operator safety results](docs/investigations/fieldday-operator-safety-2026-10-22.md).
+  Room sessions now capture and prepare without referee input (`robot_id: 0`);
+  practice fields can explicitly select `--no-referee --team red|blue` while
+  retaining the raw-odometry start check.
+  Field startup now verifies team/start before the backend and gates EKF seeding
+  on referee re-anchoring; field maps support either live team. Contract starts
+  are the default, surveyed refinements are bounded to 0.3 m, automatic parked
+  gates use 3 s freshness, and EKF/unsaved-launch exits are supervised explicitly.
+  After save, the NEXT prompt selects `prepare-room` for room sessions and the
+  yaw-only alignment step for fields.
+  See the [round-2 validation and remaining limits](docs/investigations/fieldday-round2-2026-10-23.md).
+
 - Lidar range documentation and a real-format rf2o test. No behavior change:
   the 0.15 m SLAM/AMCL range floor stays (the A2M8 minimum is 0.05 m; the
   self-filter's body coverage is unproven on hardware, see
@@ -333,6 +361,16 @@ impact, and link the corresponding package changes.
   the tracked copy, so keep a backup first if you edited it locally.
 
 ### Fixed
+
+- SLAM and AMCL no longer treat head motion as robot motion. Both cached the
+  head-mounted lidar's mount from the first scan; slam_toolbox now tracks the
+  `lidar` frame (`slam.yaml`, also the default robot launch) and AMCL refreshes
+  the mount position each scan. In sim, a flat head-sweep SLAM circuit went
+  from 0.735 m to 0.012 m p95 error, and a head-sweeping AMCL drive from
+  0.205 m to 0.10 m max. Start new mapping sessions; old serialized graphs used
+  the `root` base. See the
+  [investigation](docs/investigations/fieldmap-divergence-2026-10-22.md) and
+  [sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16).
 
 - E2E referee parameter requests have a two-second response deadline and
   bounded retries of the current desired state, so a lost bring-up response

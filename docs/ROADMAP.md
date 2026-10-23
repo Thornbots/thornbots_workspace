@@ -127,6 +127,8 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   clamp to zero velocity when the wheels read still: an enemy pushing the sentry skids it with its wheels held, and
   only the scan sees that motion. `mcb_parked` gates p95 at 0.15 m meanwhile.
   [rf2o grading](../sentry_localization/README.md#configrf2oyaml), [parked gate](../sim/README.md#more-on-the-tests).
+  In sim it reaches 0.10-0.13 m within one 215 s `mcb_parked` suite, close to that gate
+  ([A/B, 2026-10-23](investigations/fieldmap-divergence-2026-10-22.md#parked-odometry-ab)).
 
 Acceptance: SLAM+EKF passes amcl drift and game scenarios within 0.05 m on the same metric; error does not grow across
 carried-map games, and maps do not accumulate robots or duplicate walls.
