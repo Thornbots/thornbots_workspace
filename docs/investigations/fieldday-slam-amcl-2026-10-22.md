@@ -1,5 +1,8 @@
 # Field-day SLAM to AMCL rehearsal — 2026-10-22
 
+The later [operator safety rehearsal](fieldday-operator-safety-2026-10-22.md)
+supersedes this run's hand-entered seed procedure and adds both real team starts.
+
 The operator workflow and a room rehearsal passed. A flat central circuit in the
 sim field also passed AMCL accuracy gates after a full sim restart. Broad field
 mapping failed with both fused and raw odometry; the successful map has partial

@@ -10,12 +10,18 @@ impact, and link the corresponding package changes.
 ### Added
 
 - Container-terminal room/field SLAM snapshot, occupancy registration and AMCL
-  convergence workflow, with independent firmware odometry and AMCL seeds
+  convergence workflow, with live raw-odometry EKF seeding and measured AMCL starts
   ([sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16),
   [thornbots_pkg #24](https://github.com/Thornbots/thornbots_pkg/pull/24)).
   Room and flat central-field sim rehearsals passed parked/head-slew and short-drive
   accuracy gates; broad-field mapping failed and successful coverage is partial.
   See the [measured results and hardware limits](docs/investigations/fieldday-slam-amcl-2026-10-22.md).
+  The operator card now uses one session directory, derives the referee team,
+  rejects wrong-side/heading registrations and stale boot captures, retains
+  separate autosave backups, warns on unsaved stops, and runs parked gates
+  automatically during localization. No firmware or movement changes.
+  Both team-start rehearsals passed after nonzero registration and restart;
+  see the [operator safety results](docs/investigations/fieldday-operator-safety-2026-10-22.md).
 
 - Lidar range documentation and a real-format rf2o test. No behavior change:
   the 0.15 m SLAM/AMCL range floor stays (the A2M8 minimum is 0.05 m; the
