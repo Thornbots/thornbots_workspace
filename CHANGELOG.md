@@ -33,6 +33,8 @@ impact, and link the corresponding package changes.
   on referee re-anchoring; field maps support either live team. Contract starts
   are the default, surveyed refinements are bounded to 0.3 m, automatic parked
   gates use 3 s freshness, and EKF/unsaved-launch exits are supervised explicitly.
+  After save, the NEXT prompt selects `prepare-room` for room sessions and the
+  yaw-only alignment step for fields.
   See the [round-2 validation and remaining limits](docs/investigations/fieldday-round2-2026-10-23.md).
 
 - Lidar range documentation and a real-format rf2o test. No behavior change:

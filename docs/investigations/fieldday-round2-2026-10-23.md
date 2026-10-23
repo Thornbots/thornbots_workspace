@@ -28,6 +28,8 @@ Findings 2–8 are in sentry_localization `a1d96c5`; thornbots_pkg `2f46adb`
 adds the guarded input-only bootstrap and forwards the seed options. They retain
 the concurrent moving-lidar fix `2f348c3`, raw-wheel defaults and pause/resume
 workflow. All three pull requests remain drafts targeting `nightly`.
+Follow-up sentry_localization `b23289c` prints `prepare-room` after a room save
+and the yaw-only alignment command after a field save.
 
 In AMCL mode, `/localization/odom` comes from raw passthrough by default. With
 `--rf2o`, EKF fuses raw velocity/fixed heading and rf2o position into that topic.
@@ -42,6 +44,9 @@ The owned container was `isaac-agent-round2-workflow`, domain 121, partition
 `agent-round2-workflow-121`, capped at 6 CPUs/12 GiB. Smoke verified the live
 overlay. A parallel build exhausted memory; rebuilding with two compile jobs
 succeeded. No firmware, movement implementation or physical robot changed.
+Final process inspection found no owned ROS/Gazebo processes. The container and
+its volumes were removed; Colima remained running because another task's
+container was active.
 
 Room telemetry came from Gazebo/pose_emulator and a test-only referee adapter
 publishing `robot_id: 0`. The complete mapping → boot → manual sim circuit →
@@ -64,8 +69,9 @@ Focused unit tests include zero-ID room/field behavior, explicit practice team,
 late-assignment/re-anchor ordering, seed timeout, direct exec, typo rejection,
 live blue start on red registration, matching convergence defaults, spontaneous
 exit warnings and SIGTERM process cleanup.
-After rebasing onto the moving-lidar changes, host tests passed 92 with the two
-fixture skips below; registered container tests passed 263 with zero failures,
+After rebasing onto the moving-lidar changes and correcting NEXT prompts, host
+tests passed 94 with the two fixture skips below; registered container tests
+passed 265 with zero failures,
 errors or skips. Both package repository checks, workspace checks, actionlint,
 explicit helper Ruff and diff checks passed. No baselines changed.
 
