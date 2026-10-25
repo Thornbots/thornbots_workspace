@@ -370,6 +370,19 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- rf2o no longer carries a permanent offset when the robot moves before its
+  first scan, or when rf2o restarts while moving. It used to latch the first
+  `/odom` pose and initialize from a later scan; it now seeds at that scan's
+  own odometry stamp, waits in a bounded queue for scan-time TF and odom, and
+  caps that wait at 1 s so a stalled `/odom` or joint stream degrades rather
+  than stopping rf2o. Failed matches without wheel fallback retain the coherent
+  scan/pose/head reference so recovery preserves the full displacement.
+  Startup topic aliases and remaps use resolved subscription names.
+  In sim, moving 1.5 m before the first scan left 1.0 m on
+  the old pin and 0.004-0.010 m now. This affects the normal rf2o/EKF launch;
+  the competition `localize` default (raw wheel odometry) does not use rf2o.
+  [rf2o_laser_odometry #16](https://github.com/Thornbots/rf2o_laser_odometry/pull/16).
+
 - SLAM and AMCL no longer treat head motion as robot motion. Both cached the
   head-mounted lidar's mount from the first scan; slam_toolbox now tracks the
   `lidar` frame (`slam.yaml`, also the default robot launch) and AMCL refreshes
