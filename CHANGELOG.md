@@ -391,6 +391,19 @@ impact, and link the corresponding package changes.
   [rf2o_laser_odometry #17](https://github.com/Thornbots/rf2o_laser_odometry/pull/17),
   [sim #43](https://github.com/Thornbots/sim/pull/43).
 
+- Optional parked rf2o references now expire and drop on degraded matches.
+  One anchor follows the full stamped head offset, avoiding drift-chain
+  switches during continuous patrol; small anchored increments are filtered
+  while larger shove increments retain their full response. Wheel fallback
+  recovers when buffered odometry covers an uncached accepted scan, and
+  backward timestamp jumps reset scan/odometry and dynamic TF history.
+  A new opt-in 3-minute parked obstacle/panning scenario checks raw scan
+  steps, drift and shove displacement. References remain off in the robot
+  configuration; enablement stays held for a robot parked test in
+  [localization #18](https://github.com/Thornbots/sentry_localization/pull/18).
+  [rf2o #18](https://github.com/Thornbots/rf2o_laser_odometry/pull/18),
+  [sim #44](https://github.com/Thornbots/sim/pull/44).
+
 - SLAM and AMCL no longer treat head motion as robot motion. Both cached the
   head-mounted lidar's mount from the first scan; slam_toolbox now tracks the
   `lidar` frame (`slam.yaml`, also the default robot launch) and AMCL refreshes
