@@ -141,6 +141,12 @@ impact, and link the corresponding package changes.
   Build a nightly image on demand with `gh workflow run`; see
   [Nightly tests](docs/CI.md#nightly-tests) and the package PRs
   (e.g. [sim #36](https://github.com/Thornbots/sim/pull/36)).
+- USB installs now hand boot control back to the installed NVMe after
+  NVIDIA's boot-order rewrite, remove the temporary installer entry, and
+  validate passwordless sudo ([package change](https://github.com/Thornbots/isaac_ros_common/commit/daddcde43b663f811de1e7d80c29894a25d4f182)).
+  Rebuild existing installer ISOs to include the fix. Reflash guidance adds
+  the [serial-console route](docs/JAZZY_FLASH.md#serial-console-without-a-monitor),
+  reinstall-loop diagnosis, safe capsule-variable writes and corrected ISO paths.
 
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).

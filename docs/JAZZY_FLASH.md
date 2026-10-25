@@ -58,13 +58,13 @@ devkit has no HDMI), a 16 GB+ USB stick and Ethernet.
 
 ## 0. Already done on the laptop (2026-09-26)
 
-ISO: `~/Downloads/jetpack-7.2.1/jetsoninstaller-r39.2.1-2026-08-07-18-30-47-arm64.iso`,
+ISO: `~/Downloads/jetsoninstaller-r39.2.1-2026-08-07-18-30-47-arm64.iso`,
 5,035,601,920 bytes. SHA-1 `8549f0b3336a9141e035ad3726475190d9766f2f`
 matches NVIDIA's `release_sha_hashes.txt` (saved next to it). NVIDIA
 publishes only SHA-1. Recheck before writing the stick:
 
 ```bash
-cd ~/Downloads/jetpack-7.2.1 && sha1sum -c <(grep iso release_sha_hashes.txt)
+cd ~/Downloads && sha1sum -c <(grep iso release_sha_hashes.txt)
 ```
 
 Sources: [JetPack 7.2.1 downloads](https://developer.nvidia.com/embedded/jetpack/downloads/archive-7.2.1),
@@ -90,7 +90,7 @@ lsblk -dpo NAME,SIZE,MODEL,TRAN,RM        # before plugging in the stick
 lsblk -dpo NAME,SIZE,MODEL,TRAN,RM        # the new line with TRAN=usb, RM=1 is the stick
 DEV=/dev/sdX                               # set from the line above; never nvme0n1
 udisksctl unmount -b ${DEV}1 2>/dev/null; udisksctl unmount -b ${DEV}2 2>/dev/null
-ISO=~/Downloads/jetpack-7.2.1/jetsoninstaller-r39.2.1-2026-08-07-18-30-47-arm64.iso
+ISO=~/Downloads/jetsoninstaller-r39.2.1-2026-08-07-18-30-47-arm64.iso
 sudo dd if="$ISO" of="$DEV" bs=4M conv=fsync oflag=direct status=progress
 sudo cmp -n "$(stat -c%s "$ISO")" "$ISO" "$DEV" && echo "stick OK"
 ```
@@ -138,6 +138,33 @@ Someone on an Orin Nano Super with NVMe hit this on 2026-09-18
 and it was unresolved at the time. Save the journal to a spare stick and
 stop there.
 
+### Serial console without a monitor
+
+On the Orin Nano devkit, use the J14 debug UART at 115200 baud, 8N1,
+with flow control off and a **3.3 V** FTDI cable. J14 pin 3 is RXD,
+pin 4 TXD, and pin 7 GND. The Adafruit cable connects yellow → pin 4,
+orange → pin 3, black → pin 7; leave red unconnected. On Arch it appears
+as `/dev/ttyUSB0`; the board console is `ttyTCU0`. This reaches UEFI,
+the installer, and the Linux login prompt, before USB device-mode networking
+exists. Use one serial reader; send slowly in UEFI and use VT100 Escape /
+function-key sequences for setup menus.
+
+### If the completed installer boots the stick again
+
+Standard hit this on 2026-10-25 with firmware 36.4.7. NVIDIA's
+`set-hd-boot-1st` late commands choose the first `efibootmgr -v` entry
+containing `HD(`. A temporary USB `Boot00FE` entry can match before the
+whole-disk NVMe entry (whose path only contains `NVMe(`), so restoring
+BootOrder before launching the installer does not prevent a reinstall loop.
+Do not interrupt a running install or pull the stick while it copies.
+
+For a serial-shell install, launch `FSn:\EFI\BOOT\grubaa64.efi` directly
+from the stick's ESP rather than creating a USB boot entry. Use `map -r`
+to find it and check its `EFI\BOOT` directory. Remove any old temporary
+USB entry and put the NVMe entry first before installing. After completion,
+verify BootOrder and an actual NVMe boot; the direct GRUB route still needs
+the firmware capsule procedure below.
+
 ### If picking the USB disk drops straight back to the boot menu
 
 Hero hit this 2026-10-01 (firmware 36.4.7, its old JetPack 6 install
@@ -179,9 +206,16 @@ sudo mkdir -p /boot/efi/EFI/UpdateCapsule
 sudo cp <stick ESP>/EFI/TEGRA_BL_3767_super.Cap /boot/efi/EFI/UpdateCapsule/TEGRA_BL.Cap
 V=/sys/firmware/efi/efivars/OsIndications-8be4df61-93ca-11d2-aa0d-00e098032b8c
 sudo chattr -i $V
-printf "\x07\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00" | sudo dd of=$V bs=12
+sudo sh -c 'printf "\007\000\000\000\004\000\000\000\000\000\000\000" > "$1"' sh "$V"
+sudo od -An -tx1 "$V"   # 07 00 00 00 04 00 00 00 00 00 00 00
 sudo reboot   # applies it; nvbootctrl dump-slots-info then says 39.2.1
 ```
+
+If sudo needs a password over stdin, use `sudo -S` with the `sh -c`
+command above, which writes its own bytes. Piping a password into `dd`
+can overwrite OsIndications with password bytes. Verify the readback
+before rebooting. On an automated install, wait for `robot-firstboot.service`
+to finish its setup reboot and image stage before staging the capsule.
 
 The two "Ubuntu" boot entries the installer adds point at `\EFI\ubuntu`,
 which isn't on the ESP; they bounce and are harmless. Over USB-C the
