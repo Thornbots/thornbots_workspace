@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1450" role="img" aria-labelledby="title desc">
+  <title id="title">Talent Cultivation Philosophy</title>
+  <desc id="desc">A four-level pyramid shows Core Values, Essential Character, Key Abilities, and Scientific Knowledge with Engineering Experience, supported by cultivation in real-world scenarios.</desc>
+  <g stroke="#63c9ee" stroke-width="3">
+    <path d="M420 205 252 535H748L580 205Z" fill="#c6efff"/>
+    <path d="M335 370 252 535H748L665 370Z" fill="#dff4ff"/>
+    <path d="M252 535H748L830 700H170Z" fill="#f7fcff"/>
+    <path d="M500 36 420 205H580Z" fill="#fff1d2" stroke="#f4bc62"/>
+    <path d="M500 36 170 700H830Z" fill="none" stroke="#63c9ee"/>
+    <path d="M420 205H580M335 370H665M252 535H748" fill="none" stroke="#85d9f6" stroke-width="2"/>
+  </g>
+
+  <g fill="#16212b" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="500" y="174" font-size="24" font-weight="700" fill="#ed941e">Core Values</text>
+    <text x="500" y="306" font-size="26" font-weight="700">Essential Character</text>
+    <text x="500" y="475" font-size="31" font-weight="700">Key Abilities</text>
+    <text x="500" y="650" font-size="25" font-weight="700">Scientific Knowledge  |  Engineering Experience</text>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-size="16" fill="#24333d">
+    <g fill="#ffffff" stroke="#f0bd69" stroke-width="2">
+      <rect x="429" y="190" width="142" height="34" rx="17"/>
+    </g>
+    <text x="500" y="213">Sublimation</text>
+    <g fill="#ffffff" stroke="#48c2e9" stroke-width="2">
+      <rect x="437" y="354" width="126" height="34" rx="17"/>
+    </g>
+    <text x="500" y="377">Shaping</text>
+    <g fill="#ffffff" stroke="#48c2e9" stroke-width="2">
+      <rect x="345" y="519" width="310" height="34" rx="17"/>
+    </g>
+    <text x="500" y="542" font-size="15">Cultivated in real-world scenarios</text>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" fill="#202b33">
+    <circle cx="64" cy="770" r="9" fill="#18bce9"/>
+    <text x="90" y="778" font-size="25" font-weight="700" fill="#ed941e">Core Values</text>
+    <text x="90" y="811" font-size="20">Investigating things to extend knowledge, striving for excellence, reflecting on oneself</text>
+
+    <circle cx="110" cy="856" r="5" fill="#7b8790"/>
+    <text x="132" y="863" font-size="20">Develop the habit of deep thinking and the ability to locate the root causes</text>
+    <text x="132" y="887" font-size="20">of problems</text>
+    <circle cx="110" cy="920" r="5" fill="#7b8790"/>
+    <text x="132" y="927" font-size="20">Pursue excellence driven by high goals and maintain a positive mindset</text>
+    <circle cx="110" cy="960" r="5" fill="#7b8790"/>
+    <text x="132" y="967" font-size="20">Face oneself honestly and be aware of one's own limits</text>
+
+    <circle cx="64" cy="1016" r="9" fill="#18bce9"/>
+    <text x="90" y="1024" font-size="24" font-weight="700">Essential Character</text>
+    <text x="90" y="1056" font-size="20">Proactive, positive, seeking truth from facts, upholding fairness</text>
+
+    <circle cx="64" cy="1102" r="9" fill="#18bce9"/>
+    <text x="90" y="1110" font-size="24" font-weight="700">Key Abilities</text>
+    <text x="90" y="1142" font-size="20">Thinking, communication and expression, problem solving, self-directed learning, forward design</text>
+  </g>
+</svg>

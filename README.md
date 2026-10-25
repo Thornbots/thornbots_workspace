@@ -7,15 +7,13 @@ every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
 more work, and stays only for robots not yet reflashed to JetPack 7.2.
 A GitHub ruleset makes it read-only (no pushes or deletion, admins
 included); the repos still unlocked are listed in
-[ROADMAP T36](ROADMAP.md#short-todos).
+[ROADMAP T36](docs/ROADMAP.md#short-todos).
 
 `nightly` integrates changes across the workspace and all eleven package repos.
 On this branch, `.gitmodules` tracks each package's `nightly` branch while
 keeping exact commit pins. [CHANGELOG.md](CHANGELOG.md) records unreleased
 changes to carry into `main`; update it when adding work to nightly.
 
-[Nightly validation, 2026-10-06](docs/testing/nightly-2026-10-06.md) records
-the tested revisions, results, coverage limits, and commands to reproduce them.
 ## Working with submodules
 
 Each package is a submodule:
@@ -24,17 +22,27 @@ Each package is a submodule:
 git clone --recurse-submodules https://github.com/Thornbots/thornbots_workspace.git src
 ```
 
-That leaves every submodule on a detached HEAD. Put each back on its branch before committing:
+That checks out the exact commits this repo pins, each on a detached HEAD.
+Build from that state to reproduce the workspace. To change a package, start a
+branch where it stands, then rebase onto the package's `nightly` only when you
+mean to take newer work:
 
 ```sh
-git submodule foreach --recursive \
-  'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch)'
+cd thornbots_pkg
+git switch -c my-change
+git fetch origin && git rebase origin/nightly   # optional: move to the branch tip
 ```
+
+Do not run `git checkout nightly` in every submodule: it jumps each package to
+its branch tip, which can differ from the pinned commit, and nested
+submodules have no configured branch.
 
 A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
 [CI and validation](docs/CI.md) covers repository checks, lint debt, and
-robot images. PRs into `nightly` or `main` run CI; pushes to either branch
+robot images. Only `main` runs CI and builds images (`nightly` is covered by
+[local checks](docs/CI.md#local-checks-for-prs-into-nightly) and the
+[nightly tests](docs/CI.md#nightly-tests)); pushes to `main`
 publish tested images to `ghcr.io/thornbots/isaac-ros`, using exact gitlinks.
 
 One logical change, one bump: a bump may move several gitlinks when they belong
@@ -60,9 +68,9 @@ this repo's branch bumping the gitlinks. Follow the
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
-Start with [ROADMAP.md](ROADMAP.md) for open work and links to its plans,
-[JAZZY_FLASH.md](JAZZY_FLASH.md) for migration status, robot checks and reflashing.
-[ARCC_2026_SENTRY_CONTEXT.md](ARCC_2026_SENTRY_CONTEXT.md) covers competition
+Start with [ROADMAP.md](docs/ROADMAP.md) for open work and links to its plans,
+[JAZZY_FLASH.md](docs/JAZZY_FLASH.md) for migration status, robot checks and reflashing.
+[ARCC_2026_SENTRY_CONTEXT.md](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
 rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
 identifies where shared information belongs; link there instead of copying it.
 

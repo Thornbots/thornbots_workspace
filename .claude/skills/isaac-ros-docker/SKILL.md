@@ -1,6 +1,6 @@
 ---
 name: isaac-ros-docker
-description: Load to run, launch, attach to, drive, screenshot, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker". Covers the attach-only rule, `smoke.sh`, `dexec.sh`/`kill_launch.sh`, the two-workspace shadowing trap, and the DDS discovery profile.
+description: Load to run, launch, attach to, drive, screenshot, rebuild, or troubleshoot the isaac_ros-dev Isaac ROS Docker container, and before running `docker exec`, `colcon build`, or `ros2 launch`/`run`/`topic` against it, even if the user never says "docker". Covers creating and removing your own per-agent container, `smoke.sh`, `dexec.sh`/`kill_launch.sh`, the two-workspace shadowing trap, and the DDS discovery profile.
 ---
 
 # Isaac ROS Docker dev container (Jazzy)
@@ -11,47 +11,60 @@ of every section below: the `isaac-ros` flag catalogue, where the CLI reads
 its config, the manual equivalents of the helper scripts, and the dated
 postmortems.
 
-> **On this laptop, never create a container, and never build the image.
-> Attach only.** Remote boxes (`ts-nano-*`) are exempt when the user asks:
-> there, start, stop, build and remove as asked
-> ([workspace rules](../../../AGENTS.md#containers-and-runs)). The rest of this block is about the laptop.
->
-> Run commands *inside* a container the user already started (`smoke.sh`,
-> `dexec.sh`, `kill_launch.sh`), and nothing else.
->
-> Forbidden, though each looks harmless: `isaac-ros activate` in **any**
-> form (`--build-local`, `--build`, `--build-only`, `--start-only`,
-> `--use-cached-build-image`, `-c ...`), `isaac-ros init`, the CLI's
-> `run_dev.py` and `build_image_layers.py` called directly, `docker build`,
-> `docker buildx bake`, and a hand-rolled `docker run`. That includes
-> wrapping any of them in `tmux`/`script` to get past the TTY requirement.
-> `--build-only` still builds; `--start-only` still does the `docker run`.
->
-> **If no container is running, stop and ask the user to start one.** Not
-> even "just to check something": the container runs with `--rm`, dies with
-> the shell that started it, and a later `isaac-ros activate` silently
-> attaches to yours instead of starting the one the user wanted. When a
-> rebuild is needed, make the edit, hand them the command, stop.
+## Your own container
 
-## Is a container running?
+Every agent task makes its own container from the existing image and removes
+it when done. Never build the image (`isaac-ros activate`, `docker build`,
+`buildx bake`), and never stop, restart or `rm` a container you did not
+create, above all the user's long-lived `isaac_ros_jazzy_container`.
+[`agent_container.sh`](../../../isaac_ros_common/scripts/agent_container.sh)
+enforces the rest:
 
 ```bash
-docker ps --format '{{.Names}}\t{{.Status}}'
-# isaac_ros_jazzy_container    Up 13 seconds
+ACM=isaac_ros_common/scripts/agent_container.sh           # from this checkout's src/
+$ACM up my-task [-w SRC] [-e EVIDENCE_DIR] [-c CPUS] [-m MEM]   # prints the env
+export ISAAC_ROS_CONTAINER=isaac-agent-my-task            # dexec.sh/smoke.sh/kill_launch.sh use it
+.claude/skills/isaac-ros-docker/smoke.sh
+$ACM down my-task                                         # docker rm -f, volumes too
+$ACM run my-task -- bash my-script.sh                     # up + run + down, even on failure/SIGTERM
 ```
 
-The name comes from `docker.run.container_name` in
-`isaac_ros_common/.isaac-ros-cli/config.yaml`. Nothing listed means you stop
-and ask the user to run, on the host:
+Use `run` for anything scripted: its trap removes the container on failure or
+SIGTERM. With separate `up`/`down` calls, `down` is yours even after errors.
+Stale ones: `$ACM ls`, and `$ACM clean -t 6 [-n]` removes only labelled
+containers older than 6 hours whose processes are just init, `sleep` and a
+ros2 daemon (`-n` previews).
 
-```bash
-export ISAAC_ROS_WS=~/workspaces/isaac_ros-jazzy   # the workspace holding this src/
-isaac-ros activate
-```
+What the script refuses or guarantees, so you do not have to:
 
-`smoke.sh` and `dexec.sh` both preflight this. The frozen Humble container,
-`isaac_ros_dev-x86_64-container`, may run beside it; don't work there. The
-scripts on this branch never pick it; `ISAAC_ROS_CONTAINER=<name>` overrides.
+- **Domain/partition:** a unique `ROS_DOMAIN_ID` (100-199, never the robots'
+  0-1) and `GZ_PARTITION=agent-<task>-<domain>` per container; collisions with
+  any other container are refused. `dexec.sh` re-asserts them after
+  `/etc/bash.bashrc`, which hardcodes domain 1, so use it, not bare
+  `docker exec`. sim's MCB PTY link derives from both
+  (`/tmp/mcb_emulator_pty-<partition>-<domain>`) in the container's own `/tmp`.
+- **Network:** default bridge, private IPC, no published ports, not
+  privileged; the user's host-network container and other agents cannot see
+  its DDS, gz or Foxglove sockets (Foxglove 8765 is the container's own).
+- **Mounts:** only your worktree (`-w`, default the checkout holding the
+  script) at `/workspaces/isaac_ros-dev/src`, an optional `/evidence`, and
+  per-task `build`/`install`/`log` volumes. It refuses `$ISAAC_ROS_WS/src` and
+  a worktree another agent container already mounts. Git runs on the host.
+- **CPU/memory:** unlimited unless `-c`/`-m` (or `ISAAC_AGENT_CPUS`/
+  `ISAAC_AGENT_MEM`); cap long benches so others keep their share.
+- **Mac mini (`blaises-mini`, Colima):** run the script there from a checkout
+  on the mini. `up` starts Colima if needed; `down`, `clean` and `run`'s exit
+  stop it only when no container is left running, so nothing sits idle.
+
+The image is the one the user's container runs, else the newest local
+`*thornbots*amd64` (`-i` overrides); on the Mac, `thornbots-mac`. A fresh
+container has no `sim` build and no gz-sim: see Key facts.
+
+`docker ps --format '{{.Names}}\t{{.Status}}'` shows who is up. The user's
+`isaac_ros_jazzy_container` (name from `docker.run.container_name` in
+`isaac_ros_common/.isaac-ros-cli/config.yaml`) and the frozen Humble
+`isaac_ros_dev-x86_64-container` are not yours; don't work there.
+`ISAAC_ROS_CONTAINER=<name>` picks which container the scripts drive.
 
 ## Driving it: `smoke.sh`
 
@@ -60,7 +73,7 @@ scripts on this branch never pick it; `ISAAC_ROS_CONTAINER=<name>` overrides.
 .claude/skills/isaac-ros-docker/smoke.sh --sim    # + headless sim launch, topic check, teardown
 ```
 
-Run it before trusting any measurement in this container. It never creates
+Run it before trusting any measurement in your container. It never creates
 one. Step 4 prints the package-resolution table through both entry points,
 the fastest way to see whether your edit is the code that will run; step 6
 refuses to launch on top of a session someone else started; `--sim` tears
@@ -73,20 +86,22 @@ still opens on the user's display.
 ## Key facts
 
 - The user's entry point is `isaac-ros activate` on the host. Yours is
-  `dexec.sh` against the container they started.
+  `dexec.sh` against your own `isaac-agent-<task>` container.
 - The image is `isaac_ros` -> `realsense` (both shipped by `isaac-ros-cli`)
   -> `isaac_ros_common/docker/Dockerfile.thornbots`. Ubuntu 24.04, ROS 2
   Jazzy, Isaac ROS 4.6, Python 3.12.
-- The **whole** host workspace root is bind-mounted, not just `src/`:
+- The user's container bind-mounts the **whole** host workspace root,
   `$ISAAC_ROS_WS` to `/workspaces/isaac_ros-dev`, so `build/`, `install/`,
-  `log/` and `src/` are shared and colcon artifacts outlive the container.
+  `log/` and `src/` are shared and outlive it. An agent container mounts only
+  `src/` and keeps its own `build/`, `install/`, `log/` volumes, gone with it.
   Packages are at `/workspaces/isaac_ros-dev/src/<pkg>`; a path missing that
   `src/` resolves to nothing instead of erroring.
 - `ROS_DOMAIN_ID` is 1 in this image until the robots move, so Humble nodes on
   domain 0 stay invisible. Cross-machine work needs both sides on 1.
 - **On a Mac** the container is `Dockerfile.mac` (arm64, no NVIDIA, no
   Isaac ROS), started with the `docker run` in
-  `isaac_ros_common/docker/README.md` under the same name. It has gz baked
+  `isaac_ros_common/docker/README.md` under the same name; agents use
+  `agent_container.sh` there too. It has gz baked
   in, no `ros2_ws` and no `admin` user, so the scripts run as root there
   (`scripts/container.sh`). It has no display: benches drop the gz and
   rviz windows and you watch in Foxglove, `ws://<Mac tailscale IP>:8765`.
@@ -111,15 +126,9 @@ which one wins depends on the entry point:
 | the user's terminal | `/etc/bash.bashrc`, which ends by sourcing **only** `ros2_ws/install` | the image-baked snapshot of `src/` |
 | `dexec.sh` | bashrc, then `ros2_ws`, then `isaac_ros-dev` (prepended, wins) | your `src/` edit, if built locally |
 
-Measured on the Humble image 2026-09-06 (`smoke.sh` step 4 reprints this for
-the live container):
-
-| package | `dexec.sh` | user's terminal |
-|---|---|---|
-| `sim` | `isaac_ros-dev` | **Package not found** |
-| `thornbots_pkg` | `isaac_ros-dev` | **Package not found** |
-| `sentry_localization` | `isaac_ros-dev` | `ros2_ws` (shadowed) |
-| `sllidar_ros2` | `ros2_ws` | `ros2_ws` |
+The per-package resolution measured on the Humble image (2026-09-06) is in
+[reference.md](reference.md#two-workspaces-workspacesros2_ws-silently-shadows-your-src-edits);
+`smoke.sh` step 4 reprints it for the live container.
 
 So the same `ros2 launch` runs different code depending on where it's typed,
 and a package built only into `isaac_ros-dev` is invisible from the user's
@@ -146,23 +155,20 @@ uses SIMPLE discovery, so nodes on one machine find each other with no env
 changes, and lists the robots' tailscale IPs as unicast initial peers for
 cross-machine work. Don't unset it. Its recorded invariants were measured on
 Fast DDS 2.6 (Humble); Jazzy ships 2.14 and they are due a re-measure
-(JAZZY_FLASH.md#hardware-checklist).
+(../../../docs/JAZZY_FLASH.md#hardware-checklist).
 
 Two things in that file look removable and aren't: the `239.255.0.1` peer
 (without it local discovery breaks, the 2026-07-20 postmortem) and
 `maxInitialPeersRange` 32 (at the default 4, remote nodes past participant ID
 3 are never found). A new robot needs its tailscale IP added there.
 
-**Shared memory is on. On a robot, logind must not delete it.** The 2026-09-20
-note that SHM hides nodes from a robot shell (1 of 15 in `ros2 node list`) was
-most likely logind's `RemoveIPC=yes`: 10 s after the last ssh session of
-UID 1000 ends, logind deletes that UID's `/dev/shm` files, Fast DDS's
-segments included, and same-host nodes stop hearing each other, the
-localization lifecycle too. With `RemoveIPC=no` (`isaac-ros-startup`
-`install.sh`, 2026-10-01) a robot shell saw all 15 nodes; a process started by
-`docker exec` into the running stack still finds few or none, which
-`isaac-ros-startup/AGENTS.md` lists as open (2026-10-03). If it reappears,
-check `ls /dev/shm | grep -c fastrtps` against a node's
+**Shared memory is on. On a robot, logind must not delete it.** The
+2026-09-20 note that SHM hides nodes from a robot shell (1 of 15 in `ros2 node
+list`) was most likely logind's `RemoveIPC=yes`; the mechanism and the fix are
+in [isaac-ros-startup's README](../../../isaac-ros-startup/README.md#design-notes).
+A process started by `docker exec` into the running stack still finds few or
+none, which `isaac-ros-startup/AGENTS.md` lists as open (2026-10-03). If it
+reappears, check `ls /dev/shm | grep -c fastrtps` against a node's
 `grep -c fastrtps /proc/<pid>/maps`: mapped but missing means deleted.
 
 `auto.launch.py` still pins the small high-level publishers
@@ -213,7 +219,7 @@ dexec.sh -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_nod
 
 If something is running, **ask before touching it**; it may be the user's own
 work. Afterwards, tear down what you started (`kill_launch.sh <pid>`, or
-`teardown_stack()` in a `finally` block for ad hoc scripts) and re-run the
+a `sim::LaunchTree` that goes out of scope for ad hoc C++: its destructor SIGINTs, then SIGKILLs, the whole process group) and re-run the
 check. reference.md covers the official suites and the `--headless` flag.
 
 ## Troubleshooting quick hits

@@ -1,15 +1,20 @@
 # isaac_ros-dev workspace
 
 Call out code that doesn't follow standard practice. CV detection/tracking
-comes first; [game context](ARCC_2026_SENTRY_CONTEXT.md) defines the field.
+comes first; [game context](docs/ARCC_2026_SENTRY_CONTEXT.md) defines the field.
 Use terse bullets for status/checklists; give rationale when asked.
 Memory is disabled: do not read or write agent memory.
 
 ## Delegation
 
+Delegate other tasks to a Sol agent (Codex `gpt-6.1-sol` via T3
+`delegate_task`, medium reasoning, Standard tier) running on archlinux.
 Delegate well-specified, high-volume repetitive edits to lower-cost agents
 (Haiku/Luna). The delegating agent defines scope and acceptance checks,
-resolves ambiguity, then reviews the diff and runs the checks itself.
+resolves ambiguity, then reviews the diff and runs the checks itself. It
+names other user-approved actions in the brief and owns asking the user.
+Delegated agents never wait on user input: they skip anything outside the
+brief and list it in their report.
 
 ## Repository checks
 
@@ -26,13 +31,21 @@ CI check commits and message contracts;
 Load [isaac-ros-docker](.claude/skills/isaac-ros-docker/SKILL.md) for every
 Docker command or command inside a container.
 
-- Ask before starting, restarting or stopping any laptop container or VM,
-  including through scripts/services or Colima. On `ts-nano-*`, carry out
-  requested container/image lifecycle work without separate confirmation.
+- Each agent task creates its own container with
+  [`agent_container.sh`](.claude/skills/isaac-ros-docker/SKILL.md#your-own-container)
+  and removes it when done, even on failure. The script enforces unique
+  ROS domain, gz partition, worktree mount and volumes; never stop, restart or
+  remove a container you did not create (notably `isaac_ros_jazzy_container`).
+  Start VMs (including Colima) as needed without asking. On `ts-nano-*`, carry
+  out requested container/image lifecycle work without separate confirmation.
   “dev” means `ts-nano-dev`.
-- Ask before every sim integration test or bench run, even an obvious rerun.
-- Check for running stacks before launching; ask before stopping anything you
-  did not start, and clean up what you started.
+- Run tests as you see fit, including sim integration tests, sim benches and
+  reruns, without asking. Ask before runs on a physical robot.
+- Keep the Mac mini free: its Colima runs only while an agent container does;
+  the script stops it when none is left. Never leave either idle; report
+  what you stopped.
+- A delegation brief stating the user approved named actions is that approval
+  for the delegated agent, only for what it names.
 
 ## Branches
 
@@ -73,8 +86,8 @@ or dated investigations linked to current status.
 | Usage and design | Owning package's `README.md` |
 | Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
 | Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
-| Hardware/migration status | [JAZZY_FLASH](JAZZY_FLASH.md#hardware-status) |
-| Open work | [ROADMAP](ROADMAP.md) |
+| Hardware/migration status | [JAZZY_FLASH](docs/JAZZY_FLASH.md#hardware-status) |
+| Open work | [ROADMAP](docs/ROADMAP.md) |
 | Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
 | Defaults/message fields | Source declarations |
 
@@ -83,8 +96,9 @@ or dated investigations linked to current status.
 Follow [REP 103](https://github.com/ros-infrastructure/rep/blob/master/rep-0103.rst)
 units/axes and [REP 105](https://github.com/ros-infrastructure/rep/blob/master/rep-0105.rst)
 frame roles. Document only choices and deviations at their owner: the
-heading-fixed `root` base ([pose_translator](thornbots_pkg/README.md#pose_translator))
-and the field-centred [wire frame](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+heading-fixed `root` base, the translation-only `nav_odom->odom` correction
+([pose_translator and odometry](thornbots_pkg/README.md#pose_translator)), and the
+field-centred [wire frame](ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 
 ## Wire compatibility
 
