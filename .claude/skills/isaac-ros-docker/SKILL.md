@@ -191,15 +191,21 @@ the name match). Change one, check the other.
 `dexec.sh` and `kill_launch.sh` get the error-prone parts right: full env
 parity (both workspace installs, and `PS1` set *before* sourcing
 `/etc/bash.bashrc`, which is interactive-only and silently no-ops without
-it), `-u admin` so X11 apps work, and killing a launch's whole process group.
+it), `-u admin` so X11 apps work, and stopping only verified container-owned
+ROS launch/run trees.
 
 ```bash
 isaac_ros_common/scripts/dexec.sh -- ros2 topic list
 isaac_ros_common/scripts/dexec.sh -r -- apt-get install -y ros-jazzy-foo
 isaac_ros_common/scripts/dexec.sh -d -- ros2 launch sim sim.launch.py   # detached; prints log path
-isaac_ros_common/scripts/kill_launch.sh -l                              # running launch trees
-isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>               # clean shutdown, not pkill
+isaac_ros_common/scripts/kill_launch.sh -l                              # owned ROS roots only
+isaac_ros_common/scripts/kill_launch.sh --match sim.launch.py            # stop matching owned trees
+isaac_ros_common/scripts/kill_launch.sh <ros2-launch-pid>               # stop this container-owned tree
 ```
+
+Never loop over raw process listings or use `-f` (removed). PID 1 and foreign
+processes are refused even with `--pid=host`; see
+[safety and requirements](../../../isaac_ros_common/README.md#safe-launch-stopping).
 
 Two traps with their own reference.md sections: **never interpolate a file
 list into `dexec.sh -- bash -c "…"`** (every path after the first executes as
