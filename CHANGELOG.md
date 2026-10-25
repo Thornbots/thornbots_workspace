@@ -151,6 +151,16 @@ impact, and link the corresponding package changes.
   Rebuild existing installer ISOs to include the fix. Reflash guidance adds
   the [serial-console route](docs/JAZZY_FLASH.md#serial-console-without-a-monitor),
   reinstall-loop diagnosis, safe capsule-variable writes and corrected ISO paths.
+- The installer's NVMe boot entry now uses a full hardware device path
+  ([1ebf714](https://github.com/Thornbots/isaac_ros_common/commit/1ebf714),
+  [bb8ba8a](https://github.com/Thornbots/isaac_ros_common/commit/bb8ba8a)):
+  after the 39.2.1 firmware update, short `HD()` entries fail to boot. Firstboot
+  marks host setup done only after it succeeds
+  ([4f8616b](https://github.com/Thornbots/isaac_ros_common/commit/4f8616b)) and
+  waits for tailscaled before logging in
+  ([c95e286](https://github.com/Thornbots/isaac_ros_common/commit/c95e286)).
+  Standard now runs JetPack 7.2.1 on firmware 39.2.1; see
+  [hardware status](docs/JAZZY_FLASH.md#hardware-status).
 
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).

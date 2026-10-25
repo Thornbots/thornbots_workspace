@@ -1,18 +1,43 @@
 # Jazzy migration and Jetson reflash
 
-**Only standard remains to be flashed.** `main` is Jazzy; the `humble`
-branches are frozen. Deployment and validation are recorded below.
+Standard now boots JetPack 7.2.1 from NVMe; provisioning and acceptance
+status are recorded below. `main` is Jazzy; the `humble` branches are frozen.
 
 ## Hardware status
 
-Updated 2026-10-06 from the user's confirmation.
+Standard updated 2026-10-25; other base-install states were confirmed by the
+user on 2026-10-06.
 
 | Machine | Migration state |
 | --- | --- |
 | `ts-nano-sentry` | Jazzy flash complete |
 | `ts-nano-hero` | Jazzy flash complete |
 | `ts-nano-dev` | Jazzy flash complete (test box) |
-| `ts-nano-standard` | Not yet flashed; frozen Humble tree |
+| `ts-nano-standard` | JetPack 7.2.1 / L4T R39.2.1 installed on NVMe, firmware 39.2.1; host/image provisioning pending |
+
+**2026-10-25 — standard base install and firmware verified.** The automated
+installer completed 13/13 via the J14 serial-shell route. Verified root
+`/dev/nvme0n1p1`, hostname `ts-nano-standard`, L4T R39 revision 2.1,
+kernel `6.8.12-1021-tegra`, SSH and `sudo -n true`. Tailscale assigned
+`100.101.92.91` (`ts-nano-standard-1`, because the old offline node retains
+the original name); the laptop's standard SSH alias points to the new IP.
+Tailscale DNS acceptance is off on standard after a control-plane startup
+failure; SSH works through the laptop's existing Thornbots Tailscale socket.
+`nvbootctrl dump-slots-info` reports 39.2.1, capsule status 0, both slots
+Normal. A full-path NVMe ESP L4TLauncher entry created in the UEFI shell
+booted successfully as `Boot000A`; the bare-device and abbreviated ESP
+entries failed after the firmware update. See [boot recovery](#if-the-completed-installer-boots-the-stick-again).
+
+Firstboot host setup resumed after an interrupted dependency download;
+the premature stage marker was cleared and its handling fixed. The robot's
+common package is on `nightly` for these fixes; its workspace clone remains
+on the promoted `main` revision. The image build and ROS/CV/hardware acceptance
+are **not verified**. A standard-only systemd drop-in,
+`/etc/systemd/system/thornbots.service.d/90-reflash-no-launch.conf`, holds
+physical stack launch until a separate run is approved; image provisioning
+can continue. Remove that drop-in and reload systemd when authorizing launch. The installer stick
+can be removed once Linux is running. Existing customized ISOs predate the
+installer fixes and must be rebuilt before reuse.
 
 **2026-10-18 — sentry validation remains partial; localization experimental.**
 See the [dated investigation](investigations/sentry-nightly-jetson-2026-10-18.md)
@@ -164,6 +189,26 @@ to find it and check its `EFI\BOOT` directory. Remove any old temporary
 USB entry and put the NVMe entry first before installing. After completion,
 verify BootOrder and an actual NVMe boot; the direct GRUB route still needs
 the firmware capsule procedure below.
+
+On standard after the 39.2.1 capsule, both the old bare NVMe boot entry and
+an abbreviated `HD(...)/File(...)` entry failed with
+`ProcessExtLinuxConfig: Unable to find partition info`. Launching the
+NVMe ESP's loader directly worked. In the UEFI shell, use `map -r` to
+identify the **NVMe** ESP (partition 10 on standard, not the USB ESP), then:
+
+```
+bcfg boot add 0 FSn:\EFI\BOOT\BOOTAA64.efi "Robot NVMe"
+reset
+```
+
+This creates a full hardware/NVMe/partition/file device path. Verify the
+next Linux boot's `efibootmgr -v` reports that entry as BootCurrent.
+`efibootmgr --full-dev-path` returned `Invalid argument` on standard's
+DT-based PCI controller; a successful variable write alone is not boot
+validation. Failed attempts can exhaust rootfs retries; restore the slot
+status as [described below](#if-picking-the-usb-disk-drops-straight-back-to-the-boot-menu)
+before retrying. The installer [boot-handoff design](../isaac_ros_common/scripts/usb_installer/README.md#boot-handoff)
+owns the automated workaround.
 
 ### If picking the USB disk drops straight back to the boot menu
 
