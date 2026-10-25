@@ -391,6 +391,14 @@ impact, and link the corresponding package changes.
   [rf2o_laser_odometry #17](https://github.com/Thornbots/rf2o_laser_odometry/pull/17),
   [sim #43](https://github.com/Thornbots/sim/pull/43).
 
+- Held robot configuration enables bounded parked references with an explicit
+  7.5 s anchor age. This separate enablement must wait for the 3-minute
+  [robot parked acceptance](sentry_localization/README.md#robot-parked-acceptance):
+  pedestrian crossings, measured competition-speed panning in both directions,
+  and a measured wheels-held shove under 4 cm/s. Check steps against the sim
+  figures and park displacement against 3 cm before reviewing enablement.
+  The default-off workspace batches #95/#96 remain independent of this hold.
+
 - Optional parked rf2o references now expire and drop on degraded matches.
   One anchor follows the full stamped head offset, avoiding drift-chain
   switches during continuous patrol; its motion prior composes rotation and
@@ -405,8 +413,9 @@ impact, and link the corresponding package changes.
   topic origin seeds only first startup; retired-epoch messages are rejected
   during clock recovery to prevent a second reset.
   A new opt-in 3-minute parked obstacle/panning scenario checks raw scan
-  steps, drift and a 3.5 cm/s wheels-held shove displacement. References remain
-  off in the robot configuration; enablement stays held for a robot parked test in
+  steps, drift and a 3.5 cm/s wheels-held shove displacement. The default-off
+  integration leaves robot references off; separate enablement stays held for a
+  robot parked test in
   [localization #18](https://github.com/Thornbots/sentry_localization/pull/18).
   [rf2o #18](https://github.com/Thornbots/rf2o_laser_odometry/pull/18),
   [sim #44](https://github.com/Thornbots/sim/pull/44).
