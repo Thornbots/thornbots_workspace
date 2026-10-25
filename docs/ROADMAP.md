@@ -7,7 +7,7 @@ work; usage, design and measurements stay in linked docs.
 
 | Area | Current evidence | Home |
 | --- | --- | --- |
-| Localization | Native suite passes recorded | [Drift](../sim/README.md#localization-drift-suite), [EKF](../sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
+| Localization | Drift repeatability remains open; alternating nightly/stack results recorded | [Drift comparison](investigations/rf2o-drift-reliability-2026-10-25.md), [Drift](../sim/README.md#localization-drift-suite), [EKF](../sim/README.md#ekf-ground-truth-suite) |
 | Estimation | Bench baseline recorded | [Bench](../sim/README.md#run-the-tests), [baseline](../sim/docs/cv-bench-results-2026-09-28.md) |
 | Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](../sim/README.md#type-c-board-execution-with-renode), [board verification](../sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](../sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
 | Robots | Standard still needs the Jazzy flash; acceptance remains ([T38](#short-todos)) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
