@@ -10,15 +10,13 @@ work; usage, design and measurements stay in linked docs.
 | Localization | Native suite passes recorded | [Drift](../sim/README.md#localization-drift-suite), [EKF](../sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
 | Estimation | Bench baseline recorded | [Bench](../sim/README.md#run-the-tests), [baseline](../sim/docs/cv-bench-results-2026-09-28.md) |
 | Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](../sim/README.md#type-c-board-execution-with-renode), [board verification](../sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](../sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
-| Robots | Standard still needs the Jazzy flash; acceptance remains ([T38](#short-todos)) | [Hardware status](JAZZY_FLASH.md#hardware-status) |
+| Robots | All four Orins on JetPack 7.2.1/Jazzy; robot acceptance and the domain-0 switch remain ([T38](#later-needs-a-robot)) | [T38](#later-needs-a-robot) |
 
 ## Short todos
 
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
   isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
   [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
-- **T38 — standard — open:** Only `ts-nano-standard` still needs Jazzy: flash it per
-  [Jazzy flash](JAZZY_FLASH.md#hardware-status), then run the [hardware checklist](JAZZY_FLASH.md#hardware-checklist). T20/T25 can use emulator validation.
 - **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
   DIAG on `/diagnostics`; test free-space pruning of per-run bags.
   [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
@@ -163,6 +161,12 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 
 ## Later: needs a robot
 
+- **T38 — robots — open:** All four Orins run JetPack 7.2.1/Jazzy; none has passed robot acceptance. On each: check
+  `ttyTHS1`, the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`;
+  measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
+  [full pipeline](../realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline); re-measure the Fast DDS invariants
+  (Fast DDS 2.14). Then move every machine from `ROS_DOMAIN_ID` 1 to 0 together and remove standard's
+  `thornbots.service.d/90-reflash-no-launch.conf` hold when its first run is approved.
 - **T21 — localization / startup — pending:** Collect maps/logs/bags from five-minute real-floor runs, including T27
   clock-validation artifacts. [Run artifacts](../isaac-ros-startup/README.md#use),
   [map persistence](../sentry_localization/README.md#launchlocalizationlaunchpy).
@@ -173,7 +177,6 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   - Check no-target fire-clear/bit-0 behavior; measure transit/indexer timing and give latency compensation one owner.
     [Timing contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#cv_target-id1--aim-point-and-fire-decision).
   - Verify muzzle speed below 25 m/s on a stand, with eye protection and accessible e-stop.
-    [Hardware checks](JAZZY_FLASH.md#hardware-checklist).
 - **T27 — startup — mitigation unvalidated:** Test an air-gapped sentry boot with Wi-Fi enabled mid-run.
   [Clock-step mitigation](../isaac-ros-startup/README.md#design-notes).
 - **T34 — startup — unmeasured:** Measure power-on to useful CV/localization on sentry, hero and standard, including

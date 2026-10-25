@@ -4,7 +4,7 @@ The `src/` root of the Thornbots Sentry's Isaac ROS dev workspace.
 
 `main` is on ROS 2 Jazzy and Isaac ROS 4.6. The `humble` branch here and in
 every package holds the Humble tree, **frozen since 2026-09-27**: it takes no
-more work, and stays only for robots not yet reflashed to JetPack 7.2.
+more work; every robot now runs JetPack 7.2.1, so it is history only.
 A GitHub ruleset makes it read-only (no pushes or deletion, admins
 included); the repos still unlocked are listed in
 [ROADMAP T36](docs/ROADMAP.md#short-todos).
@@ -68,8 +68,7 @@ this repo's branch bumping the gitlinks. Follow the
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
 
-Start with [ROADMAP.md](docs/ROADMAP.md) for open work and links to its plans,
-[JAZZY_FLASH.md](docs/JAZZY_FLASH.md) for migration status, robot checks and reflashing.
+Start with [ROADMAP.md](docs/ROADMAP.md) for open work, robot checks and links to its plans.
 [ARCC_2026_SENTRY_CONTEXT.md](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
 rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
 identifies where shared information belongs; link there instead of copying it.

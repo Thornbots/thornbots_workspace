@@ -86,7 +86,6 @@ or dated investigations linked to current status.
 | Usage and design | Owning package's `README.md` |
 | Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
 | Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
-| Hardware/migration status | [JAZZY_FLASH](docs/JAZZY_FLASH.md#hardware-status) |
 | Open work | [ROADMAP](docs/ROADMAP.md) |
 | Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
 | Defaults/message fields | Source declarations |

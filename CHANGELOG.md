@@ -77,6 +77,10 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
+  it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
+  0 switch are [ROADMAP T38](docs/ROADMAP.md#later-needs-a-robot).
+
 - Stop tracing installer and firstboot commands that load provisioning
   credentials into journals ([package change](https://github.com/Thornbots/isaac_ros_common/commit/f498503783de23e98e6e9ea9f9ea1dab5a698b4b)).
   Rebuild existing installer ISOs to include this change.
@@ -149,7 +153,7 @@ impact, and link the corresponding package changes.
   NVIDIA's boot-order rewrite, remove the temporary installer entry, and
   validate passwordless sudo ([package change](https://github.com/Thornbots/isaac_ros_common/commit/daddcde43b663f811de1e7d80c29894a25d4f182)).
   Rebuild existing installer ISOs to include the fix. Reflash guidance adds
-  the [serial-console route](docs/JAZZY_FLASH.md#serial-console-without-a-monitor),
+  the serial-console route,
   reinstall-loop diagnosis, safe capsule-variable writes and corrected ISO paths.
 - The installer's NVMe boot entry now uses a full hardware device path
   ([1ebf714](https://github.com/Thornbots/isaac_ros_common/commit/1ebf714),
@@ -159,8 +163,7 @@ impact, and link the corresponding package changes.
   ([4f8616b](https://github.com/Thornbots/isaac_ros_common/commit/4f8616b)) and
   waits for tailscaled before logging in
   ([c95e286](https://github.com/Thornbots/isaac_ros_common/commit/c95e286)).
-  Standard now runs JetPack 7.2.1 on firmware 39.2.1; see
-  [hardware status](docs/JAZZY_FLASH.md#hardware-status).
+  Standard now runs JetPack 7.2.1 on firmware 39.2.1.
 
 - Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
@@ -360,7 +363,7 @@ impact, and link the corresponding package changes.
   [firmware verification](sim/docs/patrol-flag-2026-10-11.md).
 
 - A fresh clone stays on the pinned package commits; the README and
-  [JAZZY_FLASH](docs/JAZZY_FLASH.md#8-our-image) no longer check out every
+  JAZZY_FLASH no longer check out every
   submodule's branch tip. Start work with `git switch -c` in the package. See
   [Working with submodules](README.md#working-with-submodules).
 

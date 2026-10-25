@@ -20,7 +20,7 @@ Rechecked against package `nightly` branches on 2026-10-15; git history keeps th
 - #8 No-target behavior: the [aimer README](../../thornbots_pkg/README.md#point_to_cv_target) separates target-aim failure from patrol output.
 - #10 Branch attachment after clone: workspace README and JAZZY_FLASH step 8.
 - #11 Firmware branch in README: matches `.gitmodules`.
-- #12 Conflicting hardware status: one table in [JAZZY_FLASH](../JAZZY_FLASH.md#hardware-status).
+- #12 Conflicting hardware status: one table in JAZZY_FLASH (removed 2026-10-25; see git history).
 - #13 Humble internals in the YOLO README: [realsense-yolov8-nitros-bridge #4](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/4) and [#5](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/5).
 - #14c Common README: fork section links the container and Mac setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
 - #14d Firmware deployment docs: GitHub CI artifacts and a working build link ([MCBV3 #95](https://github.com/Thornbots/MCBV3/pull/95)).
