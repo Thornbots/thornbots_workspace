@@ -9,6 +9,14 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
+  serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
+  plus optional camera and stale-CV blocks
+  ([thornbots_pkg #26](https://github.com/Thornbots/thornbots_pkg/pull/26)).
+  Run from the robot container using the
+  [bring-up command reference](thornbots_pkg/README.md#parked-room-health-check);
+  the observer issues no motion commands or MCB probes.
+
 - Container-terminal room/field SLAM snapshot, occupancy registration and AMCL
   convergence workflow, with live raw-odometry EKF seeding and measured AMCL starts
   ([sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16),
