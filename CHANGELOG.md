@@ -77,6 +77,10 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Stop tracing installer and firstboot commands that load provisioning
+  credentials into journals ([package change](https://github.com/Thornbots/isaac_ros_common/commit/f498503783de23e98e6e9ea9f9ea1dab5a698b4b)).
+  Rebuild existing installer ISOs to include this change.
+
 - Clean up the YOLO bridge package description and RealSense configuration:
   remove an unused JSON preset and Humble-only bare `profile` keys. Launch
   behavior is unchanged. See
