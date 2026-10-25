@@ -394,13 +394,19 @@ impact, and link the corresponding package changes.
 - Optional parked rf2o references now expire and drop on degraded matches.
   One anchor follows the full stamped head offset, avoiding drift-chain
   switches during continuous patrol; its motion prior composes rotation and
-  translation together. Small anchored increments are filtered
-  while larger shove increments retain their full response. Wheel fallback
-  recovers when buffered odometry covers an uncached accepted scan, and
-  backward timestamp jumps reset scan/odometry and dynamic TF history.
+  translation together. Small anchored increments smooth only published
+  pose/twist; raw poses seed the chain and anchors without accumulating lag.
+  Anchored range warping uses linear weights to avoid short-translation bias;
+  the tuned 8 mm/equal-weight output filter retains larger shove response.
+  Unused bank controls are removed, and anchors require exact stamped extrinsics.
+  Wheel fallback recovers when buffered odometry covers an uncached accepted scan, and
+  backward timestamp jumps reset scan/odometry and dynamic TF history while
+  retaining the last accepted rf2o pose, including with references off. The
+  topic origin seeds only first startup; retired-epoch messages are rejected
+  during clock recovery to prevent a second reset.
   A new opt-in 3-minute parked obstacle/panning scenario checks raw scan
-  steps, drift and shove displacement. References remain off in the robot
-  configuration; enablement stays held for a robot parked test in
+  steps, drift and a 3.5 cm/s wheels-held shove displacement. References remain
+  off in the robot configuration; enablement stays held for a robot parked test in
   [localization #18](https://github.com/Thornbots/sentry_localization/pull/18).
   [rf2o #18](https://github.com/Thornbots/rf2o_laser_odometry/pull/18),
   [sim #44](https://github.com/Thornbots/sim/pull/44).
