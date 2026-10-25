@@ -375,6 +375,22 @@ impact, and link the corresponding package changes.
   the competition `localize` default (raw wheel odometry) does not use rf2o.
   [rf2o_laser_odometry #16](https://github.com/Thornbots/rf2o_laser_odometry/pull/16).
 
+- rf2o's `reference_scans` is available but off by default; this workspace
+  keeps sentry_localization at `nightly` without enabling it. When explicitly
+  enabled, it matches parked scans against earlier scans from the same head
+  angle once `/odom` has held still for 2 s; wheel motion returns it to
+  consecutive-scan matching. Earlier sim runs with references enabled reduced
+  `mcb_parked` p95 from up to 0.090 m to about 0.01 m and tracked a 4 cm shove
+  with the wheels held still (`parked_push`). These results do not describe
+  the default configuration and remain unverified on hardware.
+  The combined matcher retains scan-time startup and transactional failure
+  recovery, caps its reference bank, and grades speed independently of anchor
+  age. `/scan_odom` twist reports robot-frame vx/vy from consecutive accepted
+  poses, with no robot consumer. See the
+  [investigation](docs/investigations/t39-parked-drift-2026-10-25.md),
+  [rf2o_laser_odometry #17](https://github.com/Thornbots/rf2o_laser_odometry/pull/17),
+  [sim #43](https://github.com/Thornbots/sim/pull/43).
+
 - SLAM and AMCL no longer treat head motion as robot motion. Both cached the
   head-mounted lidar's mount from the first scan; slam_toolbox now tracks the
   `lidar` frame (`slam.yaml`, also the default robot launch) and AMCL refreshes
