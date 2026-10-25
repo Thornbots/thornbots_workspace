@@ -370,6 +370,12 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Launch stopping now lists and signals only verified container-owned ROS
+  launch/run trees, including when the container shares the host PID namespace.
+  PID 1, host processes and non-ROS roots are refused; the force bypass is gone.
+  Stop matching trees directly with `kill_launch.sh --match <literal-substring>`
+  ([isaac_ros_common #17](https://github.com/Thornbots/isaac_ros_common/pull/17)).
+
 - rf2o no longer carries a permanent offset when the robot moves before its
   first scan, or when rf2o restarts while moving. It used to latch the first
   `/odom` pose and initialize from a later scan; it now seeds at that scan's
