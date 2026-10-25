@@ -393,7 +393,8 @@ impact, and link the corresponding package changes.
 
 - Optional parked rf2o references now expire and drop on degraded matches.
   One anchor follows the full stamped head offset, avoiding drift-chain
-  switches during continuous patrol; small anchored increments are filtered
+  switches during continuous patrol; its motion prior composes rotation and
+  translation together. Small anchored increments are filtered
   while larger shove increments retain their full response. Wheel fallback
   recovers when buffered odometry covers an uncached accepted scan, and
   backward timestamp jumps reset scan/odometry and dynamic TF history.
