@@ -109,6 +109,8 @@ reports a hit, follows the gun instead of pulling the head back.
 | 3 | `lidar_tracker` publishing only (rviz), no head effect | likely |
 | 4 | Head looks at tracks | draft; needs a robot test before enabling |
 
+Stages 2-3 in sim: [lidar tracker investigation](investigations/lidar-tracker-sim-2026-10-25.md).
+
 ## Risks
 
 - Detection range is unmeasured. A 0.23 m head spans about 6-7 of the 0.5 deg

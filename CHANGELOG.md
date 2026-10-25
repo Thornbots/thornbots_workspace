@@ -9,6 +9,19 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Lidar robot tracks, publishing only (lidar-guided aiming stages 2-3):
+  `lidar_tracker` publishes map-frame head-sized tracks with velocity and
+  camera labels on `/lidar/tracks` and rviz markers, using the saved map to
+  drop obstacles. It never moves the head. New `auto.launch.py` arguments
+  `lidar_looks` (reserved, no head effect yet) and `lidar_obstacle_margin_m`
+  (0.25). In sim, our lidar now sees opponents' heads and guns
+  ([sim #46](https://github.com/Thornbots/sim/pull/46),
+  [thornbots_pkg #27](https://github.com/Thornbots/thornbots_pkg/pull/27)).
+  Parked sim detection was 85-100% at 2-8 m with no false tracks; while
+  driving, localization error beyond the margin turns walls into tracks. See
+  the [investigation](docs/investigations/lidar-tracker-sim-2026-10-25.md).
+  No firmware or movement changes; untested on hardware.
+
 - Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
   serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
   plus optional camera and stale-CV blocks
