@@ -391,6 +391,13 @@ impact, and link the corresponding package changes.
   [rf2o_laser_odometry #17](https://github.com/Thornbots/rf2o_laser_odometry/pull/17),
   [sim #43](https://github.com/Thornbots/sim/pull/43).
 
+- rf2o unit tests register startup, reference-motion, reference-lifecycle and
+  clock-reset cases as separate executables with 120-second limits, avoiding
+  full-suite ROS/DDS construction churn without manual sharding. Synthetic
+  scans keep a deterministic angular grid across compiler inlining choices.
+  All 58 cases pass unsharded in three consecutive Release colcon runs.
+  [rf2o #18](https://github.com/Thornbots/rf2o_laser_odometry/pull/18).
+
 - Optional parked rf2o references now expire and drop on degraded matches.
   One anchor follows the full stamped head offset, avoiding drift-chain
   switches during continuous patrol; its motion prior composes rotation and
