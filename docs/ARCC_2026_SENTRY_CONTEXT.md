@@ -1,345 +1,166 @@
 # ARCC 2026 rules: Sentry-relevant context
 
-Distilled from the ARCC 2026 rulebook (76 pages, RoboMaster-style 3v3 combat
-competition), fetched from:
-https://e0398dbe-f5cb-43f1-8df9-3f2f243ba559.filesusr.com/ugd/df0c37_304dcbb3e08c422b987a1b627110d767.pdf
+CV detection/tracking comes first. This is the workspace's rules context;
+[ROADMAP](ROADMAP.md) owns priorities and package READMEs own implementation.
+Values below are rules, except the explicitly labelled team assumptions.
 
-This is a starting-context doc for `thornbots_pkg` / `sim` work. It pulls out only
-what's relevant to building an autonomous Sentry, not the full rulebook (pit
-crew procedures, other robot types, appeals process, etc. are omitted). Read
-the source PDF directly if you need something not covered here.
+## Which rules govern?
 
-Dev status, priorities, and open work are not tracked here: see
-[ROADMAP](ROADMAP.md), package `AGENTS.md` `## Open` sections, and package
-READMEs. This doc holds only the rules and opponent facts.
+Checked **2026-10-26** against ARC's [2026 manuals index][arc-index],
+[2027 manuals page][arc-2027] and [announcements][arc-news]:
 
-## Sentry robot spec (§3.1.3)
+- **ARCC 2026:** Events Manual **V1.6, 2026-06-08** ([E26][events]);
+  Building Specifications **V1.3.1, 2026-05-04** ([A26][arc-build]).
+  A26's introduction adopts the **English RMUS 2026 Building Specifications
+  V1.3.0**, interpreted as RMUL, with A1–A12 overrides.
+- **Base-spec gap:** the [RoboMaster index linked by ARC][rm26-index] offers
+  **Chinese V1.3.0, 2026-02-09** ([B26][build26-zh]), but only
+  **English V1.2.0, 2026-01-07** ([B26-en][build26-en]). B26 citations below
+  are to the Chinese V1.3.0; they verify its values, but do not establish
+  that an unavailable English V1.3.0 has identical wording/numbering.
+  Do not substitute the 2024 V2.0 numbering or RMUC match rules.
+- **October 31 mini competition:** no ruleset adoption or local exceptions
+  were found in repository docs or the ARC pages checked. Its governing
+  rules remain **unconfirmed**; neither the date nor this document adopts
+  RMUL 2027 for that event.
+- **ARCC 2027 is not RMUL 2027 by default.** ARC's
+  [Season 2 preview, 2026-09-24][arc-preview] announces Hero/Sentry/Engineer
+  for 3v3, Infantry for 1v1, small armor on all mobile ground robots, and
+  Aerial/Dart side events. It promises manuals by **2026-11-01**. The 2027
+  manuals page still serves the 2026 files and says “TODO: FIX ALL LINKS”.
+- **RMUL 2027 comparison only:** Rules Manual **V1.0.0** ([R27][rmul27]) and
+  shared Building Specifications **V1.0.0** ([B27][build27]), both
+  **2026-10-15**. [Translations and Chinese originals](rules/rm2027/README.md)
+  are already on `nightly` via [merged PR #54][rules-pr]; no dependency on an
+  unmerged branch and no duplicate rule files. Chinese originals govern
+  those translations; they do not override ARC event rules.
 
-- **Must operate fully autonomous during the match: no pilot, no teleop.**
-  A debug remote controller is allowed only before the match; it must be
-  physically removed from the Battlefield entrance once the match starts and
-  cannot be used after the Five-Second Countdown (R23).
-- **No inter-robot communication**: unlike Hero/Infantry, the Sentry cannot
-  talk to teammates. All perception/decision-making must be self-contained.
-- Launcher: 17mm only, muzzle speed capped at 25 m/s.
-- Initial/Max HP: 400 (highest of the three robot types).
-- Chassis power limit: 100W.
-- Max barrel heat: 260, cooling rate: 30/s (best cooling of the three robot
-  types).
-- Projectile allowance: 750, preloaded during the 3-minute Setup Period,
-  **fixed for the whole match**. Sentry cannot buy more via the Economy
-  System mid-match the way Hero/Infantry can (that requires occupying the
-  Resupply Zone with a live Pilot exchange, which a fully autonomous Sentry
-  doesn't do here).
-- Can occupy the Capture Point and the Resupply Zone (25% max-HP/sec
-  recovery while inside).
+## Sentry limits, autonomy and combat
+
+Each source label resolves to the version/date above. **Same** means the
+listed Sentry value matches E26/B26, not that the entire manuals match.
+
+| Rule / code constraint | ARCC 2026 basis | RMUL / RMUS 2027 comparison |
+| --- | --- | --- |
+| Autonomy / communication | E26 §3.1.3, Table 3-4: fully autonomous, no pilot, no inter-robot communication; at most one debug remote | **Same**, R27 §3.1.3, Table 3-5 |
+| Debug remote removal | E26 §8.2.1.2 R23: leave at Battlefield entrance after Setup; no commissioning from start of five-second countdown | **Same**, R27 §6.2.1.2 R22 |
+| Launcher / speed | E26 §3.1.3: one 17 mm launcher, ≤25 m/s | **Same**, R27 §3.1.3 |
+| HP / chassis / heat | E26 §3.1.3: 400 HP, 100 W, heat limit 260, cooling 30/s | **Same**, R27 §3.1.3 |
+| Ammo / duration | E26 §3.1.3, §3 and §7.4: 750 initial allowance, cannot increase; three-minute Setup, five-minute Battle | **Same**, R27 §3.1.3, §5.3, §5.6. This is an explicit allowance restriction, not an inference about pilot purchases. |
+| Heat accounting | E26 §3.3.1.3, Figs 3-11–3-12: +10 per 17 mm shot, cooling at 10 Hz (−3/tick at nominal rate); above 260 locks until heat reaches 0; Q2=360 is round-lock threshold | R27 §3.3.1.3, Fig 3-12: **same values**. Both prose descriptions use `>Q2`; both flowcharts use `≥Q2`. Exact equality needs referee clarification; budget below the limit. |
+| Overspeed locks | E26 §3.3.1.2, Table 3-8: excess speed (0,5) m/s →15 s; [5,10) →20 s; **≥10** →rest of round | **Same**, R27 §3.3.1.2, Table 3-9; old “>10” summary was wrong at equality |
+| Armor hit registration | E26 §3.3.1.1, Table 3-6: 17 mm normal impact component **>12 m/s**, minimum detection interval 50 ms | **Same**, R27 §3.3.1.1, Table 3-7. Spinning-panel facing affects registration. |
+| Unbuffed damage | E26 §3.3.1.1, Table 3-7: 17 mm hit 20 HP, collision 2 HP | **Same**, R27 §3.3.1.1, Table 3-8; deliberate collision damage is forbidden in both |
+| Chassis overlimit | E26 §3.3.1.4: 60 J buffer, 10 Hz accounting; exhausted buffer while over limit →5 s chassis power cut | **Same**, R27 §3.3.1.4, Fig 3-13 |
+| Referee main controller offline | E26 §3.3.1.5.1, Table 3-9: launcher/gimbal/chassis off; −5% max HP/s; RFID invalid and respawn stops | **Same**, R27 §3.3.1.5.1, Table 3-10; Mini PC is exempt from defeated-state power cut (both §2) |
+| Armor / supercapacitor module offline | E26 §3.3.1.5.2, Fig 3-14: −4×N HP each 500 ms for N disconnected modules | **Same**, R27 §3.3.1.5.2, Fig 3-14 |
+| Speed monitor offline | E26 §3.3.1.5.3: corresponding launcher immediately loses power | **Same**, R27 §3.3.1.5.3 |
+| Healing / revival | E26 §3.3.2: own Resupply Zone heals 25% max HP/s; first revival 5 s, +5 s each later defeat; heat resets; revive at 20% HP, 30 s invincibility, Weakened (no firing/capture) until own Resupply RFID; that also removes invincibility | **Same baseline**, R27 §3.3.2; new point-gap bonuses below can change revival/healing |
+| Yellow Card on Sentry | E26 §8.1.2, Table 8-2: chassis off 2 s, −15% max HP on first one-side Yellow Card | **Same baseline**, R27 §6.1.2, Table 6-2; consult full tables for repeat/team penalties |
+
+## Battlefield geometry and objectives
+
+| Rule / nav constraint | ARCC 2026 basis | RMUL 2027 comparison |
+| --- | --- | --- |
+| Arena | E26 §3.2.1, Figs 3-1–3-3: 12×8 m, mirrored layout; drawings in mm, dimensions ±10%; nonuniform magnetic fields, wind and lighting explicitly possible | **Same size/environment caveats**, R27 §3.2.1; changed layout, use its Figs 3-1–3-3 |
+| Start / supply | E26 §3.2.2: Starting Zone = Resupply Zone, RFID cards; opponent's resupply is a penalty zone | R27 §3.2.2: Starting Zone = Supply Zone, 2500×2000 mm; **Workbench added** |
+| Terrain / interaction | E26 §§3.2.3–3.2.5: High Ground, PVC Bumpy Road around central Capture Point; RFID dead zones and extra flooring over RFID zones | R27 §§3.2.3–3.2.4: **Highland/Tunnel layout**; dead zones and extra flooring retained. Do not reuse E26 terrain geometry. |
+| Occupation | E26 §3.3.4: **one** shared Capture Point, first arrival wins a contest; occupation expires 2 s after lost RFID | R27 §§3.3.4.1, 3.3.5.3: **three** Control Zones; 0–5 progress counters at 1/s, contest pauses, unattended control decays; activation expires after 2 s without RFID |
+| Score / victory | E26 §§3.3.4–3.3.5: **200 Victory Points**, −1/s while opponent holds point, **−20 per own defeat**; zero ends round, otherwise higher points wins | R27 §§3.3.4.2, 3.3.7: **600 Control Points**, −1/s **per enemy-held zone**, **−10 per own defeat**; same zero/higher-points principle. E26 already uses points, not base HP. |
+| Comeback / buffs | E26 §3.3.3: first point gaps of 70 and 140 award 200 Gold Coins each (max 400) | R27 §§3.3.4.2–3.3.5: **gaps ≥200/400 reduce revival bar by 33%/50%, raise healing to 33%/50% per second**; Highland gives 25% defense; both own Tunnel cards within 3 s with no intervening card give 1.5× cooling for 60 s |
+
+RFID activation is a sensor condition, not an XY containment test. Exact
+zone geometry comes from the cited drawings, not this summary.
+
+## Armor geometry and building limits
+
+**B26 rule IDs below are Chinese V1.3.0 IDs**, subject to the English-basis
+gap above. The old 2024 V2.0 IDs (cant S122, stagger S126, height S127)
+are not current citations. B26-en V1.2.0 already says ≤400 mm / no ground
+contact (§3.6.1.3 S153), so removing “60–400 mm” corrects stale context;
+it is **not a newly introduced 2027 relaxation**.
+
+| Rule / CV prior | 2026 basis (B26 unless A26 noted) | 2027 comparison (B27) |
+| --- | --- | --- |
+| Armor type | §2.4.5 S114, Table 2-10: Sentry uses Small Armor Modules; Infantry §2.4.3 likewise. All-ARCC small armor was also a team report (2026-09-27), not established for every class here. | §2.4.3 S74, Table 2-8: Small Armor Module; ARC's separate 2027 preview explicitly says all mobile ground robots use small armor |
+| Cant / yaw | §3.6.1.1 **S150**: normal 75° from −Z (15° off vertical); four direction vectors align ±X/±Y within 5°; non-light-bearing edges <5° from XY | **Same**, §3.6.1.1 **S120** |
+| Center offset | §3.6.1.1 **S151**: perpendicular opposing-center lines; transverse offset ≤50 mm (Y panel's X offset, and conversely) | **Same**, §3.6.1.1 **S121**; not a 50 mm radial-distance limit |
+| Rigidity | §3.6.1.2 **S152**: 60 N upward at lower-edge midpoint changes angle ≤2.5° | **Same**, §3.6.1.2 **S122** |
+| Panel motion | §3.6.1.3 **S153**: no active motion relative to overall center of mass in principle; deformable designs must not move panels continuously/reciprocally at >0.5 m/s relative to chassis | **Same**, §3.6.1.3 **S123** |
+| Lower-edge stagger | §3.6.1.3 **S154**: ≤100 mm between any two panels | §3.6.1.3 **S124**: **same 100 mm, explicit brief terrain-crossing exception added** |
+| Lower-edge height | §3.6.1.3 **S155**: **≤400 mm, never directly touching ground**, before/during/after transformation; measure from highest support surface, exempt if unsupported | **Same**, §3.6.1.3 **S125**; no 60 mm minimum in either verified version |
+| Bumpers / wall clearance | §3.6.1.4 **S156–S158**: bumpers required, armor must not touch a vertical wall when robot side is against it; only support bracket may contact module | **Same**, §3.6.1.4 **S126–S128**. **S126 is the bumper rule, not stagger.** |
+| Exposure | §3.6.3 **S159**: Sentry/Infantry/Hero clear within **105° lower / 120° upper / 145° left and right** edges | **Same Sentry/Infantry**, §3.6.3 **S129**; Heavy exceptions are separate S130. This is not a single 145° cone. |
+| Envelope / energy | §2.4.5 **S114**, Table 2-10: 600 mm cube stowed, 800 mm cube extended, 300 Wh, 30 V | **Same**, §2.4.3 **S74**, Table 2-8; A26 A10 requires initial-size measurement powered on |
+| Weight accounting | §2.4.5 **S114**: **25 kg including battery, excluding referee system** (listed referee mass 3.25 kg) | §2.4.3 **S74**: **28 kg including battery and referee system**; compare accounting, not just 25→28 |
+| Required modules | §3.2: RMUL exempts Positioning Module; §3.12 **S187** requires Supercapacitor Management Module even without capacitor bank | **Same**, §3.2 and §3.12 **S158** |
+| Fluorescent charger | **A26 A7**, overriding B26 §2.1.11: every 17 mm robot **must install**, custom/alternate part allowed | B27 §2.1.8: **RMUL exempt**; future ARC override unconfirmed |
+| Wireless / lasers | **A26 A1/A2**: nonremovable wireless hardware must not transmit; **no visible lasers** | B27 §2.1.2 **S22** still restricts wireless equipment; §2.1.3 **S28** now explicitly bans visible lasers and permits only Class I invisible lasers. **Same visible-laser ban** as A26 A2; A26 A1's nonremovable-hardware exception is not established for 2027. |
+| Chassis power cutoff | **A26 A11**, elaborating B26 §3.4.2 **S145**: all chassis motor controllers immediately lose power; no supercapacitor backfeed; software disable insufficient | B27 §3.4.2 **S113–S115**: immediate interface power-off and separate chassis supply; retain A26 hardware requirement for ARCC 2026 |
+
+The build-spec body frame has **+Z down** (§3.6.1), with X the chassis's
+maximum-efficiency motion direction, not its firing direction. This is a
+rulebook construction convention; ROS frames still follow
+[REP 103](https://www.ros.org/reps/rep-0103.html).
+
+### Visual status and stickers
+
+- **E26 §8.2.2 R34** requires armor stickers before the 15-second referee
+  initialization; **R41** forbids an alive robot obscuring its own armor.
+  The old R37/R45 citations came from RMUC and were wrong for ARCC.
+  R27 §6.2.1.4 **R40** retains self-obstruction prohibition; do not carry
+  E26 R34's number into R27 (its R34 is safety hazards).
+- **E26 §9** explicitly continues matches despite armor/indicator-light
+  anomalies or damaged stickers. Dark LEDs alone do not establish defeat.
+  Treat the two side light strips (B26 S150 / B27 S120) and sticker as cues;
+  neither guarantees visibility through another robot or terrain.
+- Team CV assumptions, **not rule limits**: near full-size opponents,
+  translation up to 4 m/s, chassis spin roughly 1–2 Hz. Expect repeated
+  panel occlusion and changing normal direction. The team's 135×125 mm
+  small-panel CAD measurement is an asset assumption, not a rule-specified
+  universal face size. The old class-height clusters and 2018 LED-color
+  claims are not verified current rules and must not constrain detection.
 
 ## Our Sentry's drivetrain (not from the rulebook, our hardware choice)
 
-- **Holonomic chassis** (e.g. mecanum/omni wheels): can translate in any
-  direction without changing heading.
-- **Spins its chassis while driving.** The firmware's route runs at -8 rad/s
-  moving and -12 at either end
-  ([sim firmware behaviour](../sim/README.md#firmware-behaviour-and-historical-results-then-stage-e2-now-mcb_parked)), so the
-  head holds world yaw and CV aims at an `odom` point, not a chassis-relative
-  one. Don't plan on a fixed heading or footprint orientation.
-
-## Battlefield geometry (§3.2): relevant to SLAM/nav
-
-- Battlefield: **12m × 8m**, mirrored layout about the centerline (Red/Blue
-  symmetric).
-- Each team has a **Starting Zone == Resupply Zone**, inlaid with RFID
-  Interaction Module Cards (used for HP recovery and Capture Point
-  detection: robots must physically sense the RFID card, not just be in
-  the right XY region).
-- One shared **Capture Point** at the center, also RFID-carded. **RFID
-  dead zones exist**, and the rulebook explicitly says teams must handle this
-  (don't assume 100% detection reliability inside the zone; a robot that
-  loses RFID contact loses occupation after 2 seconds).
-- **Bumpy Road**: PVC flooring with evenly spaced bumps around the Capture
-  Point. Expect wheel odometry noise/slip here; may want extra localization
-  weight from other sensors when crossing it.
-- **High Ground** exists as a terrain feature (elevation change).
-- Environment is explicitly **not fully symmetrical in practice**: non-uniform
-  magnetic fields, wind, venue lighting are called out as real conditions
-  (relevant if using a magnetometer or vision-based localization that assumes
-  uniform lighting).
-- An extra flooring layer sits over the RFID zones (minor height change to
-  model if doing precise wheel/lidar odometry calibration).
-
-## Combat mechanics: relevant to firing-timing phase (later)
-
-- **Barrel heat**: each 17mm shot fired adds +10 heat; cools at rate/10 per
-  100ms tick (30/s cooling rate → -3 per 100ms). Exceeding the limit (260)
-  locks the launcher until heat drains to 0; exceeding limit+100 (360) locks
-  the launcher for the rest of the round. **Firing-rate logic needs a heat
-  budget model**, not just "fire when target acquired."
-- **Projectile speed limit** (25 m/s): overspeed locks the launcher 15–20s
-  depending on margin, or for the rest of the round if >10 m/s over. Muzzle
-  velocity calibration/control matters as much as aim.
-- **Damage**: 17mm hit = 20 HP to target's armor module (detection requires
-  >12 m/s normal-component impact speed on the armor panel).
-- **Projectile budget is fixed at 750 for the whole match** with no
-  resupply path for a fully autonomous Sentry, so firing logic should treat
-  ammo as a scarce resource to ration across the 5-minute Battle, not spend
-  freely early.
-- **Respawn**: on defeat, barrel heat resets to 0, robot respawns with 20%
-  HP, 30s invincibility, and a "Weakened" state (launcher locked, can't
-  capture points) until it reoccupies its Resupply Zone.
-- **Referee System disconnection**: if the Sentry's main control module goes
-  offline, launcher/gimbal/chassis power off and HP drains 5%/sec, so the
-  autonomy stack's reliability directly costs HP, independent of combat.
-
-## Opponent robot characteristics: relevant to CV
-
-- **Most ARCC robots are near full-size** (RoboMaster Standard-class scale,
-  not the smaller reference/toy-scale robots), so targets are large in frame
-  at typical engagement ranges, not tiny/distant.
-- **Chassis can translate up to 4 m/s**. With the spin below, CV must track
-  targets that rotate in place while translating quickly across the frame;
-  tracking/prediction can't assume a roughly stationary opponent.
-- **Chassis spin at roughly 1–2 Hz** (this is the common "wiggle"/spinning
-  defense tactic to make armor panels harder to hit, since panel
-  facing keeps rotating rather than staying fixed toward the shooter). CV
-  target detection/tracking needs to handle a **continuously rotating
-  target**, not a mostly-static one:
-  - Panel orientation relative to the camera changes every ~0.5–1s
-    (360°/1-2Hz), so a tracker can't assume "last known facing" stays valid.
-  - At 1-2 Hz, panel-to-panel occlusion/foreshortening cycles fast, so the
-    detection pipeline should expect a given armor panel to swing in/out of
-    a good detection angle repeatedly within a second, not just once.
-  - This also interacts with the >12 m/s normal-impact-speed detection
-    requirement above (Combat mechanics): firing-timing logic (later) will
-    need to predict *when* a spinning target's panel will next present
-    near-normal to the shot, not just track current position.
-
-### What an armor panel actually looks like (target signature for CV)
-
-From DJI's Referee System install spec (2018 baseline dimensions/behavior;
-general form has stayed consistent across RoboMaster years):
-
-- **Shape**: flat rectangular plastic module, screwed onto a bracket bolted
-  to a flat chassis face, always **side-mounted** (front/back/left/right),
-  never top-mounted. RoboMaster has two sizes, Large (Hero, Sentry) and
-  Small (Standard, Engineer), but **ARCC 2026 uses only the Small Armor
-  Module, on every robot, ours included** (the user, 2026-09-27). Its face
-  is 135 x 125 mm (width x height), measured on `sentry_v2`'s CAD; the sim
-  and both benches use that size.
-- **Visual signature**: each panel has **two separate indicator lights**,
-  one on each side of the panel body (not a single glowing panel):
-  **steady red or blue** = team color / alive, **steady yellow** = that
-  module offline/critical. This two-light-segment pattern per rectangular
-  panel is the practical thing to detect.
-- **Exposure cone**: the front **145° of the panel's exposure surface must
-  stay unblocked**, so the two-light pattern is visible/detectable across
-  most viewing angles within that cone, not just head-on.
-- **Mounting height clusters by robot class**: Standard-class panels'
-  lower edge sits ~60–150mm above the ground, Hero-class ~400mm+. Expected
-  panel height in frame isn't arbitrary, it's a signal tied to robot type.
-- With the spin and translation above, that two-light signature rotates past
-  the camera at 1–2Hz while the robot translates up to 4 m/s, so CV needs
-  per-panel tracking that tolerates frequent brief occlusion, not a single
-  fixed-facing detection.
-
-### Mounting angle (S122, from the 2024 RoboMaster University Series Robot
-Building Specifications V2.0; structure unchanged from 2018 baseline.
-Confirmed no separate elevated-rail Sentry mount exists in the 2024 spec,
-so this general ground-robot rule is what applies, matching our Sentry
-being ground/mecanum-based like the others, not the legacy 2018 rail-Sentry
-design that used a different, floor-facing angle)
-
-- Robot body coordinate system: **Z-axis points straight down** (toward
-  the center of the earth), X-axis is the robot's highest-efficiency
-  firing direction, Y-axis completes the right-handed frame at the
-  center of mass.
-- **Panel tilt**: the armor panel's Armor Support Frame bottom surface is
-  parallel to the ground (XY plane), and the panel is mounted so the
-  **acute angle between the panel's outward-facing normal vector and
-  straight-up (negative Z-axis) is 75°**. Since 90° would mean a perfectly
-  vertical panel facing purely horizontally, 75° means each panel is
-  **canted about 15° off vertical**, angled slightly upward/outward
-  rather than dead flat. Panels are deliberately not flush-vertical.
-- **Yaw alignment**: projecting each panel's normal onto the ground plane
-  gives its "direction vector". The four panels' direction vectors must
-  each align with +X, −X, +Y, −Y respectively, within **±5° angular
-  error**. So the four panels are roughly a symmetric cross around the
-  robot, not just "somewhere on each side."
-- **Placement tolerance**: the geometric center of an X-mounted panel and
-  a Y-mounted panel form perpendicular lines through the robot's center of
-  mass; each panel may be offset up to **50 mm** from center along its axis.
-- **Vertical stagger (S126)**: the difference in height between the lower
-  edges of any two Armor Modules on the same Ground Robot must not exceed
-  **100 mm**. Panels can sit at somewhat different heights (e.g. front/back
-  vs. side panels) but not wildly so, a useful prior for where to expect
-  a robot's other panels vertically once one is located in-frame. (S127:
-  lower-edge height itself must be 60mm–400mm off the ground, except while
-  climbing/overcoming obstacles.)
-- **Rigidity requirement (S124)**: a 60 N upward force at the midpoint of
-  a panel's lower edge must not change its mounting angle by more than
-  **2.5°**, i.e. panels must be rigidly fixed, not spring-mounted or
-  loose. That reinforces why the 4×N-per-500ms disconnection HP drain (below)
-  is a real design risk, not just a wiring edge case.
-- **Practical CV takeaway**: opponent armor panels present at a
-  consistent, predictable ~15°-off-vertical cant on all 4 sides, useful
-  as a geometric prior (e.g. for pose/orientation estimation from a single
-  panel's apparent aspect ratio) rather than assuming panels are flush
-  vertical rectangles.
-
-### Armor Module rules (from the 2026 RoboMaster University Championship
-Rule Manual V1.2.0, which governs ARCC via the Building Specifications diff
-above; fetched from
-`bbs-web-static.robomaster.com/.../RoboMaster 2026 University Championship
-Rule Manual V1.2.0 (20260107).pdf`)
-
-- **Detection speed thresholds confirmed**: Large/Small Armor Module (only
-  Small is in ARCC 2026) needs
-  >12 m/s normal-component impact speed for a 17mm projectile to register
-  (matches the Combat mechanics section above); minimum detection interval
-  is 50ms for 17mm projectiles (so back-to-back hits within 50ms may not
-  both register).
-- **Damage values (Table 5-2, no buffs)**: 17mm hit on a Ground Robot's
-  Armor Module = 20 HP (confirmed); collision-detected-as-damage = 2 HP
-  (collisions/ramming aren't allowed as a deliberate damage method, but the
-  Referee System can still register accidental collisions as small damage,
-  relevant if our Sentry's own motion planning brushes an obstacle/robot).
-- **Physical armor stickers required (R37)**: every robot must have a
-  Referee-provided **Armor Sticker** physically affixed per the Building
-  Specifications Manual before the match's 15-Second Referee System
-  Initialization Period. This is separate from and in addition to the
-  LED indicator lights. A CV pipeline could in principle use sticker
-  graphics as an additional visual cue, not just the LEDs.
-  Continuation rule: **damage to an Armor Module Sticker, or any anomaly in
-  a robot's armor light effects/light indicator effects, does not stop the
-  match**, meaning a dead/broken LED or damaged sticker is not reliable
-  evidence a robot is disconnected/eliminated. Don't gate "is this robot
-  alive" purely on LED state being lit.
-- **Self-obstruction is against the rules (R45)**: no alive robot may block
-  any of its own Armor Modules with its own body, and can't block more than
-  one Armor Module on another allied robot. **Sentry specifically is never
-  allowed to obstruct its own Armor Modules** (unlike Engineer, which gets
-  a narrow exception while carrying a Mobile Component). Practical
-  implication: on a rules-compliant opponent, all 4 side panels should
-  stay geometrically unobstructed by the robot's own structure. Any panel
-  that looks occluded in-frame is more likely a viewing-angle/lighting
-  effect than actual physical blocking, *unless* that panel has disconnected
-  (see below), which is itself a valid non-violation reason for it to read
-  as blocked/dark.
-- **Disconnection penalty is quantified and continuous, not one-shot**:
-  every 500ms, the Referee System counts N = number of currently
-  disconnected Armor Modules + Supercapacitor Management Modules on a
-  robot, and applies **HP loss = 4 × N** for that tick. This runs
-  continuously while any module stays disconnected, which reinforces why our
-  own armor/panel mounting reliability (screws not just friction-fit, wiring
-  strain relief) matters as much as the A11 chassis-power-cutoff exception
-  already noted below: a loose panel bleeds HP passively for as long as it
-  stays loose, independent of getting shot.
-
-## ARCC 2026 Robot Building Specifications (V1.3.1, 05/04/2026)
-
-Fetched from: https://www.arc-robotics.org/_files/ugd/df0c37_85f8332e4e464f12ad4f5f4cb74a758d.pdf
-
-This is a short (5-page) diff on top of the base
-**"2026 RoboMaster University Series Robot Building Specifications V1.3.0"**
-(hosted on RoboMaster's community hub `bbs.robomaster.com/wiki/20204847`;
-[rm2027 sources](rules/rm2027/README.md#sources) shows how to fetch its
-PDFs). ARCC applies all RMUS rules
-except where noted here, and interprets RMUC-only rules (e.g. Custom
-Clients, Dart/Aerial-specific rules) as not applicable since ARCC is
-treated like an RMUL event.
-
-**Sentry-relevant:**
-- **A7**: RMUL normally exempts robots from installing the fluorescent
-  energy charging device, but ARCC overrides this: **any 17mm-launcher
-  robot (including Sentry) must install one**. The installed device doesn't
-  need to match the reference part; custom/alternate parts are allowed.
-- **A11**: elaborating on S145, when the Power Management Module's chassis
-  port is disabled, all chassis motor controllers must **immediately lose
-  power**; stored energy in the supercapacitor bank may not backfeed the
-  chassis. Software-only motor disable is explicitly not sufficient; this
-  needs a hardware cutoff.
-- **A2**: no visible lasers allowed on any robot type at ARCC (RMUS allows
-  some non-scanning laser types).
-- **A1**: any wireless comms hardware that can't be physically removed
-  (e.g. an SoC's built-in WiFi antenna) must be disabled so it does not
-  transmit. Max penalty for illegal wireless comms during competition is
-  disqualification. Relevant since Sentry already can't use inter-robot
-  comms per the base rules (§3.1.3 above); this closes the "can't remove
-  the antenna" loophole.
-- **A12**: COTS devices (e.g. action cameras) fully disconnected from
-  chassis/ammo-booster/mini-PC/gimbal may use their own internal battery,
-  but must still comply with size, light-emission, and wireless-comms
-  rules.
-
-**Other exceptions (not Sentry-specific, kept for completeness):**
-- **A3–A6**: advertising-space placement/sizing rules relaxed vs. stock
-  RoboMaster (don't need both sides of the robot; no size/count
-  restriction, though the Head Inspector can reject designs that obscure
-  armor-module visual indicators or are inappropriate).
-- **A8**: computational platforms don't need to run open-source OSes
-  (RMUS requires this).
-- **A9**: robot photographs must be included in the Final Assessment.
-- **A10**: "Maximum Storage Size" (§2.4 of the base spec) must be measured
-  powered-on; also called "Maximum Initial Size"/"Initial Size."
-- The ARC Organizing Group is the ARCC equivalent of RMOC (RoboMaster's
-  organizing committee) for rule-interpretation purposes.
+Holonomic translation and chassis spin require per-panel tracking and
+world-frame aim. Firmware route rates and their provenance belong in
+[sim firmware behaviour](../sim/README.md#firmware-behaviour-and-historical-results-then-stage-e2-now-mcb_parked);
+ROS frame/odometry choices belong in
+[pose_translator](../thornbots_pkg/README.md#pose_translator).
 
 ## RoboMaster 2027 RMUL base rules
 
-RMUL 2027 V1.0.0 (2026-10-15) is the likely base for ARCC 2027; ARC has not
-published 2027 rules yet. Full English translations live in
-[docs/rules/rm2027](rules/rm2027/README.md). Differences from the
-ARCC 2026 facts above:
-
-- **Sentry unchanged** ([§3.1.3](rules/rm2027/rmul-rules-manual.md#313-sentry-robot)):
-  fully automatic, at most one debug remote controller, no inter-robot
-  communication, 17mm at 25 m/s, 400 HP, 100 W, heat limit 260, cooling
-  30/s, Projectile Allowance 750 fixed for the five-minute Round. Table 3-5
-  lists Control Zones and the Supply Zone as buff points; it heals
-  25% max HP/s in its own Supply Zone. R22 still puts its remote controller at the
-  Battlefield entrance after the Setup Period.
-- **Lineup**: Heavy Robot (new, replaces Hero; 42mm, needs a modular 42mm
-  launcher fitted at the Workbench and one recognised shot to reach full
-  performance), Infantry Robot, Sentry Robot. Custom Controller and Custom
-  Client merge into one Custom Terminal. The Engineer Challenge is dropped.
-- **Field** ([§3.2](rules/rm2027/rmul-rules-manual.md#32-competition-field)):
-  still 12 m x 8 m. Starting Zone = Supply Zone (2500 x 2000 mm) with a
-  Workbench; new Tunnel. Three Control Zones (Red Highland, Central, Blue
-  Highland) replace the single Capture Point, still detected by Field
-  Interaction Module cards with dead zones and an extra flooring layer.
-- **Win condition is Control Points, not base HP**
-  ([§3.3.4](rules/rm2027/rmul-rules-manual.md#334-control-zones-and-control-points-mechanism)):
-  each side starts with 600; each Control Zone held costs the opponent 1/s
-  and each death costs 10. Reaching 0 ends the round. A gap of 200 or 400
-  shortens the trailing side's revival and speeds its Supply Zone healing.
-- **Buffs**: a Highland Control Zone also gives 25% defense; reading both own
-  Tunnel cards within 3 s gives 1.5x cooling for 60 s.
-- **Revival**: first revival bar is 5 s, +5 s per later death; revives at
-  20% HP with 30 s invincibility and Weakened (launcher locked, cannot
-  activate Control Zones) until it reads its own Supply Zone card.
-- **Penalties**: a Yellow Card on the Sentry cuts its chassis power for 2 s
-  and deducts 15% of its max HP.
-  Damage, overspeed, heat, chassis-power and module-offline numbers match
-  the Combat mechanics section above; only the Small Armor Module is listed.
-- **Build spec** ([robot building specifications](rules/rm2027/robot-building-specifications.md)):
-  Sentry max 28 kg, 600 mm cube stowed, 800 mm cube extended, 300 Wh, 30 V.
-  RMUL needs no Positioning Module or fluorescent charging device (ARCC 2026
-  A7 overrode the latter). Supercapacitor Management Module is mandatory
-  (S158). Armor geometry: 75° between the panel normal and -Z (S120), 50 mm
-  offset (S121), 60 N moves it at most 2.5° (S122), lower edges within
-  100 mm of each other (S124) and at most 400 mm, never touching the ground
-  (S125; the old 60 mm minimum is gone). On Infantry and Sentry the face must
-  be clear within 105° of the lower edge, 120° of the upper and 145° of the
-  sides (S129).
+The comparison tables above describe **RMUL**, not adopted ARCC 2027 rules.
+R27 §3.1 replaces Hero with Heavy, uses Infantry/Sentry, and adds a modular
+42 mm launcher/Workbench mechanism (§3.3.6); Custom Terminal replaces the
+Custom Controller/Client split (§3.1.4). **ARC's September preview instead
+keeps Hero and adds Engineer to 3v3.** Do not port the RMUL lineup or field
+into ARCC defaults without the final ARC manuals.
 
 ## Not yet extracted / worth pulling in later
 
-- Exact Battlefield zone coordinates/drawings (Figures 3-1–3-9 are diagrams,
-  not extracted as text, so you need the actual PDF pages if building a precise
-  arena map for `sim`). The RMUL 2027 translation lists each figure's labels
-  and dimensions but not its geometry.
-- Full Referee System data interface / UART protocol spec.
-- Round timing/countdown details (§7.5–7.9) if precise match-phase state
-  machine timing is needed later.
+- Confirm the **October 31 mini competition's** event manual, version and
+  local exceptions; no adoption notice was found in the sources checked.
+- Obtain ARC's named **English 2026 V1.3.0** building spec or an organizer
+  clarification reconciling it with Chinese V1.3.0 / English V1.2.0.
+- Recheck ARC's promised **November 1** manuals before adopting 2027 rules;
+  the preview does not specify Sentry limits, field geometry or armor IDs.
+- Confirm the **heat equality boundary Q1=360** against referee behavior.
+- Extract exact field geometry from E26 Figs 3-1–3-9 for event-specific maps.
+  UART/message semantics have their maintained home in the
+  [wire protocol](../ros2_dji_serial_bridge/UART_PROTOCOL.md); match-phase
+  timing comes from E26 §§7.4–7.8, or R27 §§5.3–5.7 for RMUL only.
 
-Re-fetch the ARCC 2026 PDFs and run `pdftotext -layout` on them if deeper
-detail is needed; only the RoboMaster 2027 translations are kept in the repo.
+[arc-index]: https://www.arc-robotics.org/participants/2026-manuals
+[arc-2027]: https://www.arc-robotics.org/participants/2027-manuals
+[arc-news]: https://www.arc-robotics.org/announcements
+[arc-preview]: https://www.arc-robotics.org/announcements/2027-season-preview
+[events]: https://www.arc-robotics.org/_files/ugd/df0c37_304dcbb3e08c422b987a1b627110d767.pdf
+[arc-build]: https://www.arc-robotics.org/_files/ugd/df0c37_85f8332e4e464f12ad4f5f4cb74a758d.pdf
+[rm26-index]: https://bbs.robomaster.com/wiki/20204847/809872
+[rmul27]: rules/rm2027/rmul-rules-manual.md
+[build27]: rules/rm2027/robot-building-specifications.md
+[rules-pr]: https://github.com/Thornbots/thornbots_workspace/pull/54
+[build26-zh]: https://hz-rm-bbs-web-prod.oss-cn-hangzhou.aliyuncs.com/0af874e7e10a4f9eb7c3c4872e47f03b1770636018010/RoboMaster%202026%20%E6%9C%BA%E7%94%B2%E5%A4%A7%E5%B8%88%E9%AB%98%E6%A0%A1%E7%B3%BB%E5%88%97%E8%B5%9B%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%88%B6%E4%BD%9C%E8%A7%84%E8%8C%83%E6%89%8B%E5%86%8CV1.3.0%EF%BC%8820260209%EF%BC%89.pdf
+[build26-en]: https://hz-rm-bbs-web-prod.oss-cn-hangzhou.aliyuncs.com/270e4d3f297a414ba809f701dda8a28f1767780578641/RoboMaster%202026%20University%20Series%20Robot%20Specification%20Manual%20V1.2.0%EF%BC%8820260107%EF%BC%89.pdf

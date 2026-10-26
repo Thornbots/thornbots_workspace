@@ -2,10 +2,8 @@
 
 Unofficial English translations of the RoboMaster 2027 University League
 (RMUL) and University Championship (RMUC) rule documents, released
-2026-10-15. ARCC treats itself as an RMUL
-event, so these are the closest published base for ARCC 2027 until ARC
-releases its own rules. The [game context](../../ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
-summarizes the Sentry and CV deltas.
+2026-10-15. The [game context](../../ARCC_2026_SENTRY_CONTEXT.md#robomaster-2027-rmul-base-rules)
+owns ARCC applicability and summarizes the Sentry and CV deltas.
 
 The Chinese PDFs govern; these translations are for team reference only.
 
@@ -18,7 +16,7 @@ The Chinese PDFs govern; these translations are for team reference only.
 | [Robot Building Specifications Manual V1.0.0](robot-building-specifications.md) | [English](pdf/robot-building-specifications-en.pdf) | [Chinese](source/robot-building-specifications-zh.pdf) | 91 | `39175fdc1c263b10ec44727c5689c329` |
 | [Rule-Change Preview](rule-change-preview.md) | [English](pdf/rule-change-preview-en.pdf) | [Chinese](source/rule-change-preview-zh.pdf) | 19 | `87c15791e3dbabab9dde749bc8cadf8b` |
 
-RMUC is included for comparison; ARCC follows RMUL. The Building
+RMUC is included for comparison. The Building
 Specifications Manual is shared by RMUC and RMUL; RMUL-only exemptions are
 marked in its tables. The preview predates V1.0.0; where they
 differ, the manuals win.
