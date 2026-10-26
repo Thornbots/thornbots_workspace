@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Launch-time lidar translation/yaw and scan-frame blind-sector overrides,
+  including sectors across scan zero. Defaults use the Oct 26 CAD mount and
+  robot-measured scan zero/self-filter; the spawned sim sensor matches the TF
+  ([thornbots_pkg #32](https://github.com/Thornbots/thornbots_pkg/pull/32),
+  [sim #50](https://github.com/Thornbots/sim/pull/50),
+  [measurement and validation](docs/investigations/lidar-mount-2026-10-26.md)).
+
 - Complete [Map a new field](README.md#map-a-new-field) operator procedure,
   deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
   the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
@@ -429,6 +436,11 @@ impact, and link the corresponding package changes.
   the tracked copy, so keep a backup first if you edited it locally.
 
 ### Fixed
+
+- Sim's CV bench armor validation now checks ground clearance and the 400 mm
+  maximum lower-edge height instead of an unsupported 60 mm minimum; rule
+  citations link to the verified workspace comparison
+  ([sim #51](https://github.com/Thornbots/sim/pull/51)).
 
 - Launch stopping now lists and signals only verified container-owned ROS
   launch/run trees, including when the container shares the host PID namespace.
