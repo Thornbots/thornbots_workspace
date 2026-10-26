@@ -87,10 +87,14 @@ impact, and link the corresponding package changes.
   the authored scan-zero reference changes by -8.568°. The
   [dated investigation](docs/investigations/sentry-cad-2026-10-26.md)
   records the archive SHA256, frame derivation and before/after tests.
-  Parked/drive/final drift suites pass, but the supplied armor stagger exceeds
-  the 100 mm assertion and existing sim aiming tests fail with the forward
-  muzzle. Keep this integration draft pending those owning-workstream decisions
-  and physical validation of scan zero, scan plane and the mount.
+  Round 2 preserves the muzzle's pitch-axis aiming contract with the CAD
+  lateral offset; the unchanged aiming acceptance tests now pass. Independent
+  mesh checks establish a 103.885 mm armor lower-edge stagger in the supplied
+  CAD, exceeding the physical S126 limit; the 100 mm test remains enforced.
+  Offline scan registration supports a mount/axis discrepancy that the CAD
+  translation/yaw combination does not explain. Keep the integration draft
+  pending a mechanically confirmed armor correction and physical validation
+  of scan zero, scan plane and the mount.
 
 - Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
   it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
