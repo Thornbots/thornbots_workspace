@@ -93,6 +93,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Refresh the [Sentry rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) against
+  ARC 2026 V1.6 / building diff V1.3.1 and RMUS/RMUL 2027 V1.0.0; correct
+  armor citations, distinguish actual rule changes from stale 2024 values,
+  and flag the English 2026 basis and October 31 event rules as unconfirmed.
+  ARC's September 2027 preview is separate from the RMUL comparison.
+
 - Raise host quality tooling to pytest 9.0.3 for CVE-2025-71176 (insecure
   temporary-directory handling), retaining the other tooling pins. Package CI
   uses the patched tooling snapshot; the native Mac environment now requires
