@@ -124,7 +124,7 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   still and AMCL never updates parked. rf2o's `reference_scans` is available but off by default; when enabled, it matches parked scans against earlier ones from the
   same head angle once `/odom` has held still for 2 s: sim `mcb_parked` p95 0.002-0.009 m in every cell (was up to 0.090 m), and a 4 cm shove with the
   wheels held still shows up (`parked_push`). These results used references enabled, not the default configuration. Next: confirm on the robot parked with
-  the head patrolling, and a hand shove. `mcb_parked` keeps its 0.15 m p95 gate.
+  the head idle and turning for idle looks, and a hand shove. `mcb_parked` keeps its 0.15 m p95 gate.
   [Investigation](investigations/t39-parked-drift-2026-10-25.md),
   [reference scans](../rf2o_laser_odometry/README.md), [parked gate](../sim/README.md#more-on-the-tests).
 
@@ -136,9 +136,11 @@ carried-map games, and maps do not accumulate robots or duplicate walls.
 
 Camera checks need hardware; sim detection stand-ins cannot validate them.
 
-- **T23 — sentry_localization / thornbots_pkg — open:** Compare patrol on/off in sim and hardware; assess lidar-driven
-  search if localization degrades. [Moving lidar](../sentry_localization/README.md#contract-with-thornbots_pkg),
-  [patrol](../thornbots_pkg/README.md#point_to_cv_target).
+- **T23 — sentry_localization / thornbots_pkg — stage 1 in review:** Jetson patrol replaced by rate-capped idle looks
+  (last enemy, hit hold, enemy zone); lidar tracks are stages 2-4 of the
+  [lidar-guided aiming design](lidar-guided-aiming-2026-10-25.md#stages). Next: robot rf2o steps with the head idle.
+  [Moving lidar](../sentry_localization/README.md#contract-with-thornbots_pkg),
+  [idle looks](../thornbots_pkg/README.md#point_to_cv_target).
 - **T19 — thornbots_pkg — untested:** Determine whether depth is needed or colour-only ranging suffices.
   [Depth input](../thornbots_pkg/README.md#target_tracker).
 - **SENTRY-drift — robot run — open:** Angle compensation ([thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18))
