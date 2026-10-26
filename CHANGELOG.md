@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+### Changed
+
+- Raise host quality tooling to pytest 9.0.3 for CVE-2025-71176 (insecure
+  temporary-directory handling), retaining the other tooling pins.
+
 ## 2026-10-10
 
 ### Added
