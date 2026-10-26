@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Launch-time lidar translation/yaw and scan-frame blind-sector overrides,
+  including sectors across scan zero. Defaults use the Oct 26 CAD mount and
+  robot-measured scan zero/self-filter; the spawned sim sensor matches the TF
+  ([thornbots_pkg #32](https://github.com/Thornbots/thornbots_pkg/pull/32),
+  [sim #50](https://github.com/Thornbots/sim/pull/50),
+  [measurement and validation](docs/investigations/lidar-mount-2026-10-26.md)).
+
 - Complete [Map a new field](README.md#map-a-new-field) operator procedure,
   deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
   the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
