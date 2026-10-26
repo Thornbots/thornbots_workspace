@@ -9,6 +9,15 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Complete [Map a new field](README.md#map-a-new-field) operator procedure,
+  deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
+  the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
+  Ten steps use the baked release image (verified by image ID), explicit manual
+  head controls and CV suppression, plus Oct 25 odometry/head-motion gates and a
+  technical reference correction ([sentry_localization #21](https://github.com/Thornbots/sentry_localization/pull/21)).
+  [Verification](docs/investigations/mapping-procedure-2026-10-26.md) records the
+  isolated room-sim rehearsal and remaining robot-side acceptance. No behavior changes.
+
 - Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
   serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
   plus optional camera and stale-CV blocks
