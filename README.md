@@ -81,7 +81,7 @@ Boot/image reference:
    export ROS_DOMAIN_ID=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
    export FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds/profile.xml
    export SESSION=/workspaces/isaac_ros-dev/maps/oct31-red-01
-   export HEAD_OFF='enable_cv_target_bridge:=false enable_target_selector:=false enable_target_tracker:=false patrol_enabled:=false'
+   export HEAD_OFF='enable_cv_target_bridge:=false enable_target_selector:=false enable_target_tracker:=false'
    ros2 pkg prefix thornbots_pkg
    ros2 pkg prefix sentry_localization
    ros2 run sentry_localization operator_workflow --help
@@ -177,11 +177,8 @@ Boot/image reference:
    ROS_DOMAIN_ID=1
    LOCALIZATION_MODE=amcl
    LIDAR_SERIAL_DEVICE=/host-dev/rplidar
-   AUTO_LAUNCH_ARGS="real_hardware:=true use_rf2o:=false autosave_map:=false patrol_enabled:=false map_file:=/workspaces/isaac_ros-dev/maps/oct31-red-01/deployment/field amcl_initial_x:=-4.625 amcl_initial_y:=0.0 amcl_initial_yaw:=0.0"
+   AUTO_LAUNCH_ARGS="real_hardware:=true use_rf2o:=false autosave_map:=false map_file:=/workspaces/isaac_ros-dev/maps/oct31-red-01/deployment/field amcl_initial_x:=-4.625 amcl_initial_y:=0.0 amcl_initial_yaw:=0.0"
    ```
-
-   Keep `patrol_enabled:=false`: Jetson head patrol smears lidar scans. Remove
-   it only after the aiming rework (workspace #100) removes patrol.
 
    For blue use its session and `amcl_initial_x:=4.625`; **root yaw stays 0 for
    both teams**, unlike blue chassis yaw in step 7. `map_file` has no extension.
@@ -231,16 +228,15 @@ Boot/image reference:
 Notes:
 
 - **Head control on nightly:** both workflow modes launch `auto.launch.py`, not
-  just localization/serial; CV selector/tracker/aim and Jetson patrol default on.
-  `$HEAD_OFF` suppresses them during manual mapping/localization. The boot service
-  also launches YOLO; `patrol_enabled:=false` stops Jetson patrol only, not target
-  tracking or firmware behavior. At firmware `8d46da5`, left switch UP schedules
+  just localization/serial; CV selector/tracker/aim default on.
+  `$HEAD_OFF` suppresses them during manual mapping/localization. There is no
+  Jetson patrol: with no camera target the head makes idle looks (last enemy,
+  hit hold, enemy start zone). The boot service also launches YOLO, so match
+  boot tracks targets. At firmware `8d46da5`, left switch UP schedules
   automatic aim/fire; leaving UP selects joystick gimbal control. Select left
   MID/right MID, centre using the right stick and leave it neutral. This holds
   the commanded yaw; verify it physically throughout. No ROS workflow command
   locks the head. Do not use autonomous/keyboard modes during acceptance.
-  Draft [workspace #100](https://github.com/Thornbots/thornbots_workspace/pull/100)
-  removes patrol; recheck these flags/firmware controls after it lands.
 - The image **must contain the release workflow and launch arguments**. No host
   overlay/build is required: the Dockerfile installs these packages in
   `/workspaces/ros2_ws`. `activate --start-only` uses the local CLI image tag;

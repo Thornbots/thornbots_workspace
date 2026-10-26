@@ -1,7 +1,7 @@
 # Lidar-guided aiming (design draft, 2026-10-25)
 
-Draft for team review; nothing is built. Replaces the Jetson head patrol with
-lidar-guided looking. Evidence: the
+Stage 1 is built (no Jetson patrol, idle looks, fire age limit); stages 2-4
+are open. Replaces the Jetson head patrol with lidar-guided looking. Evidence: the
 [2026-10-25 robot session](#evidence). Game rules:
 [ARCC context](ARCC_2026_SENTRY_CONTEXT.md).
 

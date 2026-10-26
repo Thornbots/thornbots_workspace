@@ -104,6 +104,18 @@ impact, and link the corresponding package changes.
 - Complete the [local firmware check instructions](docs/CI.md#local-checks-for-prs-into-nightly)
   by linking the GCC 14 unit tests, hosted build and hosted UART/control tests.
 
+- Replace the Jetson head patrol with idle looks (stage 1 of the
+  [lidar-guided aiming design](docs/lidar-guided-aiming-2026-10-25.md)). With no
+  camera target the head holds the last enemy for 3 s, holds where a hit turn
+  left it for 2 s, then faces the enemy starting zone (`auto.launch.py`
+  `idle_direction:=zone|hold`). The patrol launch argument is gone. Every
+  non-target frame is non-firing with `turn_to_hit` set. Firing now requires a
+  detection at most 0.15 s old (new `TargetState.detection_stamp`), and
+  `room_check` `stale_cv` is diagnostic only. The wire format and firmware are
+  unchanged ([thornbots_pkg #28](https://github.com/Thornbots/thornbots_pkg/pull/28),
+  [ros2_dji_serial_bridge #21](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/21),
+  [sim #45](https://github.com/Thornbots/sim/pull/45)).
+
 - Clean up the YOLO bridge package description and RealSense configuration:
   remove an unused JSON preset and Humble-only bare `profile` keys. Launch
   behavior is unchanged. See
