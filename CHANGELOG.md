@@ -80,7 +80,9 @@ impact, and link the corresponding package changes.
 - Raise host quality tooling to pytest 9.0.3 for CVE-2025-71176 (insecure
   temporary-directory handling), retaining the other tooling pins. Package CI
   uses the patched tooling snapshot; the native Mac environment now requires
-  pytest >=9.0.3 and locks 9.1.1. Firmware CI remains on its existing snapshot.
+  pytest >=9.0.3 and locks 9.1.1
+  ([isaac_ros_common #19](https://github.com/Thornbots/isaac_ros_common/pull/19)).
+  Firmware CI remains on its existing snapshot.
 
 - Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
   it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
