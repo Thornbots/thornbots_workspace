@@ -1,11 +1,11 @@
 # CI and robot images
 
 `nightly` integrates package changes; `main` receives promoted releases.
-Workspace and package CI run on PRs targeting either branch and on pushes to
-either branch. PRs into `nightly` stay cheap: lint, policy, host helpers and
-MCBV3 hosted tests. Jazzy ROS builds, the robot image and MCBV3 ARM builds run
-on `nightly`/`main` pushes, PRs into `main` and manual dispatch; dispatch a
-feature branch to run them before merging. All eleven `.gitmodules` entries track `nightly`
+Only `main` builds an image and runs the full CI: workspace and package CI run
+on pushes to `main`, on PRs into `main` and on manual dispatch. `nightly` runs
+no CI on pushes or PRs; authors run the
+[local checks](#local-checks-for-prs-into-nightly) before merging, and the
+[nightly tests](#nightly-tests) run on the Mac mini each night. All eleven `.gitmodules` entries track `nightly`
 on this integration branch, with exact gitlink pins. Sim is initialized by
 normal submodule checkout; only MCB firmware remains opt-in.
 
@@ -17,7 +17,7 @@ normal submodule checkout; only MCB firmware remains opt-in.
 | Workspace and isaac_ros_common | [Subprocess](../isaac_ros_common/isaac_common_py/tests) and [robot-image helper](../isaac_ros_common/tests) tests |
 | Workspace | Native arm64 robot-image build and package tests |
 | Workspace, covering bumped package commits | [Repository policy](#repository-policy) and its [regression tests](../.github/quality/test_policy.py) |
-| MCBV3 | ARM builds in all robot/sysid combinations and hosted control/UART tests on main/nightly pushes and PRs |
+| MCBV3 | ARM builds in all robot/sysid combinations and hosted control/UART tests on `main` pushes and PRs into `main` |
 
 Portable packages are thornbots_pkg, sim, sentry_localization,
 rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
@@ -30,6 +30,60 @@ must continue to describe nightly. The workspace uses its own tested revision.
 Host helper jobs use the workspace's exact package pins and archive their JUnit
 reports. Package quality workflows use the same
 [host test runner](../.github/scripts/test_host_packages.sh).
+
+## Local checks for PRs into nightly
+
+Before merging into `nightly`, in each changed repo (workspace included):
+
+- Python 3.12 venv with `.github/quality/requirements.txt`: `python
+  .github/quality/check.py` and `actionlint -shellcheck=""`; checker changes
+  also need `python -m unittest discover -s .github/quality -v`.
+- ROS packages: `colcon build` and `colcon test --packages-select <pkg>` in
+  your own agent container (`isaac_ros_common/scripts/agent_container.sh`,
+  see the [Docker skill](../.claude/skills/isaac-ros-docker/SKILL.md)).
+- MCBV3 firmware: run the GCC 14 unit tests, hosted firmware build and hosted
+  UART/control tests in its [Continuous integration](../firmware/MCBV3/README.md#continuous-integration)
+  section. ARM builds run on `main` pushes/PRs or dispatch.
+- Optional GitHub run on a pushed branch:
+  `gh workflow run CI -R Thornbots/<repo> --ref <branch>`.
+
+Push-time [policy hooks](#repository-policy) still check commits and gitlinks.
+
+## Nightly tests
+
+[nightly_tests.sh](../.github/scripts/nightly_tests.sh) runs on the Mac mini
+(`blaises-mini`) at 02:17 local from a launchd LaunchAgent
+(`~/Library/LaunchAgents/com.thornbots.nightly-ci.plist`, written and loaded by
+`nightly_tests.sh install`). It lives here, not in a package, because it tests
+the workspace's pins and drives `agent_container.sh`.
+
+- It updates `~/ros2_ws/nightly-ci/src` to `origin/nightly` (public https, the
+  portable packages, `isaac_ros_common` and MCBV3) and starts one
+  [agent container](../.claude/skills/isaac-ros-docker/SKILL.md#your-own-container)
+  for the run; the container and then Colima are stopped afterwards.
+- [Inside it](../.github/scripts/nightly_tests_inside.sh): the hosted sentry
+  firmware build and `colcon build`/`colcon test` as in the `package-repo:
+  workspace` job of [ros.yml](../.github/workflows/ros.yml), then the sim
+  Gazebo E2E stages GitHub cannot run, `mcb_parked` and `mcb_drive` with
+  `backend:=hosted`, headless, one at a time.
+- It skips, logging why, when another container on the mini runs a sim stack.
+- Results: `~/ros2_ws/nightly-ci/results/<date>/` holds per-stage logs,
+  `colcon-test-result.txt`, E2E logs, `shas.txt` and `summary.txt` (first line
+  PASS/FAIL/SKIP per stage plus workspace and package SHAs); the newest 14 are
+  kept and `results/launchd.log` has the job's own output. The exit status is
+  the local result.
+- A PASS requires a zero runner exit and exactly one ordered record for each
+  of setup, firmware, build, test and the two E2E stages. Invalid outcomes,
+  malformed durations, missing/extra/duplicate records and impossible SKIPs
+  fail the run. Setup/build/firmware failures retain their dependency SKIPs;
+  those completed failure reports still return FAIL.
+- After the local run it dispatches GitHub `CI` on `nightly` in every repo with
+  that workflow (and MCBV3's `firmware.yml`) using the mini's `gh`, appends the
+  run URLs to `summary.txt` and does not wait for them.
+
+Build an image from `nightly` on demand, for example before a robot session:
+`gh workflow run "publish robot image" -R Thornbots/thornbots_workspace --ref nightly`.
+Run the job by hand with `launchctl kickstart gui/$(id -u)/com.thornbots.nightly-ci`.
 
 ## Coordinated package integration
 
@@ -128,10 +182,10 @@ counts belong in commit messages; old PR results do not validate new pins.
 
 `publish robot image` builds the existing Isaac ROS CLI layer chain natively
 on GitHub's arm64 runner and tests packages before publishing. Pushes to
-`nightly` and `main` publish `ghcr.io/thornbots/isaac-ros:<branch>-arm64-jetpack`
+`main` publish `ghcr.io/thornbots/isaac-ros:main-arm64-jetpack`
 and `sha-<full workspace SHA>-arm64-jetpack`. PRs into `main` build and test
-without publishing robot tags. Manual dispatch can publish its selected branch revision, with
-slashes replaced by dashes. Simulation images are not published.
+without publishing robot tags. Manual dispatch can publish its selected branch revision (for
+example `nightly`), with slashes replaced by dashes; see [Nightly tests](#nightly-tests). Simulation images are not published.
 
 Base layers are cached as `isaac-ros:base-<layer>_<hash>-arm64-jetpack`, with
 the hash covering Dockerfiles and build arguments. Cached layers let a run
@@ -152,7 +206,8 @@ matching mandatory gitlinks, and retags the image for isaac-ros-cli. Usage:
 checks and an up-to-date branch, blocking force pushes/deletion, applying to
 administrators, and requiring zero reviews. It leaves linear history optional
 so coordinated merges remain possible. `--branch nightly` selects integration
-protection, requiring only the cheap checks its PRs run; the default is `main`. MCBV3 is skipped for nightly because its
+protection, requiring checks that PRs into `nightly` no longer run, so do not
+apply it there; the default is `main`. MCBV3 is skipped for nightly because its
 policy targets only main.
 
 Without `--apply` it changes no GitHub settings. `--apply` replaces the

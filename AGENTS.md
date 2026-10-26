@@ -7,6 +7,8 @@ Memory is disabled: do not read or write agent memory.
 
 ## Delegation
 
+Delegate other tasks to a Sol agent (Codex `gpt-6.1-sol` via T3
+`delegate_task`, medium reasoning, Standard tier) running on archlinux.
 Delegate well-specified, high-volume repetitive edits to lower-cost agents
 (Haiku/Luna). The delegating agent defines scope and acceptance checks,
 resolves ambiguity, then reviews the diff and runs the checks itself. It
@@ -29,14 +31,19 @@ CI check commits and message contracts;
 Load [isaac-ros-docker](.claude/skills/isaac-ros-docker/SKILL.md) for every
 Docker command or command inside a container.
 
-- Start laptop containers, VMs (including Colima) and stacks as needed
-  without asking, following the skill. Check for running ones first
-  and reuse them; ask before restarting or stopping anything you did not
-  start, and clean up what you started. On `ts-nano-*`, carry out requested
-  container/image lifecycle work without separate confirmation. “dev” means
-  `ts-nano-dev`.
+- Each agent task creates its own container with
+  [`agent_container.sh`](.claude/skills/isaac-ros-docker/SKILL.md#your-own-container)
+  and removes it when done, even on failure. The script enforces unique
+  ROS domain, gz partition, worktree mount and volumes; never stop, restart or
+  remove a container you did not create (notably `isaac_ros_jazzy_container`).
+  Start VMs (including Colima) as needed without asking. On `ts-nano-*`, carry
+  out requested container/image lifecycle work without separate confirmation.
+  “dev” means `ts-nano-dev`.
 - Run tests as you see fit, including sim integration tests, sim benches and
   reruns, without asking. Ask before runs on a physical robot.
+- Keep the Mac mini free: its Colima runs only while an agent container does;
+  the script stops it when none is left. Never leave either idle; report
+  what you stopped.
 - A delegation brief stating the user approved named actions is that approval
   for the delegated agent, only for what it names.
 
@@ -66,6 +73,8 @@ Docker command or command inside a container.
 
 ## Documentation
 
+Single allowed duplicate: root README "Map a new field" mirrors the Notion mapping doc; keep both in sync.
+
 Keep one maintained home per fact; link directly to its section elsewhere.
 Search before adding docs, update incoming links when moving sections, and
 check changed local links/anchors. Link external standards instead of copying
@@ -79,7 +88,6 @@ or dated investigations linked to current status.
 | Usage and design | Owning package's `README.md` |
 | Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
 | Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
-| Hardware/migration status | [JAZZY_FLASH](docs/JAZZY_FLASH.md#hardware-status) |
 | Open work | [ROADMAP](docs/ROADMAP.md) |
 | Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
 | Defaults/message fields | Source declarations |
