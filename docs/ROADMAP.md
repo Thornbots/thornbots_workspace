@@ -68,7 +68,7 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 ### B. Hit while we move
 
 - **B-hardware — thornbots_pkg / bridge / MCBV3 — pending:** Validate separate raw aim/navigation frames and RELOCALIZE
-  mailbox loss under CV traffic. [Aim and navigation frames](../ros2_dji_serial_bridge/README.md#aim-and-navigation-frames).
+  [mailbox loss](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb-receive) under CV traffic. [Aim and navigation frames](../ros2_dji_serial_bridge/README.md#aim-and-navigation-frames).
 - **B-timing — bridge / thornbots_pkg — unmeasured:** Measure residual UART/camera delays, verify YOLO stamp propagation
   and set latency parameters. [Stamp contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson),
   [tracker timing](../thornbots_pkg/README.md#target_tracker).
@@ -162,7 +162,7 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 ## Later: needs a robot
 
 - **T38 — robots — open:** All four Orins run JetPack 7.2.1/Jazzy; none has passed robot acceptance. On each: check
-  `ttyTHS1`, the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`;
+  `ttyTHS1` (stop `thornbots` and disconnect the MCB before a UART loopback), the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`;
   measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
   [full pipeline](../realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline); re-measure the Fast DDS invariants
   (Fast DDS 2.14). Then move every machine from `ROS_DOMAIN_ID` 1 to 0 together and remove standard's
@@ -190,7 +190,7 @@ Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-0
   [rf2o README](../rf2o_laser_odometry/README.md).
 - **DOC14f — sim — open:** Shorten current instructions and separate historical experiments (#14f).
   [Sim README](../sim/README.md).
-- **DOC14g — workspace — audit open:** Finish source/page audit and extract missing base-building specifications (#14g).
+- **DOC14g — workspace — audit open:** Finish source/page audit and extract exact zone geometry, the referee UART specification and round timing (#14g).
   [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 - **SIM-wall — sim — untested:** Establish wall-impact behavior before demonstrating avoidance.
   [Motion-model limits](../sim/README.md#sentry_v2urdfxacro-motion-model).

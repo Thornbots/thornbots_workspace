@@ -13,9 +13,13 @@ outside the container are visible inside it and vice versa. Rebuild the image on
 dependencies or the baked package sources change, never for ordinary source
 edits: the bind mount already carries those.
 
-Every command in the next three sections is **for the user to run**. An agent
-never runs `isaac-ros activate` in any form; it makes its own container with
-`agent_container.sh` (`SKILL.md`, Your own container).
+Lifecycle, image-build and `isaac-ros activate` examples throughout this
+reference are **for the user to run**, including the flag catalogue below.
+An agent makes its own container with `agent_container.sh`
+([Your own container](SKILL.md#your-own-container)) and sets
+`ISAAC_ROS_CONTAINER` to that container. For user manual exec examples, set
+`ISAAC_ROS_CONTAINER` to the user's container name. Prefer `dexec.sh` to the
+manual equivalents below so domain and partition isolation are preserved.
 
 ## Container lifecycle
 
@@ -129,7 +133,7 @@ sudo isaac-ros init docker              # one-time: set the mode
 **Attach a second terminal**: run `isaac-ros activate` again, or
 
 ```bash
-docker exec -it -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash
+docker exec -it -u admin --workdir /workspaces/isaac_ros-dev "$ISAAC_ROS_CONTAINER" bash
 ```
 
 **Rebuild after package or Dockerfile edits**: exit the container, remove the
@@ -193,7 +197,7 @@ which otherwise gets glued onto the front of captured output, so `X=$(docker
 exec …)` comes back with banner text in it.
 
 ```bash
-docker exec -i -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_jazzy_container \
+docker exec -i -u admin --workdir /workspaces/isaac_ros-dev "$ISAAC_ROS_CONTAINER" \
   bash -lc "{ export PS1='\$ ' && source /etc/bash.bashrc ; } >/dev/null && ros2 topic list"
 ```
 
@@ -204,7 +208,7 @@ the second, `ros2 launch sim sim.launch.py` fails with "package 'sim' not
 found" even though it's built:
 
 ```bash
-docker exec -u admin --workdir /workspaces/isaac_ros-dev isaac_ros_jazzy_container \
+docker exec -u admin --workdir /workspaces/isaac_ros-dev "$ISAAC_ROS_CONTAINER" \
   bash -lc "export PS1='\$ ' && source /etc/bash.bashrc && source /workspaces/isaac_ros-dev/install/setup.bash && ros2 launch sim sim.launch.py"
 ```
 

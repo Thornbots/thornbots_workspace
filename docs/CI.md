@@ -41,8 +41,9 @@ Before merging into `nightly`, in each changed repo (workspace included):
 - ROS packages: `colcon build` and `colcon test --packages-select <pkg>` in
   your own agent container (`isaac_ros_common/scripts/agent_container.sh`,
   see the [Docker skill](../.claude/skills/isaac-ros-docker/SKILL.md)).
-- MCBV3 firmware: `tools/test_cpp.sh` for hosted tests; ARM builds run only
-  for PRs into `main` (or dispatch).
+- MCBV3 firmware: run the GCC 14 unit tests, hosted firmware build and hosted
+  UART/control tests in its [Continuous integration](../firmware/MCBV3/README.md#continuous-integration)
+  section. ARM builds run on `main` pushes/PRs or dispatch.
 - Optional GitHub run on a pushed branch:
   `gh workflow run CI -R Thornbots/<repo> --ref <branch>`.
 
