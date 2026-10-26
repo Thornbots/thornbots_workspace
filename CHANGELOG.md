@@ -458,6 +458,11 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Sim's CV bench armor validation now checks ground clearance and the 400 mm
+  maximum lower-edge height instead of an unsupported 60 mm minimum; rule
+  citations link to the verified workspace comparison
+  ([sim #51](https://github.com/Thornbots/sim/pull/51)).
+
 - Launch stopping now lists and signals only verified container-owned ROS
   launch/run trees, including when the container shares the host PID namespace.
   PID 1, host processes and non-ROS roots are refused; the force bypass is gone.
