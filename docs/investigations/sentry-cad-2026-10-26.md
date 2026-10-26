@@ -5,6 +5,20 @@ self-filter and outstanding scan-zero validation. Round 2 supersedes the
 round-1 muzzle choice. All CAD measurements and earlier runs remain below
 as historical provenance; their results do not validate the updated pins.
 
+**Accepted deviation (2026-10-26):** the 103.8847 mm armor lower-edge spread
+exceeds the 2027 manual V1.0.0 §3.6.1.3 S124 100 mm limit (older notes below
+use S126), but is accepted as a mechanical issue with no material CV impact
+and is no longer a merge blocker. The test uses a temporary 0.104 m bound;
+restore 0.100 m after the mechanical team fixes the plates. The ARCC 2026
+base spec V1.3.0 wording remains unconfirmed; see the
+[sim rule reference](../../sim/README.md#toolssimplify_urdfcpp-and-urdfsentry_v2).
+
+Acceptance validation: all 29 `test_cv_bench.cpp` cases pass in the task-owned
+Jazzy container, compiled directly with C++17, `cv_head_aim_core.cpp`, Eigen,
+nlohmann JSON, TinyXML2 and GTest. The fresh container lacked the workspace
+package installs needed for colcon. Host Python 3.12 quality and actionlint
+pass for sim and the workspace; no quality baseline changed.
+
 Input: the team's `sentry_low_res_model` Onshape URDF export, supplied as
 `sentry_low_res_model.zip`, SHA256
 `0841b0ca27e54125ad8d962edf78dad97ce76198bb9d3b7c69036974ba32adff`.
@@ -30,8 +44,8 @@ earlier CAD proposal.
 thornbots_pkg #30 merges measured-mount #32, preserving its launch overrides,
 xacro defaults and shared filter. Sim #48 merges the matching sim mount
 update. Shared ancestry and identical lidar values keep either package merge
-order from reverting the measurement. The independent **103.885 mm vs
-100 mm armor-stagger hold is unchanged**, with no relaxed test or baseline.
+order from reverting the measurement. The armor-spread decision above
+supersedes the earlier hold and failing-test reports below.
 
 ### Measured-mount validation
 

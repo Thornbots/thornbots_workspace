@@ -107,10 +107,12 @@ impact, and link the corresponding package changes.
   Round 2 preserves the muzzle's pitch-axis aiming contract with the CAD
   lateral offset; the unchanged aiming acceptance tests now pass. Independent
   mesh checks establish a 103.885 mm armor lower-edge stagger in the supplied
-  CAD, exceeding the physical S126 limit; the 100 mm test remains enforced.
+  CAD, exceeding the 2027 manual's physical S124 limit of 100 mm. Accepted
+  on 2026-10-26 as a mechanical deviation with no material CV impact; the
+  sim test pins a temporary 104 mm bound until the plates are corrected.
   The earlier position-only fit's 10.6 cm discrepancy is retained as provenance;
   the joint fit supports the CAD radius and measured scan-zero orientation.
-  Keep the integration draft pending a mechanically confirmed armor correction;
+  The armor spread is no longer a merge blocker. Keep the integration draft;
   scan-plane height and estimator robustness remain separate acceptance work.
 
 - Raise host quality tooling to pytest 9.0.3 for CVE-2025-71176 (insecure
