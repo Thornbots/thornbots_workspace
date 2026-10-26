@@ -1,12 +1,37 @@
 # Sentry CAD integration — 2026-10-26
 
-Round 2 below supersedes the round-1 muzzle choice and acceptance summary.
-The frame derivation and initial measurements remain here as provenance.
+The robot measurement update below supersedes the round-1/2 lidar yaw,
+self-filter and outstanding scan-zero validation. Round 2 supersedes the
+round-1 muzzle choice. All CAD measurements and earlier runs remain below
+as historical provenance; their results do not validate the updated pins.
 
 Input: the team's `sentry_low_res_model` Onshape URDF export, supplied as
 `sentry_low_res_model.zip`, SHA256
 `0841b0ca27e54125ad8d962edf78dad97ce76198bb9d3b7c69036974ba32adff`.
 Only XML and STL data were read; no supplied code was executed.
+
+## Robot measurement update
+
+The Oct 26 five-pose robot head-turn fit replaces the authored FOV-marker
+yaw -0.149533673 rad with **0.5907 rad** (33.84 degrees) CCW of the gun.
+The CAD lidar translation remains (-0.105, -0.193326, 0.101293) m in `head`;
+its 0.220 m radius agrees with the fitted 0.2225 m radius. The scan-frame
+self-filter is **-0.5585..1.0123 rad** (-32..58 degrees), verified on both
+Oct 25 bags and live with zero head-return leakage. The
+[measurement note](lidar-mount-2026-10-26.md) records the evidence files,
+leave-one-out uncertainty, independent fits and head-turn SLAM A/B.
+
+Only the FOV marker's orientation is superseded; every other CAD transform,
+mesh, nominal height and dimension remains. The imported lidar yaw relative
+to `root` is now 0.5907, 2.161496327 and -0.980096327 rad at head yaw
+0, +90 and -90 degrees respectively. The old rotations below describe the
+earlier CAD proposal.
+
+thornbots_pkg #30 merges measured-mount #32, preserving its launch overrides,
+xacro defaults and shared filter. Sim #48 merges the matching sim mount
+update. Shared ancestry and identical lidar values keep either package merge
+order from reverting the measurement. The independent **103.885 mm vs
+100 mm armor-stagger hold is unchanged**, with no relaxed test or baseline.
 
 ## Frame derivation
 

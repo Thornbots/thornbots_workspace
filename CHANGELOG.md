@@ -83,18 +83,19 @@ impact, and link the corresponding package changes.
   ([thornbots_pkg #30](https://github.com/Thornbots/thornbots_pkg/pull/30),
   [sim #48](https://github.com/Thornbots/sim/pull/48),
   [sentry_localization #20](https://github.com/Thornbots/sentry_localization/pull/20)).
-  The lidar moves only 16.6 mm in XY and remains 10.6 cm from the Oct 25 fit;
-  the authored scan-zero reference changes by -8.568°. The
+  The lidar moves only 16.6 mm in XY. The Oct 26 five-pose robot fit replaces
+  the authored FOV-marker yaw (-8.568°) with scan zero 0.5907 rad (33.84°)
+  and the verified scan-frame blind sector -0.5585..1.0123 rad. The
   [dated investigation](docs/investigations/sentry-cad-2026-10-26.md)
   records the archive SHA256, frame derivation and before/after tests.
   Round 2 preserves the muzzle's pitch-axis aiming contract with the CAD
   lateral offset; the unchanged aiming acceptance tests now pass. Independent
   mesh checks establish a 103.885 mm armor lower-edge stagger in the supplied
   CAD, exceeding the physical S126 limit; the 100 mm test remains enforced.
-  Offline scan registration supports a mount/axis discrepancy that the CAD
-  translation/yaw combination does not explain. Keep the integration draft
-  pending a mechanically confirmed armor correction and physical validation
-  of scan zero, scan plane and the mount.
+  The earlier position-only fit's 10.6 cm discrepancy is retained as provenance;
+  the joint fit supports the CAD radius and measured scan-zero orientation.
+  Keep the integration draft pending a mechanically confirmed armor correction;
+  scan-plane height and estimator robustness remain separate acceptance work.
 
 - Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
   it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
