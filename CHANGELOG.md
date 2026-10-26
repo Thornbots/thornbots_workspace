@@ -9,6 +9,10 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Launch-time lidar translation/yaw and scan-frame blind-sector overrides for
+  robot mount A/B checks, preserving existing defaults and supporting sectors
+  across scan zero ([thornbots_pkg #32](https://github.com/Thornbots/thornbots_pkg/pull/32)).
+
 - Complete [Map a new field](README.md#map-a-new-field) operator procedure,
   deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
   the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
