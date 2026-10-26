@@ -25,6 +25,11 @@ impact, and link the corresponding package changes.
   [Verification](docs/investigations/mapping-procedure-2026-10-26.md) records the
   isolated room-sim rehearsal and remaining robot-side acceptance. No behavior changes.
 
+- [CAD odometry pod identities](docs/investigations/sentry-cad-2026-10-26.md#odometry-pods),
+  with wheel positions, rolling directions and firmware encoder/field signs.
+  Firmware and Oct 25 motion data establish the start-frame axes; the missing
+  motor-to-CAD yaw datum limits source-part assignment. The models omit the pods.
+
 - Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
   serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
   plus optional camera and stale-CV blocks

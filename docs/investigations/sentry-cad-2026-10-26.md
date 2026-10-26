@@ -96,6 +96,133 @@ uneven suspension pose. The lowest wheel defines the imported clearance
 datum: yaw bearing z = 0.267503694 m. It is **not a measured settled ground
 plane**. Wheel/suspension dynamics retain their existing simulation values.
 
+## Odometry pods
+
+Encoder **2 = Pico Y = start-forward**; encoder **1 = Pico X = start-right**.
+These are axes of the heading at power-on, not chassis-fixed axes. The
+field-x (encoder 2) wheel is the **start-forward-rolling** one. In the
+export's near-start-aligned interpretation it is the **rear, slightly left**
+wheel (`part_18_1`); that physical part assignment is conditional on the
+motor-to-CAD angular datum, which the available sources do not establish.
+Geometry, firmware and recorded motion establish the mapping to start-frame
+axes; the remaining CAD angular ambiguity is stated below.
+
+Positions are axle centres in metres in imported `root` at the exported pod
+pose and zero chassis/head reference yaw: +x forward, +y left, +z up.
+Compose the original URDF origins at zero joint coordinates, then apply
+`p_root = Rz(pi/2 - 1.72033) p_export_root + (0, 0, 0.267503694)`.
+Rolling vectors below are `axle_axis cross +z`, the direction of positive
+CAD wheel-joint rotation at ground contact, not the quadrature count sign.
+
+| Export wheel / arm | Axle centre (x, y, z) | CAD positive rolling direction (x, y) | Encoder / start axis if near-start-aligned | Positive Pico displacement in field axes (red / blue) |
+| --- | --- | --- | --- | --- |
+| Rear, slightly left: `part_18_1` / `part_17_1`, `ode_wheel_1` | (-0.083262, +0.007841, +0.060929) | (+0.995595, -0.093757) | Y / 2 / forward | +x / -x |
+| Right, slightly rear: `part_18` / `part_17`, `ode_wheel_1_1` | (-0.007321, -0.077746, +0.052861) | (+0.093752, +0.995596) | X / 1 / right | -y / +y |
+
+The table's geometry is unconditional; its part-to-encoder column assumes
+the exported pair is about 5.380° clockwise from its held start orientation.
+The rolling lines are perpendicular but slightly diagonal in this pose, so
+**both roll during reference-forward motion**. For 1 m along reference +x,
+the CAD-positive projections are +0.995595 m (`part_18_1`) and +0.093752 m
+(`part_18`). Under the table's channel assignment and measured forward/right
+sign convention these become Y +0.995595 m, X -0.093752 m. A common
+`ode_yaw` rotation of about +5.380° aligns these to pure forward/right axes;
+a quarter-turn alternative could exchange which source part is Y or X.
+These pose projections do not claim the powered robot holds the exported angle.
+
+The mount `part_16` (`ode_yaw`, base parent) is at (0, 0, 0.087104).
+Arm joints `revolute_6` / `revolute_6_1` are at
+(-0.041317, +0.003891, +0.083929) / (-0.003891, -0.041317, +0.083929).
+Subtract 0.267504 from z for positions relative to the yaw bearing. Rotate
+wheel/arm XY positions and rolling axes about the motor-driven pod mount
+when its heading changes; head yaw and chassis yaw do not define pod axes.
+
+### Firmware and recorded-motion evidence
+
+At MCBV3 `8d46da5`, [`pico-encoder.ino`](../../firmware/MCBV3/pico-encoder.ino)
+sends `[enc1_position, enc2_position, enc1_speed, enc2_speed]`, each scaled by
+`-0.024 * 2*pi / (64*4096)`. Encoder 1 uses GPIO 12/13, encoder 2 GPIO 14/15.
+[`LocalizationPico.hpp`](../../firmware/MCBV3/MCB-project/src/communication/LocalizationPico.hpp)
+exposes them as `getX()` / `getY()`.
+[`OdometrySubsystem.cpp`](../../firmware/MCBV3/MCB-project/src/subsystems/odometry/OdometrySubsystem.cpp)
+uses `fromStart(rawY, -rawX)`: red field displacement is `(Y, -X)`;
+blue is `(-Y, X)`, since `getStartYaw()` returns 0 / pi. Raw `odom` and
+heading-fixed `root` have these field-aligned axes. Pico's X/Y labels must
+not be read as field x/y. Positive hardware counts give negative Pico
+metres for both channels; firmware plus forward motion establishes the
+output sign, while CAD alone cannot establish quadrature phase.
+
+`getOdoEncoderValue()` is `fmod(motor_position + encoderOffsetOdo, 2*pi)`,
+with `encoderOffsetOdo = -0.25 + pi/2` (about 1.320795 rad, firmware pi).
+[`OdometryPointForwardsCommand`](../../firmware/MCBV3/MCB-project/src/subsystems/odometry/OdometryPointForwardsCommand.hpp)
+controls `head_world_yaw - head_encoder_yaw + odo_encoder_yaw` toward
+`-chassis_angular_velocity/200`; at rest its target is zero. Thus the pod
+motor counteracts chassis yaw and holds the start heading. At rest,
+`motor_position ≈ head_encoder_yaw - head_world_yaw - 1.320795` modulo 2*pi.
+`getStartYaw()` rotates the resulting displacement into field axes; it is not an additional
+CAD motor angle. The source provides no motor-position-to-`ode_yaw` zero
+relation. Its calibrated 1.320795 rad offset cannot simply be substituted
+as a CAD joint angle, so the held-start CAD pose and unique part-to-channel
+assignment cannot be recovered from these constants alone.
+
+Oct 25 recorded-motion evidence: `~/ros2_ws/odom-x-deeper-20261025/REPORT.md`
+and `csv-step-analysis.json`, independently checked against
+`~/ros2_ws/robot-session-20261025/step2-attempt3/step2c-yaw.csv` and
+`step2-attempt4/odomtest.csv`. The CSVs reproduce 1,780 / 3,834 finite rows
+and x ranges [-4.6251, -3.7368] / [-4.6251, -2.2243] m. On the reported red
+forward legs x increases: attempt 3 at wall time 1792955106.639–5106.839 has
+(dx, dy) = (+0.1435, -0.0006) m; attempt 4 at 1792955628.463–5628.663 has
+(+0.1594, +0.0054) m. A strafe sample at 1792955110.639–5110.840 has
+(0, -0.1892) m. The documented straight return also counts negative x;
+subsequent selective x loss after strafes does not change the channel mapping.
+Invalid/nonfinite rows are excluded, not repaired; these are sampled `/odom`
+positions, not direct encoder traces or a measured calibration of CAD yaw.
+
+Confidence is **high for geometry and for encoder/start-axis/field-sign
+mapping**, supported by geometry + firmware + recorded motion. The missing
+motor-to-CAD datum limits confidence in assigning `part_18` versus
+`part_18_1` to those channels; the near-aligned assignment in the table is
+an explicit inference, not a wiring observation. No new robot run was made.
+
+Neither pod mount, arm nor wheel survived round 1 as a separate link, joint
+or mesh in `thornbots_pkg/urdf/sentry.urdf.xacro` or sim's active
+`sentry_v2.urdf.xacro` / included `sentry_v2/sentry_v2.urdf`. The imported
+root mesh contains only `base`; `wheel_0` through `wheel_3` are retained
+drive wheels. Nothing is renamed or added to the models. If pods are later
+imported with their angular datum established, use `odom_pod_yaw_mount`,
+`odom_pod_y_enc2_arm` / `odom_wheel_y_enc2` and
+`odom_pod_x_enc1_arm` / `odom_wheel_x_enc1`, preserving the start-frame meaning.
+
+### Pod documentation validation
+
+Validated in task-owned `isaac-agent-odom-pods-20261026`, domain 127, after
+merging the measured-lidar work (`thornbots_pkg c40ca88`, `sim 1dc2dc2`) and
+the separately accepted armor-deviation check (`sim 2719de8`). The final
+build and both xacro/`check_urdf` renders pass. Registered package results:
+thornbots_pkg **142**, sim **224** tests, zero failures/errors/skips. The
+first sim run lacked the hosted-firmware environment and skipped 87 cases;
+the final run sets `MCB_FIRMWARE_BINARY` and supersedes it. Earlier armor
+failures are superseded by the separately authored acceptance, not a pod edit.
+
+Hosted E2E stages **did not pass**: parked failed setup waiting 60 s for a
+valid `/cv/target_state` (all 12 cells unscored); drive at
+`real_time_factor:=1` failed to reach center and fired no shots (0/1), with
+zero lockstep timeouts. Both native log checks reject the runs. The merged
+idle aiming now faces the enemy zone instead of sweeping; a parked-fixture
+acquisition mismatch is a candidate, not an established diagnosis. These
+results do not establish integration acceptance. Pod edits affect only docs;
+no motion, aiming, fixture, geometry, plugin or topic changes were made here.
+
+Host Python 3.12 quality and `actionlint -shellcheck=""` pass in both packages
+and the workspace; added local links/anchors resolve. The initial two-job
+cold build was OOM-killed; a serial build succeeds after the repository's sim
+dependency installer supplies missing development packages. Evidence,
+geometry derivation, independent CSV summary/input hashes and logs are at
+`~/ros2_ws/sentry-cad-20261026/odom-pods/`. The hosted ELF is the unchanged
+round-2 MCBV3 `8d46da5` fixture (SHA256 `2800ac7cf9835a5dd3b8049da29dec9450dce5f4da146026c4e27dbc75987c99`).
+No robot was run. Final process checks are clean; the task container and its
+volumes were removed. Colima remains for other active containers, untouched.
+
 ## Lidar comparison
 
 Distances are metres from the yaw axis in `head`; bearings are CCW from
