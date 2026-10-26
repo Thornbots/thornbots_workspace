@@ -33,6 +33,27 @@ update. Shared ancestry and identical lidar values keep either package merge
 order from reverting the measurement. The independent **103.885 mm vs
 100 mm armor-stagger hold is unchanged**, with no relaxed test or baseline.
 
+### Measured-mount validation
+
+The updated combined pins are thornbots_pkg #30 `c40ca88`, sim #48
+`1dc2dc2`, and sentry_localization #20 `9607e2a`. The map package merges
+current nightly while retaining its CAD slice height, so integration does
+not revert newer operator documentation or quality tooling.
+
+In the task-owned Jazzy container, thornbots_pkg passes 142 tests and
+sentry_localization passes 135 tests, with zero errors/failures/skips.
+Sim reports 224 tests, 87 skips and the same two failure reports for the
+unchanged `UrdfConstants.ArmorRules` case and its CTest wrapper:
+0.103884704 m exceeds 0.100 m. The lidar TF/sensor consistency checks pass.
+Host Python 3.12 quality and actionlint pass in all four changed repositories.
+
+One AMCL/rf2o `scenario:=baseline` integration passes in 7.93 s; the native
+checker accepts the console, sim and robot logs. Post-run process checks
+find no remaining stack or installed nodes. This check does not replace
+repeated localization-accuracy acceptance. The container and its private
+volumes were removed; Colima remains running because other containers are
+active. None of those containers was touched. No physical robot was run.
+
 ## Frame derivation
 
 URDF rotations compose as `Rz(yaw) Ry(pitch) Rx(roll)`. The yaw bearing is

@@ -9,6 +9,22 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Launch-time lidar translation/yaw and scan-frame blind-sector overrides,
+  including sectors across scan zero. Defaults use the Oct 26 CAD mount and
+  robot-measured scan zero/self-filter; the spawned sim sensor matches the TF
+  ([thornbots_pkg #32](https://github.com/Thornbots/thornbots_pkg/pull/32),
+  [sim #50](https://github.com/Thornbots/sim/pull/50),
+  [measurement and validation](docs/investigations/lidar-mount-2026-10-26.md)).
+
+- Complete [Map a new field](README.md#map-a-new-field) operator procedure,
+  deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
+  the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
+  Ten steps use the baked release image (verified by image ID), explicit manual
+  head controls and CV suppression, plus Oct 25 odometry/head-motion gates and a
+  technical reference correction ([sentry_localization #21](https://github.com/Thornbots/sentry_localization/pull/21)).
+  [Verification](docs/investigations/mapping-procedure-2026-10-26.md) records the
+  isolated room-sim rehearsal and remaining robot-side acceptance. No behavior changes.
+
 - Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
   serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
   plus optional camera and stale-CV blocks
@@ -97,6 +113,13 @@ impact, and link the corresponding package changes.
   Keep the integration draft pending a mechanically confirmed armor correction;
   scan-plane height and estimator robustness remain separate acceptance work.
 
+- Raise host quality tooling to pytest 9.0.3 for CVE-2025-71176 (insecure
+  temporary-directory handling), retaining the other tooling pins. Package CI
+  uses the patched tooling snapshot; the native Mac environment now requires
+  pytest >=9.0.3 and locks 9.1.1
+  ([isaac_ros_common #19](https://github.com/Thornbots/isaac_ros_common/pull/19)).
+  Firmware CI remains on its existing snapshot.
+
 - Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
   it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
   0 switch are [ROADMAP T38](docs/ROADMAP.md#later-needs-a-robot).
@@ -104,6 +127,21 @@ impact, and link the corresponding package changes.
 - Stop tracing installer and firstboot commands that load provisioning
   credentials into journals ([package change](https://github.com/Thornbots/isaac_ros_common/commit/f498503783de23e98e6e9ea9f9ea1dab5a698b4b)).
   Rebuild existing installer ISOs to include this change.
+
+- Complete the [local firmware check instructions](docs/CI.md#local-checks-for-prs-into-nightly)
+  by linking the GCC 14 unit tests, hosted build and hosted UART/control tests.
+
+- Replace the Jetson head patrol with idle looks (stage 1 of the
+  [lidar-guided aiming design](docs/lidar-guided-aiming-2026-10-25.md)). With no
+  camera target the head holds the last enemy for 3 s, holds where a hit turn
+  left it for 2 s, then faces the enemy starting zone (`auto.launch.py`
+  `idle_direction:=zone|hold`). The patrol launch argument is gone. Every
+  non-target frame is non-firing with `turn_to_hit` set. Firing now requires a
+  detection at most 0.15 s old (new `TargetState.detection_stamp`), and
+  `room_check` `stale_cv` is diagnostic only. The wire format and firmware are
+  unchanged ([thornbots_pkg #28](https://github.com/Thornbots/thornbots_pkg/pull/28),
+  [ros2_dji_serial_bridge #21](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/21),
+  [sim #45](https://github.com/Thornbots/sim/pull/45)).
 
 - Clean up the YOLO bridge package description and RealSense configuration:
   remove an unused JSON preset and Humble-only bare `profile` keys. Launch
