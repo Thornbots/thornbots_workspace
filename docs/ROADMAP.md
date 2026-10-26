@@ -164,11 +164,11 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 ## Later: needs a robot
 
 - **T38 — robots — open:** All four Orins run JetPack 7.2.1/Jazzy; none has passed robot acceptance. On each: check
-  `ttyTHS1` (stop `thornbots` and disconnect the MCB before a UART loopback), the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`;
-  measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
+  `ttyTHS1` (stop `thornbots` and disconnect the MCB before a UART loopback), the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`
+  (standard's built 2026-10-26); measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
   [full pipeline](../realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline); re-measure the Fast DDS invariants
-  (Fast DDS 2.14). Then move every machine from `ROS_DOMAIN_ID` 1 to 0 together and remove standard's
-  `thornbots.service.d/90-reflash-no-launch.conf` hold when its first run is approved.
+  (Fast DDS 2.14). Then move every machine from `ROS_DOMAIN_ID` 1 to 0 together. Standard's reflash launch hold was
+  removed 2026-10-26; `thornbots` starts at boot there too.
 - **T21 — localization / startup — pending:** Collect maps/logs/bags from five-minute real-floor runs, including T27
   clock-validation artifacts. [Run artifacts](../isaac-ros-startup/README.md#use),
   [map persistence](../sentry_localization/README.md#launchlocalizationlaunchpy).
