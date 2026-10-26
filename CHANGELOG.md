@@ -71,6 +71,21 @@ impact, and link the corresponding package changes.
   [#10](https://github.com/Thornbots/isaac_ros_common/pull/10) and
   [#11](https://github.com/Thornbots/isaac_ros_common/pull/11).
 
+- T25 on-demand firmware data: MCB_DATA carries firmware-owned channel bytes
+  through a bounded idle-gap UART queue to a stamped ROS topic and each run's
+  SSD bag. PING echoes share telemetry-safe scheduling; overflow counts remain
+  visible. Foxglove supports live wireless inspection, and the host decoder
+  decodes channel data to CSV using firmware-defined layouts. See
+  [wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb_data-id6--firmware-owned-opaque-data),
+  [MCBV3 #96](https://github.com/Thornbots/MCBV3/pull/96),
+  [bridge #16](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/16),
+  [sim #27](https://github.com/Thornbots/sim/pull/27) and
+  [startup #6](https://github.com/Thornbots/isaac-ros-startup/pull/6).
+  The sentry logs each Pico odometry I2C read (result, payload, held raw x/y)
+  and a 1 Hz summary on channels 16/17;
+  [layout](firmware/MCBV3/README.md#odometry-i2c-diagnostics) and
+  `ros2_dji_serial_bridge/tools/mcb_odom_i2c_to_csv.py` decode a bag with `/odom`.
+
 - Six English RoboMaster 2027 PDF editions and their original Chinese sources,
   linked from the [translation index](docs/rules/rm2027/README.md), with a
   reproducible renderer and English flowcharts. Completed the RMUC page review

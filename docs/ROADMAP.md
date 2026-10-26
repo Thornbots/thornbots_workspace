@@ -20,9 +20,14 @@ work; usage, design and measurements stay in linked docs.
 - **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
   DIAG on `/diagnostics`; test free-space pruning of per-run bags.
   [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
-- **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
-  and UART bandwidth, then specify and implement both ends.
-  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **T25 — bridge / MCBV3 / startup / sim — implemented, review pending:**
+  On-demand firmware-owned channel data crosses UART as MCB_DATA, reaches a
+  stamped ROS topic and is recorded to SSD in each run's bag. Firmware queues
+  bounded records only in idle TX gaps; POSE retains priority. Read live through
+  Foxglove or copy bags over WiFi and decode firmware-defined layouts to CSV.
+  Sentry Pico odometry I2C diagnostics use channels 16/17 (robot test 2026-10-26).
+  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb_data-id6--firmware-owned-opaque-data),
+  [firmware workflow](../ros2_dji_serial_bridge/README.md#firmware-data-over-wifi).
 - **T29 — startup / common — decision open:** Validate [image pulling](../docs/CI.md#robot-registry) versus local builds.
   If builds stay, assess compression/caches/overlays and USB versus reverse SSH.
   [Image workflow](../isaac_ros_common/docker/README.md#on-the-x86-laptop).
