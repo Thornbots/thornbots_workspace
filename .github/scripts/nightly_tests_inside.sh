@@ -29,6 +29,7 @@ stage() {
     return $rc
 }
 skip() { printf '%s\tSKIP\t0\n' "$1" >>"$EV/status.tsv"; }
+# Only in the dedicated throwaway per-run CI container created by nightly_tests.sh.
 cleanup_stack() { pkill -9 -f 'gz sim|MCB-project.elf|ros2 launch' 2>/dev/null; sleep 2; true; }
 
 paths=(); for p in "${PKGS[@]}"; do paths+=("src/$p"); done

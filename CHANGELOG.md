@@ -92,6 +92,9 @@ impact, and link the corresponding package changes.
   credentials into journals ([package change](https://github.com/Thornbots/isaac_ros_common/commit/f498503783de23e98e6e9ea9f9ea1dab5a698b4b)).
   Rebuild existing installer ISOs to include this change.
 
+- Complete the [local firmware check instructions](docs/CI.md#local-checks-for-prs-into-nightly)
+  by linking the GCC 14 unit tests, hosted build and hosted UART/control tests.
+
 - Clean up the YOLO bridge package description and RealSense configuration:
   remove an unused JSON preset and Humble-only bare `profile` keys. Launch
   behavior is unchanged. See
