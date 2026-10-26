@@ -77,6 +77,21 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Adopt the team's 2026-10-26 low-resolution sentry CAD for robot/sim head,
+  lidar, IR camera, muzzle and armor geometry, with a matching self-filter and
+  nominal map-slice height
+  ([thornbots_pkg #30](https://github.com/Thornbots/thornbots_pkg/pull/30),
+  [sim #48](https://github.com/Thornbots/sim/pull/48),
+  [sentry_localization #20](https://github.com/Thornbots/sentry_localization/pull/20)).
+  The lidar moves only 16.6 mm in XY and remains 10.6 cm from the Oct 25 fit;
+  the authored scan-zero reference changes by -8.568°. The
+  [dated investigation](docs/investigations/sentry-cad-2026-10-26.md)
+  records the archive SHA256, frame derivation and before/after tests.
+  Parked/drive/final drift suites pass, but the supplied armor stagger exceeds
+  the 100 mm assertion and existing sim aiming tests fail with the forward
+  muzzle. Keep this integration draft pending those owning-workstream decisions
+  and physical validation of scan zero, scan plane and the mount.
+
 - Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
   it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
   0 switch are [ROADMAP T38](docs/ROADMAP.md#later-needs-a-robot).
