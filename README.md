@@ -19,7 +19,7 @@ changes to carry into `main`; update it when adding work to nightly.
 This is a deliberate copy of the
 [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048);
 keep both in sync. Technical reference:
-[field-day and room workflow](https://github.com/Thornbots/sentry_localization/blob/nightly/README.md#field-day-and-room-workflow).
+[field-day and room workflow](https://github.com/Thornbots/thornbots_pkg/blob/nightly/README.md#field-day-and-room-workflow).
 Boot/image reference:
 [startup](https://github.com/Thornbots/isaac-ros-startup/blob/nightly/README.md#use),
 [release images](https://github.com/Thornbots/isaac_ros_common/blob/nightly/docker/README.md#pulling-from-github-container-registry).
@@ -92,7 +92,7 @@ Boot/image reference:
    export HEAD_OFF='enable_cv_target_bridge:=false enable_target_selector:=false enable_target_tracker:=false'
    ros2 pkg prefix thornbots_pkg
    ros2 pkg prefix sentry_localization
-   ros2 run sentry_localization operator_workflow --help
+   ros2 run thornbots_pkg operator_workflow --help
    test ! -e "$SESSION"
    df -h /workspaces/isaac_ros-dev
    ```
@@ -102,15 +102,18 @@ Boot/image reference:
 
 4. **Start SLAM in A; capture boot in B before moving either chassis or head.**
    Verify `/dev/ttyUSB0` is the lidar; substitute its actual device if different.
+   Mapping and localize also serve read-only Foxglove on `ws://<robot IP>:8765`
+   (SSH tunnel if needed); the bridge stops with the workflow. Clients cannot
+   publish, call services or access parameters.
 
    ```bash
    # A: leave running
    ls -l /dev/ttyUSB0
-   ros2 run sentry_localization operator_workflow mapping "$SESSION" $HEAD_OFF lidar_serial_port:=/dev/ttyUSB0
+   ros2 run thornbots_pkg operator_workflow mapping "$SESSION" $HEAD_OFF lidar_serial_port:=/dev/ttyUSB0
    # B: after A asks for boot-pose, before ANY movement
    ros2 run tf2_ros tf2_echo root head
    # Check yaw ≈ 0, then Ctrl-C before capture:
-   ros2 run sentry_localization operator_workflow boot-pose "$SESSION"
+   ros2 run thornbots_pkg operator_workflow boot-pose "$SESSION"
    cat "$SESSION/boot.json"
    ```
 
@@ -124,9 +127,9 @@ Boot/image reference:
    ```bash
    ros2 topic echo /odom --field pose.pose.position
    # Ctrl-C stops this observer only. Before a rough transfer:
-   ros2 run sentry_localization operator_workflow pause "$SESSION"
+   ros2 run thornbots_pkg operator_workflow pause "$SESSION"
    # Drive across, stop level, let chassis settle, then:
-   ros2 run sentry_localization operator_workflow resume "$SESSION"
+   ros2 run thornbots_pkg operator_workflow resume "$SESSION"
    ```
 
    PASS: x/y follow travel even after strafing; `/map` and `/scan` overlap with
@@ -136,10 +139,10 @@ Boot/image reference:
    Resume insertion, wait for loop closure/fresh map, inspect coverage and walls.
    Keep A running and the head still. Boot anchors registration and the AMCL
    start; save requires SLAM `map->root` within 0.15 m/0.15 rad of boot, not raw
-   odometry ([gate rationale](sentry_localization/README.md#preparation-and-rationale)).
+   odometry ([gate rationale](thornbots_pkg/README.md#preparation-and-rationale)).
 
    ```bash
-   ros2 run sentry_localization operator_workflow save "$SESSION"
+   ros2 run thornbots_pkg operator_workflow save "$SESSION"
    ls -lh "$SESSION/snapshot/"
    ```
 
@@ -150,10 +153,10 @@ Boot/image reference:
 
    ```bash
    # Red facing +x:
-   ros2 run sentry_localization operator_workflow align "$SESSION" --yaw 0
+   ros2 run thornbots_pkg operator_workflow align "$SESSION" --yaw 0
    # Blue facing -x: use this INSTEAD of the red command:
-   # ros2 run sentry_localization operator_workflow align "$SESSION" --yaw 3.141592653589793
-   ros2 run sentry_localization operator_workflow check "$SESSION"
+   # ros2 run thornbots_pkg operator_workflow align "$SESSION" --yaw 3.141592653589793
+   ros2 run thornbots_pkg operator_workflow check "$SESSION"
    ```
 
    PASS: check exits successfully; `deployment/field.pgm`, `field.yaml` and
@@ -164,9 +167,9 @@ Boot/image reference:
 
    ```bash
    # A: leave running after LOCALIZE PASS
-   ros2 run sentry_localization operator_workflow localize "$SESSION" $HEAD_OFF lidar_serial_port:=/dev/ttyUSB0
+   ros2 run thornbots_pkg operator_workflow localize "$SESSION" $HEAD_OFF lidar_serial_port:=/dev/ttyUSB0
    # B: after LOCALIZE PASS
-   ros2 run sentry_localization operator_workflow convergence "$SESSION" --hold 30 --samples 20
+   ros2 run thornbots_pkg operator_workflow convergence "$SESSION" --hold 30 --samples 20
    ```
 
    PASS: `LOCALIZE PASS`, `CONVERGED` and scan/wall overlap; make a slow controlled
@@ -231,7 +234,7 @@ Boot/image reference:
     ros2 lifecycle get /amcl
     ros2 param get /map_server yaml_filename
     ros2 param get /amcl use_sim_time
-    ros2 run sentry_localization operator_workflow convergence "$SESSION" --hold 30 --samples 20
+    ros2 run thornbots_pkg operator_workflow convergence "$SESSION" --hold 30 --samples 20
     ```
 
     PASS: approved image ID, baked package prefix, both lifecycle nodes `active`,
@@ -265,14 +268,14 @@ Notes:
 - Mapping uses raw wheel passthrough, not rf2o. Boot capture checks 20 fresh scans
   and at least 2 stationary seconds within 3 cm/0.03 rad; save requires the same
   live session and the
-  [SLAM return gate](sentry_localization/README.md#preparation-and-rationale).
+  [SLAM return gate](thornbots_pkg/README.md#preparation-and-rationale).
   Convergence requires fresh pose,
   scans/TF, xy std ≤0.25 m, yaw std ≤0.15 rad, start distance ≤0.4 m and yaw
   difference ≤0.25 rad over 30 s/20 samples. Covariance alone is not accuracy.
 - Practice without referee: add `--no-referee --team red` (or blue) to both
   mapping/localize. `--room` rehearses without a referee, keeping boot coordinates
   instead of field registration. Add it to mapping, then run
-  `ros2 run sentry_localization operator_workflow prepare-room "$SESSION"`
+  `ros2 run thornbots_pkg operator_workflow prepare-room "$SESSION"`
   instead of `align`; localize infers room mode. Sim: add `--sim-time` to mapping,
   boot-pose, pause/resume, save, localize and convergence, plus
   `real_hardware:=false rviz:=false` to mapping/localize; omit lidar-port override.
