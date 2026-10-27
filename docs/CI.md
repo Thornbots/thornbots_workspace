@@ -24,9 +24,14 @@ rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
 and sllidar_ros2. Package workflows pin reusable tooling to existing immutable
 workspace commits retained by `ci-tooling-884bfe6` and `ci-ros-58b7bf0` tags.
 Their `workspace-ref` independently pins the integrated dependency workspace.
+Refresh this immutable dependency pin across all seven portable package
+workflows when integrated interfaces change. Updating workspace nightly alone
+does not move package CI's dependency checkout. Keep the reusable tooling pins
+unchanged unless the tooling itself changes.
 Startup pins the native host-test tooling introduced by the C++ CI repair.
-Update workflow references and their tooling inputs together; dependency pins
-must continue to describe nightly. The workspace uses its own tested revision.
+When updating reusable tooling, move workflow references and their
+`tooling-ref` inputs together; dependency pins must continue to describe
+nightly. The workspace uses its own tested revision.
 Host helper jobs use the workspace's exact package pins and archive their JUnit
 reports. Package quality workflows use the same
 [host test runner](../.github/scripts/test_host_packages.sh).

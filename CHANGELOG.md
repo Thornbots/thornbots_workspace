@@ -437,6 +437,18 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Portable package CI now builds against the current nightly dependency
+  workspace, restoring matching target-message and localization launch
+  interfaces. Keep immutable dependency pins separate from reusable tooling
+  pins; [CI policy](docs/CI.md) describes when to refresh them
+  ([thornbots_pkg #34](https://github.com/Thornbots/thornbots_pkg/pull/34),
+  [sentry_localization #25](https://github.com/Thornbots/sentry_localization/pull/25),
+  [sim #52](https://github.com/Thornbots/sim/pull/52),
+  [rf2o #20](https://github.com/Thornbots/rf2o_laser_odometry/pull/20),
+  [serial bridge #25](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/25),
+  [ROI rectifier #10](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/10),
+  [sllidar #11](https://github.com/Thornbots/sllidar_ros2/pull/11)).
+
 - Sentry firmware now reports POSE `odom_status` 2 before the first successful
   Pico I2C read or when its age reaches 500 ms; healthy reads report 0. The
   threshold accommodates the measured 260 ms Pico cadence without changing
