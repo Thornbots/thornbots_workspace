@@ -9,7 +9,7 @@ mapping failed with both fused and raw odometry; the successful map has partial
 coverage. This is not a claim of competition readiness over the whole field.
 
 The maintained operator procedure is
-[sentry_localization's room and field workflow](../../sentry_localization/README.md#field-day-and-room-workflow).
+[thornbots_pkg's room and field workflow](../../thornbots_pkg/README.md#field-day-and-room-workflow).
 Firmware, production routes, waypoints, odometry constants and drive behavior
 were unchanged. Evidence-only teleop inputs exercised existing sim controls.
 

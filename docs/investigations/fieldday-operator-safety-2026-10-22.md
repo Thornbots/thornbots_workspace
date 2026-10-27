@@ -3,7 +3,7 @@
 Both real team starts passed the revised SLAM snapshot → field registration →
 AMCL operator workflow after full simulator restarts. These are partial
 start-area maps, not full-field coverage or hardware validation. The maintained
-procedure is the [operator card](../../sentry_localization/README.md#field-day-and-room-workflow).
+procedure is the [operator card](../../thornbots_pkg/README.md#field-day-and-room-workflow).
 
 ## Changes and checks
 

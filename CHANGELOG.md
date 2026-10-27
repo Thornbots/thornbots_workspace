@@ -9,6 +9,17 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Operator workflow now lives in `thornbots_pkg`: use
+  `ros2 run thornbots_pkg operator_workflow` with the existing subcommands and
+  flags. Mapping/localize also supervise the image-provided read-only Foxglove
+  bridge on port 8765 and stop it with the workflow. The operator reference,
+  tests, startup link and mirrored mapping card follow the new package;
+  localization gates and robot movement are unchanged.
+  [thornbots_pkg #33](https://github.com/Thornbots/thornbots_pkg/pull/33),
+  [sentry_localization #24](https://github.com/Thornbots/sentry_localization/pull/24),
+  [startup #12](https://github.com/Thornbots/isaac-ros-startup/pull/12);
+  [validation](docs/investigations/operator-workflow-move-2026-10-27.md).
+
 - Clarify the [field-mapping procedure](README.md#map-a-new-field): boot-pose
   provenance and SLAM save gate, session/room terms, still-head and slow-drive
   checks, controller continuity, and post-flash power/clock/container recovery.
