@@ -437,6 +437,12 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Sentry firmware now reports POSE `odom_status` 2 before the first successful
+  Pico I2C read or when its age reaches 500 ms; healthy reads report 0. The
+  threshold accommodates the measured 260 ms Pico cadence without changing
+  odometry values ([MCBV3 #105](https://github.com/Thornbots/MCBV3/pull/105),
+  [bridge #24](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/24)).
+
 - Sim's CV bench armor validation now checks ground clearance and the 400 mm
   maximum lower-edge height instead of an unsupported 60 mm minimum; rule
   citations link to the verified workspace comparison
