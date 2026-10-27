@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- Clarify the [field-mapping procedure](README.md#map-a-new-field): boot-pose
+  provenance and SLAM save gate, session/room terms, still-head and slow-drive
+  checks, controller continuity, and post-flash power/clock/container recovery.
+  The [package workflow](https://github.com/Thornbots/sentry_localization/pull/23)
+  owns the gate rationale; match boot keeps rf2o off
+  after false-motion head-sweep replay findings.
+
 - Launch-time lidar translation/yaw and scan-frame blind-sector overrides,
   including sectors across scan zero. Defaults use the Oct 26 CAD mount and
   robot-measured scan zero/self-filter; the spawned sim sensor matches the TF

@@ -24,8 +24,9 @@ Boot/image reference:
 [startup](https://github.com/Thornbots/isaac-ros-startup/blob/nightly/README.md#use),
 [release images](https://github.com/Thornbots/isaac_ros_common/blob/nightly/docker/README.md#pulling-from-github-container-registry).
 
-1. **Park on the taped start; verify the release image — robot host.** Clear
-   the route, check battery/pod contact, disable firing. Controller ON: left
+1. **Place on the taped start before power-on; verify the release image — robot host.**
+   Keep the robot still while the IMU settles; moving it then caused heading drift.
+   Clear the route, check battery/pod contact, disable firing. Controller ON: left
    switch MID, right switch MID (manual no-spin); centre the head with the right
    stick, then leave that stick neutral. Keep these settings through acceptance.
    With `thornbots` initially running, enter the team's approved release SHA:
@@ -37,6 +38,11 @@ Boot/image reference:
    docker inspect thornbots-runtime --format '{{.Config.Image}} {{.Image}}'
    journalctl -b -u thornbots --no-pager
    ```
+
+   Turning the controller off invalidates the session. After any SWD flash,
+   power-cycle the MCB before trusting odometry (warm reset leaves Pico I2C dead).
+   MCB power-cycling reboots the Jetson via shared power: re-sync the clock,
+   restart the container and begin a new session (steps 2–4).
 
    PASS: runtime image ID matches the installed approved release image; head stays
    still, chassis is at red `(-4.625, 0)` facing +x or blue `(4.625, 0)` facing -x.
@@ -74,6 +80,8 @@ Boot/image reference:
 
    In **both container shells**, source only the image install; choose a new,
    identical session name (`oct31-blue-01` for blue):
+   `$SESSION` is one attempt's folder; use a new name for every attempt.
+   `operator_workflow` runs the mapping, save, registration and AMCL acceptance steps.
 
    ```bash
    source /opt/ros/jazzy/setup.bash
@@ -100,6 +108,8 @@ Boot/image reference:
    ls -l /dev/ttyUSB0
    ros2 run sentry_localization operator_workflow mapping "$SESSION" $HEAD_OFF lidar_serial_port:=/dev/ttyUSB0
    # B: after A asks for boot-pose, before ANY movement
+   ros2 run tf2_ros tf2_echo root head
+   # Check yaw ≈ 0, then Ctrl-C before capture:
    ros2 run sentry_localization operator_workflow boot-pose "$SESSION"
    cat "$SESSION/boot.json"
    ```
@@ -107,7 +117,7 @@ Boot/image reference:
    PASS: `PREFLIGHT OK`, `BOOT CAPTURE OK`, recorded team/raw start agrees with the
    mark, head still and RViz scans form consistent walls.
 
-5. **Drive slowly using manual controls; watch raw odometry and RViz — B.**
+5. **Drive ≤0.2 m/s with the head still; watch raw odometry and RViz — B.**
    First a straight out-and-back, then a short strafe and fore/aft check. Cover
    lanes, centre, ends and obstacle backs with overlapping views and level stops.
 
@@ -124,7 +134,9 @@ Boot/image reference:
 
 6. **Return exactly to the boot mark/heading; park, inspect and save — B.**
    Resume insertion, wait for loop closure/fresh map, inspect coverage and walls.
-   Keep A running and the head still.
+   Keep A running and the head still. Boot anchors registration and the AMCL
+   start; save requires SLAM `map->root` within 0.15 m/0.15 rad of boot, not raw
+   odometry ([gate rationale](sentry_localization/README.md#preparation-and-rationale)).
 
    ```bash
    ros2 run sentry_localization operator_workflow save "$SESSION"
@@ -182,6 +194,7 @@ Boot/image reference:
 
    For blue use its session and `amcl_initial_x:=4.625`; **root yaw stays 0 for
    both teams**, unlike blue chassis yaw in step 7. `map_file` has no extension.
+   Keep `use_rf2o:=false`: rf2o replay showed false motion during head sweeps.
 
    ```bash
    sudo systemctl start systemd-timesyncd
@@ -251,11 +264,14 @@ Notes:
   IMU recalibration interrupted POSE. Head/mount and raw-x failures remain unresolved.
 - Mapping uses raw wheel passthrough, not rf2o. Boot capture checks 20 fresh scans
   and at least 2 stationary seconds within 3 cm/0.03 rad; save requires the same
-  live session and return within 0.15 m/0.15 rad. Convergence requires fresh pose,
+  live session and the
+  [SLAM return gate](sentry_localization/README.md#preparation-and-rationale).
+  Convergence requires fresh pose,
   scans/TF, xy std ≤0.25 m, yaw std ≤0.15 rad, start distance ≤0.4 m and yaw
   difference ≤0.25 rad over 30 s/20 samples. Covariance alone is not accuracy.
 - Practice without referee: add `--no-referee --team red` (or blue) to both
-  mapping/localize. Room only: add `--room` to mapping, then run
+  mapping/localize. `--room` rehearses without a referee, keeping boot coordinates
+  instead of field registration. Add it to mapping, then run
   `ros2 run sentry_localization operator_workflow prepare-room "$SESSION"`
   instead of `align`; localize infers room mode. Sim: add `--sim-time` to mapping,
   boot-pose, pause/resume, save, localize and convergence, plus
