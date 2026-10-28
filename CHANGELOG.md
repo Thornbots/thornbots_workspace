@@ -111,6 +111,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- The robot service overlays the workspace's colcon `install/` by default
+  (`USE_WS_OVERLAY=true` in the `launch.env` template and script fallbacks),
+  so a robot-side build runs without editing `launch.env`. Existing robots keep
+  their `/etc/thornbots/launch.env`; `false` runs only the image's packages.
+  [startup #13](https://github.com/Thornbots/isaac-ros-startup/pull/13)
+
 - Refresh the [Sentry rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) against
   ARC 2026 V1.6 / building diff V1.3.1 and RMUS/RMUL 2027 V1.0.0; correct
   armor citations, distinguish actual rule changes from stale 2024 values,
