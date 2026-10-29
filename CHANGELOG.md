@@ -455,6 +455,11 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- The robot service sets the shot exit velocity from `launch.env`
+  (`EXIT_VELOCITY=22.0`, passed as `v_muzzle`; was the launch default 25).
+  This changes Jetson lead only; the MCB's pitch solve keeps its own speed.
+  [startup #14](https://github.com/Thornbots/isaac-ros-startup/pull/14).
+
 - Sentry firing uses the 20 ms indexer request-to-exit timed on the robot
   (was the sim's 94 ms): the MCB subtracts 20 ms and Jetson never sends a
   fire delay under 25 ms (`min_fire_delay_s`). The MCB now holds a pending
