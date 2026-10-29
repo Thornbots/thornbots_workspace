@@ -17,7 +17,7 @@ impact, and link the corresponding package changes.
   successful validated saves run the required shutdown command, while failures
   leave Jetson running and incomplete snapshots never shut it down.
   [PING contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ping-id5--mcb-mapping-machine-and-link-check)
-  specifies ACKs for every peer-originated 1/3 or 2/4 in any state, including
+  specifies ACKs for every peer-originated 1/3 or 2/4/6 in any state, including
   retries and final legs; originators send a final leg only once while awaiting
   the matching echo, then ignore further echoes to terminate the exchange.
   Odd retries use intervals >=0.5 s; the sliding five-second same-number
@@ -25,7 +25,10 @@ impact, and link the corresponding package changes.
   Main-only reply 0 remains the exception; unknown numbers are never echoed.
   Sentry firmware retries unacknowledged 1/3 every 500 ms and ignores late odd
   echoes, including ACKs of its final leg. The sim fixture runs this firmware
-  and checks Main-only 0, unknown-number rejection and unconditional 2/4 ACKs.
+  and checks Main-only 0, unknown-number rejection and unconditional 2/4/6 ACKs.
+  PING 4 returns Done to Mapping after a failed final save, restoring restricted
+  manual drive and cancelling pending/queued save work. PING 6 (fail) moves
+  Setup to Done and stops start retries; Done keeps drive stopped and head forward.
   The UART payload is unchanged; save ACK permits
   independent MCB-side power-off before storage completes, so data loss remains possible.
   [thornbots_pkg #35](https://github.com/Thornbots/thornbots_pkg/pull/35),
