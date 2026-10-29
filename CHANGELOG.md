@@ -455,6 +455,14 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- The `camera` frame is now the D435's RGB lens, 32.5 mm to the camera's left
+  of the CAD cover centre, in both URDFs. Detections are deprojected from
+  that lens, so real-robot aim points had landed 32.5 mm right of the panel;
+  the sim hid it because its detector shared the frame. Real robot: aim
+  shifts 32.5 mm left at any range.
+  [thornbots_pkg #36](https://github.com/Thornbots/thornbots_pkg/pull/36),
+  [sim #53](https://github.com/Thornbots/sim/pull/53).
+
 - The sentry's shot speed is 22 m/s everywhere: the MCB's pitch solve (was
   24), Jetson `v_muzzle` (was 25) and the robot service's `launch.env`
   `EXIT_VELOCITY=22.0`, plus sim ballistics and the aiming bench. Real robot:
