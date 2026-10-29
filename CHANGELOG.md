@@ -13,10 +13,14 @@ impact, and link the corresponding package changes.
   [`operator_workflow mmm`](thornbots_pkg/README.md#mcb-mapping-machine):
   immediate receipt ACKs, restart-surviving mapping/boot capture, parked
   ready/mapping notifications and asynchronous validated or incomplete saves.
+  Ready saves require a completed ready exchange and a current at-start gate;
+  successful validated saves run the required shutdown command, while failures
+  leave Jetson running and incomplete snapshots never shut it down.
   [PING contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ping-id5--mcb-mapping-machine-and-link-check)
-  specifies retry/quiet intervals without changing the UART payload. Requires
+  specifies retry/quiet intervals and MCB echoes of every 2/4 without changing
+  the UART payload. Requires
   pending firmware and sim-emulator coordination before use; save ACK permits
-  power-off before storage completes, so data loss remains possible.
+  independent MCB-side power-off before storage completes, so data loss remains possible.
   [thornbots_pkg #35](https://github.com/Thornbots/thornbots_pkg/pull/35),
   [bridge #26](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/26).
 
