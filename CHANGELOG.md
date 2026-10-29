@@ -455,10 +455,14 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
-- The robot service sets the shot exit velocity from `launch.env`
-  (`EXIT_VELOCITY=22.0`, passed as `v_muzzle`; was the launch default 25).
-  This changes Jetson lead only; the MCB's pitch solve keeps its own speed.
-  [startup #14](https://github.com/Thornbots/isaac-ros-startup/pull/14).
+- The sentry's shot speed is 22 m/s everywhere: the MCB's pitch solve (was
+  24), Jetson `v_muzzle` (was 25) and the robot service's `launch.env`
+  `EXIT_VELOCITY=22.0`, plus sim ballistics and the aiming bench. Real robot:
+  pitch rises slightly for the slower shot.
+  [startup #14](https://github.com/Thornbots/isaac-ros-startup/pull/14),
+  [MCBV3 #110](https://github.com/Thornbots/MCBV3/pull/110),
+  [thornbots_pkg #36](https://github.com/Thornbots/thornbots_pkg/pull/36),
+  [sim #53](https://github.com/Thornbots/sim/pull/53).
 
 - Sentry firing uses the 20 ms indexer request-to-exit timed on the robot
   (was the sim's 94 ms): the MCB subtracts 20 ms and Jetson never sends a
