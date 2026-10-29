@@ -17,8 +17,13 @@ impact, and link the corresponding package changes.
   successful validated saves run the required shutdown command, while failures
   leave Jetson running and incomplete snapshots never shut it down.
   [PING contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ping-id5--mcb-mapping-machine-and-link-check)
-  specifies retry/quiet intervals and MCB echoes of every 2/4 without changing
-  the UART payload. Requires
+  specifies ACKs for every peer-originated 1/3 or 2/4 in any state, including
+  retries and final legs; originators send a final leg only once while awaiting
+  the matching echo, then ignore further echoes to terminate the exchange.
+  Odd retries use intervals >=0.5 s; the sliding five-second same-number
+  window gates work only, ACKing distinct requests within it without execution.
+  Main-only reply 0 remains the exception; unknown numbers are never echoed.
+  The UART payload is unchanged. Requires
   pending firmware and sim-emulator coordination before use; save ACK permits
   independent MCB-side power-off before storage completes, so data loss remains possible.
   [thornbots_pkg #35](https://github.com/Thornbots/thornbots_pkg/pull/35),
