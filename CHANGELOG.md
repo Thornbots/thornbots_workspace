@@ -455,6 +455,17 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Sentry firing uses the 20 ms indexer request-to-exit timed on the robot
+  (was the sim's 94 ms): the MCB subtracts 20 ms and Jetson never sends a
+  fire delay under 25 ms (`min_fire_delay_s`). The MCB now holds a pending
+  shot instead of letting the next non-fire frame cancel it, and the sim
+  indexer exits balls 20 ms into a feed. Hosted parked sim: hits 368/411 ->
+  403/421. Real robot: verify shot timing and that no shots drop.
+  [MCBV3 #110](https://github.com/Thornbots/MCBV3/pull/110),
+  [thornbots_pkg #36](https://github.com/Thornbots/thornbots_pkg/pull/36),
+  [bridge #27](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/27),
+  [sim #53](https://github.com/Thornbots/sim/pull/53).
+
 - Sentry auto-aim now turns the barrel's line through the CV aim point: the
   firmware adds the barrel's 12.8 mm left-of-yaw-axis offset (sentry_v2 CAD)
   to its yaw solve. In the hosted-MCB parked stage this cut the leftward hit
