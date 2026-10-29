@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Sentry MMM now owns indicators and disconnected restrictions in its command, keeps odometry pods pointing in every mapping state, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)).
+
 ### Added
 
 - A [hosted MMM end-to-end suite](sim/README.md#run-the-tests) connects the
