@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+## 2026-10-25
+
 ### Added
 
 - Operator workflow now lives in `thornbots_pkg`: use
@@ -83,6 +85,8 @@ impact, and link the corresponding package changes.
   After save, the NEXT prompt selects `prepare-room` for room sessions and the
   yaw-only alignment step for fields.
   See the [round-2 validation and remaining limits](docs/investigations/fieldday-round2-2026-10-23.md).
+  Integrated in [workspace #90](https://github.com/Thornbots/thornbots_workspace/pull/90);
+  real-hardware mapping and localization remain unvalidated.
 
 - Lidar range documentation and a real-format rf2o test. No behavior change:
   the 0.15 m SLAM/AMCL range floor stays (the A2M8 minimum is 0.05 m; the
@@ -641,7 +645,8 @@ impact, and link the corresponding package changes.
   other waypoints retain 0.5 m, preventing corner cutting near the wall without
   tightening other routes. The old route could strike the wall end and wedge
   until the 15 s stuck timer. Not yet driven on the real field. See
-  [MCBV3 #101](https://github.com/Thornbots/MCBV3/pull/101).
+  [MCBV3 #101](https://github.com/Thornbots/MCBV3/pull/101) and
+  [workspace #86](https://github.com/Thornbots/thornbots_workspace/pull/86).
 
 - The UART bridge drops CV decisions aged 200 ms or more, invalid/future
   stamps and frames behind a busy TX queue at the final nonblocking write
