@@ -455,6 +455,16 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Sentry auto-aim now turns the barrel's line through the CV aim point: the
+  firmware adds the barrel's 12.8 mm left-of-yaw-axis offset (sentry_v2 CAD)
+  to its yaw solve. In the hosted-MCB parked stage this cut the leftward hit
+  bias from 19 to 8.5 mm; shots still land about 15 mm low and 8 mm left from
+  gimbal settling error, which stays with the hardware-tuned gains for
+  real-robot testing. Sim `shots.jsonl` now records each shot's position on
+  its panel. Changes real-robot aim by about 0.6 deg at 1.2 m; verify on the
+  robot. [MCBV3 #110](https://github.com/Thornbots/MCBV3/pull/110),
+  [sim #53](https://github.com/Thornbots/sim/pull/53).
+
 - Portable package CI now builds against the current nightly dependency
   workspace, restoring matching target-message and localization launch
   interfaces. Keep immutable dependency pins separate from reusable tooling
