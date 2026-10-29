@@ -9,6 +9,12 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- A [hosted MMM end-to-end suite](sim/README.md#run-the-tests) connects the
+  compiled sentry firmware to the real bridge and in-stack mapping node, covering
+  telemetry load, UART faults/backpressure, restarts, restrictions and validated
+  saving. Start/save inputs are private to the hosted fixture; the hardware
+  target excludes the hook. [Mini validation](docs/investigations/mmm-firmware-e2e-2026-10-29.md).
+
 - The C++ [`mmm` node](thornbots_pkg/README.md#mcb-mapping-machine) now starts
   inside `auto.launch.py` with the normal stack. It resets the live mapping graph,
   captures stationary boot evidence, sends setup-failure PING 6, and delegates

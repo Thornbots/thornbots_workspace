@@ -1,5 +1,9 @@
 # In-stack MMM validation — 2026-10-29
 
+The [firmware-to-node UART follow-up](mmm-firmware-e2e-2026-10-29.md) exercises
+the compiled sentry and real coordinator together, with loss, backpressure,
+restart recovery, state restrictions and a validated map save.
+
 The Jetson coordinator runs inside the normal stack. Its maintained design and
 usage are in [thornbots_pkg](../../thornbots_pkg/README.md#mcb-mapping-machine),
 the [save service](../../sentry_localization/README.md#explicit-mapping-snapshots),
