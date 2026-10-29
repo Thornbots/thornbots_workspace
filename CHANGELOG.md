@@ -9,13 +9,15 @@ impact, and link the corresponding package changes.
 
 ### Added
 
-- Jetson-side MCB Mapping Machine coordinator in
-  [`operator_workflow mmm`](thornbots_pkg/README.md#mcb-mapping-machine):
-  immediate receipt ACKs, restart-surviving mapping/boot capture, parked
-  ready/mapping notifications and asynchronous validated or incomplete saves.
-  Ready saves require a completed ready exchange and a current at-start gate;
-  successful validated saves run the required shutdown command, while failures
-  leave Jetson running and incomplete snapshots never shut it down.
+- The C++ [`mmm` node](thornbots_pkg/README.md#mcb-mapping-machine) now starts
+  inside `auto.launch.py` with the normal stack. It resets the live mapping graph,
+  captures stationary boot evidence, sends setup-failure PING 6, and delegates
+  asynchronous map writing to localization's new save-now service. Ready saves
+  remain guarded until durable completion; failed saves return the MCB through
+  4 then 2. The manual Python workflow is restored without MMM/snapshot commands.
+  Host shutdown is explicitly opt-in through startup's fixed request-file watcher;
+  incomplete saves never request shutdown. See the
+  [validation record](docs/investigations/mmm-node-validation-2026-10-29.md).
   [PING contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ping-id5--mcb-mapping-machine-and-link-check)
   specifies ACKs for every peer-originated 1/3 or 2/4/6 in any state, including
   retries and final legs; originators send a final leg only once while awaiting
@@ -33,6 +35,8 @@ impact, and link the corresponding package changes.
   independent MCB-side power-off before storage completes, so data loss remains possible.
   [thornbots_pkg #35](https://github.com/Thornbots/thornbots_pkg/pull/35),
   [bridge #26](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/26),
+  [localization #26](https://github.com/Thornbots/sentry_localization/pull/26),
+  [startup #15](https://github.com/Thornbots/isaac-ros-startup/pull/15),
   [MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111),
   [sim #54](https://github.com/Thornbots/sim/pull/54).
 
