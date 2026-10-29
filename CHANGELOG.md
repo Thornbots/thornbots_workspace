@@ -164,6 +164,7 @@ impact, and link the corresponding package changes.
 - MCBV3 shared headers now live at `MCB-project/src/util/HitTracker.hpp` and
   `MCB-project/src/util/MappingMachine.hpp`; includes and current firmware
   coordination docs use the matching paths. Firmware behavior is unchanged.
+- MCBV3 IMU recalibration now lives in `MCB-project/src/util/ImuRecalibration.hpp`; class text and behavior are unchanged.
 
 - Correct the hosted parked E2E idle-look zone to match its existing scene
   frame, restoring camera acquisition after patrol removal without changing
