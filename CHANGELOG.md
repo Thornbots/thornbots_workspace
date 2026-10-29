@@ -15,6 +15,10 @@ impact, and link the corresponding package changes.
   asynchronous map writing to localization's new save-now service. Ready saves
   remain guarded until durable completion; failed saves return the MCB through
   4 then 2. The manual Python workflow is restored without MMM/snapshot commands.
+  Transient bad lidar scans now restart fresh evidence instead of permanently
+  blocking saves. Fresh start requests create another session; starts during
+  a save send setup failure without interrupting the save. Startup forwards
+  the shutdown opt-in into the mapping node.
   Host shutdown is explicitly opt-in through startup's fixed request-file watcher;
   incomplete saves never request shutdown. See the
   [validation record](docs/investigations/mmm-node-validation-2026-10-29.md).
