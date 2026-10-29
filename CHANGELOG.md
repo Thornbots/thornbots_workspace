@@ -43,6 +43,11 @@ impact, and link the corresponding package changes.
   [Verification](docs/investigations/mapping-procedure-2026-10-26.md) records the
   isolated room-sim rehearsal and remaining robot-side acceptance. No behavior changes.
 
+- [CAD odometry pod identities](docs/investigations/sentry-cad-2026-10-26.md#odometry-pods),
+  with wheel positions, rolling directions and firmware encoder/field signs.
+  Firmware and Oct 25 motion data establish the start-frame axes; the missing
+  motor-to-CAD yaw datum limits source-part assignment. The models omit the pods.
+
 - Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
   serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
   plus optional camera and stale-CV blocks
@@ -111,11 +116,35 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Correct the hosted parked E2E idle-look zone to match its existing scene
+  frame, restoring camera acquisition after patrol removal without changing
+  paths or acceptance gates ([evidence](docs/investigations/sentry-cad-2026-10-26.md#e2e-idle-zone-regression)).
 - Refresh the [Sentry rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) against
   ARC 2026 V1.6 / building diff V1.3.1 and RMUS/RMUL 2027 V1.0.0; correct
   armor citations, distinguish actual rule changes from stale 2024 values,
   and flag the English 2026 basis and October 31 event rules as unconfirmed.
   ARC's September 2027 preview is separate from the RMUL comparison.
+- Adopt the team's 2026-10-26 low-resolution sentry CAD for robot/sim head,
+  lidar, IR camera, muzzle and armor geometry, with a matching self-filter and
+  nominal map-slice height
+  ([thornbots_pkg #30](https://github.com/Thornbots/thornbots_pkg/pull/30),
+  [sim #48](https://github.com/Thornbots/sim/pull/48),
+  [sentry_localization #20](https://github.com/Thornbots/sentry_localization/pull/20)).
+  The lidar moves only 16.6 mm in XY. The Oct 26 five-pose robot fit replaces
+  the authored FOV-marker yaw (-8.568°) with scan zero 0.5907 rad (33.84°)
+  and the verified scan-frame blind sector -0.5585..1.0123 rad. The
+  [dated investigation](docs/investigations/sentry-cad-2026-10-26.md)
+  records the archive SHA256, frame derivation and before/after tests.
+  Round 2 preserves the muzzle's pitch-axis aiming contract with the CAD
+  lateral offset; the unchanged aiming acceptance tests now pass. Independent
+  mesh checks establish a 103.885 mm armor lower-edge stagger in the supplied
+  CAD, exceeding the 2027 manual's physical S124 limit of 100 mm. Accepted
+  on 2026-10-26 as a mechanical deviation with no material CV impact; the
+  sim test pins a temporary 104 mm bound until the plates are corrected.
+  The earlier position-only fit's 10.6 cm discrepancy is retained as provenance;
+  the joint fit supports the CAD radius and measured scan-zero orientation.
+  The armor spread is no longer a merge blocker. Keep the integration draft;
+  scan-plane height and estimator robustness remain separate acceptance work.
 
 - Raise host quality tooling to pytest 9.0.3 for CVE-2025-71176 (insecure
   temporary-directory handling), retaining the other tooling pins. Package CI
@@ -454,6 +483,16 @@ impact, and link the corresponding package changes.
   the tracked copy, so keep a backup first if you edited it locally.
 
 ### Fixed
+
+- Sim and robot description use the team's 2026-10-26 low-resolution CAD
+  (from sim #48 / thornbots_pkg #30), with `camera` on its RGB FOV apex and
+  the firmware barrel offset at its 1.9 mm bore. `sim`'s `simplify_urdf`
+  generator, config and vendored decimator are removed; edit `urdf/sentry_v2`
+  directly. The CAD map-slice height (sentry_localization #20) is pinned too.
+  [sim #53](https://github.com/Thornbots/sim/pull/53),
+  [thornbots_pkg #36](https://github.com/Thornbots/thornbots_pkg/pull/36),
+  [MCBV3 #110](https://github.com/Thornbots/MCBV3/pull/110),
+  [sentry_localization #20](https://github.com/Thornbots/sentry_localization/pull/20).
 
 - The `camera` frame is now the D435's RGB lens, 32.5 mm to the camera's left
   of the CAD cover centre, in both URDFs. Detections are deprojected from
