@@ -24,11 +24,14 @@ impact, and link the corresponding package changes.
   window gates work only, ACKing distinct requests within it without execution.
   Main-only reply 0 remains the exception; unknown numbers are never echoed.
   Sentry firmware retries unacknowledged 1/3 every 500 ms and ignores late odd
-  echoes, including ACKs of its final leg. The UART payload is unchanged; save ACK permits
+  echoes, including ACKs of its final leg. The sim fixture runs this firmware
+  and checks Main-only 0, unknown-number rejection and unconditional 2/4 ACKs.
+  The UART payload is unchanged; save ACK permits
   independent MCB-side power-off before storage completes, so data loss remains possible.
   [thornbots_pkg #35](https://github.com/Thornbots/thornbots_pkg/pull/35),
   [bridge #26](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/26),
-  [MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111).
+  [MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111),
+  [sim #54](https://github.com/Thornbots/sim/pull/54).
 
 - Operator workflow now lives in `thornbots_pkg`: use
   `ros2 run thornbots_pkg operator_workflow` with the existing subcommands and
