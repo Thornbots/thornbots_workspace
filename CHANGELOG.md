@@ -161,6 +161,10 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- MCBV3 shared headers now live at `MCB-project/src/util/HitTracker.hpp` and
+  `MCB-project/src/util/MappingMachine.hpp`; includes and current firmware
+  coordination docs use the matching paths. Firmware behavior is unchanged.
+
 - Correct the hosted parked E2E idle-look zone to match its existing scene
   frame, restoring camera acquisition after patrol removal without changing
   paths or acceptance gates ([evidence](docs/investigations/sentry-cad-2026-10-26.md#e2e-idle-zone-regression)).
