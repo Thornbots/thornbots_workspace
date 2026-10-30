@@ -7,7 +7,21 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Mapping save-now now finishes staging cleanup before reporting completion,
+  including collision and backend failures. Timeout failures still respond
+  promptly and keep the saver busy until the backend replies and the abandoned
+  staging directory is removed ([sentry_localization #27](https://github.com/Thornbots/sentry_localization/pull/27)).
+
+- CV targeting now requests fire on every eligible 40 Hz publish tick instead
+  of throttling requests to 2 Hz; the MCB filters pending requests. Confidence,
+  detection freshness, planner shot windows and the 25 ms default delay floor
+  remain in force ([thornbots_pkg #37](https://github.com/Thornbots/thornbots_pkg/pull/37)).
+  The sim aiming bench uses the same policy without a fire-rate override
+  ([sim #55](https://github.com/Thornbots/sim/pull/55)).
+
+- Sol agents do their own work by default, delegating to another Sol only for large, independent parallel work, and no agent delegates tasks it can finish in a few tool calls ([AGENTS](AGENTS.md#delegation)).
 - Sentry MMM now owns indicators and restrictions in its command, keeps odometry pods pointing in every mapping state while the remote is connected, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)). Turning the remote off now stops every motor, gimbal and pods included, without leaving the mapping state ([MCBV3 #114](https://github.com/Thornbots/MCBV3/pull/114)).
+- Sentry MMM starts from the controller: left switch down and the right stick held up for 5 s. Inside MMM, each later 5 s hold (after a release) tries to save; no input leaves MMM ([MCBV3 #113](https://github.com/Thornbots/MCBV3/pull/113), [firmware README](firmware/MCBV3/README.md#mcb-mapping-machine-sentry)).
 
 ### Added
 
@@ -169,6 +183,9 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- `firmware/MCBV3` is now a default submodule: `clone --recurse-submodules`
+  and `submodule update --init` fetch it (robot firstboot included). It stays
+  out of colcon and the image; [skip it](README.md#mcb-firmware) per checkout.
 - Firmware: controller-driven IMU recalibration on hero, infantry and sentry;
   sentry left switch DOWN looks by joystick with an offset, and auto-aim takes
   newMain's CV tuning (pivot-space target offsets, 20 ms firing latency now also

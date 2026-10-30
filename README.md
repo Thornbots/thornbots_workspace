@@ -346,7 +346,7 @@ this repo's branch bumping the gitlinks. Follow the
 | `rf2o_laser_odometry` | `nightly` | Scan-matched odometry (fork) |
 | `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
-| `firmware/MCBV3` | `nightly` | MCB firmware, opt-in: not cloned by default, see below |
+| `firmware/MCBV3` | `nightly` | MCB firmware, cloned by default but optional, see below |
 
 Start with [ROADMAP.md](docs/ROADMAP.md) for open work, robot checks and links to its plans.
 [ARCC_2026_SENTRY_CONTEXT.md](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
@@ -355,9 +355,11 @@ identifies where shared information belongs; link there instead of copying it.
 
 ### MCB firmware
 
-`firmware/MCBV3` is the MCB team's repo, so a wire change and its firmware half can be checked together. It's `update = none` in `.gitmodules`: `clone --recurse-submodules` and `submodule update --init` skip it, so the robots never fetch it. `firmware/COLCON_IGNORE` and `.dockerignore` keep it out of colcon and the image. To get it, with its own taproot submodules:
+`firmware/MCBV3` is the MCB team's repo, so a wire change and its firmware half can be checked together. `clone --recurse-submodules` and `submodule update --init --recursive` fetch it with its taproot submodules like any other package. Nothing on the ROS side needs it: `firmware/COLCON_IGNORE` and `.dockerignore` keep it out of colcon and the image, and sim's firmware-dependent tests skip without it. To skip it, clone without `--recurse-submodules`, then:
 
 ```sh
-git submodule update --init --checkout firmware/MCBV3
-git -C firmware/MCBV3 submodule update --init --recursive
+git config submodule.firmware/MCBV3.update none
+git submodule update --init --recursive
 ```
+
+On an existing clone, set that config and run `git submodule deinit firmware/MCBV3`.
