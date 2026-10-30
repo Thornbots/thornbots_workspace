@@ -7,7 +7,54 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Sentry MMM now owns indicators and disconnected restrictions in its command, keeps odometry pods pointing in every mapping state, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)).
+
 ### Added
+
+- A [hosted MMM end-to-end suite](sim/README.md#run-the-tests) connects the
+  compiled sentry firmware to the real bridge and in-stack mapping node, covering
+  telemetry load, UART faults/backpressure, restarts, restrictions and validated
+  saving. Start/save inputs are private to the hosted fixture; the hardware
+  target excludes the hook. [Mini validation](docs/investigations/mmm-firmware-e2e-2026-10-29.md).
+
+- The C++ [`mmm` node](thornbots_pkg/README.md#mcb-mapping-machine) now starts
+  inside `auto.launch.py` with the normal stack. It resets the live mapping graph,
+  captures stationary boot evidence, sends setup-failure PING 6, and delegates
+  asynchronous map writing to localization's new save-now service. Ready saves
+  remain guarded until durable completion; failed saves return the MCB through
+  4 then 2. The manual Python workflow is restored without MMM/snapshot commands.
+  Transient bad lidar scans now restart fresh evidence instead of permanently
+  blocking saves. Fresh start requests create another session; starts during
+  a save send setup failure without interrupting the save. Startup forwards
+  the shutdown opt-in into the mapping node.
+  Host shutdown is explicitly opt-in through startup's fixed request-file watcher;
+  incomplete saves never request shutdown. See the
+  [validation record](docs/investigations/mmm-node-validation-2026-10-29.md).
+  Revalidated after merging nightly `33d0ef8` on the Mac mini: ROS reports
+  612 tests, zero errors/failures and 11 skips; the updated MMM integration
+  flow passes. GCC 14 firmware unit/control tests and all 95 UART fixture
+  cases pass, as do the eight Linux startup tests and host quality checks.
+  [PING contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#ping-id5--mcb-mapping-machine-and-link-check)
+  specifies ACKs for every peer-originated 1/3 or 2/4/6 in any state, including
+  retries and final legs; originators send a final leg only once while awaiting
+  the matching echo, then ignore further echoes to terminate the exchange.
+  Odd retries use intervals >=0.5 s; the sliding five-second same-number
+  window gates work only, ACKing distinct requests within it without execution.
+  Main-only reply 0 remains the exception; unknown numbers are never echoed.
+  Sentry firmware retries unacknowledged 1/3 every 500 ms and ignores late odd
+  echoes, including ACKs of its final leg. The sim fixture runs this firmware
+  and checks Main-only 0, unknown-number rejection and unconditional 2/4/6 ACKs.
+  PING 4 returns Done to Mapping after a failed final save, restoring restricted
+  manual drive and cancelling pending/queued save work. PING 6 (fail) moves
+  Setup to Done and stops start retries; Done keeps drive stopped and head forward.
+  The UART payload is unchanged; save ACK permits
+  independent MCB-side power-off before storage completes, so data loss remains possible.
+  [thornbots_pkg #35](https://github.com/Thornbots/thornbots_pkg/pull/35),
+  [bridge #26](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/26),
+  [localization #26](https://github.com/Thornbots/sentry_localization/pull/26),
+  [startup #15](https://github.com/Thornbots/isaac-ros-startup/pull/15),
+  [MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111),
+  [sim #54](https://github.com/Thornbots/sim/pull/54).
 
 - Operator workflow now lives in `thornbots_pkg`: use
   `ros2 run thornbots_pkg operator_workflow` with the existing subcommands and
@@ -115,6 +162,11 @@ impact, and link the corresponding package changes.
   [translation index](docs/rules/rm2027/README.md).
 
 ### Changed
+
+- MCBV3 shared headers now live at `MCB-project/src/util/HitTracker.hpp` and
+  `MCB-project/src/util/MappingMachine.hpp`; includes and current firmware
+  coordination docs use the matching paths. Firmware behavior is unchanged.
+- MCBV3 IMU recalibration now lives in `MCB-project/src/util/ImuRecalibration.hpp`; class text and behavior are unchanged.
 
 - Correct the hosted parked E2E idle-look zone to match its existing scene
   frame, restoring camera acquisition after patrol removal without changing
