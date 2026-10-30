@@ -163,6 +163,12 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- Firmware: controller-driven IMU recalibration on hero, infantry and sentry;
+  sentry left switch DOWN looks by joystick with an offset, and auto-aim takes
+  newMain's CV tuning (pivot-space target offsets, 20 ms firing latency now also
+  on infantry, unmeasured there). Shot speed stays 22 m/s and the RMUL 3v3
+  pre-match referee gate stays active. Untested on a robot
+  ([MCBV3 7c524a9](https://github.com/Thornbots/MCBV3/commit/7c524a9)).
 - MCBV3 shared headers now live at `MCB-project/src/util/HitTracker.hpp` and
   `MCB-project/src/util/MappingMachine.hpp`; includes and current firmware
   coordination docs use the matching paths. Firmware behavior is unchanged.
@@ -536,6 +542,9 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Firmware: setting the first UI container no longer dereferences a null
+  container; sentry now schedules its draw command at startup like hero and
+  infantry ([MCBV3 3a98bf0](https://github.com/Thornbots/MCBV3/commit/3a98bf0)).
 - Firmware: Ctrl+Shift+B builds and flashes from the MCBV3 VS Code dev
   container. It now matches CI's toolchain, adds openocd and pipenv, sees the
   host's USB probe, runs as the host user and defaults the robot to SENTRY.
