@@ -58,7 +58,8 @@ point). In order:
    it. The newer of 1 and 2 wins.
 3. **Lidar track worth checking** (stage 2 below).
 4. **Enemy starting zone.** Raw odometry is field-centred: firmware boots red at
-   (-`START_X`, `START_Y`) facing +x, blue at (+`START_X`, `START_Y`) facing -x
+   (-`START_X`, `START_Y`), blue at (+`START_X`, `START_Y`), both facing +y
+   (heading π/2)
    (`OdometrySubsystemConstants.hpp`; `START_X` 4.625 m, not yet measured on
    the field). The enemy zone is our start with x negated. Team comes from the
    REF_SYS blue flag exactly as firmware uses it, so with no referee both sides

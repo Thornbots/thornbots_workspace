@@ -45,7 +45,8 @@ Boot/image reference:
    restart the container and begin a new session (steps 2–4).
 
    PASS: runtime image ID matches the installed approved release image; head stays
-   still, chassis is at red `(-4.625, 0)` facing +x or blue `(4.625, 0)` facing -x.
+   still, chassis is at red `(-4.625, 0)` or blue `(4.625, 0)`, facing +y
+   (heading π/2) for either team.
 
 2. **Give the manual session sole ownership; synchronize UTC — host.**
 
@@ -152,10 +153,8 @@ Boot/image reference:
 7. **Register the captured chassis heading in radians; check deployment — B.**
 
    ```bash
-   # Red facing +x:
-   ros2 run thornbots_pkg operator_workflow align "$SESSION" --yaw 0
-   # Blue facing -x: use this INSTEAD of the red command:
-   # ros2 run thornbots_pkg operator_workflow align "$SESSION" --yaw 3.141592653589793
+   # Both teams facing +y:
+   ros2 run thornbots_pkg operator_workflow align "$SESSION" --yaw 1.5707963267948966
    ros2 run thornbots_pkg operator_workflow check "$SESSION"
    ```
 
@@ -196,7 +195,7 @@ Boot/image reference:
    ```
 
    For blue use its session and `amcl_initial_x:=4.625`; **root yaw stays 0 for
-   both teams**, unlike blue chassis yaw in step 7. `map_file` has no extension.
+   both teams**; chassis yaw is π/2 in step 7. `map_file` has no extension.
    Keep `use_rf2o:=false`: rf2o replay showed false motion during head sweeps.
 
    ```bash

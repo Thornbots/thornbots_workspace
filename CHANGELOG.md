@@ -7,6 +7,18 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Both teams now boot facing field +y (chassis heading π/2), retaining red
+  (-4.625, 0), blue (4.625, 0), and the existing patrol field coordinates.
+  Firmware odometry/aim/navigation and sim fixtures share this heading;
+  operator registration and field-day instructions require it. Heading-fixed
+  root and AMCL yaw remain zero. Current UART POSE still omits chassis yaw,
+  so captures with its zero placeholder cannot validate field alignment
+  ([MCBV3 #115](https://github.com/Thornbots/MCBV3/pull/115),
+  [sim #56](https://github.com/Thornbots/sim/pull/56),
+  [operator workflow #39](https://github.com/Thornbots/thornbots_pkg/pull/39),
+  [localization #28](https://github.com/Thornbots/sentry_localization/pull/28),
+  [wire frame #28](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/28)).
+
 - Mapping save-now now finishes staging cleanup before reporting completion,
   including collision and backend failures. Timeout failures still respond
   promptly and keep the saver busy until the backend replies and the abandoned
