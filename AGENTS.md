@@ -7,9 +7,11 @@ Memory is disabled: do not read or write agent memory.
 
 ## Delegation
 
-Delegate other tasks to a Sol agent (Codex `gpt-6.1-sol` via T3
-`delegate_task`, medium reasoning, Standard tier) running on archlinux.
-Delegate well-specified, high-volume repetitive edits to lower-cost agents
+Non-Sol agents delegate other tasks to a Sol agent (Codex `gpt-6.1-sol` via
+T3 `delegate_task`, medium reasoning, Standard tier) running on archlinux.
+A Sol agent does its own work and never delegates to another Sol. No agent
+delegates what it can finish in a few tool calls; delegate only
+well-specified, high-volume repetitive edits to lower-cost agents
 (Haiku/Luna). The delegating agent defines scope and acceptance checks,
 resolves ambiguity, then reviews the diff and runs the checks itself. It
 names other user-approved actions in the brief and owns asking the user.
