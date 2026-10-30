@@ -37,6 +37,18 @@ done < <(git config --file .gitmodules --get-regexp '^submodule\..*\.path$')
 
 # Only unused cache is eligible; retain 12 GB for rebuilds.
 docker builder prune -f --keep-storage 12GB
+# Build on the registry's base layers, as publish-robot-image.yml does: robots
+# then pull only the layers above them. Bases ghcr lacks are built and pushed.
+missing_bases=""
+for base in $(DRY_RUN=1 bash isaac_ros_common/scripts/build_robot_image.sh | tail -n +2); do
+    name="${base##*/}"
+    cache="ghcr.io/thornbots/isaac-ros:base-${name%:latest}"
+    if docker pull -q "$cache"; then
+        docker tag "$cache" "$base"
+    else
+        missing_bases="$missing_bases $base"
+    fi
+done
 bash isaac_ros_common/scripts/build_robot_image.sh
 names="$(DRY_RUN=1 bash isaac_ros_common/scripts/build_robot_image.sh)"
 source_tag="${names%%$'\n'*}"
@@ -68,6 +80,14 @@ push_tag() {
         return "$rc"
     fi
 }
+for base in $missing_bases; do
+    name="${base##*/}"
+    cache="ghcr.io/thornbots/isaac-ros:base-${name%:latest}"
+    # A failed pull is not proof of absence; never replace a shared base.
+    docker manifest inspect "$cache" >/dev/null 2>&1 && continue
+    docker tag "$base" "$cache"
+    push_tag "$cache"
+done
 push_tag "$registry_tag"
 branch_tag=ghcr.io/thornbots/isaac-ros:nightly-arm64-jetpack
 docker tag "$registry_tag" "$branch_tag"
@@ -82,3 +102,5 @@ while read -r tag; do
     esac
 done < <(docker image ls --format '{{.Repository}}:{{.Tag}}')
 docker builder prune -f --keep-storage 12GB || echo 'Build cache prune failed'
+# Bases replaced by the registry's copies are left untagged.
+docker image prune -f || echo 'Dangling image prune failed'

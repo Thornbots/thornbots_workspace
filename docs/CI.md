@@ -86,7 +86,8 @@ the workspace's pins and drives `agent_container.sh`.
 - After a local PASS, [nightly_publish.sh](../.github/scripts/nightly_publish.sh)
   makes a temporary nested checkout to isolate the CLI configuration paths,
   initializes every image gitlink (including recursive children, excluding sim
-  and firmware), builds the JetPack image on the host with
+  and firmware), pulls the registry's shared
+  [base layers](#robot-registry), builds the JetPack image on the host with
   `build_robot_image.sh`, then runs the registry workflow's `colcon test` and
   `colcon test-result --verbose` gate in its own agent container. It pushes the
   immutable SHA tag before updating the nightly tag. Colima starts if needed;
@@ -100,8 +101,9 @@ the workspace's pins and drives `agent_container.sh`.
   adds a `docker login ghcr.io` hint requiring a `write:packages` token to
   `summary.txt` and `run.log`; the job never provisions credentials. After both
   pushes succeed it removes older local `sha-*-arm64-jetpack` registry tags,
-  retaining the new tag and base images. Before and after publication it prunes
-  unused build cache toward a 12 GB retention target; base images are retained.
+  retaining the new tag and base images, then removes dangling images (local
+  bases replaced by registry copies). Before and after publication it prunes
+  unused build cache toward a 12 GB retention target.
 - After the local run it dispatches GitHub `CI` on `nightly` in every repo with
   that workflow (and MCBV3's `firmware.yml`) using the mini's `gh`, appends the
   run URLs to `summary.txt` and does not wait for them.
@@ -220,9 +222,12 @@ example `nightly`), with slashes replaced by dashes; see [Nightly tests](#nightl
 
 Base layers are cached as `isaac-ros:base-<layer>_<hash>-arm64-jetpack`, with
 the hash covering Dockerfiles and build arguments. Cached layers let a run
-build only the thornbots layer. Same-repository PRs can populate base caches;
-fork PRs only pull. Robot-image publication waits for package tests; cache
-publication occurs after building base layers and before package tests.
+build only the thornbots layer. The mini and the workflow build on the same
+cached bases, so a robot pulls only the layers above them; independently built
+bases share no layers. Same-repository PRs can populate base caches;
+fork PRs only pull. The workflow publishes missing bases before package tests;
+the mini publishes them only after its tests pass, and never replaces one that
+exists.
 
 Source changes reach the image through workspace gitlinks. Failed builds
 retain the preceding branch tag. Registry packages initially need an
