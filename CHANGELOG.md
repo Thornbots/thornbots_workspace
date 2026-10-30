@@ -7,6 +7,14 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add an opt-in [match Wi-Fi guard](thornbots_pkg/README.md#match_wifi_guard)
+  and [host disconnect watcher](isaac-ros-startup/README.md#match-wi-fi-disconnect-opt-in):
+  three consecutive referee battle messages disconnect every Wi-Fi device
+  until reboot. Default launches remain unaffected. A host eduroam helper
+  reuses system profiles and prioritizes autoconnect without handling passwords
+  ([thornbots_pkg #38](https://github.com/Thornbots/thornbots_pkg/pull/38),
+  [isaac-ros-startup #16](https://github.com/Thornbots/isaac-ros-startup/pull/16)).
+
 - Mapping save-now now finishes staging cleanup before reporting completion,
   including collision and backend failures. Timeout failures still respond
   promptly and keep the saver busy until the backend replies and the abandoned
