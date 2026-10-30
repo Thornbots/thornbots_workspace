@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Mapping save-now now finishes staging cleanup before reporting completion,
+  including collision and backend failures. Timeout failures still respond
+  promptly and keep the saver busy until the backend replies and the abandoned
+  staging directory is removed ([sentry_localization #27](https://github.com/Thornbots/sentry_localization/pull/27)).
+
 - CV targeting now requests fire on every eligible 40 Hz publish tick instead
   of throttling requests to 2 Hz; the MCB filters pending requests. Confidence,
   detection freshness, planner shot windows and the 25 ms default delay floor
