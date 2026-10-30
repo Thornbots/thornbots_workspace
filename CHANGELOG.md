@@ -11,6 +11,10 @@ impact, and link the corresponding package changes.
 
 ### Added
 
+- The Mac mini's [nightly run](docs/CI.md#nightly-tests) now builds and tests
+  the robots' JetPack image after a local PASS, publishing immutable workspace
+  SHA and nightly tags with bounded local cache and old registry-tag cleanup.
+
 - A [hosted MMM end-to-end suite](sim/README.md#run-the-tests) connects the
   compiled sentry firmware to the real bridge and in-stack mapping node, covering
   telemetry load, UART faults/backpressure, restarts, restrictions and validated
