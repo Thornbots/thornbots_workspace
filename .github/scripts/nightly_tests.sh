@@ -49,7 +49,7 @@ update_checkout() {
     git clean -ffdxq
     git submodule sync -q --recursive
     # shellcheck disable=SC2086 # PORTABLE is an intentional package list.
-    git -c submodule.firmware/MCBV3.update=checkout submodule update -q --init --checkout --force --depth 1 -- \
+    git submodule update -q --init --checkout --force --depth 1 -- \
         $PORTABLE isaac_ros_common firmware/MCBV3 || return 1
     git -C firmware/MCBV3 submodule update -q --init --checkout --force --depth 1 taproot-scripts || return 1
 }
