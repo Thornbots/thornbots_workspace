@@ -7,7 +7,7 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
-- Sentry MMM now owns indicators and disconnected restrictions in its command, keeps odometry pods pointing in every mapping state, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)).
+- Sentry MMM now owns indicators and restrictions in its command, keeps odometry pods pointing in every mapping state while the remote is connected, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)). Turning the remote off now stops every motor, gimbal and pods included, without leaving the mapping state ([MCBV3 #114](https://github.com/Thornbots/MCBV3/pull/114)).
 
 ### Added
 
