@@ -6,8 +6,8 @@ on pushes to `main`, on PRs into `main` and on manual dispatch. `nightly` runs
 no CI on pushes or PRs; authors run the
 [local checks](#local-checks-for-prs-into-nightly) before merging, and the
 [nightly tests](#nightly-tests) run on the Mac mini each night. All eleven `.gitmodules` entries track `nightly`
-on this integration branch, with exact gitlink pins. Sim is initialized by
-normal submodule checkout; only MCB firmware remains opt-in.
+on this integration branch, with exact gitlink pins. Sim and MCB firmware are
+initialized by normal submodule checkout; firmware can be skipped.
 
 | Repositories | Automatic validation |
 | --- | --- |
@@ -192,7 +192,7 @@ these are departures from standard C++ practice, not endorsed conventions.
 ROS CI runs registered unit tests; sim's integration suites remain excluded.
 Workspace ROS CI builds its pinned hosted sentry firmware with GCC 14 before
 running sim's native UART and ROS-bridge tests, and fails if the build does not
-produce an executable. Package-only ROS jobs omit the opt-in firmware and may
+produce an executable. Package-only ROS jobs omit the optional firmware and may
 skip those firmware-dependent cases.
 The fixture uses the current Taproot UART bit layout only, with no legacy
 schema switch. Missing firmware cannot establish native firmware coverage.

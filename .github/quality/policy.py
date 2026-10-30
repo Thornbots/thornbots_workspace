@@ -265,7 +265,7 @@ def pre_push(root, remote, lines):
         # Merges, rebases and cherry-picks skip pre-commit; check what is pushed.
         contracts += (recursive_contracts(root, local_oid, skipped=skipped) if label == '.'
                       else contract_errors(root, local_oid, label=label))
-    for path in sorted(skipped):  # e.g. opt-in firmware; changed gitlinks were checked above
+    for path in sorted(skipped):  # e.g. skipped firmware; changed gitlinks were checked above
         print(f'Repository policy: {path} not initialized; skipped its .msg check',
               file=sys.stderr)
     return checker.errors + sorted(set(contracts))

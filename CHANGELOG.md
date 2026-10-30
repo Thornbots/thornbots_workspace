@@ -170,6 +170,9 @@ impact, and link the corresponding package changes.
 
 ### Changed
 
+- `firmware/MCBV3` is now a default submodule: `clone --recurse-submodules`
+  and `submodule update --init` fetch it (robot firstboot included). It stays
+  out of colcon and the image; [skip it](README.md#mcb-firmware) per checkout.
 - Firmware: controller-driven IMU recalibration on hero, infantry and sentry;
   sentry left switch DOWN looks by joystick with an offset, and auto-aim takes
   newMain's CV tuning (pivot-space target offsets, 20 ms firing latency now also

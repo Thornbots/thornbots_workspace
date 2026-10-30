@@ -22,5 +22,5 @@ sim/
 isaac_ros_common/*
 !isaac_ros_common/docker/
 
-# MCB firmware (opt-in submodule, see README.md "MCB firmware"); never in the image.
+# MCB firmware (optional submodule, see README.md "MCB firmware"); never in the image.
 firmware/
