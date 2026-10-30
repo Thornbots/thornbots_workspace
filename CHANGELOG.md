@@ -7,6 +7,13 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- CV targeting now requests fire on every eligible 40 Hz publish tick instead
+  of throttling requests to 2 Hz; the MCB filters pending requests. Confidence,
+  detection freshness, planner shot windows and the 25 ms default delay floor
+  remain in force ([thornbots_pkg #37](https://github.com/Thornbots/thornbots_pkg/pull/37)).
+  The sim aiming bench uses the same policy without a fire-rate override
+  ([sim #55](https://github.com/Thornbots/sim/pull/55)).
+
 - Sol agents do their own work by default, delegating to another Sol only for large, independent parallel work, and no agent delegates tasks it can finish in a few tool calls ([AGENTS](AGENTS.md#delegation)).
 - Sentry MMM now owns indicators and disconnected restrictions in its command, keeps odometry pods pointing in every mapping state, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)).
 - Sentry MMM starts from the controller: left switch down and the right stick held up for 5 s. Inside MMM, each later 5 s hold (after a release) tries to save; no input leaves MMM ([MCBV3 #113](https://github.com/Thornbots/MCBV3/pull/113), [firmware README](firmware/MCBV3/README.md#mcb-mapping-machine-sentry)).
