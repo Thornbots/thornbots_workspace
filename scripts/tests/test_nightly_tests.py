@@ -17,7 +17,7 @@ def records(outcomes):
 
 
 class NightlyVerdictTest(unittest.TestCase):
-    def exercise(self, status, runner_rc=0):
+    def exercise(self, status, runner_rc=0, publish_rc=0, publish=True):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source = root / 'src/isaac_ros_common/scripts'
@@ -34,6 +34,9 @@ class NightlyVerdictTest(unittest.TestCase):
                 'done\n'
                 'exit "$RUNNER_RC"\n')
             runner.chmod(0o755)
+            publisher = root / 'src/.github/scripts/nightly_publish.sh'
+            publisher.parent.mkdir(parents=True)
+            publisher.write_text('#!/bin/bash\necho publish-fixture\nexit "$PUBLISH_RC"\n')
             mocks = '''
 other_stack() { return 1; }
 update_checkout() { return 0; }
@@ -46,7 +49,8 @@ cmd_run
             result = subprocess.run(
                 ['/bin/bash', '-c', SOURCE + mocks],
                 env=dict(os.environ, NIGHTLY_CI_ROOT=tmp, NIGHTLY_DISPATCH_REF='',
-                         FIXTURE=str(fixture), RUNNER_RC=str(runner_rc)),
+                         FIXTURE=str(fixture), RUNNER_RC=str(runner_rc),
+                         PUBLISH_RC=str(publish_rc), NIGHTLY_PUBLISH=str(int(publish))),
                 capture_output=True, text=True, timeout=10)
             summaries = list((root / 'results').glob('*/summary.txt'))
             self.assertEqual(len(summaries), 1, result.stderr)
@@ -56,6 +60,19 @@ cmd_run
         rc, summary = self.exercise(records(['PASS'] * 6))
         self.assertEqual(rc, 0)
         self.assertTrue(summary.startswith('PASS '), summary)
+
+    def test_publication_controls_final_verdict(self):
+        status = records(['PASS'] * 6)
+        for enabled, code, outcome in [(True, 0, 'PASS'), (True, 1, 'FAIL'),
+                                       (False, 1, 'SKIP')]:
+            with self.subTest(enabled=enabled, code=code):
+                rc, summary = self.exercise(status, publish_rc=code, publish=enabled)
+                self.assertEqual(rc, int(outcome == 'FAIL'), summary)
+                self.assertIn('publish=' + outcome, summary)
+        rc, summary = self.exercise(records(['PASS', 'PASS', 'PASS', 'FAIL',
+                                            'PASS', 'PASS']), publish_rc=1)
+        self.assertEqual(rc, 1)
+        self.assertIn('publish=SKIP', summary)
 
     def test_runner_failure_overrides_even_complete_passes(self):
         for status in [records(['PASS'] * 6), 'setup\tPASS\t1\n', '']:
