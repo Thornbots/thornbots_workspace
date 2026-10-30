@@ -72,11 +72,13 @@ push_tag "$registry_tag"
 branch_tag=ghcr.io/thornbots/isaac-ros:nightly-arm64-jetpack
 docker tag "$registry_tag" "$branch_tag"
 push_tag "$branch_tag"
-# Remove old registry tags, never base images or images used by containers.
+# Both pushes succeeded: cleanup below is best effort and never fails publication.
+# docker refuses to remove a tag a container uses; that tag is kept.
 while read -r tag; do
     case "$tag" in
         ghcr.io/thornbots/isaac-ros:sha-*-arm64-jetpack)
-            [ "$tag" = "$registry_tag" ] || docker image rm "$tag" ;;
+            [ "$tag" = "$registry_tag" ] || docker image rm "$tag" || echo "Kept $tag"
+            ;;
     esac
 done < <(docker image ls --format '{{.Repository}}:{{.Tag}}')
-docker builder prune -f --keep-storage 12GB
+docker builder prune -f --keep-storage 12GB || echo 'Build cache prune failed'
