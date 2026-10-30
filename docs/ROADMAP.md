@@ -163,6 +163,14 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 
 ## Later: needs a robot
 
+- **Sentry match Wi-Fi acceptance:** on ts-nano-sentry, reuse/configure the
+  [eduroam profile and opt-in](../isaac-ros-startup/README.md#match-wi-fi-disconnect-opt-in),
+  verify reboot autoconnect, reject isolated battle frames, confirm three
+  consecutive battle messages disconnect every Wi-Fi device (eduroam and
+  RHIT-OPEN), with no reconnect after match/container restart, and verify the
+  next reboot restores autoconnect. Check journal, SSH/Foxglove loss and no
+  clock step. No robot was accessed during implementation.
+
 - **T38 — robots — open:** All four Orins run JetPack 7.2.1/Jazzy; none has passed robot acceptance. On each: check
   `ttyTHS1` (stop `thornbots` and disconnect the MCB before a UART loopback), the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`
   (standard's built 2026-10-26); measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
