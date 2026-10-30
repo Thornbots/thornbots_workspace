@@ -18,6 +18,9 @@ impact, and link the corresponding package changes.
   [operator workflow #39](https://github.com/Thornbots/thornbots_pkg/pull/39),
   [localization #28](https://github.com/Thornbots/sentry_localization/pull/28),
   [wire frame #28](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/28)).
+  The [parked baseline](sim/docs/boot-heading-2026-10-30.md#nightly-parked-baseline--round-2)
+  reproduces zero physical shots on unchanged nightly; this remains a
+  pre-existing combat-validation limit.
 
 - Mapping save-now now finishes staging cleanup before reporting completion,
   including collision and backend failures. Timeout failures still respond
