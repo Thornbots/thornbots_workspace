@@ -36,7 +36,7 @@ while read -r _ package; do
 done < <(git config --file .gitmodules --get-regexp '^submodule\..*\.path$')
 
 # Only unused cache is eligible; retain 12 GB for rebuilds.
-docker builder prune -f --keep-storage 12GB
+docker builder prune -f --reserved-space 12GB
 # Build on the registry's base layers, as publish-robot-image.yml does: robots
 # then pull only the layers above them. Bases ghcr lacks are built and pushed.
 missing_bases=""
@@ -44,6 +44,11 @@ for base in $(DRY_RUN=1 bash isaac_ros_common/scripts/build_robot_image.sh | tai
     name="${base##*/}"
     cache="ghcr.io/thornbots/isaac-ros:base-${name%:latest}"
     if docker pull -q "$cache"; then
+        # Docker's containerd pull can reuse snapshots without fetching blobs.
+        # Fetch the pinned manifest's content before giving it an nvcr alias:
+        # BuildKit must not try nvcr when exporting a missing compressed blob.
+        digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$cache")"
+        colima ssh -- sudo ctr -n moby content fetch --platform linux/arm64 "$digest"
         docker tag "$cache" "$base"
     else
         missing_bases="$missing_bases $base"
@@ -101,6 +106,6 @@ while read -r tag; do
             ;;
     esac
 done < <(docker image ls --format '{{.Repository}}:{{.Tag}}')
-docker builder prune -f --keep-storage 12GB || echo 'Build cache prune failed'
+docker builder prune -f --reserved-space 12GB || echo 'Build cache prune failed'
 # Bases replaced by the registry's copies are left untagged.
 docker image prune -f || echo 'Dangling image prune failed'

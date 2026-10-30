@@ -227,7 +227,12 @@ cached bases, so a robot pulls only the layers above them; independently built
 bases share no layers. Same-repository PRs can populate base caches;
 fork PRs only pull. The workflow publishes missing bases before package tests;
 the mini publishes them only after its tests pass, and never replaces one that
-exists.
+exists. On the mini's Docker containerd image store, the publish helper also
+fetches each pulled base's digest with Colima's `ctr -n moby content fetch`.
+This direct content-store operation fills compressed blobs that Docker may skip
+when reusing snapshots; otherwise export can try the CLI's nvcr alias for blobs
+that exist only on ghcr. It requires the shared bases to be publicly readable
+from the VM and fails before building if that fetch fails.
 
 Source changes reach the image through workspace gitlinks. Failed builds
 retain the preceding branch tag. Registry packages initially need an

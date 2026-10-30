@@ -14,7 +14,8 @@ impact, and link the corresponding package changes.
 - The Mac mini's [nightly run](docs/CI.md#nightly-tests) now builds and tests
   the robots' JetPack image on the registry's shared base layers after a local
   PASS, publishing immutable workspace SHA and nightly tags with bounded local
-  cache and old registry-tag cleanup.
+  cache and old registry-tag cleanup. Containerd base content is fetched before
+  retagging so snapshot reuse cannot send missing-blob export requests to nvcr.
 
 - A [hosted MMM end-to-end suite](sim/README.md#run-the-tests) connects the
   compiled sentry firmware to the real bridge and in-stack mapping node, covering
