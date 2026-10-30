@@ -536,6 +536,13 @@ impact, and link the corresponding package changes.
 
 ### Fixed
 
+- Firmware: Ctrl+Shift+B builds and flashes from the MCBV3 VS Code dev
+  container. It now matches CI's toolchain, adds openocd and pipenv, sees the
+  host's USB probe, runs as the host user and defaults the robot to SENTRY.
+  Inside this workspace pick "MCBV3 (Isaac ROS workspace)" so commits are
+  signed and run the policy hooks. Untested against a board: no flash yet.
+  [MCBV3 #112](https://github.com/Thornbots/MCBV3/pull/112)
+
 - Sim and robot description use the team's 2026-10-26 low-resolution CAD
   (from sim #48 / thornbots_pkg #30), with `camera` on its RGB FOV apex and
   the firmware barrel offset at its 1.9 mm bore. `sim`'s `simplify_urdf`
