@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
-# nightly_tests.sh -- the nightly tests on the Mac mini (docs/CI.md#nightly-tests).
-#
-#   nightly_tests.sh run       # one night: update, test in a per-run container, report
-#   nightly_tests.sh install   # (re)write and load the launchd LaunchAgent
-#
-# `run` updates a dedicated checkout to origin/$NIGHTLY_REF over public https,
-# runs nightly_tests_inside.sh in a container made by agent_container.sh (which
-# starts Colima and removes both afterwards), writes results/<date>/ with logs
-# and a summary.txt, keeps the last 14, then dispatches GitHub CI on nightly
-# without waiting. Exit status follows the local result only.
-# Env: NIGHTLY_CI_ROOT (~/ros2_ws/nightly-ci), NIGHTLY_REF (nightly),
-# NIGHTLY_URL, NIGHTLY_DISPATCH_REF (nightly; empty skips the dispatch).
-# Needs bash 3.2 (macOS /bin/bash).
+# Nightly Mac mini tests and image publication: docs/CI.md#nightly-tests.
+# run: update the dedicated checkout, test, publish on PASS, dispatch GitHub CI.
+# install: write and load the 02:17 launchd LaunchAgent.
+# Env: NIGHTLY_CI_ROOT (~/ros2_ws/nightly-ci), NIGHTLY_REF (nightly), NIGHTLY_URL,
+# NIGHTLY_DISPATCH_REF (nightly; empty skips), NIGHTLY_PUBLISH (1; 0 skips).
+# Exit status includes local tests and publication. Needs macOS bash 3.2.
 set -uo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
@@ -19,6 +12,7 @@ ROOT="${NIGHTLY_CI_ROOT:-$HOME/ros2_ws/nightly-ci}"
 REF="${NIGHTLY_REF:-nightly}"
 URL="${NIGHTLY_URL:-https://github.com/Thornbots/thornbots_workspace.git}"
 DISPATCH_REF="${NIGHTLY_DISPATCH_REF-nightly}"
+PUBLISH="${NIGHTLY_PUBLISH:-1}"
 GH=/opt/homebrew/bin/gh
 KEEP=14
 TASK=nightly-ci
@@ -37,7 +31,7 @@ other_stack() {
     [ -S "$HOME/.colima/default/docker.sock" ] && export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
     for c in $(docker ps -q 2>/dev/null); do
         if docker top "$c" -eo args 2>/dev/null | grep -Eq 'gz sim|ros2 launch|MCB-project|e2e_suite'; then
-            echo "$(docker inspect -f '{{.Name}}' "$c")"; return 0
+            docker inspect -f '{{.Name}}' "$c"; return 0
         fi
     done
     return 1
@@ -54,6 +48,7 @@ update_checkout() {
     git submodule foreach --recursive --quiet 'git reset -q --hard; git clean -ffdxq' >/dev/null 2>&1
     git clean -ffdxq
     git submodule sync -q --recursive
+    # shellcheck disable=SC2086 # PORTABLE is an intentional package list.
     git -c submodule.firmware/MCBV3.update=checkout submodule update -q --init --checkout --force --depth 1 -- \
         $PORTABLE isaac_ros_common firmware/MCBV3 || return 1
     git -C firmware/MCBV3 submodule update -q --init --checkout --force --depth 1 taproot-scripts || return 1
@@ -131,20 +126,20 @@ cmd_run() {
 
     if n="$(other_stack)"; then
         log "SKIP: sim stack running in container $n"
-        echo "SKIP $day: sim stack running in $n" >"$out/summary.txt"
+        echo "SKIP $day publish=SKIP: sim stack running in $n" >"$out/summary.txt"
         exit 0
     fi
 
     local verdict=PASS
     if ! update_checkout; then
         log "checkout update failed"
-        echo "FAIL $day: checkout update failed (see run.log)" >"$out/summary.txt"
+        echo "FAIL $day publish=SKIP: checkout update failed (see run.log)" >"$out/summary.txt"
         exit 1
     fi
     shas >"$out/shas.txt"
     local acm="$SRC/isaac_ros_common/scripts/agent_container.sh"
     if [ ! -x "$acm" ]; then
-        echo "FAIL $day: $REF has no isaac_ros_common/scripts/agent_container.sh" >"$out/summary.txt"
+        echo "FAIL $day publish=SKIP: $REF has no isaac_ros_common/scripts/agent_container.sh" >"$out/summary.txt"
         exit 1
     fi
     # A leftover from a crashed night has our task name and label.
@@ -163,8 +158,21 @@ cmd_run() {
     if [ "$runner_rc" -ne 0 ]; then
         parts="$parts runner=FAIL($runner_rc)"; verdict=FAIL
     fi
-    echo "$verdict $day$parts | $(awk '{printf "%s@%s ", $1, $2}' "$out/shas.txt")| $(( ($(date +%s) - t0) / 60 )) min" >"$out/summary.txt"
+    local publish=SKIP
+    if [ "$verdict" = PASS ] && [ "$PUBLISH" != 0 ]; then
+        if bash "$SRC/.github/scripts/nightly_publish.sh" >"$out/publish.log" 2>&1; then
+            publish=PASS
+        else
+            publish=FAIL; verdict=FAIL
+        fi
+        cat "$out/publish.log"
+    fi
+    echo "$verdict $day$parts publish=$publish | $(awk '{printf "%s@%s ", $1, $2}' "$out/shas.txt")| $(( ($(date +%s) - t0) / 60 )) min" >"$out/summary.txt"
+    if [ -f "$out/publish.log" ]; then
+        grep -F 'Publish auth failed:' "$out/publish.log" >>"$out/summary.txt" || true
+    fi
     # Sorted to oldest-first; drop all but the newest $KEEP.
+    # shellcheck disable=SC2012 # Result directories use generated date names.
     ls -1d "$ROOT"/results/2* 2>/dev/null | sort | awk -v k="$KEEP" '{a[NR]=$0} END{for(i=1;i<=NR-k;i++) print a[i]}' \
         | while read -r d; do rm -rf "$d"; done
 
@@ -191,6 +199,7 @@ cmd_install() {
 		<key>PATH</key><string>$PATH</string>
 		<key>NIGHTLY_CI_ROOT</key><string>$ROOT</string>
 EOF
+        [ "$PUBLISH" = 1 ] || printf '\t\t<key>NIGHTLY_PUBLISH</key><string>%s</string>\n' "$PUBLISH"
         [ "$REF" = nightly ] || echo "		<key>NIGHTLY_REF</key><string>$REF</string>"
         [ "$DISPATCH_REF" = nightly ] || echo "		<key>NIGHTLY_DISPATCH_REF</key><string>$DISPATCH_REF</string>"
         cat <<EOF

@@ -65,7 +65,8 @@ the workspace's pins and drives `agent_container.sh`.
 - It updates `~/ros2_ws/nightly-ci/src` to `origin/nightly` (public https, the
   portable packages, `isaac_ros_common` and MCBV3) and starts one
   [agent container](../.claude/skills/isaac-ros-docker/SKILL.md#your-own-container)
-  for the run; the container and then Colima are stopped afterwards.
+  for the run; its container is removed afterwards. Colima stops only when
+  no containers are running.
 - [Inside it](../.github/scripts/nightly_tests_inside.sh): the hosted sentry
   firmware build and `colcon build`/`colcon test` as in the `package-repo:
   workspace` job of [ros.yml](../.github/workflows/ros.yml), then the sim
@@ -76,12 +77,33 @@ the workspace's pins and drives `agent_container.sh`.
   `colcon-test-result.txt`, E2E logs, `shas.txt` and `summary.txt` (first line
   PASS/FAIL/SKIP per stage plus workspace and package SHAs); the newest 14 are
   kept and `results/launchd.log` has the job's own output. The exit status is
-  the local result.
+  the local result including publication.
 - A PASS requires a zero runner exit and exactly one ordered record for each
   of setup, firmware, build, test and the two E2E stages. Invalid outcomes,
   malformed durations, missing/extra/duplicate records and impossible SKIPs
   fail the run. Setup/build/firmware failures retain their dependency SKIPs;
   those completed failure reports still return FAIL.
+- After a local PASS, [nightly_publish.sh](../.github/scripts/nightly_publish.sh)
+  makes a temporary nested checkout to isolate the CLI configuration paths,
+  initializes every image gitlink (including recursive children, excluding sim
+  and firmware), pulls the registry's shared
+  [base layers](#robot-registry), builds the JetPack image on the host with
+  `build_robot_image.sh`, then runs the registry workflow's `colcon test` and
+  `colcon test-result --verbose` gate in its own agent container. It pushes the
+  immutable SHA tag before updating the nightly tag. Colima starts if needed;
+  cleanup uses `agent_container.sh` and leaves other running containers alone.
+- `summary.txt` records `publish=PASS|FAIL|SKIP`; publication stays outside the
+  six-stage `status.tsv` contract. Build, image-test or push failure fails the
+  run. `NIGHTLY_PUBLISH=0` disables publication (default on); `install` persists
+  only a non-default value. For build/test validation without any registry
+  writes, run the publish helper with `NIGHTLY_PUBLISH_PUSH=0`.
+- Publishing relies on the mini's existing Docker login. Authentication failure
+  adds a `docker login ghcr.io` hint requiring a `write:packages` token to
+  `summary.txt` and `run.log`; the job never provisions credentials. After both
+  pushes succeed it removes older local `sha-*-arm64-jetpack` registry tags,
+  retaining the new tag and base images, then removes dangling images (local
+  bases replaced by registry copies). Before and after publication it prunes
+  unused build cache toward a 12 GB retention target.
 - After the local run it dispatches GitHub `CI` on `nightly` in every repo with
   that workflow (and MCBV3's `firmware.yml`) using the mini's `gh`, appends the
   run URLs to `summary.txt` and does not wait for them.
@@ -185,8 +207,14 @@ counts belong in commit messages; old PR results do not validate new pins.
 
 ## Robot registry
 
-`publish robot image` builds the existing Isaac ROS CLI layer chain natively
-on GitHub's arm64 runner and tests packages before publishing. Pushes to
+The Mac mini publishes `ghcr.io/thornbots/isaac-ros:nightly-arm64-jetpack`
+plus `sha-<full workspace SHA>-arm64-jetpack` from `origin/nightly` after its
+nightly tests pass; see [Nightly tests](#nightly-tests). It builds the existing
+Isaac ROS CLI JetPack layer chain natively under Colima and tests the built
+packages before pushing.
+
+The GitHub `publish robot image` workflow remains available for release and
+manual builds on GitHub's arm64 runner. Pushes to
 `main` publish `ghcr.io/thornbots/isaac-ros:main-arm64-jetpack`
 and `sha-<full workspace SHA>-arm64-jetpack`. PRs into `main` build and test
 without publishing robot tags. Manual dispatch can publish its selected branch revision (for
@@ -194,13 +222,23 @@ example `nightly`), with slashes replaced by dashes; see [Nightly tests](#nightl
 
 Base layers are cached as `isaac-ros:base-<layer>_<hash>-arm64-jetpack`, with
 the hash covering Dockerfiles and build arguments. Cached layers let a run
-build only the thornbots layer. Same-repository PRs can populate base caches;
-fork PRs only pull. Robot-image publication waits for package tests; cache
-publication occurs after building base layers and before package tests.
+build only the thornbots layer. The mini and the workflow build on the same
+cached bases, so a robot pulls only the layers above them; independently built
+bases share no layers. Same-repository PRs can populate base caches;
+fork PRs only pull. The workflow publishes missing bases before package tests;
+the mini publishes them only after its tests pass, and never replaces one that
+exists. On the mini's Docker containerd image store, the publish helper also
+fetches each pulled base's digest with Colima's `ctr -n moby content fetch`.
+This direct content-store operation fills compressed blobs that Docker may skip
+when reusing snapshots; otherwise export can try the CLI's nvcr alias for blobs
+that exist only on ghcr. It requires the shared bases to be publicly readable
+from the VM and fails before building if that fetch fails.
 
 Source changes reach the image through workspace gitlinks. Failed builds
 retain the preceding branch tag. Registry packages initially need an
-administrator to make them public or grant read access. The pull helper
+administrator to make them public or grant read access. Private pulls require
+a Docker login with `read:packages`; GitHub workflow publication uses its
+`GITHUB_TOKEN` with `packages: write`. The pull helper
 selects its exact workspace SHA, verifies clean tracked image sources and
 matching mandatory gitlinks, and retags the image for isaac-ros-cli. Usage:
 [image README](../isaac_ros_common/docker/README.md).
