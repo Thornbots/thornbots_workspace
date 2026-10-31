@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Agents may restart a robot's `thornbots` stack without asking; other physical-robot runs still need approval ([AGENTS](AGENTS.md#containers-and-runs)).
+
 - CV firing now waits for one second of confident tracking of the
   same robot (`fire_lock_s`), with an immediate bypass for nonspinning targets
   below `fire_stationary_speed_mps` (0.1 m/s). Brief stale, unconverged or
