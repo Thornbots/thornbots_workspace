@@ -7,6 +7,15 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- CV firing now waits for one second of confident tracking of the
+  same robot (`fire_lock_s`), with an immediate bypass for nonspinning targets
+  below `fire_stationary_speed_mps` (0.1 m/s). Brief stale, unconverged or
+  low-confidence gaps on the same track preserve the timer for
+  `fire_lock_grace_s` (0.3 s); gap time counts, but firing remains blocked.
+  Longer gaps, target timeout or switched tracks restart the wait. The minimum fire exit
+  delay increases from 25 to 40 ms to give the gimbal time to acquire each aim
+  ([thornbots_pkg #43](https://github.com/Thornbots/thornbots_pkg/pull/43)).
+
 - The robot service starts again on images with the in-stack MMM coordinator: `auto.launch.py` failed with `launch configuration 'real_hardware' does not exist` whenever `real_hardware` was not passed, and `thornbots-launch.sh` stopped YOLO with it, so the service restart-looped. Sim always passed the argument ([thornbots_pkg #41](https://github.com/Thornbots/thornbots_pkg/pull/41)).
 
 - Each robot's stack now defaults to its own `ROS_DOMAIN_ID`: sentry 7, standard 3, hero 1, chosen by hostname when `launch.env` leaves it blank. Sharing domain 1 over the tailscale peers let the sentry's `ref_sys` and TF reach standard, flipping its team colour filter. Shells joining a robot export its domain; the image's shells still start on 1 ([isaac-ros-startup #18](https://github.com/Thornbots/isaac-ros-startup/pull/18), [domain per robot](isaac-ros-startup/README.md#design-notes)).
