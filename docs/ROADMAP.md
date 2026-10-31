@@ -14,6 +14,13 @@ work; usage, design and measurements stay in linked docs.
 
 ## Short todos
 
+- **T40 — MCBV3 / sentry_localization / thornbots_pkg / sim — temporary, not good:** The team start is the
+  unmeasured spooky scrim (∓3.53, -0.426) from a route drawing, copied to the Jetson and the UART contract.
+  Measure it, or restore the ARCC (∓4.625, 0), before the next event. sim still spawns at the ARCC start
+  ([sim #60](https://github.com/Thornbots/sim/pull/60) is a draft: the new spawn is inside the ARCC world's
+  start-zone wall), so sim MCB/E2E suites disagree with firmware until then.
+  [Firmware constants](../firmware/MCBV3/MCB-project/src/subsystems/odometry/OdometrySubsystemConstants.hpp),
+  [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 - **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
   isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
   [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
