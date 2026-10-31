@@ -360,7 +360,7 @@ impact, and link the corresponding package changes.
   ([c95e286](https://github.com/Thornbots/isaac_ros_common/commit/c95e286)).
   Standard now runs JetPack 7.2.1 on firmware 39.2.1.
 
-- Agents delegate general tasks to a Sol agent on archlinux; Haiku/Luna stay
+- Agents delegate general tasks to a Sol agent; Haiku/Luna stay
   for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
 
 - isaac_ros_common's README now links this fork's clone, image and Mac
