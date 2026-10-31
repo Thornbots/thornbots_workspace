@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- The boot service can power-cycle the camera's USB hub ports when no RealSense
+  is on the bus at start. Hero's D435i otherwise never enumerated after a boot
+  until replugged; hero sets `CAMERA_POWER_HUBS="2-1 1-2"`, other robots keep it
+  blank (off) ([isaac-ros-startup #19](https://github.com/Thornbots/isaac-ros-startup/pull/19)).
+
 - The robot service starts again on images with the in-stack MMM coordinator: `auto.launch.py` failed with `launch configuration 'real_hardware' does not exist` whenever `real_hardware` was not passed, and `thornbots-launch.sh` stopped YOLO with it, so the service restart-looped. Sim always passed the argument ([thornbots_pkg #41](https://github.com/Thornbots/thornbots_pkg/pull/41)).
 
 - Each robot's stack now defaults to its own `ROS_DOMAIN_ID`: sentry 7, standard 3, hero 1, chosen by hostname when `launch.env` leaves it blank. Sharing domain 1 over the tailscale peers let the sentry's `ref_sys` and TF reach standard, flipping its team colour filter. Shells joining a robot export its domain; the image's shells still start on 1 ([isaac-ros-startup #18](https://github.com/Thornbots/isaac-ros-startup/pull/18), [domain per robot](isaac-ros-startup/README.md#design-notes)).
