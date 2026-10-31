@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- The robot service's Foxglove bridge takes a `FOXGLOVE_ADDRESS` listen IP (default `0.0.0.0`, unchanged); `192.168.55.1` exposes it only on the USB tether ([isaac-ros-startup #20](https://github.com/Thornbots/isaac-ros-startup/pull/20), [watch live](isaac-ros-startup/README.md#use)).
+
 - Field mapping now follows MMM: the root README "Map a new field" procedure is removed, the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) covers the MMM operator steps with a [state diagram](docs/images/mmm-states.png), MMM drivers need no speed rule because the MCB caps drive speed, and the manual workflow allows 0.4 m/s instead of 0.2 m/s ([thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
 
 - MMM validated saves now allow re-parking within 0.50 m and 15° of the
