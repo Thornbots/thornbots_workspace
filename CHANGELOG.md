@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- `fire_lock_s` (same-track dwell before firing, default 1.0 s) is now an `auto.launch.py` argument, so a robot can set it in `launch.env`'s `AUTO_LAUNCH_ARGS` ([thornbots_pkg #48](https://github.com/Thornbots/thornbots_pkg/pull/48)).
+
 - Sentry's lidar is now mounted upside down. A new `lidar_inverted` launch arg (default `true`) sets the driver's `inverted` flag, and the defaults move to the Oct 31 CAD mount: yaw 2.579 rad, self-filter -1.927..-0.171 rad. The robot needs this to localize and map again. Nose-up/down sectors and a head-turn fit still need measuring ([thornbots_pkg #47](https://github.com/Thornbots/thornbots_pkg/pull/47), [sim #59](https://github.com/Thornbots/sim/pull/59), [measurement](docs/investigations/lidar-flip-2026-10-31.md)).
 
 - Commit signing is no longer required: the policy hooks and CI `policy` job drop the signature and `commit.gpgsign` checks, so unsigned commits push and pass. Gitlink fast-forward, reviewed-history and `.msg` stamp checks are unchanged ([repository policy](docs/CI.md#repository-policy)).
