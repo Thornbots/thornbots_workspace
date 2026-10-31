@@ -125,14 +125,6 @@ workspace merges do not push or merge package branches.
 [policy.py](../.github/quality/policy.py) checks every commit new to a range,
 in the workspace and in package ranges its changed gitlinks newly cover:
 
-- Signed by its committer, using each contributor's existing Git identity and
-  GitHub-registered key; nothing compares against a fixed name, email or
-  repository key. Workspace CI asks GitHub's commits API about the exact
-  repository and SHA and requires `verified` (key on the committer's account,
-  verified account email). GitHub-signed web merges pass; unsigned commits
-  claiming GitHub as committer do not. Hooks require a good local signature
-  whose SSH principal or GPG UID email is the committer email. Commits Git
-  cannot verify locally pass only if already on a remote and verified by GitHub.
 - Gitlinks fast-forward from every parent's pin, so stale checkouts cannot
   rewind another change's bump. A new gitlink needs a reviewed history line.
 - First-party top-level `.msg` files declare `std_msgs/Header header`, and a
@@ -161,16 +153,14 @@ package pins at introduction.
 in the workspace and package checkouts, plus workspace
 `push.recurseSubmodules=check`. It refuses to replace other hooks paths or
 unmanaged hooks and leaves global config alone. Hooks check staged `.msg`
-files, `commit.gpgsign`, and pushed ranges and their `.msg` files (merges and
-rebases skip pre-commit).
+files plus pushed ranges and their `.msg` files (merges and rebases skip
+pre-commit). Commit signing is optional; neither hooks nor CI check it.
 
 Limits: hooks are bypassable with `--no-verify` and absent while the
 workspace checks out a branch without `.githooks`. Pushes to an unnamed URL
 check everything outside reviewed history. Package CI does not run the
 policy (pinned tooling); package commits are checked when the workspace bumps
-them, after they are pushed to GitHub. Unsigned contributions need re-signing
-or a signed squash; GitHub rebase-merge results must pass the same check. The
-`policy` check is required only once [branch protection](#branch-protection)
+them, after they are pushed to GitHub. The `policy` check is required only once [branch protection](#branch-protection)
 is applied.
 
 ## Lint debt
