@@ -38,7 +38,7 @@ ros2 daemon (`-n` previews).
 What the script refuses or guarantees, so you do not have to:
 
 - **Domain/partition:** a unique `ROS_DOMAIN_ID` (100-199, never the robots'
-  0-1) and `GZ_PARTITION=agent-<task>-<domain>` per container; collisions with
+  1, 3 or 7) and `GZ_PARTITION=agent-<task>-<domain>` per container; collisions with
   any other container are refused. `dexec.sh` re-asserts them after
   `/etc/bash.bashrc`, which hardcodes domain 1, so use it, not bare
   `docker exec`. sim's MCB PTY link derives from both
@@ -96,8 +96,10 @@ still opens on the user's display.
   `src/` and keeps its own `build/`, `install/`, `log/` volumes, gone with it.
   Packages are at `/workspaces/isaac_ros-dev/src/<pkg>`; a path missing that
   `src/` resolves to nothing instead of erroring.
-- `ROS_DOMAIN_ID` is 1 in this image until the robots move, so Humble nodes on
-  domain 0 stay invisible. Cross-machine work needs both sides on 1.
+- `ROS_DOMAIN_ID` is 1 in this image's shells. Robot stacks run on their own
+  domain (sentry 7, standard 3, hero 1;
+  [domain per robot](../../../isaac-ros-startup/README.md#design-notes)), so
+  cross-machine work exports the robot's domain.
 - **On a Mac** the container is `Dockerfile.mac` (arm64, no NVIDIA, no
   Isaac ROS), started with the `docker run` in
   `isaac_ros_common/docker/README.md` under the same name; agents use
@@ -232,7 +234,7 @@ check. reference.md covers the official suites and the `--headless` flag.
 
 - `ros2 topic list` nearly empty, `hz`/`echo` hang, `tf2_echo` says the frame
   doesn't exist, rviz Fixed Frame empty → the DDS profile, above, or a
-  `ROS_DOMAIN_ID` mismatch (this image is on 1).
+  `ROS_DOMAIN_ID` mismatch (shells start on 1; robots use 7, 3, 1).
 - Every drift scenario fails `stack NOT ready` → one possibility is a stale
   DDS profile; check `/etc/fastdds/profile.xml` against the DDS section.
 - Nodes visible from another machine but not from a shell on the robot, or a
