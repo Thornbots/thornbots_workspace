@@ -1,7 +1,7 @@
 # Mapping procedure verification — 2026-10-26
 
-The operator procedure is [Map a new field](../../README.md#map-a-new-field),
-intentionally mirrored to the Notion mapping doc. This record describes verification,
+The operator procedure was the root README "Map a new field" section,
+then mirrored to the Notion mapping doc; it was removed on 2026-10-31 in favor of MMM. This record describes verification,
 not robot acceptance. No physical robot runs or behavior changes were made.
 
 ## Source audit

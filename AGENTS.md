@@ -77,8 +77,6 @@ Docker command or command inside a container.
 
 ## Documentation
 
-Single allowed duplicate: root README "Map a new field" mirrors the Notion mapping doc; keep both in sync.
-
 Keep one maintained home per fact; link directly to its section elsewhere.
 Search before adding docs, update incoming links when moving sections, and
 check changed local links/anchors. Link external standards instead of copying
@@ -91,6 +89,7 @@ or dated investigations linked to current status.
 | --- | --- |
 | Usage and design | Owning package's `README.md` |
 | Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
+| Field mapping (MMM) | [thornbots_pkg](thornbots_pkg/README.md#mcb-mapping-machine); operator steps in the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) |
 | Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
 | Open work | [ROADMAP](docs/ROADMAP.md) |
 | Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |

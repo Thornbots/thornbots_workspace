@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Field mapping now follows MMM: the root README "Map a new field" procedure is removed, the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) covers the MMM operator steps with a [state diagram](docs/images/mmm-states.png), MMM drivers need no speed rule because the MCB caps drive speed, and the manual workflow allows 0.4 m/s instead of 0.2 m/s ([thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
+
 - MMM validated saves now allow re-parking within 0.50 m and 15° of the
   SLAM boot pose, with 0.60 m/18° exit hysteresis and a 0.50 m raw-odometry
   spawn guard. Boot capture still requires raw odometry within 0.30 m of the
@@ -128,7 +130,7 @@ impact, and link the corresponding package changes.
   [startup #12](https://github.com/Thornbots/isaac-ros-startup/pull/12);
   [validation](docs/investigations/operator-workflow-move-2026-10-27.md).
 
-- Clarify the [field-mapping procedure](README.md#map-a-new-field): boot-pose
+- Clarify the [field-mapping procedure](docs/investigations/mapping-procedure-2026-10-26.md): boot-pose
   provenance and SLAM save gate, session/room terms, still-head and slow-drive
   checks, controller continuity, and post-flash power/clock/container recovery.
   The [package workflow](https://github.com/Thornbots/sentry_localization/pull/23)
@@ -142,7 +144,7 @@ impact, and link the corresponding package changes.
   [sim #50](https://github.com/Thornbots/sim/pull/50),
   [measurement and validation](docs/investigations/lidar-mount-2026-10-26.md)).
 
-- Complete [Map a new field](README.md#map-a-new-field) operator procedure,
+- Complete [Map a new field](docs/investigations/mapping-procedure-2026-10-26.md) operator procedure,
   deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
   the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
   Ten steps use the baked release image (verified by image ID), explicit manual
