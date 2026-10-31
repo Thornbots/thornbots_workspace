@@ -12,7 +12,8 @@ impact, and link the corresponding package changes.
   Firmware odometry/aim/navigation and sim fixtures share this heading;
   operator registration and field-day instructions require it. Heading-fixed
   root and AMCL yaw remain zero. Current UART POSE still omits chassis yaw,
-  so captures with its zero placeholder cannot validate field alignment
+  so field alignment trusts the π/2 boot contract instead of the captured
+  zero placeholder
   ([MCBV3 #115](https://github.com/Thornbots/MCBV3/pull/115),
   [sim #56](https://github.com/Thornbots/sim/pull/56),
   [operator workflow #39](https://github.com/Thornbots/thornbots_pkg/pull/39),
