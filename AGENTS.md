@@ -43,7 +43,8 @@ Docker command or command inside a container.
   out requested container/image lifecycle work without separate confirmation.
   “dev” means `ts-nano-dev`.
 - Run tests as you see fit, including sim integration tests, sim benches and
-  reruns, without asking. Ask before runs on a physical robot.
+  reruns, without asking. Restart a robot's `thornbots` stack without asking;
+  ask before other runs on a physical robot.
 - Keep the Mac mini free: its Colima runs only while an agent container does;
   the script stops it when none is left. Never leave either idle; report
   what you stopped.
