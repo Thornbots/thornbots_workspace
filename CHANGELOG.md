@@ -18,6 +18,16 @@ impact, and link the corresponding package changes.
   ([thornbots_pkg #45](https://github.com/Thornbots/thornbots_pkg/pull/45),
   [MMM](thornbots_pkg/README.md#mcb-mapping-machine)).
 
+- MMM start now switches an AMCL (or other non-mapping) boot to mapping by
+  restarting only localization's backend and map-pose adapter. The bridge and
+  coordinator keep the MCB session alive; switching gets a separate wall-time
+  budget before graph reset and boot capture. Mapping persists until reboot,
+  which still follows `launch.env`
+  ([thornbots_pkg #46](https://github.com/Thornbots/thornbots_pkg/pull/46),
+  [sentry_localization #31](https://github.com/Thornbots/sentry_localization/pull/31),
+  [ros2_dji_serial_bridge #31](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/31),
+  [MMM](thornbots_pkg/README.md#mcb-mapping-machine)).
+
 - Agents may restart a robot's `thornbots` stack without asking; other physical-robot runs still need approval ([AGENTS](AGENTS.md#containers-and-runs)).
 
 - CV firing now waits for one second of confident tracking of the
@@ -37,8 +47,7 @@ impact, and link the corresponding package changes.
 
 - The sentry now localizes with AMCL on the saved map by default instead of
   mapping from a blank graph: `auto.launch.py`, `localization.launch.py` and
-  the service's `LOCALIZATION_MODE` default to `amcl`. MMM sessions still need
-  `LOCALIZATION_MODE=mapping`; existing `/etc/thornbots/launch.env` files keep
+  the service's `LOCALIZATION_MODE` default to `amcl`. Existing `/etc/thornbots/launch.env` files keep
   their value ([thornbots_pkg #40](https://github.com/Thornbots/thornbots_pkg/pull/40),
   [sentry_localization #29](https://github.com/Thornbots/sentry_localization/pull/29),
   [isaac-ros-startup #17](https://github.com/Thornbots/isaac-ros-startup/pull/17),
