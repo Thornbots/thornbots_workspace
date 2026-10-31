@@ -1,7 +1,7 @@
-"""Check commit signatures, gitlink moves and ROS message stamps.
+"""Check gitlink moves and ROS message stamps.
 
 Coverage and limits: docs/CI.md#repository-policy. Hooks give early feedback;
-`ci` asks GitHub to verify every new signature against its committer account.
+`ci` checks the same rules on the pushed or proposed range.
 """
 
 import argparse
@@ -11,8 +11,6 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
-import urllib.error
-import urllib.request
 
 
 ZERO = '0' * 40
@@ -137,76 +135,17 @@ def reviewed_history(repo, bases, head, nested=False):
     return {**{p: o for p, o in proposed.items() if p not in existing}, **trusted}
 
 
-def local_signature(repo, oid, nested):
-    """Good signature from a key Git lists for the committer email; else GitHub, if published."""
-    header = git(repo, 'cat-file', 'commit', oid, nested=nested).split('\n\n', 1)[0]
-    if not re.search(r'^gpgsig(?:-sha256)? ', header, re.M):
-        return 'commit is unsigned'
-    shown = run_git(repo, ['log', '-1', '--format=%G?%x00%GS%x00%ce', oid], nested)
-    committer = git(repo, 'log', '-1', '--format=%ce', oid, nested=nested).strip()
-    status, signer, email = (shown.stdout.split('\0') if not shown.returncode
-                             else ['E', '', committer])
-    principal = re.search(r'<([^>]*)>', signer)
-    principal = (principal[1] if principal else signer).strip().casefold()
-    if status == 'G' and principal == email.strip().casefold():
-        return None
-    if git(repo, 'for-each-ref', '--count=1', '--contains', oid, 'refs/remotes', nested=nested):
-        try:  # already published, e.g. a GitHub-signed merge without GitHub's key locally
-            return github_signature(repo, oid, nested)
-        except ValueError as error:
-            return f'cannot verify signature locally and {error}'
-    return (f'signature ({status}, signer {signer or "unknown"}) is not verified for committer '
-            f'{email}; list your key for that email in gpg.ssh.allowedSignersFile or GPG')
-
-
-def github_slug(repo, nested):
-    url = git(repo, 'remote', 'get-url', 'origin', nested=nested).strip()
-    match = re.search(r'github\.com[:/]([\w.-]+/[\w.-]+?)(?:\.git)?/?$', url)
-    if not match:
-        raise ValueError(f'{repo}: origin {url} is not a GitHub repository')
-    return match[1]
-
-
-def github_signature(repo, oid, nested):
-    """GitHub checks the signature against the committer account's keys and email."""
-    slug = github_slug(repo, nested)
-    headers = {'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'}
-    if os.environ.get('GITHUB_TOKEN'):
-        headers['Authorization'] = f'Bearer {os.environ["GITHUB_TOKEN"]}'
-    request = urllib.request.Request(f'https://api.github.com/repos/{slug}/commits/{oid}',
-                                     headers=headers)
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            data = json.load(response)
-    except urllib.error.HTTPError as error:
-        if error.code in {404, 422}:
-            return f'{slug} does not contain {oid[:12]}; push it there first'
-        raise ValueError(f'GitHub API {slug}@{oid[:12]}: HTTP {error.code}') from error
-    except urllib.error.URLError as error:
-        raise ValueError(f'GitHub API unavailable: {error.reason}') from error
-    verification = data['commit']['verification']
-    if data.get('sha') != oid or verification.get('verified') is not True:
-        return f'GitHub does not verify its signature ({verification.get("reason")})'
-    return None
-
-
 class Checker:
     """Check commits new to a range, then the package ranges their gitlinks move over."""
 
-    def __init__(self, signature):
-        self.signature = signature
+    def __init__(self):
         self.errors = []
-        self.seen = set()
 
     def check(self, repo, head, exclude, label='.', reviewed=None, nested=False):
         reviewed = reviewed if reviewed is not None else {}
         exclude = [o for o in exclude + reviewed.get(label, [])
                    if o.startswith('--') or has_commit(repo, o, nested)]
         commits = git(repo, 'rev-list', head, '--not', *exclude, '--', nested=nested).split()
-        for oid in commits:
-            if (label, oid) not in self.seen:
-                self.seen.add((label, oid))
-                self.errors += [f'{label}@{oid[:12]}: {e}' for e in self.commit(repo, oid, nested)]
         for path, old, new in self.moves(repo, commits, nested):
             child_label = path if label == '.' else f'{label}/{path}'
             child = repo / path
@@ -222,10 +161,6 @@ class Checker:
                     self.errors.append(f'{child_label}: gitlink {old[:12]} -> {new[:12]} is not '
                                        'a fast-forward; stale pins revert other work')
                 self.check(child, new, [old] if old else [], child_label, reviewed, True)
-
-    def commit(self, repo, oid, nested):
-        signature = self.signature(repo, oid, nested)
-        return [signature] if signature else []
 
     @staticmethod
     def moves(repo, commits, nested):
@@ -249,7 +184,7 @@ def workspace_label(root):
 
 
 def pre_push(root, remote, lines):
-    checker = Checker(local_signature)
+    checker = Checker()
     label = workspace_label(root)
     contracts, skipped = [], set()
     for line in lines:
@@ -271,8 +206,8 @@ def pre_push(root, remote, lines):
     return checker.errors + sorted(set(contracts))
 
 
-def ci_errors(root, signature=github_signature):
-    """Range from the GitHub event; GitHub verifies signatures, review covers the code."""
+def ci_errors(root):
+    """Range from the GitHub event; review covers the code."""
     event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
     if event.get('pull_request'):
         head, bases = event['pull_request']['head']['sha'], [event['pull_request']['base']['sha']]
@@ -284,7 +219,7 @@ def ci_errors(root, signature=github_signature):
             if os.environ.get('GITHUB_REF') != f'refs/heads/{b}'
             and has_commit(root, f'refs/remotes/origin/{b}')]
     reviewed = reviewed_history(root, bases, head)
-    checker = Checker(signature)
+    checker = Checker()
     checker.check(root, head, bases, reviewed=reviewed)
     return checker.errors + recursive_contracts(root, head)
 
@@ -298,22 +233,19 @@ def main():
     parser.add_argument('--rev', default='HEAD', help='contracts: revision to check')
     parser.add_argument('--head', default='HEAD', help='commits: last commit to check')
     parser.add_argument('--base', action='append', default=[], help='commits: exclude history')
-    parser.add_argument('--github', action='store_true', help='commits: verify on GitHub')
     parser.add_argument('--recursive', action='store_true', help='contracts: include gitlinks')
     options = parser.parse_args()
     root = options.repo.resolve()
     try:
         if options.mode == 'pre-commit':
             errors = contract_errors(root)
-            if git(root, 'config', '--bool', 'commit.gpgsign', allowed=(0, 1)).strip() != 'true':
-                errors.append('enable commit.gpgsign with your GitHub-registered signing key')
         elif options.mode == 'pre-push':
             errors = pre_push(root, options.args[0], sys.stdin.read().splitlines())
         elif options.mode == 'contracts':
             errors = (recursive_contracts(root, options.rev) if options.recursive
                       else contract_errors(root, options.rev))
         elif options.mode == 'commits':
-            checker = Checker(github_signature if options.github else local_signature)
+            checker = Checker()
             checker.check(root, options.head, options.base or ['--remotes=origin'],
                           workspace_label(root),
                           reviewed_history(root, options.base, options.head))

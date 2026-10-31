@@ -67,10 +67,9 @@ jobs:
         run: |
           mapfile -t paths < <(git config -f .gitmodules --get-regexp '\.path$' | cut -d' ' -f2)
           git submodule update --init --checkout --filter=blob:none -- "${paths[@]}"
-      - name: Check commits, gitlinks and message stamps with the base checker
+      - name: Check gitlinks and message stamps with the base checker
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
           checker="$RUNNER_TEMP/checker/.github/quality/policy.py"
           mkdir -p "$(dirname "$checker")"

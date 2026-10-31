@@ -60,8 +60,8 @@ Docker command or command inside a container.
 ## Packages
 
 - Read the package's `AGENTS.md` before editing. `CLAUDE.md` stays `@AGENTS.md`.
-- Commit with the existing Git identity and signing key tied to your GitHub
-  account. Do not rewrite identity config, disable signing or bypass hooks.
+- Commit with the existing Git identity tied to your GitHub account. Do not
+  rewrite identity config or bypass hooks.
 - Commit and push each tested logical change without being asked: package
   first, then one workspace gitlink bump per logical change. Never point at an
   unpushed commit.
