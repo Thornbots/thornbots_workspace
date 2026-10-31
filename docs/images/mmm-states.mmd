@@ -1,0 +1,17 @@
+%% MCB Mapping Machine operator states. Render: mmdc -i mmm-states.mmd -o mmm-states.png -s 2 -b white
+stateDiagram-v2
+    [*] --> Main: power on at start mark
+    Main --> Setup: START<br/>left switch down,<br/>hold right stick up 5 s
+    Setup --> Ready: Jetson captured start
+    Setup --> Done: setup failed
+    Ready --> Mapping: drove away from start
+    Mapping --> Ready: parked back at start
+    Ready --> Done: SAVE hold<br/>validated snapshot,<br/>then Jetson powers off
+    Mapping --> Mapping: SAVE hold<br/>incomplete snapshot,<br/>keep mapping
+    Done --> Mapping: validated save failed
+
+    Main: Main<br/>normal robot
+    Setup: Setup<br/>drive off, keep still
+    Ready: Ready<br/>green LED + 1 Hz beep<br/>drive ≤0.4 m/s
+    Mapping: Mapping<br/>drive ≤0.4 m/s,<br/>head locked forward
+    Done: Done<br/>drive off, safe to power off
