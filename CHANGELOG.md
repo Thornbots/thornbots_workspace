@@ -7,6 +7,15 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- The sentry now localizes with AMCL on the saved map by default instead of
+  mapping from a blank graph: `auto.launch.py`, `localization.launch.py` and
+  the service's `LOCALIZATION_MODE` default to `amcl`. MMM sessions still need
+  `LOCALIZATION_MODE=mapping`; existing `/etc/thornbots/launch.env` files keep
+  their value ([thornbots_pkg #40](https://github.com/Thornbots/thornbots_pkg/pull/40),
+  [sentry_localization #29](https://github.com/Thornbots/sentry_localization/pull/29),
+  [isaac-ros-startup #17](https://github.com/Thornbots/isaac-ros-startup/pull/17),
+  [sim #57](https://github.com/Thornbots/sim/pull/57)).
+
 - Add an opt-in [match Wi-Fi guard](thornbots_pkg/README.md#match_wifi_guard)
   and [host disconnect watcher](isaac-ros-startup/README.md#match-wi-fi-disconnect-opt-in):
   three consecutive referee battle messages disconnect every Wi-Fi device
