@@ -9,6 +9,13 @@ impact, and link the corresponding package changes.
 
 - Field mapping now follows MMM: the root README "Map a new field" procedure is removed, the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) covers the MMM operator steps with a [state diagram](docs/images/mmm-states.png), MMM drivers need no speed rule because the MCB caps drive speed, and the manual workflow allows 0.4 m/s instead of 0.2 m/s ([thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
 
+- MMM validated saves now allow re-parking within 0.50 m and 15° of the
+  SLAM boot pose, with 0.60 m/18° exit hysteresis and a 0.50 m raw-odometry
+  spawn guard. Boot capture still requires raw odometry within 0.30 m of the
+  team start; parked stability and chassis-yaw checks are unchanged
+  ([thornbots_pkg #45](https://github.com/Thornbots/thornbots_pkg/pull/45),
+  [MMM](thornbots_pkg/README.md#mcb-mapping-machine)).
+
 - Agents may restart a robot's `thornbots` stack without asking; other physical-robot runs still need approval ([AGENTS](AGENTS.md#containers-and-runs)).
 
 - CV firing now waits for one second of confident tracking of the
