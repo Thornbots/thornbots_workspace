@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Flashing the MCB from the MCBV3 dev container (e.g. on a Jetson) needs a one-time host udev rule for the Horco CMSIS-DAP probe; without it the container's non-root user gets `unable to open CMSIS-DAP device`. Install it from `firmware/MCBV3/.devcontainer/60-cmsis-dap.rules` ([MCBV3 #126](https://github.com/Thornbots/MCBV3/pull/126), [install steps](firmware/MCBV3/README.md#writing-and-flashing-code)).
+
 - `fire_lock_s` (same-track dwell before firing, default 1.0 s) is now an `auto.launch.py` argument, so a robot can set it in `launch.env`'s `AUTO_LAUNCH_ARGS` ([thornbots_pkg #48](https://github.com/Thornbots/thornbots_pkg/pull/48)).
 
 - Sentry's lidar is now mounted upside down. A new `lidar_inverted` launch arg (default `true`) sets the driver's `inverted` flag, and the defaults move to the Oct 31 CAD mount: yaw 2.579 rad, self-filter -1.927..-0.171 rad. The robot needs this to localize and map again. Nose-up/down sectors and a head-turn fit still need measuring ([thornbots_pkg #47](https://github.com/Thornbots/thornbots_pkg/pull/47), [sim #59](https://github.com/Thornbots/sim/pull/59), [measurement](docs/investigations/lidar-flip-2026-10-31.md)).
