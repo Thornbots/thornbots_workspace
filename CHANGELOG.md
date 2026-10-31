@@ -7,10 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
-- CV firing now waits for one second of continuous, confident tracking of the
+- CV firing now waits for one second of confident tracking of the
   same robot (`fire_lock_s`), with an immediate bypass for nonspinning targets
-  below `fire_stationary_speed_mps` (0.1 m/s). Lost, stale, unconverged,
-  low-confidence or switched tracks restart the wait. The minimum fire exit
+  below `fire_stationary_speed_mps` (0.1 m/s). Brief stale, unconverged or
+  low-confidence gaps on the same track preserve the timer for
+  `fire_lock_grace_s` (0.3 s); gap time counts, but firing remains blocked.
+  Longer gaps, target timeout or switched tracks restart the wait. The minimum fire exit
   delay increases from 25 to 40 ms to give the gimbal time to acquire each aim
   ([thornbots_pkg #43](https://github.com/Thornbots/thornbots_pkg/pull/43)).
 
