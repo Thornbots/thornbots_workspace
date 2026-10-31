@@ -7,7 +7,7 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
-- Field mapping now follows MMM: the root README "Map a new field" procedure is removed, the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) covers the MMM operator steps with a [state diagram](docs/images/mmm-states.png), and mapping drives may use the 0.4 m/s MMM cap instead of 0.2 m/s ([thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
+- Field mapping now follows MMM: the root README "Map a new field" procedure is removed, the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) covers the MMM operator steps with a [state diagram](docs/images/mmm-states.png), MMM drivers need no speed rule because the MCB caps drive speed, and the manual workflow allows 0.4 m/s instead of 0.2 m/s ([thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
 
 - Agents may restart a robot's `thornbots` stack without asking; other physical-robot runs still need approval ([AGENTS](AGENTS.md#containers-and-runs)).
 
