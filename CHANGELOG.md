@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Sentry's lidar is now mounted upside down. A new `lidar_inverted` launch arg (default `true`) sets the driver's `inverted` flag, and the defaults move to the Oct 31 CAD mount: yaw 2.579 rad, self-filter -1.927..-0.171 rad. The robot needs this to localize and map again. Nose-up/down sectors and a head-turn fit still need measuring ([thornbots_pkg #47](https://github.com/Thornbots/thornbots_pkg/pull/47), [sim #59](https://github.com/Thornbots/sim/pull/59), [measurement](docs/investigations/lidar-flip-2026-10-31.md)).
+
 - The robot service's Foxglove bridge takes a `FOXGLOVE_ADDRESS` listen IP (default `0.0.0.0`, unchanged); `192.168.55.1` exposes it only on the USB tether ([isaac-ros-startup #20](https://github.com/Thornbots/isaac-ros-startup/pull/20), [watch live](isaac-ros-startup/README.md#use)).
 
 - Field mapping now follows MMM: the root README "Map a new field" procedure is removed, the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) covers the MMM operator steps with a [state diagram](docs/images/mmm-states.png), MMM drivers need no speed rule because the MCB caps drive speed, and the manual workflow allows 0.4 m/s instead of 0.2 m/s ([thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
