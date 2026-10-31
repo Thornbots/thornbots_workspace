@@ -120,7 +120,7 @@ Boot/image reference:
    PASS: `PREFLIGHT OK`, `BOOT CAPTURE OK`, recorded team/raw start agrees with the
    mark, head still and RViz scans form consistent walls.
 
-5. **Drive ≤0.2 m/s with the head still; watch raw odometry and RViz — B.**
+5. **Drive slowly (≤0.4 m/s, the MMM drive cap) with the head still; watch raw odometry and RViz — B.**
    First a straight out-and-back, then a short strafe and fore/aft check. Cover
    lanes, centre, ends and obstacle backs with overlapping views and level stops.
 

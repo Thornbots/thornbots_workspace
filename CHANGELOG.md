@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Mapping guidance now allows driving up to the 0.4 m/s MMM drive cap instead of 0.2 m/s ([README](README.md#map-a-new-field), [thornbots_pkg #44](https://github.com/Thornbots/thornbots_pkg/pull/44)).
+
 - Agents may restart a robot's `thornbots` stack without asking; other physical-robot runs still need approval ([AGENTS](AGENTS.md#containers-and-runs)).
 
 - CV firing now waits for one second of confident tracking of the
