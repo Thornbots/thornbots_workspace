@@ -10,7 +10,7 @@ work; usage, design and measurements stay in linked docs.
 | Localization | Native suite passes recorded | [Drift](../sim/README.md#localization-drift-suite), [EKF](../sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
 | Estimation | Bench baseline recorded | [Bench](../sim/README.md#run-the-tests), [baseline](../sim/docs/cv-bench-results-2026-09-28.md) |
 | Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](../sim/README.md#type-c-board-execution-with-renode), [board verification](../sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](../sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
-| Robots | All four Orins on JetPack 7.2.1/Jazzy; robot acceptance and the domain-0 switch remain ([T38](#later-needs-a-robot)) | [T38](#later-needs-a-robot) |
+| Robots | All four Orins on JetPack 7.2.1/Jazzy; robot acceptance remains; each robot runs its own ROS domain ([T38](#later-needs-a-robot)) | [T38](#later-needs-a-robot) |
 
 ## Short todos
 
@@ -176,7 +176,7 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   `ttyTHS1` (stop `thornbots` and disconnect the MCB before a UART loopback), the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`
   (standard's built 2026-10-26); measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
   [full pipeline](../realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline); re-measure the Fast DDS invariants
-  (Fast DDS 2.14). Then move every machine from `ROS_DOMAIN_ID` 1 to 0 together. Standard's reflash launch hold was
+  (Fast DDS 2.14). Standard's reflash launch hold was
   removed 2026-10-26; `thornbots` starts at boot there too.
 - **T21 — localization / startup — pending:** Collect maps/logs/bags from five-minute real-floor runs, including T27
   clock-validation artifacts. [Run artifacts](../isaac-ros-startup/README.md#use),

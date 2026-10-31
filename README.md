@@ -86,7 +86,7 @@ Boot/image reference:
    ```bash
    source /opt/ros/jazzy/setup.bash
    source /workspaces/ros2_ws/install/setup.bash
-   export ROS_DOMAIN_ID=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+   export ROS_DOMAIN_ID=7 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
    export FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds/profile.xml
    export SESSION=/workspaces/isaac_ros-dev/maps/oct31-red-01
    export HEAD_OFF='enable_cv_target_bridge:=false enable_target_selector:=false enable_target_tracker:=false'
@@ -189,7 +189,7 @@ Boot/image reference:
 
    ```bash
    THORNBOTS_IMAGE=ghcr.io/thornbots/isaac-ros:sha-RELEASE_SHA-arm64-jetpack
-   ROS_DOMAIN_ID=1
+   ROS_DOMAIN_ID=7
    LOCALIZATION_MODE=amcl
    LIDAR_SERIAL_DEVICE=/host-dev/rplidar
    AUTO_LAUNCH_ARGS="real_hardware:=true use_rf2o:=false autosave_map:=false map_file:=/workspaces/isaac_ros-dev/maps/oct31-red-01/deployment/field amcl_initial_x:=-4.625 amcl_initial_y:=0.0 amcl_initial_yaw:=0.0"

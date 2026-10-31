@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Each robot's stack now defaults to its own `ROS_DOMAIN_ID`: sentry 7, standard 3, hero 1, chosen by hostname when `launch.env` leaves it blank. Sharing domain 1 over the tailscale peers let the sentry's `ref_sys` and TF reach standard, flipping its team colour filter. Shells joining a robot export its domain; the image's shells still start on 1 ([isaac-ros-startup #18](https://github.com/Thornbots/isaac-ros-startup/pull/18), [domain per robot](isaac-ros-startup/README.md#design-notes)).
+
 - Hero and standard MCBs now send POSE with x/y/velocity 0 and `odom_status` 2, so the Jetson gets gimbal angles and an `odom` frame for CV aiming; before, they sent only REF_SYS and standard's tracker had no frame ([MCBV3 #117](https://github.com/Thornbots/MCBV3/pull/117), [UART protocol](ros2_dji_serial_bridge/UART_PROTOCOL.md#pose-id2--chassis-pose-and-gimbal-angles), [ros2_dji_serial_bridge #29](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/29)). The same MCBV3 pin re-enables standard's auto-fire on left switch up (right mouse aims manually), lets a new CV target that wants to fire replace a pending one that doesn't, and corrects standard's pitch offset (0.32 to 1.26 rad), which had tilted its camera TF about 60° off.
 
 - The sentry now localizes with AMCL on the saved map by default instead of
