@@ -9,7 +9,7 @@ impact, and link the corresponding package changes.
 
 - Low-space startup pruning explicitly protects the active run even with zero retained runs. Regression tests prove oldest-first bag/log deletion, stopping when space recovers, retention, and active-run/latest-link preservation ([startup #22](https://github.com/Thornbots/isaac-ros-startup/pull/22), [pruning](isaac-ros-startup/README.md#design-notes)).
 
-- Repeated rf2o warnings now show the first event and sample repeats every five seconds, retaining totals in log samples and match-quality diagnostics ([rf2o #21](https://github.com/Thornbots/rf2o_laser_odometry/pull/21), [warning logs](rf2o_laser_odometry/README.md#warning-logs)).
+- Repeated rf2o warnings now show the first event and sample repeats every five seconds, retaining totals in log samples and publishing counters under stable event IDs in match-quality diagnostics ([rf2o #21](https://github.com/Thornbots/rf2o_laser_odometry/pull/21), [warning logs](rf2o_laser_odometry/README.md#warning-logs)).
 
 - Bridge referee and CRC logs now sample repeats every five seconds while retaining lifetime counters; rare RELOCALIZE corrections and operator PING checks log every event. Standard ROS `/diagnostics` reports interval-based serial health and every DIAG counter, including recovery and stalled links ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34), [levels](ros2_dji_serial_bridge/README.md#diagnostics)).
 
