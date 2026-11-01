@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Bridge referee, ping, RELOCALIZE and CRC logs now sample repeats every five seconds while retaining lifetime counters. Standard ROS `/diagnostics` reports interval-based serial health and every DIAG counter, including recovery and stalled links ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34), [levels](ros2_dji_serial_bridge/README.md#diagnostics)).
+
 - The [Sentry rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) now follows the ARCC Season 2 (2027) manuals V1.0 of 2026-11-01 instead of ARCC 2026. Changes that matter to the robot: the 3v3 Sentry chassis limit drops to 80 W, there is a new Sentry Tournament (5×5 m, 120 W, 250 rounds, 2 minutes, no respawn, healing from damage dealt), armor hit faces are dot-matrix screens (style not yet published), the 3v3 field has Limbo Bars (420/300 mm) and object-scoring with Scoring-Area Penalty Zones instead of a Capture Point, and the Sentry weight limit is 28 kg including the referee system. Firmware, sim and nav defaults have not been changed yet.
 
 - The sentry and infantry MCB pitch solver (same gimbal) no longer shoots high close and low far: it uses the CAD pivot height and bore length (0.4035 m, 0.173 m) instead of the 0.28 m height retune, adds horizontal drag, and corrects a 0.042 rad shot launch bias fit to robot misses at 1 m and 3 m; confirmed on the sentry. Refit the bias, not the pivot height, if a range-dependent miss remains ([MCBV3 #127](https://github.com/Thornbots/MCBV3/pull/127), [aiming](firmware/MCBV3/README.md#aim-and-navigation-odometry)).
