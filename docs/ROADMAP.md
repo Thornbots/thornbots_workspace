@@ -29,9 +29,12 @@ work; usage, design and measurements stay in linked docs.
 - **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
   and UART bandwidth, then specify and implement both ends.
   [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T29 — startup / common — decision open:** Validate [image pulling](../docs/CI.md#robot-registry) versus local builds.
-  If builds stay, assess compression/caches/overlays and USB versus reverse SSH.
-  [Image workflow](../isaac_ros_common/docker/README.md#on-the-x86-laptop).
+- **T29 — startup / common — hardware acceptance:** Registry bases plus offline source overlays are the supported
+  [workflow](../isaac_ros_common/docker/README.md#building-the-robots-image); local image builds/shipping remain emergency fallback.
+  [Orin measurements and acceptance boundary](investigations/robot-overlay-2026-11-01.md).
+  Remaining: restart a fully equipped robot on the overlay and confirm a working `thornbots` stack; the dev board
+  lacks camera/lidar/model assets and the equipped robots were unreachable. Existing images also need a manual
+  pull after upstream CLI/base configuration changes; their offline contract covers Thornbots Docker inputs/manifests.
 
 ## Tracks, in order of work
 

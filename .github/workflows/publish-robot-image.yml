@@ -89,6 +89,13 @@ jobs:
             cd /workspaces/ros2_ws
             colcon test --return-code-on-test-failure --event-handlers console_direct+
             colcon test-result --verbose'
+      - name: Build the robot overlay without network access
+        env:
+          ISAAC_AGENT_GPU: none
+        working-directory: ws/src
+        run: |
+          docker image inspect --format '{{.Id}}' "$ROBOT_REGISTRY_TAG" > ../.robot-image
+          bash isaac_ros_common/scripts/build_robot_overlay.sh
       - name: Publish immutable and branch tags
         if: github.event_name != 'pull_request'
         run: |

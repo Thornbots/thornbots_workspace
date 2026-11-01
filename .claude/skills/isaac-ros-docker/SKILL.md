@@ -56,6 +56,15 @@ What the script refuses or guarantees, so you do not have to:
   on the mini. `up` starts Colima if needed; `down`, `clean` and `run`'s exit
   stop it only when no container is left running, so nothing sits idle.
 
+Robot overlay preparation uses `build_robot_overlay.sh`: its task-owned
+container mounts persistent host `build/`, `install/`, `log/` at the same
+canonical paths used by startup (`agent_container.sh -p <workspace>`),
+disables networking (`-n`) and runs commands with a clean environment (`-z`).
+`-r` mounts source read-only for compatibility checks. These explicit modes
+also permit the robot's primary source checkout; ordinary agent work still
+uses its own worktree. Never build the robot overlay while its stack is
+running. See the [supported workflow](../../../isaac_ros_common/docker/README.md#building-the-robots-image).
+
 The image is the one the user's container runs, else the newest local
 `*thornbots*amd64` (`-i` overrides); on the Mac, `thornbots-mac`. A fresh
 container has no `sim` build and no gz-sim: see Key facts.
@@ -131,6 +140,12 @@ which one wins depends on the entry point:
 The per-package resolution measured on the Humble image (2026-09-06) is in
 [reference.md](reference.md#two-workspaces-workspacesros2_ws-silently-shadows-your-src-edits);
 `smoke.sh` step 4 reprints it for the live container.
+
+The supported robot overlay build avoids this: it builds against only
+`/opt/ros/jazzy`, and startup sources only the overlay's `local_setup.bash`
+and verifies every application package prefix. Baked-image recovery mode
+is explicit. Existing developer shells still have the entry-point behavior
+above.
 
 So the same `ros2 launch` runs different code depending on where it's typed,
 and a package built only into `isaac_ros-dev` is invisible from the user's
