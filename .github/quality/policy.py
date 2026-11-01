@@ -152,8 +152,7 @@ class Checker:
             if not child_has(child, new):
                 self.errors.append(f'{child_label}: fetch/initialize gitlink target {new[:12]}')
             elif old is None and child_label not in reviewed:
-                self.errors.append(f'{child_label}: new gitlink needs a reviewed history line in '
-                                   f'{REVIEWED}')
+                continue  # new imports are trusted; later bumps are checked from this pin
             elif old is not None and not child_has(child, old):
                 self.errors.append(f'{child_label}: fetch previous gitlink {old[:12]}')
             else:

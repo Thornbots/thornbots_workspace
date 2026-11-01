@@ -126,7 +126,8 @@ workspace merges do not push or merge package branches.
 in the workspace and in package ranges its changed gitlinks newly cover:
 
 - Gitlinks fast-forward from every parent's pin, so stale checkouts cannot
-  rewind another change's bump. A new gitlink needs a reviewed history line.
+  rewind another change's bump. A new gitlink's imported history is trusted;
+  later bumps are checked from its first pin.
 - First-party top-level `.msg` files declare `std_msgs/Header header`, and a
   comment mentions `stamp`. Vendored and NVIDIA `isaac_ros_*_interfaces` are
   excluded. This is structural; runtime tests prove which stamp is carried.

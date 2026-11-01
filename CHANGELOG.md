@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
+
 - New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`) for navigation work; it contains only a README so far and changes no robot behavior.
 
 - Low-space startup pruning explicitly protects the active run even with zero retained runs. Regression tests prove oldest-first bag/log deletion, stopping when space recovers, retention, and active-run/latest-link preservation ([startup #22](https://github.com/Thornbots/isaac-ros-startup/pull/22), [pruning](isaac-ros-startup/README.md#design-notes)).
