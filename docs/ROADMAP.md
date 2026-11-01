@@ -23,9 +23,6 @@ work; usage, design and measurements stay in linked docs.
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
-  DIAG on `/diagnostics`; test free-space pruning of per-run bags.
-  [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
 - **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
   and UART bandwidth, then specify and implement both ends.
   [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
@@ -38,9 +35,9 @@ work; usage, design and measurements stay in linked docs.
 
 ## Tracks, in order of work
 
-Sim first; robot work waits (2026-10-08). Address A, G, then sim parts of B; D supports A. Administration is
-independent. E, F, H and J are unscheduled, with robot checks under [later](#later-needs-a-robot). Navigation waits
-until after the Midwest competition.
+Sim first; robot work waits (2026-10-08). Order (2026-11-01): A, G, F, sim parts of B, D and E, H, sim parts of
+J, then [issues found](#issues-found); D also supports A. Administration is independent. Robot checks are under
+[later](#later-needs-a-robot). Navigation waits until after the Midwest competition.
 
 ### A. The match test
 
@@ -95,12 +92,6 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### E. Benches that start and stop cleanly
 
-- **T30 — sim / sentry_localization — ready for review:** Static backend construction removes the lifecycle
-  response-discovery race; the suite's startup retry is removed. Drive non-regression is accepted.
-  The clock bridge uses UDP-only DDS after a captured SHM publication stall.
-  Final full drift confirmations pass 9/9 twice with 0/18 startup failures and unchanged scoring.
-  Large uncommanded simulator yaw excursions also reproduce on nightly; earlier failures are retained.
-  [Evidence and limitations](t30-localization-startup-2026-10-16.md#shared-sim-comparison-and-acceptance-2026-10-18).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).
@@ -111,7 +102,7 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### F. CV nodes into their own repo
 
-- **F-split — thornbots_pkg / workspace — deferred:** Move CV nodes/cores/tests to `thornbots_cv`, retaining
+- **F-split — thornbots_pkg / workspace — queued after G:** Move CV nodes/cores/tests to `thornbots_cv`, retaining
   hardware/TF/relay here. Update callers/build integration and rerun both benches.
   [Ownership](../thornbots_pkg/README.md#nodes), [integration](../docs/CI.md#coordinated-package-integration).
 
@@ -119,8 +110,9 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 - **H-ekf — sentry_localization — open:** Test suspected stacked lidar corrections and raw odometry as SLAM input; retune while
   retaining EKF. [Investigation](../sentry_localization/README.md#slam---use-rf2o-worse).
-- **H-map — sentry_localization — open:** In mapping mode, save/load a quickly rasterizing pose graph at the configured
-  spawn; expose the hard-coded spawn. Assess a pre-Battle mapping lap against the rules.
+- **H-map — sentry_localization — open:** Matches use a prebuilt event map, surveyed with MMM, loaded at the
+  configured spawn and refined by SLAM (decided 2026-11-01). Save/load a quickly rasterizing pose graph there; expose
+  the hard-coded spawn.
   [Map loading](../sentry_localization/README.md#launchlocalizationlaunchpy).
 - **T3 — sentry_localization / sim — open:** Run five-minute Battle from blank map with moving/spinning lidar occluders,
   high ground and realistic acceleration; score truth error, inspect crossed cells for retained robots, repeat three
