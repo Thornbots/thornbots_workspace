@@ -71,6 +71,14 @@ ISAAC_ROS_CONTAINER="isaac-agent-$task" bash isaac_ros_common/scripts/dexec.sh -
     colcon test --return-code-on-test-failure --event-handlers console_direct+
     colcon test-result --verbose'
 echo 'In-image colcon test: PASS'
+# A second checkout avoids sharing the test container's source/artifact mounts.
+# Keeping that container alive lets the helper reuse Colima without VM restarts.
+overlay_ws="$build_root/overlay"
+mkdir -p "$overlay_ws"
+cp -R "$SRC" "$overlay_ws/src"
+docker image inspect --format '{{.Id}}' "$registry_tag" > "$overlay_ws/.robot-image"
+bash "$overlay_ws/src/isaac_ros_common/scripts/build_robot_overlay.sh"
+echo 'Offline robot overlay build: PASS'
 [ "${NIGHTLY_PUBLISH_PUSH:-1}" != 0 ] || { echo 'Push disabled; build and test only'; exit 0; }
 
 push_tag() {
