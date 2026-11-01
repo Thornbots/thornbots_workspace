@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`) for navigation work; it contains only a README so far and changes no robot behavior.
+
 - Low-space startup pruning explicitly protects the active run even with zero retained runs. Regression tests prove oldest-first bag/log deletion, stopping when space recovers, retention, and active-run/latest-link preservation ([startup #22](https://github.com/Thornbots/isaac-ros-startup/pull/22), [pruning](isaac-ros-startup/README.md#design-notes)).
 
 - Repeated rf2o warnings now show the first event and sample repeats every five seconds, retaining totals in log samples and publishing counters under stable event IDs in match-quality diagnostics ([rf2o #21](https://github.com/Thornbots/rf2o_laser_odometry/pull/21), [warning logs](rf2o_laser_odometry/README.md#warning-logs)).
