@@ -23,9 +23,6 @@ work; usage, design and measurements stay in linked docs.
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T20 — startup / bridge — open:** Remaining: test free-space pruning of per-run bags.
-  Bridge frame/CRC and rf2o warning throttles with counters, plus `/diagnostics` health, are implemented.
-  [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
 - **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
   and UART bandwidth, then specify and implement both ends.
   [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
