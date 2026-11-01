@@ -23,9 +23,6 @@ work; usage, design and measurements stay in linked docs.
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T36 — repository admins — blocked on admin access:** Lock `humble` read-only in Realsense_ROI_Depth_Rectifier,
-  isaac-ros-startup, realsense-yolov8-nitros-bridge and ros2_dji_serial_bridge using the workspace
-  [ruleset](https://github.com/Thornbots/thornbots_workspace/rules/24850059).
 - **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
   DIAG on `/diagnostics`; test free-space pruning of per-run bags.
   [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
