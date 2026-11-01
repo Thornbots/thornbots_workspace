@@ -7,6 +7,18 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Firmware developers can send opaque 0–32 byte debug blobs with a nonblocking
+  MCB API; the bridge stamps them at estimated UART send start and publishes
+  `/dji_serial_bridge/debug`, recorded in normal and match per-run bags.
+  Debug uses at most 410 wire bytes/s and only UART slack before control slots;
+  no production values or sender are enabled. Deploy matching firmware and
+  bridge revisions together ([wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
+  [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
+  [startup #23](https://github.com/Thornbots/isaac-ros-startup/pull/23),
+  [MCBV3 #130](https://github.com/Thornbots/MCBV3/pull/130),
+  [sim #62](https://github.com/Thornbots/sim/pull/62),
+  [hosted verification](sim/docs/mcb-debug-bag-2026-11-01.md)).
+
 - The sentry and infantry MCB pitch solver (same gimbal) no longer shoots high close and low far: it uses the CAD pivot height and bore length (0.4035 m, 0.173 m) instead of the 0.28 m height retune, adds horizontal drag, and corrects a 0.042 rad shot launch bias fit to robot misses at 1 m and 3 m; confirmed on the sentry. Refit the bias, not the pivot height, if a range-dependent miss remains ([MCBV3 #127](https://github.com/Thornbots/MCBV3/pull/127), [aiming](firmware/MCBV3/README.md#aim-and-navigation-odometry)).
 
 - The Jetson now owns independent `red_start_x/y` and `blue_start_x/y` launch configuration, overridable per robot through `/etc/thornbots/launch.env`. Navigation, EKF/AMCL/saved-map SLAM priors, idle enemy-zone looks and operator registration use the same values. Defaults remain the unmeasured scrim starts ([ROADMAP T40](docs/ROADMAP.md#short-todos)). Firmware routes use field-centred coordinates and return to the boot point the Jetson's RELOCALIZE places, even after a mid-match reschedule; PURDUE2V2 is removed. Hosted firmware no longer sends a start in its simulator handshake; sim keeps its ARCC spawn and passes matching launch arguments to bringup ([MCBV3 #128](https://github.com/Thornbots/MCBV3/pull/128), [#129](https://github.com/Thornbots/MCBV3/pull/129), [localization #33](https://github.com/Thornbots/sentry_localization/pull/33), [bringup #50](https://github.com/Thornbots/thornbots_pkg/pull/50), [sim #61](https://github.com/Thornbots/sim/pull/61), [UART docs #33](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/33), [startup #21](https://github.com/Thornbots/isaac-ros-startup/pull/21)).
