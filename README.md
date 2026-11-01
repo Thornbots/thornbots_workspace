@@ -69,7 +69,7 @@ this repo's branch bumping the gitlinks. Follow the
 | `firmware/MCBV3` | `nightly` | MCB firmware, cloned by default but optional, see below |
 
 Start with [ROADMAP.md](docs/ROADMAP.md) for open work, robot checks and links to its plans.
-[ARCC_2026_SENTRY_CONTEXT.md](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
+The [ARCC rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
 rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
 identifies where shared information belongs; link there instead of copying it.
 
