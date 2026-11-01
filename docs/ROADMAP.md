@@ -35,9 +35,9 @@ work; usage, design and measurements stay in linked docs.
 
 ## Tracks, in order of work
 
-Sim first; robot work waits (2026-10-08). Address A, G, then sim parts of B; D supports A. Administration is
-independent. E, F, H and J are unscheduled, with robot checks under [later](#later-needs-a-robot). Navigation waits
-until after the Midwest competition.
+Sim first; robot work waits (2026-10-08). Order (2026-11-01): A, G, F, sim parts of B, D and E, H, sim parts of
+J, then [issues found](#issues-found); D also supports A. Administration is independent. Robot checks are under
+[later](#later-needs-a-robot). Navigation waits until after the Midwest competition.
 
 ### A. The match test
 
@@ -108,7 +108,7 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### F. CV nodes into their own repo
 
-- **F-split — thornbots_pkg / workspace — deferred:** Move CV nodes/cores/tests to `thornbots_cv`, retaining
+- **F-split — thornbots_pkg / workspace — queued after G:** Move CV nodes/cores/tests to `thornbots_cv`, retaining
   hardware/TF/relay here. Update callers/build integration and rerun both benches.
   [Ownership](../thornbots_pkg/README.md#nodes), [integration](../docs/CI.md#coordinated-package-integration).
 
@@ -116,8 +116,9 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 - **H-ekf — sentry_localization — open:** Test suspected stacked lidar corrections and raw odometry as SLAM input; retune while
   retaining EKF. [Investigation](../sentry_localization/README.md#slam---use-rf2o-worse).
-- **H-map — sentry_localization — open:** In mapping mode, save/load a quickly rasterizing pose graph at the configured
-  spawn; expose the hard-coded spawn. Assess a pre-Battle mapping lap against the rules.
+- **H-map — sentry_localization — open:** Matches use a prebuilt event map, surveyed with MMM, loaded at the
+  configured spawn and refined by SLAM (decided 2026-11-01). Save/load a quickly rasterizing pose graph there; expose
+  the hard-coded spawn.
   [Map loading](../sentry_localization/README.md#launchlocalizationlaunchpy).
 - **T3 — sentry_localization / sim — open:** Run five-minute Battle from blank map with moving/spinning lidar occluders,
   high ground and realistic acceleration; score truth error, inspect crossed cells for retained robots, repeat three
