@@ -7,11 +7,14 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
-- Firmware developers can send opaque 0–32 byte debug blobs with a nonblocking
+- Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
   MCB API; the bridge stamps them at estimated UART send start and publishes
   `/dji_serial_bridge/debug`, recorded in normal and match per-run bags.
   Portable ROS CI dependency pins are refreshed together for the new interface.
-  Debug uses at most 410 wire bytes/s and only UART slack before control slots;
+  The bridge includes T20 throttled logs and `Serial link` diagnostics with a
+  `debug_msgs_pub` counter ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34)).
+  Debug uses available UART budget and may delay one telemetry frame by up to
+  10 ms while preserving all 90 Hz POSE / 10 Hz REF_SYS slots;
   no production values or sender are enabled. Deploy matching firmware and
   bridge revisions together ([wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
   [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
