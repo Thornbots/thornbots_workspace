@@ -149,7 +149,7 @@ independent review; no review or merge is claimed:
 - [localization #37](https://github.com/Thornbots/sentry_localization/pull/37):
   `670a0da77a8aa09d818c397195c90734a67827db`.
 - [sim #69](https://github.com/Thornbots/sim/pull/69):
-  `379429d5d5e2b9c493a1b5931e9a5b4e76a48101`.
+  `67803b5c4fd31b8beed8ca7f464cbe07f82f0862`.
 - [bringup #56](https://github.com/Thornbots/thornbots_pkg/pull/56):
   `dd4e0f5d424a440ec0870e603cab59b3a45f19a2`.
 
@@ -176,3 +176,17 @@ multiplier from configured rate/frequency, not the observed header cadence.
 The headturn file's scan-time p05/median/p95 is 0.08746/0.09547/0.09556 s.
 A simulator that merely matches 720 output bins does not reproduce the
 acquisition rate, duplicate-bin correlations or missing angular sectors.
+
+The scored noise/cornering/degraded-scan cases now reject every missing or
+nonfinite stamped-truth sample instead of omitting it from the error maximum.
+This strengthens validity without changing any numerical acceptance threshold.
+Compilation/runtime validation of this follow-up remains pending capacity.
+
+A bounded local inventory also found a saved graph basename at
+`/Users/blaise/ros2_ws/robot-session-20261026/next/robot/maps/room-1026-04/snapshot/map`.
+The `.posegraph` is 9,761,718 bytes (SHA-256
+`a0e29ef3b05349cd67cef583923684dc1929cb75072e9d5178beda708a71d2f6`);
+the `.data` is 1,258,126 bytes (SHA-256
+`3db636d4b42fa3ae97dc982e4ab563e76cada5c39e03058e4bccc6c83f7358d8`).
+These are historical room artifacts, not a surveyed event-map acceptance
+fixture. No deserialize compatibility or timing result is claimed yet.
