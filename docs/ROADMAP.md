@@ -157,8 +157,6 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 - **SIM-returns — sim — open:** Sim lidar matches the real 720-bin grid ([sim #31](https://github.com/Thornbots/sim/pull/31))
   but has no no-return (`inf`) beams beyond the self-filter; real has about 40%. SLAM drift in sim rose from
   0.08–0.13 m to 0.15–0.22 m with the new grid (limit 0.40 m, 3 trials); cause unknown.
-- **LIDAR-range — sentry_localization — open:** `slam.yaml` and `amcl.yaml` drop returns under 0.15 m and call it the
-  hardware minimum; the A2M8 minimum is 0.05 m.
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
 
@@ -204,11 +202,9 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
 
 Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-06.md):
 
-- **DOC14b — rf2o — open:** Add human-facing fork usage (#14b).
-  [rf2o README](../rf2o_laser_odometry/README.md).
-- **DOC14f — sim — open:** Shorten current instructions and separate historical experiments (#14f).
+- **DOC14f — sim — narrowed:** Move remaining historical experiments out of the long README while retaining current instructions and incoming anchors.
   [Sim README](../sim/README.md).
-- **DOC14g — workspace — audit open:** Finish source/page audit and extract exact zone geometry, the referee UART specification and round timing (#14g).
+- **DOC14g — workspace — audit open:** Extract remaining event-map geometry from the figures and check unpublished Site Manual and armor details (#14g).
   [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 - **SIM-wall — sim — untested:** Establish wall-impact behavior before demonstrating avoidance.
   [Motion-model limits](../sim/README.md#sentry_v2urdfxacro-motion-model).
