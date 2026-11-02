@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).
+
 - Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
 
 - New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`) for navigation work; it contains only a README so far and changes no robot behavior.

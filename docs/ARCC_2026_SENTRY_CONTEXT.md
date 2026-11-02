@@ -82,6 +82,22 @@ while avoiding Penalty Zones; it cannot score Objectives. RFID activation is
 a sensor condition, not an XY containment test; exact geometry comes from
 the cited drawings.
 
+## Match phases (Season 2)
+
+E27 Table 9-2, §§3, 5 and 9.4–9.8 specify 3v3 Setup of 3 minutes and Battle of
+5 minutes; Sentry Tournament Setup and Battle are 2 minutes each. At 30 seconds
+remaining in Setup robots must be powered up or removed. After Setup, place the
+Sentry remote in the designated area. A 15-second referee initialization
+follows, then a 5-second countdown, then Battle; the game ends at timeout or
+on a winning condition. Timeouts can pause Setup. These are **2027 event rules**;
+they do not change the current simulator's 2026 field or behavior. Referee
+message semantics are maintained in the [wire protocol](../ros2_dji_serial_bridge/UART_PROTOCOL.md).
+
+The 1v1 field drawing (E27 Fig 4-3) gives 1000 × 1000 mm corner Starting
+Zones within the 5000 × 5000 mm arena; Fig 4-4 supplies bunker dimensions. The 3v3 Scoring Areas include their
+tape outlines as penalty zones (E27 §3.2.4.1). Exact component placements must
+still be transcribed from the drawings before constructing an event map.
+
 ## Armor geometry and building limits
 
 BS27 S-IDs are ARC's own and differ from both B26 and the RoboMaster 2027
@@ -159,9 +175,9 @@ field and its own S-IDs. Cite BS27/E27, not B27/R27, for ARCC decisions.
 - **Zig-zag pole** for Objective C is still to be announced (E27 §3.2.4.4).
 - Extract exact 3v3 and Sentry Tournament geometry from E27 Figs 3-3–3-13
   and 4-3–4-4 for event maps; sim and nav still use the ARCC 2026 field.
-  UART/message semantics belong to the
-  [wire protocol](../ros2_dji_serial_bridge/UART_PROTOCOL.md); match-phase
-  timing comes from E27 §§9.4–9.8.
+  See [field dimensions](#battlefield-geometry-and-objectives-3v3) and
+  [match timing](#match-phases-season-2); placement
+  coordinates still need careful transcription from the drawings.
 - Check firmware/sim chassis power limits against 80 W (3v3) and 120 W
   (Sentry Tournament).
 
