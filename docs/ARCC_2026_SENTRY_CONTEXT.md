@@ -84,7 +84,7 @@ the cited drawings.
 
 ## Match phases (Season 2)
 
-E27 Table 9-2 and §§9.4–9.8 specify 3v3 Setup of 3 minutes and Battle of
+E27 Table 9-2, §§3, 5 and 9.4–9.8 specify 3v3 Setup of 3 minutes and Battle of
 5 minutes; Sentry Tournament Setup and Battle are 2 minutes each. At 30 seconds
 remaining in Setup robots must be powered up or removed. After Setup, place the
 Sentry remote in the designated area. A 15-second referee initialization
@@ -175,7 +175,8 @@ field and its own S-IDs. Cite BS27/E27, not B27/R27, for ARCC decisions.
 - **Zig-zag pole** for Objective C is still to be announced (E27 §3.2.4.4).
 - Extract exact 3v3 and Sentry Tournament geometry from E27 Figs 3-3–3-13
   and 4-3–4-4 for event maps; sim and nav still use the ARCC 2026 field.
-  The published dimensions and match timing are summarized above; placement
+  See [field dimensions](#battlefield-geometry-and-objectives-3v3) and
+  [match timing](#match-phases-season-2); placement
   coordinates still need careful transcription from the drawings.
 - Check firmware/sim chassis power limits against 80 W (3v3) and 120 W
   (Sentry Tournament).

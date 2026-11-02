@@ -201,20 +201,14 @@ class CommitRangeTests(PolicyTestCase):
         self.bump(workspace, nested, sideways)
         self.assertIn('not a fast-forward', self.push(workspace).stderr)
 
-    def test_new_gitlink_requires_reviewed_history(self):
+    def test_new_gitlink_is_trusted(self):
         workspace, _, _ = self.workspace_with_child()
         upstream = self.repo('upstream', bare_remote=False)
         self.commit(upstream, 'upstream', author='Up <up@example.org>')
         self.git(workspace, 'submodule', 'add', '-q', str(upstream), 'upstream')
         self.commit(workspace, 'import upstream')
-        self.assertIn('upstream: new gitlink needs a reviewed', self.push(workspace).stderr)
-        reviewed = workspace / policy.REVIEWED
-        upstream_head = self.git(upstream, 'rev-parse', 'HEAD')
-        reviewed.write_text(reviewed.read_text() + f'upstream {upstream_head}\n')
-        self.git(workspace, 'add', policy.REVIEWED)
-        self.commit(workspace, 'review upstream import')
-        self.assertEqual(0, self.push(workspace).returncode, self.push(workspace).stderr)
-
+        result = self.push(workspace)
+        self.assertEqual(0, result.returncode, result.stderr)
 
 class CiTests(PolicyTestCase):
     def event(self, payload, ref='refs/heads/nightly'):

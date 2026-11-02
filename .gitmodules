@@ -42,3 +42,7 @@
 	path = firmware/MCBV3
 	url = https://github.com/Thornbots/MCBV3.git
 	branch = nightly
+[submodule "nav_pkg"]
+	path = nav_pkg
+	url = https://github.com/Thornbots/nav_pkg.git
+	branch = nightly

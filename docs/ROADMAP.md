@@ -23,15 +23,15 @@ work; usage, design and measurements stay in linked docs.
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T20 — startup / bridge — open:** Improve logs: throttle per-frame bridge INFO, CRC and rf2o warnings; publish bridge
-  DIAG on `/diagnostics`; test free-space pruning of per-run bags.
-  [Diagnostics](../ros2_dji_serial_bridge/README.md#diagnostics), [run logging](../isaac-ros-startup/README.md#use).
 - **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
   and UART bandwidth, then specify and implement both ends.
   [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T29 — startup / common — decision open:** Validate [image pulling](../docs/CI.md#robot-registry) versus local builds.
-  If builds stay, assess compression/caches/overlays and USB versus reverse SSH.
-  [Image workflow](../isaac_ros_common/docker/README.md#on-the-x86-laptop).
+- **T29 — startup / common — hardware acceptance:** Registry bases plus offline source overlays are the supported
+  [workflow](../isaac_ros_common/docker/README.md#building-the-robots-image); local image builds/shipping remain emergency fallback.
+  [Orin measurements and acceptance boundary](investigations/robot-overlay-2026-11-01.md).
+  Remaining: restart a fully equipped robot on the overlay and confirm a working `thornbots` stack; the dev board
+  lacks camera/lidar/model assets and the equipped robots were unreachable. Existing images also need a manual
+  pull after upstream CLI/base configuration changes; their offline contract covers Thornbots Docker inputs/manifests.
 
 ## Tracks, in order of work
 
@@ -92,12 +92,6 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### E. Benches that start and stop cleanly
 
-- **T30 — sim / sentry_localization — ready for review:** Static backend construction removes the lifecycle
-  response-discovery race; the suite's startup retry is removed. Drive non-regression is accepted.
-  The clock bridge uses UDP-only DDS after a captured SHM publication stall.
-  Final full drift confirmations pass 9/9 twice with 0/18 startup failures and unchanged scoring.
-  Large uncommanded simulator yaw excursions also reproduce on nightly; earlier failures are retained.
-  [Evidence and limitations](t30-localization-startup-2026-10-16.md#shared-sim-comparison-and-acceptance-2026-10-18).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).

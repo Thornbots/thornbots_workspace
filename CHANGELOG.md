@@ -7,7 +7,21 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).
+
+- Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
+
+- New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`) for navigation work; it contains only a README so far and changes no robot behavior.
+
+- Low-space startup pruning explicitly protects the active run even with zero retained runs. Regression tests prove oldest-first bag/log deletion, stopping when space recovers, retention, and active-run/latest-link preservation ([startup #22](https://github.com/Thornbots/isaac-ros-startup/pull/22), [pruning](isaac-ros-startup/README.md#design-notes)).
+
+- Repeated rf2o warnings now show the first event and sample repeats every five seconds, retaining totals in log samples and publishing counters under stable event IDs in match-quality diagnostics ([rf2o #21](https://github.com/Thornbots/rf2o_laser_odometry/pull/21), [warning logs](rf2o_laser_odometry/README.md#warning-logs)).
+
+- Bridge referee and CRC logs now sample repeats every five seconds while retaining lifetime counters; rare RELOCALIZE corrections and operator PING checks log every event. Standard ROS `/diagnostics` reports interval-based serial health and every DIAG counter, including recovery and stalled links ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34), [levels](ros2_dji_serial_bridge/README.md#diagnostics)).
+
 - The [Sentry rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) now follows the ARCC Season 2 (2027) manuals V1.0 of 2026-11-01 instead of ARCC 2026. Changes that matter to the robot: the 3v3 Sentry chassis limit drops to 80 W, there is a new Sentry Tournament (5×5 m, 120 W, 250 rounds, 2 minutes, no respawn, healing from damage dealt), armor hit faces are dot-matrix screens (style not yet published), the 3v3 field has Limbo Bars (420/300 mm) and object-scoring with Scoring-Area Penalty Zones instead of a Capture Point, and the Sentry weight limit is 28 kg including the referee system. Firmware, sim and nav defaults have not been changed yet.
+
+- Robots now use an explicitly pulled registry image as their dependency base and build current source as an offline overlay. Startup pins the prepared image and rejects missing or shadowed overlay packages; image publication also checks the offline build. Ordinary source changes no longer require image builds or pulls. Local image building/shipping is an emergency fallback; equipped-robot startup acceptance remains open ([common #21](https://github.com/Thornbots/isaac_ros_common/pull/21), [startup #24](https://github.com/Thornbots/isaac-ros-startup/pull/24), [workflow](isaac_ros_common/docker/README.md#building-the-robots-image), [Orin measurements](docs/investigations/robot-overlay-2026-11-01.md)).
 
 - The sentry and infantry MCB pitch solver (same gimbal) no longer shoots high close and low far: it uses the CAD pivot height and bore length (0.4035 m, 0.173 m) instead of the 0.28 m height retune, adds horizontal drag, and corrects a 0.042 rad shot launch bias fit to robot misses at 1 m and 3 m; confirmed on the sentry. Refit the bias, not the pivot height, if a range-dependent miss remains ([MCBV3 #127](https://github.com/Thornbots/MCBV3/pull/127), [aiming](firmware/MCBV3/README.md#aim-and-navigation-odometry)).
 

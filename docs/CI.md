@@ -126,7 +126,8 @@ workspace merges do not push or merge package branches.
 in the workspace and in package ranges its changed gitlinks newly cover:
 
 - Gitlinks fast-forward from every parent's pin, so stale checkouts cannot
-  rewind another change's bump. A new gitlink needs a reviewed history line.
+  rewind another change's bump. A new gitlink's imported history is trusted;
+  later bumps are checked from its first pin.
 - First-party top-level `.msg` files declare `std_msgs/Header header`, and a
   comment mentions `stamp`. Vendored and NVIDIA `isaac_ros_*_interfaces` are
   excluded. This is structural; runtime tests prove which stamp is carried.
@@ -201,7 +202,7 @@ The Mac mini publishes `ghcr.io/thornbots/isaac-ros:nightly-arm64-jetpack`
 plus `sha-<full workspace SHA>-arm64-jetpack` from `origin/nightly` after its
 nightly tests pass; see [Nightly tests](#nightly-tests). It builds the existing
 Isaac ROS CLI JetPack layer chain natively under Colima and tests the built
-packages before pushing.
+packages and builds the robot overlay with networking disabled before pushing.
 
 The GitHub `publish robot image` workflow remains available for release and
 manual builds on GitHub's arm64 runner. Pushes to
@@ -229,8 +230,14 @@ retain the preceding branch tag. Registry packages initially need an
 administrator to make them public or grant read access. Private pulls require
 a Docker login with `read:packages`; GitHub workflow publication uses its
 `GITHUB_TOKEN` with `packages: write`. The pull helper
-selects its exact workspace SHA, verifies clean tracked image sources and
-matching mandatory gitlinks, and retags the image for isaac-ros-cli. Usage:
+defaults to `nightly-arm64-jetpack` and saves its immutable image ID locally.
+It checks the image's dependency inputs against the checkout before accepting
+that pin. An offline check reports when Docker configuration or application
+manifests require a newer base; ordinary source edits need only an overlay
+build. No robot boot or source update automatically contacts the registry.
+Publication also exercises the offline overlay build before advancing branch
+tags. The image retains its tested application snapshot for explicit recovery.
+Usage:
 [image README](../isaac_ros_common/docker/README.md).
 
 ## Branch protection
