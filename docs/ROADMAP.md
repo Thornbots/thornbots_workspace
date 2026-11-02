@@ -97,7 +97,6 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).
 - **E-launch — sim — open:** Ensure one-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
   cleanup, including children outside `kill_launch.sh`. [Build prerequisite](../sim/README.md#build).
-- **T24 — sim — cleanup open:** Suite names and shortcuts use `localization_drift`, `ekf`, `aim`, `tracking` and `mcb_*`; retire the remaining historical labels in other packages. [Routing check](../sim/docs/suite-names-2026-11-01.md).
 
 ### F. CV nodes into their own repo
 
