@@ -156,3 +156,23 @@ independent review; no review or merge is claimed:
 Full H/J scope remains on the roadmap. In particular, the five-minute Battle
 fixture, carried-map metrics, MMM graph registration, graph round-trip and
 physical-cause returns model are unfinished software/sim work.
+
+### Head-angle control in the recorded data
+
+The headturn file has `/joint_states`; nearest-stamp matching within 50 ms
+matches all 1,645 raw scans. Recorded `headlink` spans 0.44–358.45 degrees.
+The 0–30 degree **sensor** sector is missing in every matched scan across all
+four head-yaw quadrants (877/261/201/306 scans respectively). Their median total
+missing fractions are 0.41389/0.37222/0.43194/0.42083. This supports a
+sensor/mount-fixed component rather than attributing all misses to one room
+surface or head motion. It does not isolate physical blockage from acquisition
+or driver behavior. Neither 1c nor 1d records joint states; no equivalent joint
+matching is claimed for those files. Supporting local code/results:
+`.track-h-evidence/head_returns.py`, `head-returns-summary.jsonl`.
+
+The 1c capture's local `1/1c/mapping.log` reports Express mode, 4 kHz samples,
+12 m range and configured 10 Hz frequency. The driver derives the compensation
+multiplier from configured rate/frequency, not the observed header cadence.
+The headturn file's scan-time p05/median/p95 is 0.08746/0.09547/0.09556 s.
+A simulator that merely matches 720 output bins does not reproduce the
+acquisition rate, duplicate-bin correlations or missing angular sectors.
