@@ -7,6 +7,10 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- The aimer accepts an optional field-coordinate idle look point, allowing
+  sim's parked target fixture to acquire south-side targets while retaining
+  the actual team starts ([idle looks](thornbots_pkg/README.md#point_to_cv_target)).
+
 - Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
 
 - New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`) for navigation work; it contains only a README so far and changes no robot behavior.
