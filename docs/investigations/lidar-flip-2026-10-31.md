@@ -1,5 +1,9 @@
 # Flipped lidar mount — 2026-10-31
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The team flipped sentry's lidar upside down to lower the scan plane and
 exported a new `sentry_low_res_model` (SHA256
 `0ae239a37fae038f98be52ae93456841a9f8abeb85ad94700af4ad0f2784391d`). This

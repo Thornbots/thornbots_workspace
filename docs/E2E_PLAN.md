@@ -1,6 +1,8 @@
 # Plan: end-to-end tests in sim, and faster benches
 
-ROADMAP.md tracks A and D, 2026-09-26. The goal is one test, the match
+Live actions: [A](ROADMAP.md#a-acceptance-details), [D](ROADMAP.md#d-and-e-acceptance-details),
+[model gaps](ROADMAP.md#a-acceptance-details), [navigation](ROADMAP.md#additional-mini-work).
+The table below is design/reference, not a second action list. The goal is one test, the match
 test, that runs the robot's code as `auto.launch.py` runs it on the field.
 Sim plays only what sits outside the Jetson:
 
@@ -26,46 +28,14 @@ speed work below makes each run cheaper and makes one run cover more.
 
 ## Speed
 
-The full gz stack's RTF cap has no named cause yet
-([ROADMAP track D](ROADMAP.md#d-faster-suites)).
-
-1. Measure first. Each suite logs its wall time split into bring-up,
-   per-case reset and scored time, plus the mean RTF. Numbers go in the
-   commit message, as usual.
-2. Find the RTF cap by bisecting the stack's nodes and bridges. Every gz
-   suite, the match test included, gains from it.
-3. Render only what gets scored. Until a suite consumes camera images, the
-   camera stays off everywhere (`camera:=false`, the default), the match
-   test included: its stand-in reads truth and stands in for
-   `roi_depth_node` too (the user, 2026-10-05).
-   Only our robot carries a camera and a lidar; the other sentries carry
-   neither. A subscribed 60 Hz
-   RGB-D camera alone caps a bare server near RTF 2.2. Depth alone at 60 Hz
-   takes the Mac's bare `sim.launch.py` from RTF 2.66 to 1.1 (llvmpipe,
-   2026-09-29); settle its rate once a stage consumes images.
-4. Keep the other sentries cheap in physics. Box collisions cost about
-   2 us per shape per step, so each copy gets one hull for the body and one
-   box per panel, not the full collision set.
-5. One gz session per suite, reset by teleport, as the drift suite already
-   does. Restart the robot stack only when a case needs a clean one.
-6. Cover more per run. The match test scores driving, localization and
-   hitting in one session, each segment on its own, so it replaces a set
-   of single-purpose cases in the regular run. The benches stay for
-   diagnosis: run them when a match segment drops or when their half of the
-   code changes.
-7. Lockstep the gz stack so results don't depend on machine speed:
-   [`E2E_LOCKSTEP_PLAN.md`](E2E_LOCKSTEP_PLAN.md) (the user, 2026-10-08).
-   Partly on nightly (`lockstep:=true` by default); its done bar isn't met.
-
-Done when each suite's time split is logged, the RTF cap has a named cause,
-and the regular run (unit tests, then the match test) fits 10 minutes, and
-5 without the match test (the user, 2026-09-28).
+Live speed work and its numerical acceptance are maintained in
+[ROADMAP D](ROADMAP.md#d-and-e-acceptance-details). This document retains the match design and scoring reference.
 
 ## The match test
 
 ### What sim provides
 
-| Piece | Today | Build |
+| Piece | Design / implemented behavior | Historical boundary |
 |---|---|---|
 | Opponents | `mcb_parked` uses one red ghost on field-safe diagnostic paths. `mcb_drive` approaches center from red spawn. `mcb_match` has two red ghosts on separate routes, with truth-fed noisy aim and 2 Hz fire | Tune ghost aim realism and repeated-run spread |
 | An ally | `mcb_match` has one blue ghost, routed from blue spawn and firing at red panels. The selector drops its blue detections; first-impact scoring detects unintended intersections | Zero firmware shots intersecting the ally; intermittent failures remain |
@@ -136,6 +106,4 @@ and [the frame tree and `root` choice](../thornbots_pkg/README.md#pose_translato
 
 ### Done when
 
-`mcb_match` runs in one gz session, every segment scores the same alone and in
-sequence, and each segment's hit rate is within 10 points of its floor or
-has a diagnostic that names the hop that lost it.
+Live completion gates are maintained in [ROADMAP A](ROADMAP.md#a-acceptance-details).

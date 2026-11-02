@@ -1,5 +1,9 @@
 # Operator workflow package move — 2026-10-27
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The maintained interface is [thornbots_pkg's operator workflow](../../thornbots_pkg/README.md#field-day-and-room-workflow).
 `ros2 run thornbots_pkg operator_workflow` replaces the localization-package
 command. The executable, ROS-free tests and operator reference move together;

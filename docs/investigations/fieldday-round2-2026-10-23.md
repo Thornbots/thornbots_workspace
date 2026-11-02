@@ -1,5 +1,9 @@
 # Field-day round-2 operator checks — 2026-10-23
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The maintained [operator card](../../thornbots_pkg/README.md#field-day-and-room-workflow)
 contains the room, field and explicit practice-field commands. This record covers
 the review fixes; it does not establish hardware or full-field accuracy.

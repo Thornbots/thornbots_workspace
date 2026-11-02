@@ -270,7 +270,7 @@ the dev container:
   with `useBuiltinTransports` false.
 - With the full profile (multicast + three unreachable robot IPs), the
   `odom_stuck` drift scenario passed in 46s, the same as with no profile.
-- Not yet verified between two real machines over tailscale.
+- Two-real-machine validation remains [ROADMAP PORTABILITY-DDS](../../../docs/ROADMAP.md#additional-mini-work).
 
 Keep `239.255.0.1` in the list: an explicit `<initialPeersList>` replaces the
 default multicast peer, the likely cause of the 2026-07-20 postmortem below.

@@ -67,7 +67,8 @@ this repo's branch bumping the gitlinks. Follow the
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, cloned by default but optional, see below |
 
-Start with [ROADMAP.md](docs/ROADMAP.md) for open work, robot checks and links to its plans.
+Start with [ROADMAP](docs/ROADMAP.md) for unfinished Mini/software/sim work and
+[ROBOT_TESTS](docs/ROBOT_TESTS.md) for physical-robot acceptance.
 The [ARCC rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) covers competition
 rules and hardware context. The [documentation ownership map](AGENTS.md#documentation)
 identifies where shared information belongs; link there instead of copying it.

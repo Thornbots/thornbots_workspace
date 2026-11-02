@@ -1,5 +1,9 @@
 # Sentry nightly Jetson checks — 2026-10-18
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The initial run observed the already-running Jetson stack without firmware
 changes, controller use or actuation. Later explicitly authorized firmware
 flashes and follow-ups are recorded below. This is partial hardware evidence,
@@ -508,12 +512,10 @@ that a new runtime image was installed.
 
 ## Remaining acceptance
 
-Flash/verify, the short diagnostic PING exchange and raw-odom stillness passed.
-Dynamic-scene rf2o/EKF/map stability failed; physical distance accuracy remains
-untested. SLAM scan rejection, rf2o/EKF stationary drift and intermittent
-POSE/REF_SYS gaps remain open. See [ROADMAP](../ROADMAP.md) for ongoing work.
-Raw image delivery and calibrated depth also remain unresolved. This record
-does not establish promotion readiness. No main merge was performed here.
+Live hardware acceptance is maintained in [ROBOT_TESTS](../ROBOT_TESTS.md#consolidated-hardware-checks):
+T38 capture/depth/TF, SENTRY-drift, T21 shots/interlocks, T27/T34 boot/recovery and MMM-field.
+The evidence above does not establish promotion readiness. Software DDS work is tracked in
+[ROADMAP E-discovery](../ROADMAP.md#d-and-e-acceptance-details).
 
 ## Appendix: evidence
 

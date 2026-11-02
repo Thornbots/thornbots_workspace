@@ -1,5 +1,9 @@
 # Mapping procedure verification — 2026-10-26
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The operator procedure was the root README "Map a new field" section,
 then mirrored to the Notion mapping doc; it was removed on 2026-10-31 in favor of MMM. This record describes verification,
 not robot acceptance. No physical robot runs or behavior changes were made.

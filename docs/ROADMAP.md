@@ -1,7 +1,9 @@
 # Where the project is going
 
-Prove the firmware-driven CV stack end to end in sim, improve estimation, then validate on robots. This file owns open
-work; usage, design and measurements stay in linked docs.
+Prove the firmware-driven CV stack end to end in sim, improve estimation, then validate on robots. This file owns unfinished Mini/software/sim work. Physical validation lives in
+[ROBOT_TESTS](ROBOT_TESTS.md); usage, design and measurements stay in linked docs.
+Remove completed items once their implementation and integration have landed. An empty roadmap is only the
+finish gate together with a separately verified complete applicable automated suite on integrated `nightly`.
 
 ## Where we actually are
 
@@ -10,14 +12,14 @@ work; usage, design and measurements stay in linked docs.
 | Localization | Native suite passes recorded | [Drift](../sim/README.md#localization-drift-suite), [EKF](../sim/README.md#ekf-ground-truth-suite), [native validation](https://github.com/Thornbots/sim/commit/4e9445a6c1be7562e188d70a94435a47bad8043d) |
 | Estimation | Bench baseline recorded | [Bench](../sim/README.md#run-the-tests), [baseline](../sim/docs/cv-bench-results-2026-09-28.md) |
 | Firmware / CV | Raw aim is isolated from navigation; board stages pass diagnostic tier. Fresh Mac hosted repeats clear all spinning cells and improve every stage; three accepted board drive/match repeats improve hits over nightly | [Type C](../sim/README.md#type-c-board-execution-with-renode), [board verification](../sim/docs/mcb-auto-drive-2026-10-12.md), [accuracy repeats](../sim/docs/aim-accuracy-2026-10-12.md#spinning-correction-and-board-comparison) |
-| Robots | All four Orins on JetPack 7.2.1/Jazzy; robot acceptance remains; each robot runs its own ROS domain ([T38](#later-needs-a-robot)) | [T38](#later-needs-a-robot) |
+| Robots | All four Orins on JetPack 7.2.1/Jazzy; robot acceptance remains; each robot runs its own ROS domain ([T38](ROBOT_TESTS.md#robot-acceptance)) | [T38](ROBOT_TESTS.md#robot-acceptance) |
 
 ## Short todos
 
-- **T40 — sentry_localization / thornbots_pkg — needs measurement:** Team starts are now independent,
+- **T40 — sentry_localization / thornbots_pkg — sim ingress open:** Team starts are now independent,
   per-robot Jetson launch configuration in `/etc/thornbots/launch.env`; firmware receives its start
   through RELOCALIZE and uses absolute field routes. Defaults remain unmeasured spooky scrim values;
-  survey them before the next event. sim keeps its ARCC spawn and passes matching team starts to
+  [survey them before the next event](ROBOT_TESTS.md#field-starts). sim keeps its ARCC spawn and passes matching team starts to
   bringup, resolving its former start mismatch.
   The scrim route still needs validation in the ARCC world: hosted parked ingress fails to reach
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
@@ -26,18 +28,17 @@ work; usage, design and measurements stay in linked docs.
 - **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
   and UART bandwidth, then specify and implement both ends.
   [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T29 — startup / common — hardware acceptance:** Registry bases plus offline source overlays are the supported
-  [workflow](../isaac_ros_common/docker/README.md#building-the-robots-image); local image builds/shipping remain emergency fallback.
-  [Orin measurements and acceptance boundary](investigations/robot-overlay-2026-11-01.md).
-  Remaining: restart a fully equipped robot on the overlay and confirm a working `thornbots` stack; the dev board
-  lacks camera/lidar/model assets and the equipped robots were unreachable. Existing images also need a manual
-  pull after upstream CLI/base configuration changes; their offline contract covers Thornbots Docker inputs/manifests.
+- **T29 — workspace / common — publication validation open:** Run the updated Mac/GitHub image-publication
+  workflow end to end, including the offline overlay gate and the documented emergency local-build/shipping fallback; linting alone did not establish this acceptance. The documented laptop shipping fallback also lacks
+  end-to-end evidence and requires external nonrobot capacity; Mini publication success cannot establish it.
+  Equipped-robot startup is separately tracked in [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
+  [Validation boundary](investigations/robot-overlay-2026-11-01.md).
 
 ## Tracks, in order of work
 
 Sim first; robot work waits (2026-10-08). Order (2026-11-01): A, G, F, sim parts of B, D and E, H, sim parts of
 J, then [issues found](#issues-found); D also supports A. Administration is independent. Robot checks are under
-[later](#later-needs-a-robot). Navigation waits until after the Midwest competition.
+[ROBOT_TESTS](ROBOT_TESTS.md). Navigation waits until after the Midwest competition.
 
 ### A. The match test
 
@@ -55,7 +56,8 @@ J, then [issues found](#issues-found); D also supports A. Administration is inde
 ### G. Estimation accuracy
 
 - **G.1 — thornbots_pkg — open:** Finish radius/spin repair; tested radius-noise and initial-prior settings fail
-  full-matrix acceptance. Diagnostics and trial controls are available; defaults and limits stay unchanged.
+  full-matrix acceptance. Test radius-constraint ordering after the facing-yaw pseudo-update, which can move
+  correlated radius below the 0.18 m clamp. Diagnostics and trial controls are available; defaults and limits stay unchanged.
   [Trials and remaining gates](../sim/docs/cv-estimation-g1-2026-10-15.md), [tracker](../thornbots_pkg/README.md#target_tracker).
 - **G.2 — thornbots_pkg — open:** Tune radial depth noise with ray covariance; repair staggered-panel handoff/parity
   after blackouts. [Tracker](../thornbots_pkg/README.md#target_tracker).
@@ -65,7 +67,11 @@ J, then [issues found](#issues-found); D also supports A. Administration is inde
   `stationary45` cells. [Bench limits](../sim/README.md#run-the-tests).
 - **T7 — thornbots_pkg — open:** Sweep acceleration process noise against velocity error, including path ends.
   [Tracker](../thornbots_pkg/README.md#target_tracker).
-- **T8 — sim — open:** Compare cells run alone and in sequence. [Estimation bench](../sim/README.md#run-the-tests).
+- **T8 — sim — open:** Compare cells run alone and in sequence; keep input spin invariant under filtering
+  (`speeds:=4` currently changes 1 Hz to 2 Hz without changing the cell key). [Estimation bench](../sim/README.md#run-the-tests).
+
+G recovery has completed host preparation only: no new PR or accepted accuracy result. Numerical work remains
+blocked on accepted D/E timing/reset harness behavior and shared Mini capacity.
 
 Score each accuracy change over three runs in its own commit; tighten limits to new worst runs and require all cells to
 pass. Preserve baseline radial/blackout error within 1.5x; fresh tracks become valid only after facing-panel error
@@ -73,14 +79,10 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### B. Hit while we move
 
-- **B-hardware — thornbots_pkg / bridge / MCBV3 — pending:** Validate separate raw aim/navigation frames and RELOCALIZE
-  [mailbox loss](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb-receive) under CV traffic. [Aim and navigation frames](../ros2_dji_serial_bridge/README.md#aim-and-navigation-frames).
-- **B-timing — bridge / thornbots_pkg — unmeasured:** Measure residual UART/camera delays, verify YOLO stamp propagation
-  and set latency parameters. [Stamp contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson),
-  [tracker timing](../thornbots_pkg/README.md#target_tracker).
-- **B-settling — thornbots_pkg — sim measured, hardware pending:** Use spin alignment gating after chase/lead/filter
-  ablations; measure real gimbal and indexing delays before hardware acceptance.
-  [Aimer](../thornbots_pkg/README.md#point_to_cv_target).
+- **B-timing — bridge / thornbots_pkg — software audit open:** Verify YOLO capture-stamp propagation
+  through the tracker and latency parameters. Physical delay measurements remain in
+  [robot acceptance](ROBOT_TESTS.md#moving-aim).
+
 - **B-moving — sim / thornbots_pkg — open:** Run radial/diagonal aiming paths and add missing floors; each moving match
   segment must finish within 10 percentage points of the same target cell with our robot parked.
   [Bench](../sim/README.md#run-the-tests).
@@ -118,14 +120,6 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 - **H-anomalies — sentry_localization / sim — unverified:** Recheck historical EKF/map anomalies on comparable
   truth-error metrics; bisect the field-frame change if reproduced. [Metrics](../sim/README.md#localization-drift-suite),
   [history](https://github.com/Thornbots/thornbots_workspace/blob/3b8163141f919e61b4bf5dafb857130b61d78869/ROADMAP.md#issues-found).
-- **T39 — rf2o / sentry_localization — open; opt-in sim measured, hardware pending:** Bound parked rf2o drift. Parked, rf2o
-  integrated scan-to-scan match noise (about 0.55 mm/s, head still or slewing) and the EKF follows its x/y; wheels held
-  still and AMCL never updates parked. rf2o's `reference_scans` is available but off by default; when enabled, it matches parked scans against earlier ones from the
-  same head angle once `/odom` has held still for 2 s: sim `mcb_parked` p95 0.002-0.009 m in every cell (was up to 0.090 m), and a 4 cm shove with the
-  wheels held still shows up (`parked_push`). These results used references enabled, not the default configuration. Next: confirm on the robot parked with
-  the head idle and turning for idle looks, and a hand shove. `mcb_parked` keeps its 0.15 m p95 gate.
-  [Investigation](investigations/t39-parked-drift-2026-10-25.md),
-  [reference scans](../rf2o_laser_odometry/README.md), [parked gate](../sim/README.md#more-on-the-tests).
 
 Acceptance: SLAM+EKF passes amcl drift and game scenarios within 0.05 m on the same metric; error does not grow across
 carried-map games, and maps do not accumulate robots or duplicate walls.
@@ -133,24 +127,130 @@ carried-map games, and maps do not accumulate robots or duplicate walls.
 
 ### J. Lidar and camera
 
-Camera checks need hardware; sim detection stand-ins cannot validate them.
+Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-camera).
 
-- **T23 — sentry_localization / thornbots_pkg — stage 1 in review:** Jetson patrol replaced by rate-capped idle looks
+- **T23 — sentry_localization / thornbots_pkg — stages 2–4 open:** Jetson patrol replaced by rate-capped idle looks
   (last enemy, hit hold, enemy zone); lidar tracks are stages 2-4 of the
-  [lidar-guided aiming design](lidar-guided-aiming-2026-10-25.md#stages). Next: robot rf2o steps with the head idle.
+  [lidar-guided aiming design](lidar-guided-aiming-2026-10-25.md#stages). Stage 1 merged in [workspace #100](https://github.com/Thornbots/thornbots_workspace/pull/100);
+  stages 2–3 remain in [workspace #101](https://github.com/Thornbots/thornbots_workspace/pull/101), and stage 4 remains open.
+  Robot rf2o steps with the head idle are [physical validation](ROBOT_TESTS.md#lidar-and-camera).
   [Moving lidar](../sentry_localization/README.md#contract-with-thornbots_pkg),
   [idle looks](../thornbots_pkg/README.md#point_to_cv_target).
-- **T19 — thornbots_pkg — untested:** Determine whether depth is needed or colour-only ranging suffices.
-  [Depth input](../thornbots_pkg/README.md#target_tracker).
-- **SENTRY-drift — robot run — open:** Angle compensation ([thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18))
-  and the RF2O scan-size guard ([rf2o #10](https://github.com/Thornbots/rf2o_laser_odometry/pull/10)) are merged; measure
-  stationary drift (was 1–2 m) and moving SLAM scan acceptance on the robot.
-  [Drift](investigations/sentry-sim-to-real-2026-10-18.md#stationary-localization-drift).
+- **T23 (acceptance):** Compare sim match stages against patrol with no regression and time-to-first-detection
+  before promotion. Physical enablement remains in ROBOT_TESTS.
 - **SIM-returns — sim — open:** Sim lidar matches the real 720-bin grid ([sim #31](https://github.com/Thornbots/sim/pull/31))
   but has no no-return (`inf`) beams beyond the self-filter; real has about 40%. SLAM drift in sim rose from
   0.08–0.13 m to 0.15–0.22 m with the new grid (limit 0.40 m, 3 trials); cause unknown.
-- **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
-  zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
+  Offline recorded-returns replay/model work is Mini-executable, owned by H. Local inputs exist under
+  `/Users/blaise/ros2_ws/robot-session-20261026/rf2o-replay/inputs/`:
+  `sentry-20261026__1__headturn-yaw.mcap` (reported 1645 `scan_raw` scans, 720 bins, plus scan/joint states),
+  `sentry-20261026b__1-room-04-odom.mcap`, `sentry-20261026c__4-drive-v4.mcap`.
+  H's isolated read-only decoding/provenance is pending; existence is not accepted replay/model evidence.
+
+## Consolidated commitments
+
+### Dependencies and ownership
+
+- **S2-foundation — dependency owned elsewhere, not done:** [Season 2 implementation thread](t3-thread://v1/bd016d36-d212-4073-bd22-d12edd55a1b3)
+  owns parked acquisition/idle-look integration, simulated pitch encoder conversion/regression, continuous-feed
+  shot-counter/chamber-crossing timing, moving-obstacle spawn/clearance, `parked_push` scan liveness and map-save
+  backend readiness/discovery. Dependencies: [sim #63](https://github.com/Thornbots/sim/pull/63),
+  [localization #35](https://github.com/Thornbots/sentry_localization/pull/35),
+  [bringup #52](https://github.com/Thornbots/thornbots_pkg/pull/52),
+  [firmware #131](https://github.com/Thornbots/MCBV3/pull/131), then workspace integration and accepted tests.
+  The reported 727 registered tests with zero failures and 11 bridge cppcheck skips are checkpoints, not
+  final acceptance. Corrected physical-counter moving result is 12/158 (<10% floor); A/S2 acceptance still fails. Moving-obstacle correction (0.5975 > 0.4) and loop-center scan drift
+  (0.016–0.024 > 0.015) remain unresolved. Do not duplicate its fixes or campaigns. Bringup #53 is on hold until #52 lands;
+  independent review must check equivalence before superseding it and rebasing workspace #159.
+- A owns stamped-input audit, lockstep gates, board repeatability and combat calibration **after S2-foundation**.
+  G owns estimator covariance/noise. H owns SLAM/EKF, carried maps and returns, avoiding S2 readiness fixtures.
+  D/E owns broader launch/teardown/RTF, avoiding S2's specific readiness fix. T25 remains its own coordinated slice.
+- Newly imported work below has no confirmed implementation assignment unless one is named. Routing to a track
+  describes dependency/subject ownership, not proof an active agent has accepted the added scope.
+
+### A acceptance details
+
+- **T17 (continued):** Finish sim-time UART serialization (bytes × 10 / baud, shared explicit baud), POSE/EKF/scan/
+  detection/aimer/environment consumption acknowledgments, fixed sim-time bring-up, zero latest-TF fallbacks and
+  per-robot/frame seeded noise. Preserve the 1 ms physics step and existing timeout limits. Compare three
+  unthrottled runs, one RTF=1 run and one gz two-core run: identical `shots.jsonl`, zero lockstep timeouts/fallbacks;
+  report holds/wall wait per chain and RTF. The original Mac/Archlinux same-hit-sequence comparison remains an external dependency (trace and document any
+  per-shot difference to gz floating point),
+  not authority to use another host in a Mini-only task; do not claim it passed from Mini repeats.
+  [Design and original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
+- **A-combat (continued):** After T17/S2-foundation, take three accepted runs per cell; floors are worst run minus
+  10 percentage points, friendly intersections zero. Require one-session match segments to agree alone/in sequence;
+  each segment stays within 10 points of its floor or identifies the failing hop. Preserve navigation startup failures.
+  [Scoring design](E2E_PLAN.md#scoring).
+- **A-model — sim — unassigned:** Add field/robot detector occlusion and non-chassis appendage shot blockers;
+  tune ghost aim realism/repeated-run spread before giving damage-taken a pass gate. Implement and test missing
+  referee heat/ammo/respawn behavior. Verify hurt-bearing response against the already passing
+  [T31 injected-hit tests](../sim/docs/t31-hit-contract-2026-10-14.md#targeted-validation), avoiding duplicate repair.
+  Accept realistic detection-error runs with the same combat floors and zero friendly shots; do not substitute truth
+  stand-ins for YOLO hardware acceptance. Depends on T17/A-combat. [Original model](E2E_PLAN.md#what-sim-provides).
+
+### D and E acceptance details
+
+- **D-speed (continued):** Log bring-up/reset/scored wall time and mean RTF for every suite; bisect nodes/bridges to
+  name the cap. Render only scored inputs (camera off until consumed), keep ghost collisions cheap, reuse one gz
+  session/reset by teleport unless clean-stack isolation is needed, and score driving/localization/hits per match
+  segment. Regular unit+match run ≤10 minutes, ≤5 minutes without match. Depends on repeatable T17 inputs;
+  [speed design](E2E_PLAN.md#speed). No numerical limit may be relaxed to meet runtime.
+- **E-discovery — startup / common — unassigned:** Isolate attached-shell DDS missing-node discovery; compare the
+  running stack's bag and SHM mappings/ports with a freshly attached client, distinguish deleted SHM from transport
+  discovery. Mini reproduction first; physical confirmation is in ROBOT_TESTS. Acceptance: expected nodes/topics
+  remain discoverable with the supported profiles, or a documented measured cause and tested fix, without weakening
+  the stack's DDS invariants. [Mechanism](../isaac-ros-startup/README.md#design-notes).
+
+### Additional Mini work
+
+- **H-amcl-noise — localization — assigned H extension:** Re-derive `laser_sigma_hit` (0.08 is not final) on the
+  current field/720-bin sensor model, including range/material/no-return sensitivity; verify sharper maps do not make
+  AMCL brittle. Retain H's truth-error acceptance and existing drift gates, including `noise_correction` whole-suite
+  growth behavior; isolated gains do not count as suite acceptance. Depends on SIM-returns and S2 field integration.
+  [Rationale](../sentry_localization/README.md#configamclyaml).
+- **H-graph-roundtrip — localization / bringup — assigned H extension:** Deserialize MMM-saved graph/data, reload
+  at the configured spawn, verify raster/map registration and carried-map operation; nonempty files alone are
+  insufficient. Depends on S2-foundation readiness (do not duplicate that fixture fix), H-map.
+  [Evidence boundary](investigations/mmm-node-validation-2026-10-29.md#corrections-and-limits).
+- **H-map-odom — localization / bringup — decision open:** Decide backend-covariance interpretation before changing
+  the relay's 0.02 m std gate or consuming `/localization/map_odom`; it currently has no reader. Validate selected
+  policy against common truth metrics and existing gates. This is an unresolved user decision, not authorization to
+  loosen the gate. [Interface](../sentry_localization/README.md#contract-with-thornbots_pkg).
+- **LAUNCH-producers — bringup — unassigned:** Add full-stack selection of sim/hardware detection producers in
+  `auto.launch.py`; demonstrate one producer chain for each mode without duplicate pipelines, preserving capture
+  stamps and existing launch behavior. [Owner](../thornbots_pkg/AGENTS.md#scope).
+- **RF2O-format — rf2o — unassigned:** Migrate deprecated `package.xml` format 1 to format 3, preserving dependencies,
+  build/export behavior and upstream diff discipline; pass package build/tests and host policy checks.
+  [Owner](../rf2o_laser_odometry/AGENTS.md#scope).
+- **MAC-gui — common — unassigned:** Validate native Mac GUI rendering with the documented setup and record actual
+  success/failure, prerequisites and display behavior; no container/robot result substitutes for native rendering.
+  [Setup](../isaac_ros_common/macos/README.md).
+- **PORTABILITY-WSL — common — external validation dependency:** The documented Windows/WSL2 workflow is untested
+  end to end and requires an x86_64 NVIDIA GPU host. Preserve that validation commitment and prerequisite; it cannot
+  be accepted from this Mini-only run and is not robot work. [Workflow](../isaac_ros_common/docker/README.md#windows-wsl2).
+- **PORTABILITY-DDS — common — external validation dependency:** Verify the supported SIMPLE/initial-peers
+  profile between two real machines over Tailscale, including node/topic discovery and delivered stamped data;
+  loopback filler-participant success is insufficient. Requires a second nonrobot host, outside Mini-only scope.
+  [Evidence boundary](../.claude/skills/isaac-ros-docker/reference.md#cross-machine-ros-2-over-tailscale).
+- **SIM-plant-model — sim / firmware — blocked on physical measurements:** Apply measured tire/braking/suspension
+  and board gimbal/indexer response to the simulation, then rerun affected plant and combat regressions under
+  existing limits. Depends on [SIM-plant-calibration](ROBOT_TESTS.md#consolidated-hardware-checks); measurement
+  is physical, model implementation and regression remain software work. [Model](../sim/README.md#mcb-emulator).
+- **COMMON-mounts — common — decision open:** Decide whether robot `.isaac_ros_dev-dockerargs` should be empty rather
+  than mounting host configuration/credential directories. Inspect configuration paths only; this task never authorizes
+  credential reads. Test the chosen mount contract without reading secrets. [Owner](../isaac_ros_common/AGENTS.md#scope).
+- **NAV-publisher — navigation / sim — deferred, unassigned:** Implement the later route publisher through `NAV_GOAL`,
+  replacing firmware-only route selection only when the planner exists; integrate callers and exercise driving/hitting
+  under existing frame/wire and route gates. Depends on post-Midwest navigation scheduling and A/B/H readiness.
+  `nav_pkg` currently has only a placeholder README; it does not establish a completed planner.
+  [Boundary](E2E_PLAN.md#the-match-test), [wire](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **RULES-S2 — sim / firmware / nav — dependency-owned plus unassigned remainder:** Integrate Season 2 3v3 field/maps/
+  routes through S2-foundation; separately transcribe exact Sentry Tournament geometry and audit chassis limits
+  against 80 W (3v3), 120 W (Tournament). Do not duplicate the active 3v3 field generator work. Validate new map/route
+  geometry against cited drawings and package tests; rules geometry is a prerequisite for event-map/nav updates.
+  Unpublished Site Manual, armor style/mounting and zig-zag pole details remain external blockers under DOC14g.
+  [Sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 
 ## Later: deferred
 
@@ -158,45 +258,22 @@ Camera checks need hardware; sim detection stand-ins cannot validate them.
   (it already contains all of `newMain`; nothing references `newMain`), then deletes `newMain`.
   [Repository](https://github.com/Thornbots/MCBV3), [branch policy](../AGENTS.md#branches).
 
-## Later: needs a robot
-
-- **Sentry match Wi-Fi acceptance:** eduroam (priority 20, ClearPass-registered)
-  autoconnects on sentry, standard and dev; sentry rejoined after a reboot
-  2026-10-30. Hero still needs it. Install the
-  [opt-in](../isaac-ros-startup/README.md#match-wi-fi-disconnect-opt-in), reject
-  isolated battle frames, confirm three consecutive battle messages disconnect
-  every Wi-Fi device with no reconnect after match/container restart, and that
-  the next reboot restores autoconnect. Check journal, SSH/Foxglove loss and no
-  clock step.
-
-- **T38 — robots — open:** All four Orins run JetPack 7.2.1/Jazzy; none has passed robot acceptance. On each: check
-  `ttyTHS1` (stop `thornbots` and disconnect the MCB before a UART loopback), the RPLIDAR (`/dev/ttyUSB0`, container udev) and the RealSense at USB 3; rebuild `yolo11s_fp16.plan`
-  (standard's built 2026-10-26); measure 60 fps camera, YOLO FPS and camera-to-`TargetState` latency in the
-  [full pipeline](../realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline); re-measure the Fast DDS invariants
-  (Fast DDS 2.14). Standard's reflash launch hold was
-  removed 2026-10-26; `thornbots` starts at boot there too.
-- **T21 — localization / startup — pending:** Collect maps/logs/bags from five-minute real-floor runs, including T27
-  clock-validation artifacts. [Run artifacts](../isaac-ros-startup/README.md#use),
-  [map persistence](../sentry_localization/README.md#launchlocalizationlaunchpy).
-- **T21 shots — bridge / MCBV3 — pending:** Deploy matching firmware/ROS using the current wire format, then:
-  - Validate lit-panel depth, bridge `pose>0`, field-aligned raw POSE and held aim across RELOCALIZE. Send a navigation
-    correction only when the offset changes; driving alone must not trigger repeated fixes every 0.3 s.
-    [Firmware coordination](../ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
-  - Check no-target fire-clear/bit-0 behavior; measure transit/indexer timing and give latency compensation one owner.
-    [Timing contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#cv_target-id1--aim-point-and-fire-decision).
-  - Verify muzzle speed below 25 m/s on a stand, with eye protection and accessible e-stop.
-- **T27 — startup — mitigation unvalidated:** Test an air-gapped sentry boot with Wi-Fi enabled mid-run.
-  [Clock-step mitigation](../isaac-ros-startup/README.md#design-notes).
-- **T34 — startup — unmeasured:** Measure power-on to useful CV/localization on sentry, hero and standard, including
-  UEFI/GPU recovery; target under one minute. [Boot instrumentation](../isaac-ros-startup/README.md#boot-time).
 
 ## Issues found
 
 Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-06.md):
 
+- **DOC14a — lidar docs — unassigned:** Repair the remaining `$echo`/`$source` shell examples and verify executable
+  setup snippets; the directory typo was fixed in sllidar #5. [Audit](audits/docs-audit-2026-10-06.md#14a--lidar-readme).
 - **DOC14f — sim — narrowed:** Move remaining historical experiments out of the long README while retaining current instructions and incoming anchors.
   [Sim README](../sim/README.md).
 - **DOC14g — workspace — audit open:** Extract remaining event-map geometry from the figures and check unpublished Site Manual and armor details (#14g).
-  [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
+  Track the unpublished Site Manual, dot-matrix armor style/mounting/dimensions and zig-zag pole; transcribe exact
+  event-map geometry in coordination with RULES-S2. [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 - **SIM-wall — sim — untested:** Establish wall-impact behavior before demonstrating avoidance.
   [Motion-model limits](../sim/README.md#sentry_v2urdfxacro-motion-model).
+
+<a id="later-needs-a-robot"></a>
+
+Physical acceptance moved to [ROBOT_TESTS](ROBOT_TESTS.md#robot-acceptance). This compatibility anchor
+keeps package links working until their owning repositories update them.
