@@ -5,21 +5,20 @@ met. The pinned sim implements the [native MCB-batch gate and coordinator](../si
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
 outputs ([motor plant](../sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
-and deterministic bring-up remain open. E1-E4 below predate the rename to `mcb_parked`,
-`mcb_drive` and `mcb_match` ([`E2E_PLAN.md`](E2E_PLAN.md)); E1 is gone and
-every stage runs the MCB emulator, so step 8 is done.
+and deterministic bring-up remain open. Every stage runs the MCB emulator,
+so step 8 is done ([`E2E_PLAN.md`](E2E_PLAN.md)).
 
 The optional [Type C backend](../sim/README.md#type-c-board-execution-with-renode)
 executes the normal board ELF and its drivers during each virtual step. This
 does not establish cycle-accurate STM32 deadlines or finish the remaining UART
 serialization and consumption-chain gates.
 
-Asked by the user, 2026-10-08: fix the E1-E4 tests so a result doesn't
+Asked by the user, 2026-10-08: fix the end-to-end tests so a result doesn't
 depend on how fast the machine runs, and make them run as fast as the
 machine allows. This plan covers that, plus two related asks from the same
 day:
 
-- E1 runs on the MCB emulator, like the other stages.
+- Every stage runs on the MCB emulator.
 - Localization error never costs a hit: the robot only needs its parts to
   agree on where it is.
 
@@ -212,7 +211,7 @@ a fixed sim-time boundary, as `case_align_s` does on the estimation bench.
 
 ### 8. The MCB emulator for every stage
 
-Done: every stage runs the MCB emulator and E1's `cv_head_aim` +
+Done: every stage runs the MCB emulator and the former `cv_head_aim` +
 `pose_emulator` + `team_stub` path is gone from `e2e.launch.py` and
 `sim/test/e2e/e2e_harness.cpp`; `E2E_PLAN.md`'s Stages match.
 
@@ -228,7 +227,8 @@ Each step is its own commit and gitlink bump, tested before the next:
 2. Bring-up without wall time, `allow_latest_tf`, and the seeds (steps 5
    and 6).
 
-Done when, for E2 stationary-lateral first, then all E2 cells, E3 and E4:
+Done when, for `mcb_parked` stationary-lateral first, then all `mcb_parked` cells,
+`mcb_drive` and `mcb_match`:
 
 - On one machine, three unthrottled runs, one at `real_time_factor:=1` and
   one with gz pinned to two cores (`taskset -c 0,1`) give identical
