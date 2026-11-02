@@ -150,7 +150,7 @@ rulebook construction convention; ROS frames still follow
 
 Holonomic translation and chassis spin require per-panel tracking and
 world-frame aim. Firmware route rates and their provenance belong in
-[sim firmware behaviour](../sim/README.md#firmware-behaviour-and-historical-results-then-stage-e2-now-mcb_parked);
+[sim firmware behaviour](../sim/README.md#firmware-behaviour-and-historical-results-mcb_parked);
 ROS frame/odometry choices belong in
 [pose_translator](../thornbots_pkg/README.md#pose_translator).
 

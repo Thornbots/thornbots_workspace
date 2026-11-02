@@ -522,7 +522,7 @@ this startup fix.
 ### Required branch confirmation pair
 
 Two further full default shared-sim suites passed consecutively on the same
-pushed heads. Each used `run_suite.sh drift headless:=true foxglove:=false`,
+pushed heads. Each used the localization drift wrapper with `headless:=true foxglove:=false`,
 with one simulator launch and exactly nine robot starts. Both native log checks
 end in `bench ok`; startup failures are 0/18. Thresholds, scoring, deadlines,
 physics step and backend parameters are unchanged; there are no startup retries

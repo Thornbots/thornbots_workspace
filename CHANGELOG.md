@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
+
 - Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).
 
 - Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
@@ -917,7 +919,7 @@ impact, and link the corresponding package changes.
   [workspace #17](https://github.com/Thornbots/thornbots_workspace/pull/17).
 - Every simulated E2E stage (`mcb_parked`, `mcb_drive`, `mcb_match`; test
   `e2e_suite`) runs the compiled MCB firmware through the UART bridge, with
-  `detector_standin` feeding gz truth instead of YOLO. The E1 stage is gone;
+  `detector_standin` feeding gz truth instead of YOLO. The former non-MCB stage is gone;
   scoring uses field-safe paths and patrol is on. See
   [sim e834ba2](https://github.com/Thornbots/sim/commit/e834ba2) and [sim aef5ab1](https://github.com/Thornbots/sim/commit/aef5ab1).
 - Sim's Python copy of MCB control logic is removed; firmware edits are tested

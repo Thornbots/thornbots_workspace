@@ -28,18 +28,18 @@
       "icon": "configure"
     },
     {
-      "name": "Sim: drift",
-      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh drift'",
+      "name": "Sim: localization drift",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh localization_drift'",
       "icon": "test"
     },
     {
-      "name": "Sim: shot hit",
-      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh shot_hit'",
+      "name": "Sim: aim",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh aim'",
       "icon": "test"
     },
     {
-      "name": "Sim: estimation",
-      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh estimation'",
+      "name": "Sim: tracking",
+      "command": "docker exec -it -u $(docker exec isaac_ros_jazzy_container id -un admin 2>/dev/null || echo root) -w /workspaces/isaac_ros-dev isaac_ros_jazzy_container bash -ic 'source install/setup.bash && src/sim/tools/run_suite.sh tracking'",
       "icon": "test"
     },
     {

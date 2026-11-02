@@ -87,21 +87,20 @@ stacks is out of scope.
 
 Each stage adds hops and is its own commit and bump. Scoring stays the same
 from stage to stage, so a drop belongs to the hops that stage added. Every
-stage runs the MCB emulator (the user, 2026-10-08); the former E1, which
-skipped it, is gone. Older records use E2-E4 for these stages.
+stage runs the MCB emulator (the user, 2026-10-08).
 
-1. `mcb_parked` (E2), the wire, our robot parked. The detector stand-in,
+1. `mcb_parked`, the wire, our robot parked. The detector stand-in,
    the real selector, tracker and `point_to_cv_target`, then
    `dji_serial_bridge` and `mcb_relay` on a pty against the MCB emulator.
    Tests the `CV_TARGET` packing, the stamps both ways, the fire path, and
    `REF_SYS` into the selector, scoring through the compiled firmware on
    field-safe paths.
-2. `mcb_drive` (E3), driving while shooting. The firmware's own auto-drive
+2. `mcb_drive`, driving while shooting. The firmware's own auto-drive
    takes our robot from its provisional team spawn around the south walls to
    center. Fused navigation from gz lidar is measured beside the shot score.
    Aim uses raw `odom`; chassis yaw is still absent from the current POSE wire
    payload.
-3. `mcb_match` (E4), the match, 2v2: two opponents and one ally (the user,
+3. `mcb_match`, the match, 2v2: two opponents and one ally (the user,
    2026-09-28), with opponents shooting back and the referee emulator
    counting HP. One fixed-seed scenario of set length, split into scored
    segments.
