@@ -97,6 +97,9 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).
 - **E-launch — sim — open:** Ensure one-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
   cleanup, including children outside `kill_launch.sh`. [Build prerequisite](../sim/README.md#build).
+  Estimation reset/pacing candidate and outstanding runtime/review gates:
+  [harness investigation](../sim/docs/de-harness-2026-11-02.md),
+  [sim #68](https://github.com/Thornbots/sim/pull/68). This does not complete E-launch or D-speed.
 
 ### F. CV nodes into their own repo
 
