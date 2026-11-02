@@ -107,10 +107,11 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 ### H. SLAM at amcl's level
 
 - **H-ekf — sentry_localization — open:** Test suspected stacked lidar corrections and raw odometry as SLAM input; retune while
-  retaining EKF. [Investigation](../sentry_localization/README.md#slam---use-rf2o-worse).
+  retaining EKF; remeasure AMCL `sigma_hit` on the same stamped truth metric.
+  [Mini recovery and recorded returns](investigations/slam-ekf-mini-2026-11-02.md). [Investigation](../sentry_localization/README.md#slam---use-rf2o-worse).
 - **H-map — sentry_localization — open:** Matches use a prebuilt event map, surveyed with MMM, loaded at the
   configured spawn and refined by SLAM (decided 2026-11-01). Save/load a quickly rasterizing pose graph there; expose
-  the hard-coded spawn.
+  the hard-coded spawn. Measure saved-graph deserialize round-trip and rasterization latency.
   [Map loading](../sentry_localization/README.md#launchlocalizationlaunchpy).
 - **T3 — sentry_localization / sim — open:** Run five-minute Battle from blank map with moving/spinning lidar occluders,
   high ground and realistic acceleration; score truth error, inspect crossed cells for retained robots, repeat three
