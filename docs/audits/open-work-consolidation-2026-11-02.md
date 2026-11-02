@@ -28,7 +28,7 @@ dated narrative/tables retain measurements and their original acceptance boundar
 | [E2E_LOCKSTEP_PLAN](../E2E_LOCKSTEP_PLAN.md#order-and-done-when), numbered design | T17: UART wire time, acknowledgments, deterministic bring-up, seeded inputs, no latest-TF fallback, three unthrottled/RTF=1/two-core comparison. Original cross-host parity remains an external nonrobot dependency; Mini-only work cannot establish it. Live ordered gates replaced by [A acceptance](../ROADMAP.md#a-acceptance-details). Implemented native MCB/diagnosis/emulator-every-stage parts retained as design/evidence, not reopened. |
 | [E2E_PLAN speed](../E2E_PLAN.md#speed) | D-speed: timing splits, named RTF cap, scored rendering, cheap collisions, one gz session, unit+match ≤10 min / without match ≤5 min. Live list replaced by [D/E acceptance](../ROADMAP.md#d-and-e-acceptance-details). |
 | [E2E match/scoring](../E2E_PLAN.md#the-match-test) | A-combat/T17: three repeats, worst minus 10-point floors, zero friendly shots, alone/sequence parity; B-moving retains ≤10-point parked-relative requirement. Explicit build gaps become A-model (occlusion/blockers/ghost realism/referee model), NAV-publisher. Design table/scoring retained as reference; live done list points to [A](../ROADMAP.md#a-acceptance-details). T31 hurt-bearing verification already has injected-hit evidence; do not duplicate its repair. |
-| [Lidar aiming stages/acceptance](../lidar-guided-aiming-2026-10-25.md#stages) | T23 stages 2–4 remain [software](../ROADMAP.md#j-lidar-and-camera); stage 1 merged workspace #100. Sim patrol/time-to-first-detection comparison preserved. Robot idle-head ~0.7 mm steps, hit-turn/referee observation, detection range and stage-4 enablement are [physical](../ROBOT_TESTS.md#consolidated-hardware-checks). Stage/acceptance live lists replaced by canonical links; design/settings retained. |
+| [Lidar aiming stages/acceptance](../lidar-guided-aiming-2026-10-25.md#stages) | T23 stage 2 sim lidar robot visibility → stage 3 visualization-only `lidar_tracker` output (no head effect) → stage 4 ranked-track head direction remain [software](../ROADMAP.md#j-lidar-and-camera); stage 1 merged workspace #100. Sim patrol/time-to-first-detection comparison preserved. Robot idle-head ~0.7 mm steps, hit-turn/referee observation, detection range and stage-4 enablement are [physical](../ROBOT_TESTS.md#consolidated-hardware-checks). Stage/acceptance live lists replaced by canonical links; design/settings retained. |
 | [Rules context unextracted sources](../ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later) | DOC14g/RULES-S2: exact map drawing extraction, unpublished Site Manual/armor/zig-zag details, 80/120 W chassis audit. Active 3v3 map/route work belongs to S2-foundation; Tournament/unpublished remainder not assigned. Live extraction list replaced by [canonical links](../ROADMAP.md#additional-mini-work). Existing citations/publication boundaries retained. |
 | [Documentation audit](docs-audit-2026-10-06.md#open-supporting-docs-are-hard-to-follow-from-a-fresh-checkout-14) | DOC14a shell examples still unresolved; directory typo fixed sllidar #5. DOC14f history separation remains. DOC14g narrowed by rules #153/#157. DOC14b completed rf2o #23/workspace #157. Replaced stale open descriptions with [canonical links](../ROADMAP.md#issues-found). |
 | [Localization README notes](../../sentry_localization/README.md#notes), AGENTS Open | H-ekf/H-map/T3/H-anomalies remain; H-amcl-noise imports sigma_hit/current-sensor remeasurement and whole-suite noise_correction caveat; H-map-odom retains unresolved covariance-gate decision; H-graph-roundtrip imports graph deserialization. Fixed-heading hardware yaw and near-return/mount checks go to [robot tests](../ROBOT_TESTS.md#consolidated-hardware-checks). Live follow-up prose/Open list replaced by links. |
@@ -78,7 +78,9 @@ dated narrative/tables retain measurements and their original acceptance boundar
   Numerical guards (G three repeats/1.5× radial-blackout/<5 cm validity, H 0.05 m comparison, parked 0.15 m p95,
   B 10 points, runtime 10/5 min) remain at their canonical owners; no baselines were grown.
 
-H has reported local October 26 MCAP inputs (paths/provenance boundary in ROADMAP SIM-returns).
+H reports three scan-bearing October 26 MCAP inputs: headturn-yaw (1,645), 1c-old (1,119), 1d-new (1,105).
+All have 720 bins and median raw infinity 41.5–41.9%, clustered/persistent. Room-04 and drive-v4 contain no scans
+and are excluded from returns analysis (exact filenames/provenance boundary in ROADMAP SIM-returns).
 Offline returns replay/model work remains Mini software work; no new investigation or accepted result is claimed here.
 Season 2's corrected moving counter is 12/158, below the 10% floor, so A/S2 remains unfinished.
 
@@ -260,3 +262,19 @@ as package repositories consume reusable tooling and do not contain `.github/qua
 Evidence logs: `/tmp/t3-558f-docs-checks/`; link-check helper: `/tmp/t3-558f-links.py`.
 No containers, simulation, feature implementation, remote hosts or physical robots were used.
 These are docs checks, not the final integrated software acceptance suite; no numerical gates or baselines changed.
+
+## Round 1 implementation response
+
+- T23 coverage loss: restored canonical ordered stage 2 robot visibility in sim lidar, stage 3 visualization-only
+  `lidar_tracker` output without affecting the head, and stage 4 ranked-track head direction. Preserved software
+  and physical acceptance, dependencies and direct design links; the design document describes interfaces and
+  points to the roadmap for live status. Corrected its old stage-2 head-look cross-reference to stage 4.
+- H provenance: replaced room-04/drive-v4 as scan inputs with exact 1c-old/1d-new filenames, retained the explicit
+  no-scan boundary for room-04/drive-v4, and linked H's immutable dated report. Recorded observational counts only;
+  no causal or replay/model acceptance claim.
+- Six approved package heads remain unchanged. No containers/runtime, feature changes, self-approval or merge.
+- The supplied review child timeline returned `thread_not_found` for encoded and decoded IDs; this response uses
+  the findings quoted in the follow-up brief. Required GitHub contexts remain unresolved, not bypassed.
+
+Follow-up host checks: Python 3.12 quality (95 files, zero diagnostics), actionlint, 776 local links/anchors
+and `git diff --check` pass. These documentation checks do not resolve required GitHub contexts.

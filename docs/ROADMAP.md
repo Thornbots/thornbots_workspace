@@ -129,23 +129,36 @@ carried-map games, and maps do not accumulate robots or duplicate walls.
 
 Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-camera).
 
-- **T23 — sentry_localization / thornbots_pkg — stages 2–4 open:** Jetson patrol replaced by rate-capped idle looks
-  (last enemy, hit hold, enemy zone); lidar tracks are stages 2-4 of the
-  [lidar-guided aiming design](lidar-guided-aiming-2026-10-25.md#stages). Stage 1 merged in [workspace #100](https://github.com/Thornbots/thornbots_workspace/pull/100);
-  stages 2–3 remain in [workspace #101](https://github.com/Thornbots/thornbots_workspace/pull/101), and stage 4 remains open.
-  Robot rf2o steps with the head idle are [physical validation](ROBOT_TESTS.md#lidar-and-camera).
-  [Moving lidar](../sentry_localization/README.md#contract-with-thornbots_pkg),
+- **T23 — sentry_localization / thornbots_pkg / sim — stages 2–4 open:** Stage 1 (rate-capped idle looks:
+  last enemy, hit hold, enemy zone) merged in [workspace #100](https://github.com/Thornbots/thornbots_workspace/pull/100).
+  Implement and validate these distinct stages in order:
+
+  1. **Stage 2 — lidar visibility:** Make sim lidar see other robots, providing robot returns for tracker input.
+  2. **Stage 3 — visualization only:** Publish `lidar_tracker` output for visualization **without affecting the head**;
+     depends on stage 2 visibility and the saved-map obstacle/cluster discrimination contract.
+  3. **Stage 4 — head direction:** Direct the head toward ranked lidar tracks; depends on stage 3 validation,
+     camera confirmation/checked-empty handling and the existing last-enemy/hit-hold priority and turn-rate cap.
+
+  Stages 2–3 remain in [workspace #101](https://github.com/Thornbots/thornbots_workspace/pull/101); stage 4 remains open.
+  Coordinate with S2-foundation acquisition/idle-look integration; do not duplicate its owned changes.
+  [Tracker and head design](lidar-guided-aiming-2026-10-25.md#design),
+  [moving lidar](../sentry_localization/README.md#contract-with-thornbots_pkg),
   [idle looks](../thornbots_pkg/README.md#point_to_cv_target).
+  Robot rf2o steps with the head idle are [physical validation](ROBOT_TESTS.md#lidar-and-camera).
 - **T23 (acceptance):** Compare sim match stages against patrol with no regression and time-to-first-detection
   before promotion. Physical enablement remains in ROBOT_TESTS.
 - **SIM-returns — sim — open:** Sim lidar matches the real 720-bin grid ([sim #31](https://github.com/Thornbots/sim/pull/31))
   but has no no-return (`inf`) beams beyond the self-filter; real has about 40%. SLAM drift in sim rose from
   0.08–0.13 m to 0.15–0.22 m with the new grid (limit 0.40 m, 3 trials); cause unknown.
-  Offline recorded-returns replay/model work is Mini-executable, owned by H. Local inputs exist under
-  `/Users/blaise/ros2_ws/robot-session-20261026/rf2o-replay/inputs/`:
-  `sentry-20261026__1__headturn-yaw.mcap` (reported 1645 `scan_raw` scans, 720 bins, plus scan/joint states),
-  `sentry-20261026b__1-room-04-odom.mcap`, `sentry-20261026c__4-drive-v4.mcap`.
-  H's isolated read-only decoding/provenance is pending; existence is not accepted replay/model evidence.
+  Offline recorded-returns replay/model work is Mini-executable, owned by H. Scan-bearing local inputs under
+  `/Users/blaise/ros2_ws/robot-session-20261026/rf2o-replay/inputs/` are
+  `sentry-20261026__1__headturn-yaw.mcap` (1,645 raw scans),
+  `sentry-20261026__1c__1c-old.mcap` (1,119) and `sentry-20261026__1d__1d-new.mcap` (1,105).
+  H reports all 3,869 raw scans have 720 bins, with median raw `inf` fractions 41.5–41.9% and
+  clustered/persistent missing bins. `sentry-20261026b__1-room-04-odom.mcap` and
+  `sentry-20261026c__4-drive-v4.mcap` contain **no scans** and cannot support returns analysis.
+  [H's exact provenance and measurements](https://github.com/Thornbots/thornbots_workspace/blob/7154d241844ea91e8cd869adb143a9b4b9222f4c/docs/investigations/slam-ekf-mini-2026-11-02.md#recorded-returns-available-on-the-mini)
+  are observational evidence, not a causal conclusion or accepted replay/model pass; H owns the findings.
 
 ## Consolidated commitments
 

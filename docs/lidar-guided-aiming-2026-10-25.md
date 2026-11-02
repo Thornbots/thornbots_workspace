@@ -56,7 +56,7 @@ point). In order:
    then hold its last position.
 2. **Hit**, 2 s: follow the gun so the head stays where firmware's hit turn left
    it. The newer of 1 and 2 wins.
-3. **Lidar track worth checking** (stage 2 below).
+3. **Lidar track worth checking** (head integration is stage 4).
 4. **Enemy starting zone.** Raw odometry is field-centred: firmware boots red at
    (-`START_X`, `START_Y`) facing +x, blue at (+`START_X`, `START_Y`) facing -x
    (`OdometrySubsystemConstants.hpp`; `START_X` 4.625 m, not yet measured on
@@ -103,7 +103,10 @@ reports a hit, follows the gun instead of pulling the head back.
 ## Stages
 
 Live stage commitments and dependencies are maintained in [ROADMAP T23](ROADMAP.md#j-lidar-and-camera).
-Stage 1 merged; the design above remains the reference for stages 2–4.
+Stage 1 merged. The design separates robot visibility in sim lidar (stage 2), visualization-only tracker
+output with no head effect (stage 3), and ranked-track head direction (stage 4). These are interface boundaries;
+implementation status, ordering, dependencies and acceptance live only in the roadmap. The design above defines
+saved-map rejection, ranking, confirmation and head priorities.
 
 ## Risks
 
