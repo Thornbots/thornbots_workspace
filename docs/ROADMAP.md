@@ -23,9 +23,18 @@ work; usage, design and measurements stay in linked docs.
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T25 — bridge / MCBV3 — design open:** Expose arbitrary MCB state in a bagged ROS message; decide struct/tags, rate
-  and UART bandwidth, then specify and implement both ends.
-  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **T25 — bridge / MCBV3 — implementation and review pending:** Raw bounded DEBUG blobs and
+  always-on bagging have draft PRs; validate four-second scheduler pause/rollover recovery,
+  continuous 128 B flood with all 90/10 Hz telemetry slots, send-start stamps and jitter,
+  firmware hosted/ARM builds, startup CTest, package resolution and PTY/MCAP integration.
+  Fresh independent review and package-first landing, workspace pins and all seven portable
+  CI dependency refs remain required; final integrated exact-SHA regression follows landing.
+  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
+  [firmware #130](https://github.com/Thornbots/MCBV3/pull/130),
+  [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
+  [sim #62](https://github.com/Thornbots/sim/pull/62),
+  [startup #23](https://github.com/Thornbots/isaac-ros-startup/pull/23),
+  [workspace #155](https://github.com/Thornbots/thornbots_workspace/pull/155).
 - **T29 — startup / common — hardware acceptance:** Registry bases plus offline source overlays are the supported
   [workflow](../isaac_ros_common/docker/README.md#building-the-robots-image); local image builds/shipping remain emergency fallback.
   [Orin measurements and acceptance boundary](investigations/robot-overlay-2026-11-01.md).

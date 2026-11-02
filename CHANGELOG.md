@@ -7,6 +7,23 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
+  MCB API; the bridge stamps them at estimated UART send start and publishes
+  `/dji_serial_bridge/debug`, recorded in normal and match per-run bags.
+  Portable ROS CI dependency pins are refreshed together for the new interface.
+  The bridge includes T20 throttled logs and `Serial link` diagnostics with a
+  `debug_msgs_pub` counter ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34)).
+  Debug uses available UART budget and may delay one telemetry frame by up to
+  10 ms while preserving all 90 Hz POSE / 10 Hz REF_SYS slots;
+  scheduler service gaps over 100 ms restart a fresh cycle instead of replaying
+  paused deadlines; no production values or sender are enabled. Deploy matching firmware and
+  bridge revisions together ([wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
+  [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
+  [startup #23](https://github.com/Thornbots/isaac-ros-startup/pull/23),
+  [MCBV3 #130](https://github.com/Thornbots/MCBV3/pull/130),
+  [sim #62](https://github.com/Thornbots/sim/pull/62),
+  [hosted verification](sim/docs/mcb-debug-bag-2026-11-01.md)).
+
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
 
 - Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).
