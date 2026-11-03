@@ -10,7 +10,7 @@ impact, and link the corresponding package changes.
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
 
 - Unfinished plans, package open-work lists and dated follow-ups now route to two canonical homes;
-  [consolidation coverage](docs/audits/open-work-consolidation-2026-11-02.md) records sources and dependencies, including distinct T23 visibility/visualization/head stages corrected H scan-bag provenance, and complete T17 suite-order/no-wall-time-sleep gates.
+  [consolidation coverage](docs/audits/open-work-consolidation-2026-11-02.md) records sources and dependencies, including distinct T23 visibility/visualization/head stages corrected H scan-bag provenance, and complete T17 suite-order/no-wall-time-sleep gates. Distinct mapping duplicate-graph and transient save-freshness investigations remain explicitly open with source evidence and acceptance.
 - Open work now separates unfinished Mini/software/sim tasks in [ROADMAP](docs/ROADMAP.md) from physical validation in [ROBOT_TESTS](docs/ROBOT_TESTS.md). Completed items are removed after integration; final completion also requires a separate full automated-suite pass on integrated nightly.
 
 - Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).

@@ -224,6 +224,29 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
   remain discoverable with the supported profiles, or a documented measured cause and tested fix, without weakening
   the stack's DDS invariants. [Mechanism](../isaac-ros-startup/README.md#design-notes).
 
+### Mapping diagnostics
+
+- **E-map-graph — localization / bringup — OPEN, unassigned Mini investigation:** Diagnose the two
+  `passthrough_odom_publisher` graph entries in the [original round 2 evidence](investigations/mapping-procedure-2026-10-26.md#round-2-source-re-audit-and-shorter-operator-card).
+  Prerequisites: recover exact source/configuration and available logs from that checkpoint; coordinate with
+  E-discovery/E-launch and S2-foundation before runtime work on accepted exact refs with granted capacity.
+  Acceptance: correlate process/launch ownership, node identities and publisher endpoint identities over time;
+  distinguish simultaneous real duplicate publishers from ROS daemon cache/discovery artifacts. CLI duplicate-name
+  output alone proves neither. Record the measured cause and validate a correction, or provide an evidenced
+  disposition (including exact later refs and reproduction limits if superseded). Preserve scan/TF behavior and
+  clean launch/teardown. Missing attached-shell discovery and duplicate graph entries are distinct diagnostics.
+- **E-map-freshness — localization / bringup — OPEN, unassigned Mini investigation:** Explain the original
+  stale/non-increasing scan rejection at save in the [same round 2 evidence](investigations/mapping-procedure-2026-10-26.md#round-2-source-re-audit-and-shorter-operator-card)
+  and the [operator-move retry](investigations/operator-workflow-move-2026-10-27.md#isolated-room-rehearsal).
+  Prerequisites: recover failed/successful session artifacts and exact source/configuration; coordinate with
+  S2-foundation's save-readiness owner and E-launch, then obtain runtime capacity separately. Acceptance: correlate
+  scan capture/receipt stamps, simulation clock, pause/resume, save request and backend readiness around rejection;
+  measure the cause and validate its correction or an evidenced disposition against the original failure boundary,
+  retaining fresh-scan guards and numerical gates. A later successful save, parked settling or slower retry alone
+  does not explain the failure. [MMM stale-scan guard tests](investigations/mmm-node-validation-2026-10-29.md#mini-only-review-fix-round)
+  establish guard behavior, not this cause. Consume S2-owned readiness fixes without duplicating them; document
+  exact evidence if they resolve this diagnostic. Both investigations remain software work, not robot acceptance.
+
 ### Additional Mini work
 
 - **H-amcl-noise — localization — assigned H extension:** Re-derive `laser_sigma_hit` (0.08 is not final) on the

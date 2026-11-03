@@ -51,7 +51,7 @@ dated narrative/tables retain measurements and their original acceptance boundar
 | [Jetson measurements](../investigations/sentry-nightly-jetson-2026-10-18.md#remaining-acceptance) | T38 delivery/calibrated depth/TF/engine; T21 controller interlocks/distance/shots; SENTRY-drift; T27/T34 boot/GPU; E-discovery; interrupted MCAP. Replaced remaining-acceptance action list with links; original failed/draft checkpoints retained as history. |
 | [T39](../investigations/t39-parked-drift-2026-10-25.md), [fieldmap divergence](../investigations/fieldmap-divergence-2026-10-22.md) | T39 physical references-off/on acceptance; H-anomalies/raw-x and H-map. Existing default-off limits and shove evidence preserved, not promoted. |
 | [CAD](../investigations/sentry-cad-2026-10-26.md), [mount](../investigations/lidar-mount-2026-10-26.md), [flipped mount](../investigations/lidar-flip-2026-10-31.md) | Integrated CAD/workspace #103 and flipped mount #146 are not reopened. LIDAR-mount physical yaw/full-pitch/height and map slice remain; SIM-plant-calibration physical; estimator robustness remains G/H. Upright visual mesh is a documented sensor-ignored cosmetic limit, not an explicit implementation promise. |
-| [Mapping procedure](../investigations/mapping-procedure-2026-10-26.md), [operator move](../investigations/operator-workflow-move-2026-10-27.md) | MMM-field physical, H-map/H-graph-roundtrip software, E-discovery/teardown. Old Notion URL placeholder superseded by current maintained-home link in AGENTS; Notion was not accessed and publication is not newly authorized. |
+| [Mapping procedure](../investigations/mapping-procedure-2026-10-26.md), [operator move](../investigations/operator-workflow-move-2026-10-27.md) | MMM-field physical, H-map/H-graph-roundtrip software, E-discovery/teardown. Distinct [round 2](../investigations/mapping-procedure-2026-10-26.md#round-2-source-re-audit-and-shorter-operator-card) duplicate graph entries → [E-map-graph](../ROADMAP.md#mapping-diagnostics); transient save rejection there and in the operator-move room retry → [E-map-freshness](../ROADMAP.md#mapping-diagnostics). Both OPEN: no cited later evidence diagnoses either cause; successful retries and MMM guard tests are insufficient. Old Notion URL placeholder superseded by current maintained-home link in AGENTS; Notion was not accessed and publication is not newly authorized. |
 | [Fieldday SLAM/AMCL](../investigations/fieldday-slam-amcl-2026-10-22.md), [safety](../investigations/fieldday-operator-safety-2026-10-22.md), [round 2](../investigations/fieldday-round2-2026-10-23.md) | H-map/T3 broad/carried-map software; MMM-field physical wall/scan/controller/survey/slip/terrain/referee boot. Partial-map/fixture skips remain historical evidence, not passes. |
 | [MMM firmware E2E](../investigations/mmm-firmware-e2e-2026-10-29.md), [node validation](../investigations/mmm-node-validation-2026-10-29.md) | H-graph-roundtrip software; E-teardown; MMM-field storage/shared-power/systemd/power-off physical. Current retry protocol is already in bridge UART contract; do not reopen stale coordination warning. |
 | [Robot overlay](../investigations/robot-overlay-2026-11-01.md#acceptance-boundary-and-robot-state) | T29 software publication end-to-end/fallback and equipped-robot stack acceptance split; recorded Orin build/pull measurements remain evidence. |
@@ -70,10 +70,13 @@ dated narrative/tables retain measurements and their original acceptance boundar
   moving-obstacle clearance, parked_push liveness and map-save readiness must land/test there before dependents.
   Bringup #53 stays held; verify equivalence after #52 before superseding; preserve unique A work in workspace #159.
 - No confirmed active assignment: T40 ingress remainder (depends S2), T29 publication/fallback, B-timing audit,
-  B-moving (after A/G), T23 stages 2–4 (after S2), F-split (after G), A-model (after T17/A), E-discovery, H-map-odom decision,
+  B-moving (after A/G), T23 stages 2–4 (after S2), F-split (after G), A-model (after T17/A), E-discovery, E-map-graph, E-map-freshness, H-map-odom decision,
   LAUNCH-producers, RF2O-format, MAC-gui, COMMON-mounts decision, NAV-publisher (post-Midwest/A/B/H),
   RULES-S2 remainder (after S2/drawing extraction), SIM-plant-model (after physical calibration), DOC14a/DOC14f/DOC14g, SIM-wall, T35 administration.
   PORTABILITY-WSL, PORTABILITY-DDS, laptop fallback shipping and T17 cross-host parity need external nonrobot capacity; Mini success is not their validation.
+- E-map-graph/E-map-freshness are unassigned Mini diagnostics, coordinated with E-discovery/E-launch and
+  S2-foundation readiness; recover original evidence/configuration before separately granted runtime work.
+  They do not duplicate foundation fixes or consume D/E capacity in this documentation repair.
 - Unpublished manuals/armor/zig-zag information is an external dependency, not completed work and not robot-only.
   Numerical guards (G three repeats/1.5× radial-blackout/<5 cm validity, H 0.05 m comparison, parked 0.15 m p95,
   B 10 points, runtime 10/5 min) remain at their canonical owners; no baselines were grown.
@@ -89,7 +92,7 @@ Season 2's corrected moving counter is 12/158, below the 10% floor, so A/S2 rema
 Canonical acceptance remains in ROADMAP; this snapshot checks inventory coverage, not completion.
 
 - A: T17, A-combat, A-model; G: G.1, G.2, G.3, T15, T7, T8; B: B-timing, B-moving.
-- D/E: D-speed, E-teardown, E-launch, E-discovery; F: F-split.
+- D/E: D-speed, E-teardown, E-launch, E-discovery, E-map-graph, E-map-freshness; F: F-split.
 - H/J: H-ekf, H-map, T3, H-anomalies, H-amcl-noise, H-graph-roundtrip, H-map-odom, T23, SIM-returns.
 - Integration/other: T40, T25, T29, S2-foundation, LAUNCH-producers, RF2O-format, MAC-gui,
   PORTABILITY-WSL, PORTABILITY-DDS, COMMON-mounts, SIM-plant-model, NAV-publisher, RULES-S2,
@@ -313,3 +316,29 @@ bringup #52 `1b34b0d5fe647e54e4445caf06a72aeb687c1d5c`, localization #35
 `6786d341f46d0773b2eae5034440df1c9c28b8a1`, MCB #131 `8125d4677e12e02397c5c90098796990fb11a565`.
 Plant correction remains owner-local, not compiled/tested. These reports do not supersede exact final integrated
 suite acceptance or authorize a package head change in this docs follow-up.
+
+
+## R4-1 implementation response — 2026-11-03
+
+Restored two distinct open Mini commitments under [Mapping diagnostics](../ROADMAP.md#mapping-diagnostics):
+E-map-graph requires endpoint/process evidence distinguishing real simultaneous publishers from daemon/discovery
+artifacts; E-map-freshness requires stamp/clock/save/readiness evidence explaining the original rejection.
+Both require a measured cause and validated correction or evidenced disposition, exact source/configuration,
+owner coordination and separate runtime capacity. Source follow-ups now link directly to that canonical section;
+the inventory, routing prerequisites and mapping coverage row include both IDs. No diagnostic is claimed resolved.
+
+Adjacent acceptance boundaries rechecked: the operator-move successful slower retry does not explain its failed
+save; its narrative now links E-map-freshness. MMM node validation's stale-scan guard tests and nonempty graph
+files establish neither the original rejection cause nor graph round-trip acceptance; H-graph-roundtrip and
+E-teardown remain open. Mapping release delivery, physical controller/field/raw-x/mount/reboot acceptance retain
+their existing T29/robot destinations, and attached-shell discovery remains E-discovery. Original measurements,
+design and failed attempts remain intact. R1 T23 stage order/no-head stage 3 and H input provenance, and R2 T17
+all-parked/drive/match/no-scored-wall-sleep acceptance are unchanged. No package pins, runtime implementation,
+thresholds, baselines or final integrated finish gate changed. Independent R5 review is still required.
+
+
+R4 follow-up host validation: isolated Python 3.12.14 with pinned quality dependencies, 95 workspace files,
+zero existing/new diagnostics; actionlint, repository policy and whitespace checks pass. Changed-document local
+links/anchors pass (794 checked). Logs: `/tmp/t3-be7d-docs-checks/`; inspected helper:
+`/tmp/t3-558f-links.py`. Only workspace documentation changed; six package heads remain unchanged.
+No runtime reproduction, container, other-host command, physical robot work or integrated-suite pass is claimed.
