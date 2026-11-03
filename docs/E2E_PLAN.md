@@ -8,20 +8,21 @@ Sim plays only what sits outside the Jetson:
 
 - the MCB, on the far side of a real UART link (a pty), speaking
   `ros2_dji_serial_bridge/UART_PROTOCOL.md`;
-- YOLO, as a detector stand-in that publishes `/detections_output` from gz
-  truth;
-- the sensors: gz lidar for `/scan` and gz depth for
-  `/depth/image_rect_raw`.
+- YOLO and ROI depth, as a detector stand-in that publishes
+  `/cv/panel_detections` from gz truth;
+- gz lidar for `/scan`.
 
 Everything between those is the real code: `dji_serial_bridge`,
 `mcb_relay`, `pose_translator`, localization (amcl + EKF + rf2o),
-`roi_depth_node`, `target_selector`, `target_tracker` and
+`target_selector`, `target_tracker` and
 `point_to_cv_target`. Our robot drives and shoots in the same run, against
 other `sentry_v2` copies that move, spin and shoot back. One run then
 scores localization, tracking and hitting together, and a wrong stamp,
 frame or unit between any two stages shows up as a lost hit.
 
-Nothing runs YOLO. The stand-in's boxes are perfect up to the noise we add.
+The match stages run neither YOLO nor `roi_depth_node`; their camera is off.
+The stand-in's panel geometry is perfect up to the noise we add. The optional
+simulated depth camera is available for separate ROI-depth checks.
 
 We are compute-limited, so suites run one at a time, never in parallel. The
 speed work below makes each run cheaper and makes one run cover more.
