@@ -25,17 +25,6 @@ finish gate together with a separately verified complete applicable automated su
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T25 — bridge / MCBV3 — final CI refresh and integrated verification pending:** Raw bounded
-  DEBUG blobs and always-on bagging passed independent review; package PRs have landed.
-  Firmware hosted/ARM builds and regressions, startup CTest, seven portable package builds/tests,
-  package resolution and hosted PTY/MCAP validation passed. Refresh all seven portable CI
-  dependency refs to the exact merged workspace nightly after landing, then verify the integrated revision.
-  [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
-  [firmware #130](https://github.com/Thornbots/MCBV3/pull/130),
-  [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
-  [sim #62](https://github.com/Thornbots/sim/pull/62),
-  [startup #23](https://github.com/Thornbots/isaac-ros-startup/pull/23),
-  [workspace #155](https://github.com/Thornbots/thornbots_workspace/pull/155).
 - **T29 — workspace / common — publication validation open:** Run the updated Mac/GitHub image-publication
   workflow end to end, including the offline overlay gate and the documented emergency local-build/shipping fallback; linting alone did not establish this acceptance. The documented laptop shipping fallback also lacks
   end-to-end evidence and requires external nonrobot capacity; Mini publication success cannot establish it.
@@ -195,7 +184,7 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
   independent review must check equivalence before superseding it and rebasing workspace #159.
 - A owns stamped-input audit, lockstep gates, board repeatability and combat calibration **after S2-foundation**.
   G owns estimator covariance/noise. H owns SLAM/EKF, carried maps and returns, avoiding S2 readiness fixtures.
-  D/E owns broader launch/teardown/RTF, avoiding S2's specific readiness fix. T25 remains its own coordinated slice.
+  D/E owns broader launch/teardown/RTF, avoiding S2's specific readiness fix.
 - Newly imported work below has no confirmed implementation assignment unless one is named. Routing to a track
   describes dependency/subject ownership, not proof an active agent has accepted the added scope.
 
