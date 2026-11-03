@@ -74,7 +74,8 @@ G recovery has completed host preparation only: no new PR or accepted accuracy r
 blocked on accepted D/E timing/reset harness behavior and shared Mini capacity.
 
 Score each accuracy change over three runs in its own commit; tighten limits to new worst runs and require all cells to
-pass. Preserve baseline radial/blackout error within 1.5x; fresh tracks become valid only after facing-panel error
+pass, including hosted E2E nonregression. Preserve baseline radial/blackout error within 1.5x; fresh tracks become
+valid only after facing-panel error
 settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
 
 ### B. Hit while we move
@@ -171,9 +172,13 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
   [localization #35](https://github.com/Thornbots/sentry_localization/pull/35),
   [bringup #52](https://github.com/Thornbots/thornbots_pkg/pull/52),
   [firmware #131](https://github.com/Thornbots/MCBV3/pull/131), then workspace integration and accepted tests.
-  The reported 727 registered tests with zero failures and 11 bridge cppcheck skips are checkpoints, not
-  final acceptance. Corrected physical-counter moving result is 12/158 (<10% floor); A/S2 acceptance still fails. Moving-obstacle correction (0.5975 > 0.4) and loop-center scan drift
-  (0.016–0.024 > 0.015) remain unresolved. Do not duplicate its fixes or campaigns. Bringup #53 is on hold until #52 lands;
+  Owner checkpoint (2026-11-03 02:14 UTC): finite drift 10/10 plus native passes, including moving-obstacle
+  drift 0.1824 < 0.4 and parked push; drive 1/1 and match 1/1 plus native passes. Parked has six passes and
+  six moving failures; stationary is 281/281. Earlier corrected moving shots were 12/158 (<10% floor), not a pass.
+  These are checkpoints, not final acceptance or merged foundations. The owner retains the uncompiled/untested
+  plant correction: authoritative SENTRY indexer output shaft uses CURRENT_MAX 10 A, KT 0.3125 Nm/A,
+  J 0.004 kg m², gear 36 and 1000 counts A, rather than the sim M3508 rotor/C620 819.2 model.
+  Do not duplicate its fixes or campaigns. Bringup #53 is on hold until #52 lands;
   independent review must check equivalence before superseding it and rebasing workspace #159.
 - A owns stamped-input audit, lockstep gates, board repeatability and combat calibration **after S2-foundation**.
   G owns estimator covariance/noise. H owns SLAM/EKF, carried maps and returns, avoiding S2 readiness fixtures.
@@ -185,9 +190,13 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
 
 - **T17 (continued):** Finish sim-time UART serialization (bytes × 10 / baud, shared explicit baud), POSE/EKF/scan/
   detection/aimer/environment consumption acknowledgments, fixed sim-time bring-up, zero latest-TF fallbacks and
-  per-robot/frame seeded noise. Preserve the 1 ms physics step and existing timeout limits. Compare three
-  unthrottled runs, one RTF=1 run and one gz two-core run: identical `shots.jsonl`, zero lockstep timeouts/fallbacks;
-  report holds/wall wait per chain and RTF. The original Mac/Archlinux same-hit-sequence comparison remains an external dependency (trace and document any
+  per-robot/frame seeded noise. Finish UART first, then wall-time-free bring-up/TF/seeds; test and commit each
+  step with its own gitlink bump before the next. Preserve the 1 ms physics step and existing timeout limits.
+  Validate `mcb_parked` stationary-lateral first, then **all** `mcb_parked` cells, `mcb_drive` and `mcb_match`.
+  For that complete coverage, compare three unthrottled runs, one RTF=1 run and one gz two-core run using
+  `compare_runs`: identical `shots.jsonl`, zero lockstep timeouts/latest-TF fallbacks. Each suite reports RTF,
+  holds/wall wait per chain and its longest-holding chain. **Nothing in the scored loop sleeps on wall time.**
+  The original Mac/Archlinux same-hit-sequence comparison remains an external dependency (trace and document any
   per-shot difference to gz floating point),
   not authority to use another host in a Mini-only task; do not claim it passed from Mini repeats.
   [Design and original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
@@ -282,7 +291,10 @@ Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-0
   [Sim README](../sim/README.md).
 - **DOC14g — workspace — audit open:** Extract remaining event-map geometry from the figures and check unpublished Site Manual and armor details (#14g).
   Track the unpublished Site Manual, dot-matrix armor style/mounting/dimensions and zig-zag pole; transcribe exact
-  event-map geometry in coordination with RULES-S2. [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
+  event-map geometry from E27 Figs 3-3–3-13 and 4-3–4-4 in coordination with RULES-S2. Preserve exact
+  source/page authority for each claim; older inferred rules must not appear as verified current requirements.
+  Site Manual match formats/venue details, BS27 §2.1.4/§3.6.2 dot-matrix style/mounting/dimensions
+  (needed for CV training and armor priors), and E27 §3.2.4.4 zig-zag pole details remain unpublished dependencies. [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 - **SIM-wall — sim — untested:** Establish wall-impact behavior before demonstrating avoidance.
   [Motion-model limits](../sim/README.md#sentry_v2urdfxacro-motion-model).
 

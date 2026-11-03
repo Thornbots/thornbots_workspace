@@ -31,6 +31,13 @@ speed work below makes each run cheaper and makes one run cover more.
 Live speed work and its numerical acceptance are maintained in
 [ROADMAP D](ROADMAP.md#d-and-e-acceptance-details). This document retains the match design and scoring reference.
 
+Historical speed measurements (Mac llvmpipe, 2026-09-29): subscribed 60 Hz RGB-D capped a bare server
+near RTF 2.2; depth alone at 60 Hz reduced bare `sim.launch.py` from RTF 2.66 to 1.1. Box collisions
+cost about 2 µs per shape per step. The design gives only our robot camera/lidar sensors and each ghost
+one body hull plus one box per panel. Camera stays off (`camera:=false`) until scored; the match stand-in
+also replaces `roi_depth_node`. Choose a rate when a stage consumes images. Timing measurements belong
+in each implementation commit; these historical measurements do not establish current performance.
+
 ## The match test
 
 ### What sim provides

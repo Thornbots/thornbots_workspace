@@ -25,7 +25,7 @@ dated narrative/tables retain measurements and their original acceptance boundar
 
 | Source / section | Disposition and canonical destination |
 | --- | --- |
-| [E2E_LOCKSTEP_PLAN](../E2E_LOCKSTEP_PLAN.md#order-and-done-when), numbered design | T17: UART wire time, acknowledgments, deterministic bring-up, seeded inputs, no latest-TF fallback, three unthrottled/RTF=1/two-core comparison. Original cross-host parity remains an external nonrobot dependency; Mini-only work cannot establish it. Live ordered gates replaced by [A acceptance](../ROADMAP.md#a-acceptance-details). Implemented native MCB/diagnosis/emulator-every-stage parts retained as design/evidence, not reopened. |
+| [E2E_LOCKSTEP_PLAN](../E2E_LOCKSTEP_PLAN.md#order-and-done-when), numbered design | T17: stationary-lateral first → all parked cells → drive → match, no scored-loop wall-time sleeps, `compare_runs`, tested per-step commits/gitlink bumps, UART wire time, acknowledgments, deterministic bring-up, seeded inputs, no latest-TF fallback, three unthrottled/RTF=1/two-core comparison. Original cross-host parity remains an external nonrobot dependency; Mini-only work cannot establish it. Live ordered gates replaced by [A acceptance](../ROADMAP.md#a-acceptance-details). Implemented native MCB/diagnosis/emulator-every-stage parts retained as design/evidence, not reopened. |
 | [E2E_PLAN speed](../E2E_PLAN.md#speed) | D-speed: timing splits, named RTF cap, scored rendering, cheap collisions, one gz session, unit+match ≤10 min / without match ≤5 min. Live list replaced by [D/E acceptance](../ROADMAP.md#d-and-e-acceptance-details). |
 | [E2E match/scoring](../E2E_PLAN.md#the-match-test) | A-combat/T17: three repeats, worst minus 10-point floors, zero friendly shots, alone/sequence parity; B-moving retains ≤10-point parked-relative requirement. Explicit build gaps become A-model (occlusion/blockers/ghost realism/referee model), NAV-publisher. Design table/scoring retained as reference; live done list points to [A](../ROADMAP.md#a-acceptance-details). T31 hurt-bearing verification already has injected-hit evidence; do not duplicate its repair. |
 | [Lidar aiming stages/acceptance](../lidar-guided-aiming-2026-10-25.md#stages) | T23 stage 2 sim lidar robot visibility → stage 3 visualization-only `lidar_tracker` output (no head effect) → stage 4 ranked-track head direction remain [software](../ROADMAP.md#j-lidar-and-camera); stage 1 merged workspace #100. Sim patrol/time-to-first-detection comparison preserved. Robot idle-head ~0.7 mm steps, hit-turn/referee observation, detection range and stage-4 enablement are [physical](../ROBOT_TESTS.md#consolidated-hardware-checks). Stage/acceptance live lists replaced by canonical links; design/settings retained. |
@@ -278,3 +278,38 @@ These are docs checks, not the final integrated software acceptance suite; no nu
 
 Follow-up host checks: Python 3.12 quality (95 files, zero diagnostics), actionlint, 776 local links/anchors
 and `git diff --check` pass. These documentation checks do not resolve required GitHub contexts.
+
+## R1/R2 implementation responses and R3 handoff — 2026-11-03
+
+- R1: retained `511a515` T23 stage 2 visibility → stage 3 visualization only/no head effect → stage 4 head
+  direction, plus the three scan-bearing H inputs and explicit exclusion of room-04/drive-v4.
+- R2: restored the removed lockstep done-when suite order and complete coverage, no scored-loop wall-time
+  sleeps, `compare_runs`, longest-holding-chain report and tested per-step commit/gitlink order under
+  [T17](../ROADMAP.md#a-acceptance-details). A-combat floors remain downstream of those gates.
+- Re-audited every removed Markdown hunk against nightly in the workspace and all six package docs PRs,
+  including AGENTS/README open lists, design acceptance and dated remaining-work sections. Additional
+  explicit preservation: G's hosted E2E nonregression, DOC14g source/page authority and exact figure/spec
+  references, and E2E speed design/measurement history. Other removed commitments retain the destinations
+  in the coverage tables above: match/model → A; speed → D/E; lidar → T23/robot; package configuration →
+  Additional Mini work; timing/mount/boot/map/hardware → B/H or ROBOT_TESTS. No package head changed.
+- Current owner checkpoint replaces stale S2 drift failures in ROADMAP; six moving parked failures and
+  uncompiled/untested plant correction remain open. D/E has the quiet slot; T25 follows D/E, H follows
+  foundations, G waits for accepted exact D/E refs and a new capacity grant. No runtime run was attempted.
+- External nonrobot portability, cross-host parity and unpublished rules stay open; the complete nonrobot
+  ID snapshot and routing dependencies above remain applicable. No completed item was inferred from docs.
+- Implementation handoff only: R3 must independently compare original source acceptance, R1/R2 findings
+  and these responses at the new exact workspace head, retaining the six conditional package approvals.
+  No implementation self-approval, merge or integrated-suite pass is claimed.
+
+Validation for this follow-up: host Python 3.12.14 with the pinned quality requirements checked 95 workspace
+files, zero existing/new diagnostics; actionlint and repository policy passed; 778 changed-document local links
+and anchors passed; whitespace passed. Logs: `/tmp/t3-43bd-docs-checks/`. Unchanged package checks/conditional
+approvals are the R2 checkpoint, not newly claimed runtime evidence. Read-only current workspace nightly
+policy query reports protection disabled, no required status contexts and no applicable branch rules; PR status
+rollup is empty (no named pending check). Signing and push hooks remain enabled.
+
+Owner-reported dependency heads (not pins/approval): sim #63 `03ade7d170d8a4a496734bfe455327f63ab20b5a`,
+bringup #52 `1b34b0d5fe647e54e4445caf06a72aeb687c1d5c`, localization #35
+`6786d341f46d0773b2eae5034440df1c9c28b8a1`, MCB #131 `8125d4677e12e02397c5c90098796990fb11a565`.
+Plant correction remains owner-local, not compiled/tested. These reports do not supersede exact final integrated
+suite acceptance or authorize a package head change in this docs follow-up.
