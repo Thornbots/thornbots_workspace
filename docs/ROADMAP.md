@@ -25,11 +25,11 @@ finish gate together with a separately verified complete applicable automated su
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
-- **T25 — bridge / MCBV3 — independent review and landing pending:** Raw bounded DEBUG blobs and
-  always-on bagging have draft PRs. Firmware hosted/ARM builds and regressions, startup CTest,
-  seven portable package builds/tests, package resolution and hosted PTY/MCAP validation passed.
-  Independent review and package-first landing remain; refresh all seven portable CI dependency
-  refs to the exact merged workspace nightly after landing, then verify the integrated revision.
+- **T25 — bridge / MCBV3 — final CI refresh and integrated verification pending:** Raw bounded
+  DEBUG blobs and always-on bagging passed independent review; package PRs have landed.
+  Firmware hosted/ARM builds and regressions, startup CTest, seven portable package builds/tests,
+  package resolution and hosted PTY/MCAP validation passed. Refresh all seven portable CI
+  dependency refs to the exact merged workspace nightly after landing, then verify the integrated revision.
   [Wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
   [firmware #130](https://github.com/Thornbots/MCBV3/pull/130),
   [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
