@@ -7,6 +7,9 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Correct Season 2 side-wall face placement, preserve the central-road 15 mm printed-chain conflict, and clarify pole-height and building-spec page authority.
+- Transcribe [Season 2 rule figures and power audit](docs/rules/season2-geometry.md), separating printed dimensions, derived placements and implementation estimates; retain unpublished-source and package acceptance under DOC14g/RULES-S2.
+
 - Separate sim README experiment narratives into [dated history](sim/docs/simulation-history-2026-11-02.md), retaining current instructions and compatibility headings ([sim #71](https://github.com/Thornbots/sim/pull/71), DOC14f; independently reviewed and completed).
 
 - Estimation harness reset acknowledgement ordering and scorer pacing handoffs
