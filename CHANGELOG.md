@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Estimation harness reset acknowledgement ordering and scorer pacing handoffs
+  are corrected without changing scored watchdogs or numeric limits
+  ([sim #68](https://github.com/Thornbots/sim/pull/68),
+  [validation status](sim/docs/de-harness-2026-11-02.md)).
+
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
 
 - Unfinished plans, package open-work lists and dated follow-ups now route to two canonical homes;
