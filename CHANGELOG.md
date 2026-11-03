@@ -7,6 +7,22 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
+  MCB API; the bridge stamps them at estimated UART send start and publishes
+  `/dji_serial_bridge/debug`, recorded in normal and match per-run bags.
+  Portable ROS CI dependency pins are refreshed together for the new interface.
+  The bridge includes T20 throttled logs and `Serial link` diagnostics with a
+  `debug_msgs_pub` counter ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34)).
+  Debug uses available UART budget and may delay one telemetry frame by up to
+  10 ms while preserving all 90 Hz POSE / 10 Hz REF_SYS slots;
+  scheduler service gaps over 100 ms restart a fresh cycle instead of replaying
+  paused deadlines; no production values or sender are enabled. Deploy matching firmware and
+  bridge revisions together ([wire contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#debug-id6--opaque-firmware-debug),
+  [bridge #35](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/35),
+  [startup #23](https://github.com/Thornbots/isaac-ros-startup/pull/23),
+  [MCBV3 #130](https://github.com/Thornbots/MCBV3/pull/130),
+  [sim #62](https://github.com/Thornbots/sim/pull/62),
+  [hosted verification](sim/docs/mcb-debug-bag-2026-11-01.md)).
 - Correct Season 2 side-wall face placement, preserve the central-road 15 mm printed-chain conflict, and clarify pole-height and building-spec page authority.
 - Transcribe [Season 2 rule figures and power audit](docs/rules/season2-geometry.md), separating printed dimensions, derived placements and implementation estimates; retain unpublished-source and package acceptance under DOC14g/RULES-S2.
 
