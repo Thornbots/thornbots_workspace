@@ -10,7 +10,7 @@ impact, and link the corresponding package changes.
 - Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
   MCB API; the bridge stamps them at estimated UART send start and publishes
   `/dji_serial_bridge/debug`, recorded in normal and match per-run bags.
-  Portable ROS CI dependency pins are refreshed together for the new interface.
+  Portable ROS CI dependency pins now use the merged T25 workspace revision.
   The bridge includes T20 throttled logs and `Serial link` diagnostics with a
   `debug_msgs_pub` counter ([bridge #34](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/34)).
   Debug uses available UART budget and may delay one telemetry frame by up to
