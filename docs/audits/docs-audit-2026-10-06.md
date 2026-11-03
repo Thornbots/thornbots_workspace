@@ -40,7 +40,10 @@ Completed by [rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23
 
 #### 14f — Simulation docs
 
-Live history/current-instruction separation: [DOC14f](../ROADMAP.md#issues-found).
+Completed by [sim #71](https://github.com/Thornbots/sim/pull/71): historical experiments moved to
+[dated package history](../../sim/docs/simulation-history-2026-11-02.md) and
+[pacing results](../../sim/docs/cv-bench-results-2026-09-28.md#clock-pacing-observations-2026-09-25-and-2026-10-01),
+with current instructions and incoming README anchors retained.
 
 #### 14g — Rules context
 
