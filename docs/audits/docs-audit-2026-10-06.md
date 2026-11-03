@@ -28,24 +28,21 @@ Rechecked against package `nightly` branches on 2026-10-15; git history keeps th
 
 ## Open: supporting docs are hard to follow from a fresh checkout (#14)
 
+This dated finding list is superseded by [ROADMAP documentation work](../ROADMAP.md#issues-found).
+
 #### 14a — Lidar README
 
-**Status (2026-10-11):** partly resolved by [sllidar_ros2 #5](https://github.com/Thornbots/sllidar_ros2/pull/5), which fixed the `rpldiar_ros` directory typo. The `$echo`/`$source` lines in the shell setup example remain open.
-
-sllidar README's udev recipe uses nonexistent `src/rpldiar_ros/`; its shell setup examples include `$echo` and `$source`, which are not executable commands as written.
+Live shell-example repair: [DOC14a](../ROADMAP.md#issues-found); directory typo fixed by sllidar #5.
 
 #### 14b — rf2o README
 
-**Status (2026-10-15):** open.
-
-rf2o README describes the algorithm but sends all fork-specific setup, parameters and tests into AGENTS. Add a short human-facing fork usage section.
+Completed by [rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), integrated in workspace #157.
 
 #### 14f — Simulation docs
 
-**Status (2026-10-15):** open for the README, now about 1,700 lines; sim AGENTS is down to 59 lines.
-
-The simulation README was over 1,100 lines and its AGENTS over 300. Current commands, interface rationale, July tuning history and September postmortems are interleaved. Split historical experiments out, and keep the running instructions and current limitations short.
+Live history/current-instruction separation: [DOC14f](../ROADMAP.md#issues-found).
 
 #### 14g — Rules context
 
-The rules context mixes ARCC 2026, 2024 mounting specifications, 2018 hardware dimensions, user observations and RMUC rules while acknowledging the actual 2026 base building specification has not been extracted. Label each claim's authority and exact source/page; do not present older inferred rules as verified current requirements. This is a provenance finding, not a verdict that any individual rule is false.
+Live extraction and unpublished-source dependencies: [DOC14g](../ROADMAP.md#issues-found).
+Season 2 authority/timing was integrated in workspace #153/#157; these do not complete remaining geometry extraction.

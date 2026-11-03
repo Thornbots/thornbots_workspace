@@ -1,5 +1,9 @@
 # T30: localization startup, 2026-10-15–17
 
+Historical evidence. Live commitments: [software/sim](ROADMAP.md),
+[physical validation](ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 Status: PRs remain draft pending full drift acceptance. The orchestrator accepted
 drive non-regression: both pooled cohorts have eleven misses and the ranking
 reverses between cohorts. The clock follow-up identifies a blocked Fast DDS SHM

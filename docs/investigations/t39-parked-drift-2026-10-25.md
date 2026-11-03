@@ -1,5 +1,9 @@
 # Parked rf2o drift (T39) — 2026-10-25
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 Current workspace #95 keeps `reference_scans` available but off by default:
 sentry_localization remains at nightly `496e09f`, without #18. The runs below
 are historical opt-in experiments, not validation of this default configuration.

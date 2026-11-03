@@ -1,5 +1,9 @@
 # Field-day SLAM to AMCL rehearsal — 2026-10-22
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The later [operator safety rehearsal](fieldday-operator-safety-2026-10-22.md)
 supersedes this run's hand-entered seed procedure and adds both real team starts.
 

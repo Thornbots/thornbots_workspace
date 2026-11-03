@@ -1,5 +1,9 @@
 # Full-field mapping divergence — 2026-10-22
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The head-mounted lidar violated slam_toolbox's rigid-mount assumption. Changing
 SLAM's tracking base from `root` to `lidar` fixes that localization bug. AMCL
 caches the mount position too; the [follow-up](#amcl-moving-mount) refreshes it. A separate
@@ -267,7 +271,7 @@ stayed at or below 0.008 m p95, because parked AMCL never reaches its motion
 update thresholds. Odometry is not reset between cells and the diagonal cells
 run last, so error grows with elapsed time, not head speed. `b88b4ce`
 itself reached 0.102 m; the single gate run was a low draw. This is
-[ROADMAP T39](../ROADMAP.md#h-slam-at-amcls-level). Evidence:
+[robot validation T39](../ROBOT_TESTS.md#parked-localization). Evidence:
 `~/ros2_ws/mcb-parked-ab-20261023/SUMMARY.md`.
 
 ## Hardware risks

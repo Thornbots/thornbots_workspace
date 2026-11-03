@@ -1,5 +1,9 @@
 # Mapping procedure verification — 2026-10-26
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The operator procedure was the root README "Map a new field" section,
 then mirrored to the Notion mapping doc; it was removed on 2026-10-31 in favor of MMM. This record describes verification,
 not robot acceptance. No physical robot runs or behavior changes were made.
@@ -150,7 +154,8 @@ Jetson image-only operation is source-verified, not exercised by this simulation
   11.8269 m circuit passed; return 3.45 cm, sampled mapping p95 1.16 cm. Save
   correctly rejected `lidar scan stamp is stale or non-increasing`. Preserved
   evidence under `~/ros2_ws/mapping-procedure-20261026/round2/`; stopped all owned
-  processes. This transient freshness failure is not diagnosed or claimed fixed.
+  processes. This transient freshness failure is not diagnosed or claimed fixed. Live follow-up:
+  [E-map-freshness](../ROADMAP.md#mapping-diagnostics).
 - Second fresh session, with two seconds of parked settling before save: boot
   capture before movement, pause/resume, 11.8265 m circuit, `SAVE OK`, room
   preparation/check, full sim restart, `LOCALIZE PASS` and `CONVERGED` with
@@ -161,7 +166,8 @@ Jetson image-only operation is source-verified, not exercised by this simulation
   flags. Evidence under `~/ros2_ws/mapping-procedure-20261026/round2-attempt2/`.
 - The second run's node CLI warned of duplicate names and listed two
   `passthrough_odom_publisher` entries. This deserves follow-up; duplicate node
-  names are undesirable. No behavior change was made to address it here.
+  names are undesirable. No behavior change was made to address it here. CLI output alone does not
+  establish simultaneous real publishers. Live follow-up: [E-map-graph](../ROADMAP.md#mapping-diagnostics).
 - Room preparation substitutes for field `align`; physical field/referee/yaw,
   live RViz inspection, controller hold, away-and-back AMCL acceptance, actual
   release-image delivery and systemd/reboot remain robot-side checks. Sim cannot
@@ -178,6 +184,6 @@ Jetson image-only operation is source-verified, not exercised by this simulation
 
 Open acceptance: approved release image installation/ID match, physical field
 contract and controller behavior, raw-x loss, lidar extrinsics/moving matches,
-attached-shell DDS, transient sim freshness/duplicate-name diagnostics, actual
+attached-shell DDS, [transient sim freshness and duplicate-name diagnostics](../ROADMAP.md#mapping-diagnostics), actual
 referee match boot/reboot and future Notion URL/publication. No host overlay is
 needed by the audited release-image path.

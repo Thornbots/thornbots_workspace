@@ -56,7 +56,7 @@ point). In order:
    then hold its last position.
 2. **Hit**, 2 s: follow the gun so the head stays where firmware's hit turn left
    it. The newer of 1 and 2 wins.
-3. **Lidar track worth checking** (stage 2 below).
+3. **Lidar track worth checking** (head integration is stage 4).
 4. **Enemy starting zone.** Raw odometry is field-centred: firmware boots red at
    (-`START_X`, `START_Y`) facing +x, blue at (+`START_X`, `START_Y`) facing -x
    (`OdometrySubsystemConstants.hpp`; `START_X` 4.625 m, not yet measured on
@@ -102,12 +102,11 @@ reports a hit, follows the gun instead of pulling the head back.
 
 ## Stages
 
-| # | Change | Before Oct 31 |
-| --- | --- | --- |
-| 1 | No patrol; idle looks 1, 2, 4; fire age limit | yes |
-| 2 | `sim`: our lidar sees other robots (today every robot model is hidden from it, [sim README](../sim/README.md#both-robot-models-the-lidar-does-not-scan-its-own-model)) | yes |
-| 3 | `lidar_tracker` publishing only (rviz), no head effect | likely |
-| 4 | Head looks at tracks | draft; needs a robot test before enabling |
+Live stage commitments and dependencies are maintained in [ROADMAP T23](ROADMAP.md#j-lidar-and-camera).
+Stage 1 merged. The design separates robot visibility in sim lidar (stage 2), visualization-only tracker
+output with no head effect (stage 3), and ranked-track head direction (stage 4). These are interface boundaries;
+implementation status, ordering, dependencies and acceptance live only in the roadmap. The design above defines
+saved-map rejection, ranking, confirmation and head priorities.
 
 ## Risks
 
@@ -124,9 +123,8 @@ reports a hit, follows the gun instead of pulling the head back.
 
 ## Acceptance before `main`
 
-- Sim match stages no worse than with patrol.
-- Robot, head idle: rf2o per-scan steps near the still-head 0.7 mm.
-- A hit turn observed on the robot (needs referee hardware).
+Software gates: [ROADMAP T23/A-model](ROADMAP.md#j-lidar-and-camera).
+Physical gates: [ROBOT_TESTS T23](ROBOT_TESTS.md#consolidated-hardware-checks).
 
 ## Match-day settings
 

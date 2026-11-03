@@ -1,6 +1,7 @@
 # Plan: E2E tests independent of machine speed
 
-**Status: partial implementation (2026-10-12).** The done bar below is not
+**Historical design status: partial implementation (2026-10-12).**
+Current work/acceptance: [ROADMAP T17](ROADMAP.md#a-acceptance-details). The done bar below is not
 met. The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
 with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
@@ -220,26 +221,9 @@ benches still use them (`sim/AGENTS.md`).
 
 ## Order and done-when
 
-Each step is its own commit and gitlink bump, tested before the next:
-
-1. Finish UART in sim time (step 3). The native MCB already runs in each
-   physics step; e2e's ROS timer stepping path is removed (step 2).
-2. Bring-up without wall time, `allow_latest_tf`, and the seeds (steps 5
-   and 6).
-
-Done when, for `mcb_parked` stationary-lateral first, then all `mcb_parked` cells,
-`mcb_drive` and `mcb_match`:
-
-- On one machine, three unthrottled runs, one at `real_time_factor:=1` and
-  one with gz pinned to two cores (`taskset -c 0,1`) give identical
-  `shots.jsonl`, compared with `compare_runs`.
-- Mac and Archlinux give the same hit sequence. Any per-shot difference is
-  traced to gz physics floating point and written down.
-- No run has a lockstep timeout or a latest-TF fallback.
-- Each suite's timing table shows its RTF and which chain held it longest.
-  Nothing in the scored loop sleeps on wall time.
-
-Only then take three runs per cell for `FLOORS` (`E2E_PLAN.md` Scoring).
+Live implementation order and completion gates are maintained in
+[ROADMAP T17](ROADMAP.md#a-acceptance-details). The numbered sections above retain the design contract
+and historical implementation state, not an independent backlog.
 
 ## Running it
 
