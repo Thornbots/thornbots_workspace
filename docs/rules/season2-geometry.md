@@ -19,7 +19,7 @@ arrow endpoints; coordinates below never come from measuring image pixels.
 | --- | --- | --- |
 | DOC14g event geometry | Every figure 3-3–3-13 (pp.16–24), 4-3–4-4 (pp.37–38), including printed placement chains below | Nominal transcription; ambiguities remain explicit, no package acceptance |
 | RULES-S2 Tournament geometry | Corner starts, marked bunker corners, dimensions and derived placement below | Implementation/acceptance stays with package owners |
-| RULES-S2 chassis audit | E27 Table 3-4 p.12: 80; Table 5-2 p.40: 120; read-only implementation audit below | No firmware/default changes or electrical compliance proof |
+| RULES-S2 chassis audit | E27 Table 3-4 p.13: 80; Table 5-2 p.40: 120; read-only implementation audit below | No firmware/default changes or electrical compliance proof |
 | DOC14g publication checks | Manuals page lists only Season 2 Participant, Building and Events V1.0; BS27 mounting instructions extracted below | Site Manual, dot-matrix appearance/dimension authority and detailed zig-zag shape have no newly published authority in these sources |
 
 Reproducible source fingerprints (SHA-256 of downloaded bytes):
@@ -63,9 +63,9 @@ No dimension is inferred from how many pixels a feature occupies.
 | Resupply / start | `u=0..1500`, `v=0..2000` | §3.2.2 p.16 / Fig 3-4 p.17: measured to **outer tape edges** |
 | Side High Ground | Left edge 2000 from left wall; near edge 1000 from lower wall; far edge 3000 from lower wall | Fig 3-6 p.19 gives 1000 width, two 1000 tiers; upper `v=1000..2000`, lower `2000..3000`; pole centre `(2800,2800)` derives from 200 inset arrows |
 | Side Limbo Bar | Left edge `u=2430`, from lower wall toward Side High Ground; 1000 clear opening | Fig 3-13 p.24 gives 140-wide bar, hence nominal `u=2430..2570`; spacer positions not dimensioned |
-| Side Wall | Length 2000 from left wall, thickness 170; far face `v=3915` | Derived `u=0..2000`, `v=3745..3915`; height 422 |
+| Side Wall | Length 2000 from left wall, thickness 170; lower/near (resupply-facing) face `v=3915` | Derived `u=0..2000`, `v=3915..4085`; thickness extends toward +v; height 422 |
 | Side L-shaped Bumpy Road | Left edge `u=1100`, right edge `u=2700`; top `v=6800` from 1200 setback; total depth 1600 | Vertices `(1100,5200),(2700,5200),(2700,6800),(1900,6800),(1900,6000),(1100,6000)`; upper arm 800 wide, notch 800 deep |
-| Central Bumpy Road | Lower edge `v=3000`; depth 1600; red width 3200 terminates at central-wall base face | Base thickness 170 and centring give red `u=2715..5915`, blue `6085..9285`; road is not a solid rectangle through the wall |
+| Central Bumpy Road | Lower edge `v=3000`; depth 1600; printed red width 3200 runs from the L-road right-edge extension `u=1100+1600=2700` to the central-wall base left face | Centred 170-wide base gives face `u=5915`, hence span 3215: **15 mm nominal conflict**, detailed below; no unique exact interval |
 | Central Wall | Base length 3000, thickness 170, height 422; upright panel length 2559, total height 1406 | `u=5915..6085` for base. Limbo opening 600 is face-to-face (Fig 3-12); absolute v position depends on post face convention, not simply `6000-600`. Panel end offsets/thickness not separately dimensioned |
 | Bucket / Objective B | Centre `(6000,1000)` | On central line; 1000 arrow to centre, not bucket edge |
 | Scoring Area | 800 arrow from left wall to outer tape left edge; 850 from upper inside wall to outer tape top edge | Fig 3-7 shows 300 platform and tape 50.8 outside. Derived platform `u=850.8..1150.8`, `v=6799.2..7099.2`; outer tape `u=800..1201.6`, `v=6748.4..7150` |
@@ -87,12 +87,27 @@ qualification when generating penalty-zone geometry.
 | 3-7 / 20; §3.2.4.1 p.19 | Scoring platform 300 × 300 × 50; tape 50.8 outside platform; chute plate 200 × 200, hole Ø52.5, centre height 600; side-view gap 850 |
 | 3-8 / 21; §3.2.4.2 p.20 | Cube 100 × 100 × 100; chamfer pictured but not dimensioned |
 | 3-9 / 21 | Bucket Ø200 × 250 high; ten pipes (5 each colour), length 500, Ø26.7, nominal 3/4-inch Schedule 40 PVC; no bucket wall thickness or pipe arrangement dimensions |
-| 3-10 / 22 | Donut Ø100 outside / Ø50 inside, thickness 25; pole 456 high above its base, base drawn 250 wide; bend shape, diameter and base thickness not dimensioned |
+| 3-10 / 22 | Donut Ø100 outside / Ø50 inside, thickness 25; depicted overall height 456 from base underside to pole top, base drawn 250 wide; bend shape, diameter and base thickness not dimensioned |
 | 3-11 / 23; §3.2.5 p.22 | Tile 400 × 400 × 2.5, four ribs raised 1.2; rib length 350, side margins 25, width 53.8, gaps 45, first top margin 25; rounded rib end profile pictured |
 | 3-12 / 24; Table 3-5 p.23 | Central Limbo clear height 420, face-to-face opening 600; bar cross-section 88.9 horizontal × 38.1 vertical; post shown without its own dimension chain |
 | 3-13 / 24; Table 3-5 p.23 | Side Limbo clear height 300, opening 1000; bar cross-section 140 horizontal × 38.1 vertical; upper bar and spacers pictured without independent mounting dimensions |
 
 ### Cross-figure reconciliation
+
+- Fig 3-3 p.16: the 3200 arrow shares its left extension with the
+  L-road's 1600 right-edge extension, fixing that endpoint at `u=2700`.
+  The centred wall-base chain fixes the right endpoint at `6000-170/2=5915`.
+  Thus `5915-2700=3215`, conflicting with the printed 3200 by 15.
+  Keeping the L-road endpoint and printed width instead gives `2700..5900`;
+  keeping the centred wall face and printed width gives `2715..5915`,
+  shifting the shared endpoint 15. Mirroring gives respectively
+  `6100..9300` or `6085..9285`; keeping both endpoint chains gives
+  `6085..9300` (span 3215). These are alternative implementation choices,
+  not equally exact transcriptions. This audit selects none; an owner must
+  record which constraint it relaxes. General tolerance does not resolve
+  the conflicting nominal chains, and averaging would invent new endpoints.
+- Fig 3-3 p.16: Side Wall `3915+170=4085`; its near face, not far face,
+  terminates the 3915 arrow. Reflection keeps the same v interval.
 
 - `784 + 3000 + 784 = 4568`, and `3716 + 4568/2 = 6000`:
   Central High Ground agrees with the field centreline.
@@ -145,8 +160,11 @@ BS27 §2.1.4 p.10 explicitly defers the dot-matrix display's “specific style�
 BS27 §3.6.2 pp.46–47 **does publish mounting procedure**: four equal hole
 sets, official frames secured with at least two M4 screws each, module slots
 engage lower/upper catches, one M4 fastening screw per frame, supplied 6-pin
-series cable. S103–S105 p.42 allow rear/bottom mounting face and forbid
-modifying the official frame. Those facts must not be called unpublished.
+series cable. S103/S104 and the frame introduction are on p.42; S105 is on p.43.
+They allow rear/bottom mounting face and forbid modifying the official frame.
+Page 48 separately says detailed mounting steps are subject to later update;
+the published pp.46–47 procedure is not a guarantee of final completeness.
+Those published facts must not be called unpublished.
 The illustrations supply no dimensioned panel outline or mounting-hole
 pitch; the old 135 × 125 team CAD prior is not verified dot-matrix geometry.
 
@@ -179,7 +197,7 @@ not a claim about later foundation edits.
 
 E27 §3.3.1.4 pp.27–28 specifies the 60 J buffer, 10 Hz accounting and
 5-second cut when exhausted while overlimit; Sentry's nominal limit is
-80 (Table 3-4 p.12), overridden to 120 for Tournament (Table 5-2 p.40).
+80 (Table 3-4 p.13), overridden to 120 for Tournament (Table 5-2 p.40).
 The commented chassis-power gate in `DrivetrainSubsystem.cpp:52–53` is also
 nonstandard unfinished safety code; this audit does not certify BS27 S101
 hardware cutoff. Route changes to the foundation/firmware owners.
