@@ -7,6 +7,10 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Recorded lidar analysis now reproduces the head-angle control from scan/joint
+  capture stamps, reports unmatched samples and derives sectors from scan metadata
+  ([sim #69](https://github.com/Thornbots/sim/pull/69)). Physical-cause modeling remains open.
+
 - Prepare stamped-truth localization comparisons, raw-odom SLAM priors with EKF retained, saved-graph team-spawn loading and AMCL width trials; defaults remain unchanged ([localization #37](https://github.com/Thornbots/sentry_localization/pull/37), [sim #69](https://github.com/Thornbots/sim/pull/69), [bringup #56](https://github.com/Thornbots/thornbots_pkg/pull/56)). Runtime accuracy and carried-map acceptance remain [open](docs/ROADMAP.md#h-slam-at-amcls-level); [recovery evidence](docs/investigations/slam-ekf-mini-2026-11-02.md).
 
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).

@@ -149,7 +149,7 @@ independent review; no review or merge is claimed:
 - [localization #37](https://github.com/Thornbots/sentry_localization/pull/37):
   `670a0da77a8aa09d818c397195c90734a67827db`.
 - [sim #69](https://github.com/Thornbots/sim/pull/69):
-  `67803b5c4fd31b8beed8ca7f464cbe07f82f0862`.
+  `8fcc20f38b3921bbeb830956650697a01a6a393e`.
 - [bringup #56](https://github.com/Thornbots/thornbots_pkg/pull/56):
   `dd4e0f5d424a440ec0870e603cab59b3a45f19a2`.
 
@@ -190,3 +190,50 @@ the `.data` is 1,258,126 bytes (SHA-256
 `3db636d4b42fa3ae97dc982e4ab563e76cada5c39e03058e4bccc6c83f7358d8`).
 These are historical room artifacts, not a surveyed event-map acceptance
 fixture. No deserialize compatibility or timing result is claimed yet.
+
+## Recovery on November 3, 02:15 UTC
+
+The fresh checkout is `/Users/blaise/.t3/worktrees/src/t3-c1dda05c`.
+Fetched nightly remains `53ccdb2d93598d9ca3187222d833a2d55b779dec`;
+the recovered workspace draft was `3b8d28a300e13fb3e24fa3b83d01c483738c69fb`.
+Fetched localization #37 now has `301c5f0` (saved-graph documentation), sim #69
+has `67803b5`, and bringup #56 remains `dd4e0f5`. Previous worktrees were read
+only. No container or other host was accessed. Foundation integration and an
+explicit heavy-slot grant remain prerequisites for builds and campaigns.
+
+The maintained returns tool now performs the head-angle join itself, using
+LaserScan angular metadata rather than the evidence script's fixed bin indices.
+Running it on the three previously hashed raw bags reproduces the reported
+1,645 matched headturn scans and four quadrant counts. Joint match age
+p05/median/p95/max is 0.338/2.703/7.395/37.753 ms. All four quadrants retain
+100% missing returns in the sensor's 0–30 degree sector. The other two bags
+explicitly report all 1,119/1,105 scans unmatched because they lack joints.
+New local output: `.track-h-evidence/returns-head-control.jsonl`. This verifies
+reproducibility, not a physical cause or an accepted simulator model.
+
+Host Python 3.12 quality and actionlint pass for sim, localization, bringup and
+workspace; seed/launch tests pass 25/25. The new sim commit is signed and pushed.
+Only the sim gitlink moves in this follow-up; localization stays pinned to
+`670a0da` pending coordinated integration, despite the newer documentation head.
+No ROS build/native gate, accuracy campaign, graph deserialize/rasterization,
+five-minute game or final integrated test is claimed. No roadmap item is removed.
+
+### Map-odometry consumer decision
+
+The exact current commitment is to resolve the unused map-corrected odometry
+path while retaining the EKF and a statistically justified navigation gate.
+At bringup `dd4e0f5`, `mcb_relay.cpp` defaults `localization_odom_topic` to
+`/localization/odom`; `auto.launch.py` supplies no map-odometry override.
+Localization `301c5f0` publishes `/localization/map_odom` with backend covariance
+added to EKF covariance. Its README records backend standard deviations above
+the relay's 0.02 m gate. Merely switching topics would not establish useful or
+safe navigation corrections. No gate or covariance is changed here.
+
+H must measure same-stamp EKF and map-corrected truth error plus covariance
+coverage on the same valid trials, count proposed/accepted/rejected relay fixes
+under the existing gate, and check frame/feedback behavior before proposing a
+consumer decision. Include blank mapping and configured-spawn saved refinement;
+an unregistered graph cannot establish field-coordinate accuracy. If evidence
+requires changing the gate or covariance interpretation, return that concrete
+proposal for the user's decision as required by package instructions. This
+software analysis remains open in H-map; it is not physical-only work.

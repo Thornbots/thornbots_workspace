@@ -113,6 +113,8 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   configured spawn and refined by SLAM (decided 2026-11-01). Save/load a quickly rasterizing pose graph there; expose
   the hard-coded spawn. Measure saved-graph deserialize round-trip and rasterization latency.
   [Map loading](../sentry_localization/README.md#launchlocalizationlaunchpy).
+  Resolve whether `/localization/map_odom` should feed navigation before changing
+  its consumer or uncertainty gate; [current contract and required analysis](investigations/slam-ekf-mini-2026-11-02.md#map-odometry-consumer-decision).
 - **T3 — sentry_localization / sim — open:** Run five-minute Battle from blank map with moving/spinning lidar occluders,
   high ground and realistic acceleration; score truth error, inspect crossed cells for retained robots, repeat three
   games on one carried map. [Scenario harness](../sim/README.md#scenarios).
