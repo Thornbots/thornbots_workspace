@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Full-stack launch can select external, sim, or hardware detection producers; external remains the default and managed hardware disables the duplicate UART bridge ([thornbots #57](https://github.com/Thornbots/thornbots_pkg/pull/57)). ROS runtime validation remains pending capacity.
+
 - RF2O uses package manifest format 3, preserving build/export/runtime dependencies and declaring gtest as test-only ([rf2o #25](https://github.com/Thornbots/rf2o_laser_odometry/pull/25)); full build/tests remain pending capacity.
 
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
