@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Fix literal dollar prefixes in the lidar workspace setup examples ([sllidar #13](https://github.com/Thornbots/sllidar_ros2/pull/13)); the snippet executes with an isolated HOME and harmless setup file.
+
 - Full-stack launch can select external, sim, or hardware detection producers; external remains the default and managed hardware disables the duplicate UART bridge ([thornbots #57](https://github.com/Thornbots/thornbots_pkg/pull/57)). ROS runtime validation remains pending capacity.
 
 - RF2O uses package manifest format 3, preserving build/export/runtime dependencies and declaring gtest as test-only ([rf2o #25](https://github.com/Thornbots/rf2o_laser_odometry/pull/25)); full build/tests remain pending capacity.
