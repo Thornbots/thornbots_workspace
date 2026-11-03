@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Separate sim README experiment narratives into [dated history](sim/docs/simulation-history-2026-11-02.md), retaining current instructions and compatibility headings ([sim #71](https://github.com/Thornbots/sim/pull/71), DOC14f; independently reviewed and completed).
+
 - Estimation harness reset acknowledgement ordering and scorer pacing handoffs
   are corrected without changing scored watchdogs or numeric limits
   ([sim #68](https://github.com/Thornbots/sim/pull/68),

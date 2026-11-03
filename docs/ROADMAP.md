@@ -315,8 +315,6 @@ Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-0
 
 - **DOC14a — lidar docs — unassigned:** Repair the remaining `$echo`/`$source` shell examples and verify executable
   setup snippets; the directory typo was fixed in sllidar #5. [Audit](audits/docs-audit-2026-10-06.md#14a--lidar-readme).
-- **DOC14f — sim — narrowed:** Move remaining historical experiments out of the long README while retaining current instructions and incoming anchors.
-  [Sim README](../sim/README.md).
 - **DOC14g — workspace — audit open:** Extract remaining event-map geometry from the figures and check unpublished Site Manual and armor details (#14g).
   Track the unpublished Site Manual, dot-matrix armor style/mounting/dimensions and zig-zag pole; transcribe exact
   event-map geometry from E27 Figs 3-3–3-13 and 4-3–4-4 in coordination with RULES-S2. Preserve exact
