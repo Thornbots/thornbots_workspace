@@ -91,7 +91,8 @@ or dated investigations linked to current status.
 | Robot launch | [YOLO README](realsense-yolov8-nitros-bridge/README.md#full-robot-pipeline) |
 | Field mapping (MMM) | [thornbots_pkg](thornbots_pkg/README.md#mcb-mapping-machine); operator steps in the [Notion mapping doc](https://app.notion.com/p/fff357611caa4131b216742bb7c6e048) |
 | Node/topic diagram | [thornbots_pkg](thornbots_pkg/README.md#nodes) |
-| Open work | [ROADMAP](docs/ROADMAP.md) |
+| Mini/software/sim work | [ROADMAP](docs/ROADMAP.md) |
+| Physical robot validation | [ROBOT_TESTS](docs/ROBOT_TESTS.md) |
 | Wire/timestamp contract | [UART_PROTOCOL](ros2_dji_serial_bridge/UART_PROTOCOL.md) |
 | Defaults/message fields | Source declarations |
 

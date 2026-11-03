@@ -1,5 +1,9 @@
 # In-stack MMM validation — 2026-10-29
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The [firmware-to-node UART follow-up](mmm-firmware-e2e-2026-10-29.md) exercises
 the compiled sentry and real coordinator together, with loss, backpressure,
 restart recovery, state restrictions and a validated map save.

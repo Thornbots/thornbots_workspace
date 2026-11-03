@@ -1,5 +1,9 @@
 # Sentry CAD integration — 2026-10-26
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The robot measurement update below supersedes the round-1/2 lidar yaw,
 self-filter and outstanding scan-zero validation. Round 2 supersedes the
 round-1 muzzle choice. All CAD measurements and earlier runs remain below

@@ -14,6 +14,10 @@ impact, and link the corresponding package changes.
 
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
 
+- Unfinished plans, package open-work lists and dated follow-ups now route to two canonical homes;
+  [consolidation coverage](docs/audits/open-work-consolidation-2026-11-02.md) records sources and dependencies, including distinct T23 visibility/visualization/head stages corrected H scan-bag provenance, and complete T17 suite-order/no-wall-time-sleep gates. Distinct mapping duplicate-graph and transient save-freshness investigations remain explicitly open with source evidence and acceptance.
+- Open work now separates unfinished Mini/software/sim tasks in [ROADMAP](docs/ROADMAP.md) from physical validation in [ROBOT_TESTS](docs/ROBOT_TESTS.md). Completed items are removed after integration; final completion also requires a separate full automated-suite pass on integrated nightly.
+
 - Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).
 
 - Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
@@ -320,7 +324,7 @@ impact, and link the corresponding package changes.
 
 - Removed `docs/JAZZY_FLASH.md` now that all four Orins run JetPack 7.2.1/Jazzy;
   it remains in git history. Remaining robot acceptance and the `ROS_DOMAIN_ID`
-  0 switch are [ROADMAP T38](docs/ROADMAP.md#later-needs-a-robot).
+  0 switch are [robot acceptance T38](docs/ROBOT_TESTS.md#robot-acceptance).
 
 - Stop tracing installer and firstboot commands that load provisioning
   credentials into journals ([package change](https://github.com/Thornbots/isaac_ros_common/commit/f498503783de23e98e6e9ea9f9ea1dab5a698b4b)).
@@ -804,7 +808,7 @@ impact, and link the corresponding package changes.
   drift while parked is still uncorrected below AMCL's update thresholds
   (0.1 m translation or 0.05 rad odometry rotation); see the
   [rf2o notes](sentry_localization/README.md#configrf2oyaml) and
-  [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level). The merged-package
+  [robot validation T39](docs/ROBOT_TESTS.md#parked-localization). The merged-package
   tree passed three hosted parked runs (12/12 cells each) and 560 colcon
   tests; earlier fix validation also passed AMCL `drift_correction`. See
   [workspace #88](https://github.com/Thornbots/thornbots_workspace/pull/88)
@@ -861,7 +865,7 @@ impact, and link the corresponding package changes.
   release, camera/GPU, physical drivetrain, firing or combat acceptance. Final
   candidate CI/image checks remain release checks; see [CI limits](docs/CI.md#validation-boundaries).
 - Slow parked scan-odometry drift remains open under
-  [ROADMAP T39](docs/ROADMAP.md#h-slam-at-amcls-level). The sim parked gate
+  [robot validation T39](docs/ROBOT_TESTS.md#parked-localization). The sim parked gate
   requires p95 ≤ 0.15 m, max ≤ 0.20 m and at least 95% stamped coverage;
   passing it does not establish long-duration stationary accuracy on hardware.
 

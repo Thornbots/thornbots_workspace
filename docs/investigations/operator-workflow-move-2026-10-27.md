@@ -1,5 +1,9 @@
 # Operator workflow package move — 2026-10-27
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 The maintained interface is [thornbots_pkg's operator workflow](../../thornbots_pkg/README.md#field-day-and-room-workflow).
 `ros2 run thornbots_pkg operator_workflow` replaces the localization-package
 command. The executable, ROS-free tests and operator reference move together;
@@ -59,7 +63,8 @@ sim compile hit the memory limit; rebuilding with two compilation jobs passed.
 
 The full room circuit initially passed boot/pause/resume and its 11.8 m drive,
 but save rejected a stale/non-increasing scan stamp. Repeated in a new session
-at half simulation speed without changing any workflow gate. Two harness-only
+at half simulation speed without changing any workflow gate. The retry does not diagnose
+that rejection; live investigation is [E-map-freshness](../ROADMAP.md#mapping-diagnostics). Two harness-only
 failures were also retained: the probe initially offered the old websocket
 subprotocol instead of the image's `foxglove.sdk.v1`, and one retry correctly
 refused to overwrite a prior drive-evidence file.
