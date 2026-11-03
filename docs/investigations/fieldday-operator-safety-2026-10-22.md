@@ -1,5 +1,9 @@
 # Field-day operator safety rehearsal — 2026-10-22
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 Both real team starts passed the revised SLAM snapshot → field registration →
 AMCL operator workflow after full simulator restarts. These are partial
 start-area maps, not full-field coverage or hardware validation. The maintained

@@ -1,5 +1,7 @@
 # Sentry sim-to-real measurements, 2026-10-18
 
+Historical evidence; live work is in [ROADMAP](../ROADMAP.md) and [ROBOT_TESTS](../ROBOT_TESTS.md).
+
 Artifacts are on the laptop `archlinux` (not in git): `~/workspaces/isaac_ros-jazzy/test-hold-ab-2026-10-18/` and
 `~/sentry-deploy/2026-10-18/`. Numbers below are copied from those files.
 
@@ -95,10 +97,8 @@ Mechanism (leading cause, associational):
 - EKF fuses raw yaw/vx/vy but no raw x/y, and rf2o x/y absolute (`sentry_localization/config/ekf.yaml`), so zero raw
   odom does not anchor position.
 
-Recommendations (not applied):
-- Normalize the scan grid first and reject/reset incompatible count/angle metadata before the Eigen map.
-- Add a raw-stationary gate in `CLaserOdometry2DNode::process()` with fresh-odom checks; missing/stale odom disables it.
-  Needs a policy for slip/push cases; untested.
+Scan-size normalization/guard is merged (rf2o #10); parked-reference follow-up is maintained in
+[ROBOT_TESTS T39](../ROBOT_TESTS.md#parked-localization). The historical proposal is not a second backlog.
 
 ## Serial, camera and stamps
 
@@ -130,11 +130,10 @@ off, `sushi serve` at ~220% CPU). Clean robot rates come from the run without im
 - TF: lookups at the message stamp mostly fail as "future" on both sides; 250 ms later real is 98–100% OK for non-camera
   topics. Camera frames to `odom` fail on the robot in every run (not investigated).
 
-Recommendations (not applied):
-- Confirm whether `/cv/target` is a prediction (fresh stamp allowed) or a measurement echo (stamp should be capture time).
-- Run the robot lidar with `angle_compensate:=true` ([SENTRY-drift](../ROADMAP.md)), then repeat the slam acceptance with
-  the robot driven, to see later scans accepted.
+Live timing/stamp and moving-scan checks are in [B-timing](../ROADMAP.md#b-hit-while-we-move)
+and [SENTRY-drift](../ROBOT_TESTS.md#lidar-and-camera).
 
 ## Not measured
 
-- Real PING RTT, real capture-to-`/cv/target` latency, sim camera/YOLO timing, slam scan acceptance while moving.
+Unmeasured checks are maintained in [T38/B-timing](../ROBOT_TESTS.md#consolidated-hardware-checks);
+sim stamp propagation remains in [ROADMAP B](../ROADMAP.md#b-hit-while-we-move).

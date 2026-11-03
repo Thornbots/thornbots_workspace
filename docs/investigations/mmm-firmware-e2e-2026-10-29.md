@@ -1,5 +1,9 @@
 # MMM firmware-to-node validation — 2026-10-29
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 All execution was on `Blaises-Mini.tail2b35ba.ts.net`, using the task-owned
 `isaac-agent-mmm-e2e` arm64 Jazzy container (domain 183). No SSH, physical
 robot, operator bindings, shutdown or deployment was used. Host evidence is

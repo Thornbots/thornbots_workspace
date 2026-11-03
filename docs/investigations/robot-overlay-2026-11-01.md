@@ -1,5 +1,9 @@
 # Robot registry base and offline overlay — 2026-11-01
 
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+not a separate maintained action list.
+
 T29 chooses occasional registry pulls and local source overlay builds as the
 supported robot workflow. The image retains its tested baked application for
 explicit recovery; ordinary source updates no longer rebuild the image.

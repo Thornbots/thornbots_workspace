@@ -7,7 +7,7 @@ The file name predates Season 2; it is kept so incoming links stay valid.
 
 ## Which rules govern?
 
-Checked **2026-11-01** against ARC's [2027 manuals page][arc-2027]:
+Checked **2026-11-03** against ARC's [2027 manuals page][arc-2027]:
 
 - **ARCC Season 2 (2026–2027), event 2027-06-13 to 06-20** ([P27][p27]
   Table 2-1): Events Manual **V1.0** ([E27][e27]), Robot Building
@@ -94,9 +94,10 @@ they do not change the current simulator's 2026 field or behavior. Referee
 message semantics are maintained in the [wire protocol](../ros2_dji_serial_bridge/UART_PROTOCOL.md).
 
 The 1v1 field drawing (E27 Fig 4-3) gives 1000 × 1000 mm corner Starting
-Zones within the 5000 × 5000 mm arena; Fig 4-4 supplies bunker dimensions. The 3v3 Scoring Areas include their
-tape outlines as penalty zones (E27 §3.2.4.1). Exact component placements must
-still be transcribed from the drawings before constructing an event map.
+Zones within the 5000 × 5000 mm arena; Fig 4-4 supplies bunker dimensions.
+The [figure transcription](rules/season2-geometry.md) records nominal dimensions,
+derived coordinates, cross-figure checks and implementation audit evidence.
+The 3v3 Scoring Areas include their tape outlines as penalty zones (E27 §3.2.4.1).
 
 ## Armor geometry and building limits
 
@@ -166,20 +167,11 @@ field and its own S-IDs. Cite BS27/E27, not B27/R27, for ARCC decisions.
 
 ## Not yet extracted / worth pulling in later
 
-- **Site Manual:** match formats (BO2/BO3/BO5, group/elimination) and venue
-  details are referred to but unpublished.
-- **Dot-matrix armor:** the displayed style is “to be updated later”
-  (BS27 §2.1.4), as are detailed mounting steps (§3.6.2); BS27 gives no
-  panel dimensions or small/large type. CV training data and armor priors
-  need them.
-- **Zig-zag pole** for Objective C is still to be announced (E27 §3.2.4.4).
-- Extract exact 3v3 and Sentry Tournament geometry from E27 Figs 3-3–3-13
-  and 4-3–4-4 for event maps; sim and nav still use the ARCC 2026 field.
-  See [field dimensions](#battlefield-geometry-and-objectives-3v3) and
-  [match timing](#match-phases-season-2); placement
-  coordinates still need careful transcription from the drawings.
-- Check firmware/sim chassis power limits against 80 W (3v3) and 120 W
-  (Sentry Tournament).
+Unfinished extraction, unpublished-source dependencies and firmware/sim power audits are maintained in
+[ROADMAP DOC14g](ROADMAP.md#issues-found) and [RULES-S2](ROADMAP.md#additional-mini-work).
+The [figure and power audit](rules/season2-geometry.md#coverage-and-authority) maps
+the extracted evidence to those IDs; it does not close their integration or
+unpublished-source acceptance.
 
 [arc-2027]: https://www.arc-robotics.org/participants/2027-manuals
 [arc-preview]: https://www.arc-robotics.org/announcements/2027-season-preview
