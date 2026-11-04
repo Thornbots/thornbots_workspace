@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add opt-in paused epoch-zero UART clock bootstrap: the bridge reports actual
+  clock receipt and the simulator waits for it and detector readiness before
+  reporting plugin readiness ([bridge #37](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/37),
+  [sim #73](https://github.com/Thornbots/sim/pull/73)). E2E launch wiring and
+  scored acceptance remain open.
+
 - Add an opt-in epoch-zero readiness barrier to strict simulator lockstep
   startup, with a separate bounded startup timeout and missing-topic diagnostics
   ([sim #73](https://github.com/Thornbots/sim/pull/73)). Launch integration and
