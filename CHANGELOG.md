@@ -8,7 +8,8 @@ impact, and link the corresponding package changes.
 ## Unreleased
 
 - Add an opt-in sim-time UART relay fixture with a shared bridge baud for T17;
-  deterministic frame timestamps, publication acknowledgments and match repeatability remain open.
+  Jetson input observed during a firmware cycle is deferred to the next cycle.
+  Verified frame timestamps, publication acknowledgments and match repeatability remain open.
 
 - Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
   MCB API; the bridge stamps them at estimated UART send start and publishes
