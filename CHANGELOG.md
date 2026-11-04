@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add an opt-in strict simulator lockstep startup primitive that holds to the
+  first positive scheduled deadline and stops on missing acknowledgments
+  ([sim #73](https://github.com/Thornbots/sim/pull/73)); e2e launch integration
+  and the remaining deterministic bring-up gates are still open.
+
 - Add an opt-in sim-time UART relay fixture with a shared bridge baud for T17;
   Jetson input observed during a firmware cycle is deferred to the next cycle.
   The bridge now provides opt-in verified capture stamps and publication
