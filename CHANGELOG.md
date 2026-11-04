@@ -11,7 +11,7 @@ impact, and link the corresponding package changes.
   first positive scheduled deadline and stops on missing acknowledgments
   ([sim #73](https://github.com/Thornbots/sim/pull/73)). The detector can
   independently acknowledge epoch-zero initialization and consumed truth at
-  scheduled capture stamps; e2e launch integration and the remaining
+  scheduled capture stamps, rounded up to the next 1 ms physics step; e2e launch integration and the remaining
   deterministic bring-up gates are still open.
 
 - Add an opt-in sim-time UART relay fixture with a shared bridge baud for T17;
