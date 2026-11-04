@@ -93,6 +93,10 @@ current results and open work are in [ROADMAP track A](ROADMAP.md#a-the-match-te
 The bridge provides an optional [verified capture metadata and publication acknowledgment
 interface](../ros2_dji_serial_bridge/README.md#simulation-capture-metadata). The simulator
 producer and gate still need integration; this does not establish scored T17 acceptance.
+The detector has an independent opt-in [epoch-zero readiness and consumption
+interface](../sim/README.md#launch-sim-by-hand). E2E launch still needs to hold
+the clock at zero and coordinate detector, opponent spawn, plugin readiness,
+and the other gates before this can support a scored run.
 
 ### Scoring
 
