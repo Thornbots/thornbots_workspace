@@ -7,8 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
-- Add a tested sim-time UART serialization queue as groundwork for T17;
-  the match transport and repeatability acceptance remain open.
+- Add an opt-in sim-time UART relay fixture with a shared bridge baud for T17;
+  deterministic frame timestamps, publication acknowledgments and match repeatability remain open.
 
 - Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
   MCB API; the bridge stamps them at estimated UART send start and publishes

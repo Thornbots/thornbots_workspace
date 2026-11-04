@@ -141,9 +141,12 @@ The firmware's UART fd becomes a socketpair the plugin owns. The plugin
 relays bytes to and from the pty master on a modeled wire:
 
 - **MCB to Jetson:** bytes the firmware writes in cycle k reach the pty at
-  k plus their wire time (bytes x 10 / baud), a hold point. The gate holds
-  there until the bridge has published the frame. The bridge's stamp, read
-  time less wire time, is then exactly k.
+  k plus their wire time (bytes x 10 / baud), rounded up to a 1 ms
+  physics hold point. The gate holds until the bridge has published the frame.
+  A sim-only handshake must carry a sequence, capture stamp k and verified
+  frame correspondence; missing or mismatched metadata must fail closed.
+  The physical bridge's read time minus wire time cannot recover k exactly
+  from a fractional deadline rounded to the physics grid.
 - **Jetson to MCB:** bytes the plugin reads from the pty while held at t
   enter the firmware's fd at cycle t plus their wire time, plus
   `mcb_read_delay_ms` (default 0).
