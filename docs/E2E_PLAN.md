@@ -90,6 +90,10 @@ All three stages run on nightly. Commands and model limits are in
 [sim's README](../sim/README.md#driving-and-combat-diagnostics-mcb_drive);
 current results and open work are in [ROADMAP track A](ROADMAP.md#a-the-match-test).
 
+The bridge provides an optional [verified capture metadata and publication acknowledgment
+interface](../ros2_dji_serial_bridge/README.md#simulation-capture-metadata). The simulator
+producer and gate still need integration; this does not establish scored T17 acceptance.
+
 ### Scoring
 
 One `sim/launch/e2e.launch.py` and a C++ suite in `sim/test/e2e/`. Per
