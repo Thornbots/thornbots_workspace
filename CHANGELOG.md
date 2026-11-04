@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add an opt-in epoch-zero readiness barrier to strict simulator lockstep
+  startup, with a separate bounded startup timeout and missing-topic diagnostics
+  ([sim #73](https://github.com/Thornbots/sim/pull/73)). Launch integration and
+  scored T17 acceptance remain open.
+
 - Add an opt-in paused-world spawn readiness gate to the simulator
   `opponent_driver`: it publishes epoch-zero `~/ready` only after a single
   correctly posed opponent is confirmed in a paused world at sim time zero, and

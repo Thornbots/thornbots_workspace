@@ -91,12 +91,15 @@ All three stages run on nightly. Commands and model limits are in
 current results and open work are in [ROADMAP track A](ROADMAP.md#a-the-match-test).
 
 The bridge provides an optional [verified capture metadata and publication acknowledgment
-interface](../ros2_dji_serial_bridge/README.md#simulation-capture-metadata). The simulator
-producer and gate still need integration; this does not establish scored T17 acceptance.
+interface](../ros2_dji_serial_bridge/README.md#simulation-capture-metadata). The experimental
+[simulator producer and delivery gate](../sim/README.md#coordinated-uart-fixtures)
+have dedicated plugin/bridge diagnostic coverage; scored integration remains open.
 The detector has an independent opt-in [epoch-zero readiness and consumption
-interface](../sim/README.md#launch-sim-by-hand). E2E launch still needs to hold
-the clock at zero and coordinate detector, opponent spawn, plugin readiness,
-and the other gates before this can support a scored run.
+interface](../sim/README.md#launch-sim-by-hand). The opponent can independently
+confirm paused-world spawn readiness, and an opt-in [strict startup barrier](../sim/README.md#lockstep-startup)
+waits for epoch-zero readiness before releasing physics. E2E launch still needs
+to coordinate detector, opponent spawn, plugin and robot readiness, and the other
+consumption gates before this can support a scored T17 run.
 
 ### Scoring
 
