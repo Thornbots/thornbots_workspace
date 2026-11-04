@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add opt-in simulated epoch-zero initialization for the aim publisher’s
+  timers, with a latched readiness acknowledgment
+  ([thornbots_pkg #59](https://github.com/Thornbots/thornbots_pkg/pull/59)).
+  The remaining robot and E2E launch readiness gates are still open.
+
 - Add opt-in paused epoch-zero UART clock bootstrap: the bridge reports actual
   clock receipt and the simulator waits for it and detector readiness before
   reporting plugin readiness ([bridge #37](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/37),
