@@ -97,9 +97,12 @@ have dedicated plugin/bridge diagnostic coverage; scored integration remains ope
 The detector has an independent opt-in [epoch-zero readiness and consumption
 interface](../sim/README.md#launch-sim-by-hand). The opponent can independently
 confirm paused-world spawn readiness, and an opt-in [strict startup barrier](../sim/README.md#lockstep-startup)
-waits for epoch-zero readiness before releasing physics. E2E launch still needs
-to coordinate detector, opponent spawn, plugin and robot readiness, and the other
-consumption gates before this can support a scored T17 run.
+waits for epoch-zero readiness before releasing physics. The aim publisher can
+also acknowledge [epoch-zero timer initialization](../thornbots_pkg/README.md#point_to_cv_target).
+E2E launch still needs to coordinate detector, opponent spawn, plugin and robot
+readiness, and the other consumption gates before this can support a scored T17
+run. The [2026-11-04 aim initialization check](e2e-aim-epoch-2026-11-04.md)
+covers that node only.
 
 ### Scoring
 
