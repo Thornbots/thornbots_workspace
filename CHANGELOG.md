@@ -7,6 +7,13 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add an opt-in paused-world spawn readiness gate to the simulator
+  `opponent_driver`: it publishes epoch-zero `~/ready` only after a single
+  correctly posed opponent is confirmed in a paused world at sim time zero, and
+  exits on collision, wrong pose, nonzero epoch or timeout
+  ([sim #73](https://github.com/Thornbots/sim/pull/73)). E2E launch does not use
+  it yet, so this does not establish a scored T17 run.
+
 - Add an opt-in strict simulator lockstep startup primitive that holds to the
   first positive scheduled deadline and stops on missing acknowledgments
   ([sim #73](https://github.com/Thornbots/sim/pull/73)). The detector can
