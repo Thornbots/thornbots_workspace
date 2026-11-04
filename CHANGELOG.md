@@ -7,6 +7,9 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add a tested sim-time UART serialization queue as groundwork for T17;
+  the match transport and repeatability acceptance remain open.
+
 - Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
   MCB API; the bridge stamps them at estimated UART send start and publishes
   `/dji_serial_bridge/debug`, recorded in normal and match per-run bags.

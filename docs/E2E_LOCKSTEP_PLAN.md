@@ -13,6 +13,11 @@ The optional [Type C backend](../sim/README.md#type-c-board-execution-with-renod
 executes the normal board ELF and its drivers during each virtual step. This
 does not establish cycle-accurate STM32 deadlines or finish the remaining UART
 serialization and consumption-chain gates.
+The independent `sim/uart_wire.hpp` queue schedules 8N1 bytes in simulation time,
+but `McbFirmwareSystem::Configure` still passes the PTY master directly to
+`Firmware`; `LockstepGate` and `lockstep_coordinator` only hold for MCB batch
+acknowledgments. The relay, explicit shared baud and frame-delivery/bridge
+acknowledgments must be integrated together before UART timing is accepted.
 
 Asked by the user, 2026-10-08: fix the end-to-end tests so a result doesn't
 depend on how fast the machine runs, and make them run as fast as the
