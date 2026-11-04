@@ -99,10 +99,13 @@ interface](../sim/README.md#launch-sim-by-hand). The opponent can independently
 confirm paused-world spawn readiness, and an opt-in [strict startup barrier](../sim/README.md#lockstep-startup)
 waits for epoch-zero readiness before releasing physics. The aim publisher can
 also acknowledge [epoch-zero timer initialization](../thornbots_pkg/README.md#point_to_cv_target).
-E2E launch still needs to coordinate detector, opponent spawn, plugin and robot
-readiness, and the other consumption gates before this can support a scored T17
-run. The [2026-11-04 aim initialization check](e2e-aim-epoch-2026-11-04.md)
-covers that node only.
+The opt-in parked E2E diagnostic now coordinates those timer and scene readiness
+signals before releasing physics; [startup evidence](../sim/docs/e2e-epoch-zero-2026-11-04.md)
+records its scope. Selector, relay, translator and TF first-data consumption
+gates still need integration and repeatability checks before scored T17 runs.
+Driving and match stages do not yet support this startup mode. The
+[2026-11-04 aim initialization check](e2e-aim-epoch-2026-11-04.md) covers that
+node independently.
 
 ### Scoring
 

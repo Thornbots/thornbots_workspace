@@ -7,35 +7,37 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Wire the opt-in parked E2E diagnostic to paused epoch-zero robot and opponent
+  scene verification, detector and aim timer initialization, and MCB bootstrap
+  before lockstep release ([sim #73](https://github.com/Thornbots/sim/pull/73)).
+  Scored acceptance and downstream first-data gates remain open.
+
 - Add opt-in simulated epoch-zero initialization for the aim publisher’s
   timers, with a latched readiness acknowledgment
   ([thornbots_pkg #59](https://github.com/Thornbots/thornbots_pkg/pull/59)).
-  The remaining robot and E2E launch readiness gates are still open.
+  Downstream E2E consumption gates remain open.
 
 - Add opt-in paused epoch-zero UART clock bootstrap: the bridge reports actual
   clock receipt and the simulator waits for it and detector readiness before
   reporting plugin readiness ([bridge #37](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/37),
-  [sim #73](https://github.com/Thornbots/sim/pull/73)). E2E launch wiring and
-  scored acceptance remain open.
+  [sim #73](https://github.com/Thornbots/sim/pull/73)). Scored acceptance remains open.
 
 - Add an opt-in epoch-zero readiness barrier to strict simulator lockstep
   startup, with a separate bounded startup timeout and missing-topic diagnostics
-  ([sim #73](https://github.com/Thornbots/sim/pull/73)). Launch integration and
-  scored T17 acceptance remain open.
+  ([sim #73](https://github.com/Thornbots/sim/pull/73)). Scored T17 acceptance remains open.
 
 - Add an opt-in paused-world spawn readiness gate to the simulator
   `opponent_driver`: it publishes epoch-zero `~/ready` only after a single
   correctly posed opponent is confirmed in a paused world at sim time zero, and
   exits on collision, wrong pose, nonzero epoch or timeout
-  ([sim #73](https://github.com/Thornbots/sim/pull/73)). E2E launch does not use
-  it yet, so this does not establish a scored T17 run.
+  ([sim #73](https://github.com/Thornbots/sim/pull/73)). This does not establish a scored T17 run.
 
 - Add an opt-in strict simulator lockstep startup primitive that holds to the
   first positive scheduled deadline and stops on missing acknowledgments
   ([sim #73](https://github.com/Thornbots/sim/pull/73)). The detector can
   independently acknowledge epoch-zero initialization and consumed truth at
-  scheduled capture stamps, rounded up to the next 1 ms physics step; e2e launch integration and the remaining
-  deterministic bring-up gates are still open.
+  scheduled capture stamps, rounded up to the next 1 ms physics step; downstream
+  deterministic consumption gates are still open.
 
 - Add an opt-in sim-time UART relay fixture with a shared bridge baud for T17;
   Jetson input observed during a firmware cycle is deferred to the next cycle.
