@@ -12,7 +12,8 @@ impact, and link the corresponding package changes.
   The bridge now provides opt-in verified capture stamps and publication
   acknowledgments ([bridge #37](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/37));
   An experimental opt-in simulator metadata and acknowledgment path is under
-  validation ([hosted diagnostic](sim/docs/uart-coordination-2026-11-03.md));
+  validation; its dedicated ROS clock path emits once per physics step and
+  bridge matching is event-driven ([hosted diagnostic](sim/docs/uart-coordination-2026-11-03.md));
   scored integration and match repeatability remain open.
 
 - Firmware developers can send opaque 0–128 byte debug blobs with a nonblocking
