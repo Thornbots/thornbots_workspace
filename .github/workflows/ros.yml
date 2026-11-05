@@ -51,12 +51,12 @@ jobs:
         working-directory: ws/src
         run: |
           case "$PACKAGE_REPO" in
-            workspace|thornbots_pkg|sim|sentry_localization|rf2o_laser_odometry|ros2_dji_serial_bridge|Realsense_ROI_Depth_Rectifier|sllidar_ros2) ;;
+            workspace|thornbots_pkg|sim|sentry_localization|rf2o_laser_odometry|ros2_dji_serial_bridge|Realsense_ROI_Depth_Rectifier|sllidar_ros2|nav_pkg) ;;
             *) echo "Unsupported portable package: $PACKAGE_REPO" >&2; exit 1 ;;
           esac
           git submodule update --init --checkout --depth 1 -- \
             thornbots_pkg sim sentry_localization rf2o_laser_odometry \
-            ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2
+            ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2 nav_pkg
       - name: Overlay the caller's tested revision
         if: github.repository != 'Thornbots/thornbots_workspace'
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
