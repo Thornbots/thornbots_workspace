@@ -25,6 +25,12 @@ finish gate together with a separately verified complete applicable automated su
   centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **AMCL-map-odom — localization / thornbots_pkg — decision open:** First trace whether AMCL's `map->nav_odom`
+  correction reaches the MCB through `mcb_relay`'s `/localization/odom` input; firmware drives absolute field routes.
+  Then decide the relay input: keep `/localization/odom`, or consume `/localization/map_odom` (no reader today),
+  whose AMCL covariance (0.17–0.30 m std in sim) never passes the relay's 0.02 m std gate. Do not loosen the gate
+  without a user decision; validate the chosen policy against truth metrics and existing gates.
+  [Interface](../sentry_localization/README.md#contract-with-thornbots_pkg), [relay](../thornbots_pkg/README.md#mcb_relay).
 - **T29 — workspace / common — publication validation open:** Run the updated Mac/GitHub image-publication
   workflow end to end, including the offline overlay gate and the documented emergency local-build/shipping fallback; linting alone did not establish this acceptance. The documented laptop shipping fallback also lacks
   end-to-end evidence and requires external nonrobot capacity; Mini publication success cannot establish it.
