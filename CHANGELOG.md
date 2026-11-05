@@ -7,6 +7,36 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Move aim planning to the MCB. The Jetson now sends the tracked enemy armor
+  model as a new 80-byte `TARGET_STATE` UART frame on every tracker update, and
+  the MCB does lead, panel choice, spin shot windows, fire lock, confidence and
+  detection-age gates, and shot timing every 25 ms. `CV_TARGET` shrinks to a
+  13-byte idle look point and can no longer request fire. This breaks wire
+  compatibility: deploy firmware and Jetson packages together. Planner tuning
+  is now in firmware constants. `auto.launch.py` drops `lead_enabled`,
+  `firmware_latency_s`, `chase_settle_s`, `chase_margin_s`, `v_muzzle`,
+  `fire_lock_s` and `gimbal_lag_s`, and robot startup drops `EXIT_VELOCITY`
+  ([contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#target_state-id7--tracked-enemy-armor-model);
+  [MCBV3 #133](https://github.com/Thornbots/MCBV3/pull/133),
+  [bridge #40](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/40),
+  [thornbots_pkg #61](https://github.com/Thornbots/thornbots_pkg/pull/61),
+  [sim #77](https://github.com/Thornbots/sim/pull/77),
+  [isaac-ros-startup #26](https://github.com/Thornbots/isaac-ros-startup/pull/26)).
+  The aiming bench now models the MCB holding aim while a shot is pending, so
+  its moving-target floors drop to about 0.62 with per-shot hit rates
+  unchanged. Hosted E2E parked hit rates regressed (speed 4: 2/28 against
+  9/15-15/19), most likely because the fixture's zero-lag chase tuning is now
+  board-default firmware constants; this is unverified and open
+  ([measurement](sim/docs/mcb-aim-planner-2026-11-04.md)).
+
+- Add opt-in strict simulator lockstep startup: it holds to the first positive
+  scheduled deadline, stops on missing acknowledgments, and adds an epoch-zero
+  readiness barrier with a bounded startup timeout and missing-topic
+  diagnostics. The detector acknowledges epoch-zero initialization and consumed
+  truth at scheduled capture stamps, rounded up to the next 1 ms physics step
+  ([sim #73](https://github.com/Thornbots/sim/pull/73)). Scored T17 acceptance
+  and downstream deterministic consumption gates remain open.
+
 - `waypoint_nav` gains an off-field test route: `nav_route:=square` on `auto.launch.py` (or
   `route:=square` standalone) loops a 1 m square from the robot's first localized pose, +x then +y,
   for either team and without referee data. The match route stays the default
@@ -927,7 +957,7 @@ impact, and link the corresponding package changes.
   stamps and frames behind a busy TX queue at the final nonblocking write
   boundary. Fresh aim/fire payloads and ROS/simulation decision stamps stay
   intact. See [bridge #19](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/19)
-  and the [freshness contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#cv-decision-freshness).
+  and the [freshness contract](ros2_dji_serial_bridge/UART_PROTOCOL.md#jetson--mcb-freshness).
   The real-bridge PTY fixtures stamp each newly created decision to follow this
   contract ([sim #38](https://github.com/Thornbots/sim/pull/38)).
 

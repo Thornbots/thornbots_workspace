@@ -88,8 +88,9 @@ UART/camera delay on the robot before selecting physical latency compensation.
   - Validate lit-panel depth, bridge `pose>0`, field-aligned raw POSE and held aim across RELOCALIZE. Send a navigation
     correction only when the offset changes; driving alone must not trigger repeated fixes every 0.3 s.
     [Firmware coordination](../ros2_dji_serial_bridge/README.md#where-the-firmware-stands).
-  - Check no-target fire-clear/bit-0 behavior; measure transit/indexer timing and give latency compensation one owner.
-    [Timing contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#cv_target-id1--aim-point-and-fire-decision).
+  - Check that idle looks never fire and that the MCB's TARGET_STATE ages, replan period and indexer latency hold on
+    hardware; measure UART/USB transit, which the ages leave uncorrected.
+    [TARGET_STATE contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#target_state-id7--tracked-enemy-armor-model).
   - Verify muzzle speed below 25 m/s on a stand, with eye protection and accessible e-stop.
 - **T27 — startup — mitigation unvalidated:** Test an air-gapped sentry boot with Wi-Fi enabled mid-run.
   [Clock-step mitigation](../isaac-ros-startup/README.md#design-notes).
