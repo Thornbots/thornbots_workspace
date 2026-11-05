@@ -112,7 +112,7 @@ UART/camera delay on the robot before selecting physical latency compensation.
   away-and-back AMCL convergence, live wall/scan agreement, real referee match boot/reboot, release image identity,
   persistence/reload and physical field coverage. Exercise both team starts after survey; verify raw-x displacement
   loss/slip on measured distances. Verify MCB shared-power timing, storage durability, systemd activation and actual
-  Jetson power-off. Depends on H-map/H-graph-roundtrip, T38/T40/T27.
+  Jetson power-off. Depends on T38/T40/T27.
   [Operator contract](../thornbots_pkg/README.md#field-day-and-room-workflow),
   [MMM evidence boundary](investigations/mmm-node-validation-2026-10-29.md#corrections-and-limits),
   [mapping evidence](investigations/mapping-procedure-2026-10-26.md#repository-checks-and-open-acceptance).

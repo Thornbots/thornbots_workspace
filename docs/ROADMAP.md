@@ -33,7 +33,7 @@ finish gate together with a separately verified complete applicable automated su
 
 ## Tracks, in order of work
 
-Sim first; robot work waits (2026-10-08). Order (2026-11-01): A, G, F, sim parts of B, D and E, H, sim parts of
+Sim first; robot work waits (2026-10-08). Order (2026-11-01): A, G, F, sim parts of B, D and E, sim parts of
 J, then [issues found](#issues-found); D also supports A. Administration is independent. Robot checks are under
 [ROBOT_TESTS](ROBOT_TESTS.md). Navigation waits until after the Midwest competition.
 
@@ -109,24 +109,9 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   hardware/TF/relay here. Update callers/build integration and rerun both benches.
   [Ownership](../thornbots_pkg/README.md#nodes), [integration](../docs/CI.md#coordinated-package-integration).
 
-### H. SLAM at amcl's level
+<a id="h-slam-at-amcls-level"></a>
 
-- **H-ekf — sentry_localization — open:** Test suspected stacked lidar corrections and raw odometry as SLAM input; retune while
-  retaining EKF. [Investigation](../sentry_localization/README.md#slam---use-rf2o-worse).
-- **H-map — sentry_localization — open:** Matches use a prebuilt event map, surveyed with MMM, loaded at the
-  configured spawn and refined by SLAM (decided 2026-11-01). Save/load a quickly rasterizing pose graph there; expose
-  the hard-coded spawn.
-  [Map loading](../sentry_localization/README.md#launchlocalizationlaunchpy).
-- **T3 — sentry_localization / sim — open:** Run five-minute Battle from blank map with moving/spinning lidar occluders,
-  high ground and realistic acceleration; score truth error, inspect crossed cells for retained robots, repeat three
-  games on one carried map. [Scenario harness](../sim/README.md#scenarios).
-- **H-anomalies — sentry_localization / sim — unverified:** Recheck historical EKF/map anomalies on comparable
-  truth-error metrics; bisect the field-frame change if reproduced. [Metrics](../sim/README.md#localization-drift-suite),
-  [history](https://github.com/Thornbots/thornbots_workspace/blob/3b8163141f919e61b4bf5dafb857130b61d78869/ROADMAP.md#issues-found).
-
-Acceptance: SLAM+EKF passes amcl drift and game scenarios within 0.05 m on the same metric; error does not grow across
-carried-map games, and maps do not accumulate robots or duplicate walls.
-[Drift metrics](../sim/README.md#localization-drift-suite).
+Track H (SLAM at amcl's level) was dropped on 2026-11-05; this anchor keeps package links working.
 
 ### J. Lidar and camera
 
@@ -150,19 +135,6 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
   Robot rf2o steps with the head idle are [physical validation](ROBOT_TESTS.md#lidar-and-camera).
 - **T23 (acceptance):** Compare sim match stages against patrol with no regression and time-to-first-detection
   before promotion. Physical enablement remains in ROBOT_TESTS.
-- **SIM-returns — sim — open:** Sim lidar matches the real 720-bin grid ([sim #31](https://github.com/Thornbots/sim/pull/31))
-  but has no no-return (`inf`) beams beyond the self-filter; real has about 40%. SLAM drift in sim rose from
-  0.08–0.13 m to 0.15–0.22 m with the new grid (limit 0.40 m, 3 trials); cause unknown.
-  Offline recorded-returns replay/model work is Mini-executable, owned by H. Scan-bearing local inputs under
-  `/Users/blaise/ros2_ws/robot-session-20261026/rf2o-replay/inputs/` are
-  `sentry-20261026__1__headturn-yaw.mcap` (1,645 raw scans),
-  `sentry-20261026__1c__1c-old.mcap` (1,119) and `sentry-20261026__1d__1d-new.mcap` (1,105).
-  H reports all 3,869 raw scans have 720 bins, with median raw `inf` fractions 41.5–41.9% and
-  clustered/persistent missing bins. `sentry-20261026b__1-room-04-odom.mcap` and
-  `sentry-20261026c__4-drive-v4.mcap` contain **no scans** and cannot support returns analysis.
-  [H's exact provenance and measurements](https://github.com/Thornbots/thornbots_workspace/blob/7154d241844ea91e8cd869adb143a9b4b9222f4c/docs/investigations/slam-ekf-mini-2026-11-02.md#recorded-returns-available-on-the-mini)
-  are observational evidence, not a causal conclusion or accepted replay/model pass; H owns the findings.
-
 ## Consolidated commitments
 
 ### Dependencies and ownership
@@ -183,7 +155,7 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
   Do not duplicate its fixes or campaigns. Bringup #53 is on hold until #52 lands;
   independent review must check equivalence before superseding it and rebasing workspace #159.
 - A owns stamped-input audit, lockstep gates, board repeatability and combat calibration **after S2-foundation**.
-  G owns estimator covariance/noise. H owns SLAM/EKF, carried maps and returns, avoiding S2 readiness fixtures.
+  G owns estimator covariance/noise.
   D/E owns broader launch/teardown/RTF, avoiding S2's specific readiness fix.
 - Newly imported work below has no confirmed implementation assignment unless one is named. Routing to a track
   describes dependency/subject ownership, not proof an active agent has accepted the added scope.
@@ -251,28 +223,12 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
 
 ### Additional Mini work
 
-- **H-amcl-noise — localization — assigned H extension:** Re-derive `laser_sigma_hit` (0.08 is not final) on the
-  current field/720-bin sensor model, including range/material/no-return sensitivity; verify sharper maps do not make
-  AMCL brittle. Retain H's truth-error acceptance and existing drift gates, including `noise_correction` whole-suite
-  growth behavior; isolated gains do not count as suite acceptance. Depends on SIM-returns and S2 field integration.
-  [Rationale](../sentry_localization/README.md#configamclyaml).
-- **H-graph-roundtrip — localization / bringup — assigned H extension:** Deserialize MMM-saved graph/data, reload
-  at the configured spawn, verify raster/map registration and carried-map operation; nonempty files alone are
-  insufficient. Depends on S2-foundation readiness (do not duplicate that fixture fix), H-map.
-  [Evidence boundary](investigations/mmm-node-validation-2026-10-29.md#corrections-and-limits).
-- **H-map-odom — localization / bringup — decision open:** Decide backend-covariance interpretation before changing
-  the relay's 0.02 m std gate or consuming `/localization/map_odom`; it currently has no reader. Validate selected
-  policy against common truth metrics and existing gates. This is an unresolved user decision, not authorization to
-  loosen the gate. [Interface](../sentry_localization/README.md#contract-with-thornbots_pkg).
 - **LAUNCH-producers — bringup — unassigned:** Add full-stack selection of sim/hardware detection producers in
   `auto.launch.py`; demonstrate one producer chain for each mode without duplicate pipelines, preserving capture
   stamps and existing launch behavior. [Owner](../thornbots_pkg/AGENTS.md#scope).
 - **RF2O-format — rf2o — unassigned:** Migrate deprecated `package.xml` format 1 to format 3, preserving dependencies,
   build/export behavior and upstream diff discipline; pass package build/tests and host policy checks.
   [Owner](../rf2o_laser_odometry/AGENTS.md#scope).
-- **MAC-gui — common — unassigned:** Validate native Mac GUI rendering with the documented setup and record actual
-  success/failure, prerequisites and display behavior; no container/robot result substitutes for native rendering.
-  [Setup](../isaac_ros_common/macos/README.md).
 - **PORTABILITY-WSL — common — external validation dependency:** The documented Windows/WSL2 workflow is untested
   end to end and requires an x86_64 NVIDIA GPU host. Preserve that validation commitment and prerequisite; it cannot
   be accepted from this Mini-only run and is not robot work. [Workflow](../isaac_ros_common/docker/README.md#windows-wsl2).
