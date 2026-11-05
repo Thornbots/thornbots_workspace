@@ -287,11 +287,10 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
 - **COMMON-mounts — common — decision open:** Decide whether robot `.isaac_ros_dev-dockerargs` should be empty rather
   than mounting host configuration/credential directories. Inspect configuration paths only; this task never authorizes
   credential reads. Test the chosen mount contract without reading secrets. [Owner](../isaac_ros_common/AGENTS.md#scope).
-- **NAV-publisher — navigation / sim — deferred, unassigned:** Implement the later route publisher through `NAV_GOAL`,
-  replacing firmware-only route selection only when the planner exists; integrate callers and exercise driving/hitting
-  under existing frame/wire and route gates. Depends on post-Midwest navigation scheduling and A/B/H readiness.
-  `nav_pkg` currently has only a placeholder README; it does not establish a completed planner.
-  [Boundary](E2E_PLAN.md#the-match-test), [wire](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
+- **NAV-route — navigation / sim — open, unassigned:** `thornbots_nav`'s `waypoint_nav` now publishes the Season 2
+  route (start, doorway, pipes point) through `NAV_GOAL`, and the MCB only follows goals. Exercise it in `mcb_drive`/
+  `mcb_match` with the real stack and confirm the pipes point against the published bucket position (CAD estimate).
+  [Route](../nav_pkg/README.md#red-route), [wire](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 - **RULES-S2 — sim / firmware / nav — dependency-owned plus unassigned remainder:** Integrate Season 2 3v3 field/maps/
   routes through S2-foundation; separately transcribe exact Sentry Tournament geometry and audit chassis limits
   against 80 W (3v3), 120 W (Tournament). Do not duplicate the active 3v3 field generator work. Validate new map/route

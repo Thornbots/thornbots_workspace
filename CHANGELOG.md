@@ -7,6 +7,23 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- **Real-robot behavior:** the sentry's waypoints move from the MCB to the Jetson. `thornbots_nav`'s
+  `waypoint_nav`, started by `auto.launch.py` with `real_hardware:=true`, publishes NAV_GOALs. Its route
+  runs from the Starting Zone centre, north to the doorway, east through it, and on to a pipes point +y
+  of the bucket at (0, −2.4). The robot returns at HP ≤ 55% and heads out again above 99%. Outbound
+  steps wait for IN_GAME. The remote's right switch up now schedules the firmware's `AutoDriveCommand`.
+  `SimpleAutoDriveCommand` and its onboard routes are removed. The robot holds a field quarter turn
+  while travelling, because the 0.745 m doorway is narrower than its spin sweep, and spins only at a
+  goal. Flash the matching firmware with this workspace. Older firmware ignores the goals and runs its own route.
+  ([nav_pkg](nav_pkg/README.md), [MCBV3 #132](https://github.com/Thornbots/MCBV3/pull/132)).
+  Arrival is judged on `/localization/odom`. Not yet run on the robot.
+
+- Season 2 3v3 field: the sim default world, localization `clean_map` and team starts (±5.25, −3.0)
+  ([sim #63](https://github.com/Thornbots/sim/pull/63),
+  [localization #35](https://github.com/Thornbots/sentry_localization/pull/35),
+  [bringup #52](https://github.com/Thornbots/thornbots_pkg/pull/52)). The bucket of pipes and the pipe
+  arrangement are CAD estimates.
+
 - Restore green nightly CI: reformat the bridge's coordinated clock callback
   for `uncrustify` ([bridge #38](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/38))
   and refresh all seven portable package CI workspace pins to an integration
@@ -99,7 +116,7 @@ impact, and link the corresponding package changes.
 
 - Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
 
-- New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`) for navigation work; it contains only a README so far and changes no robot behavior.
+- New [`nav_pkg`](https://github.com/Thornbots/nav_pkg) package submodule (tracks `nightly`); it now holds `thornbots_nav` (below), built and tested by workspace ROS CI.
 
 - Low-space startup pruning explicitly protects the active run even with zero retained runs. Regression tests prove oldest-first bag/log deletion, stopping when space recovers, retention, and active-run/latest-link preservation ([startup #22](https://github.com/Thornbots/isaac-ros-startup/pull/22), [pruning](isaac-ros-startup/README.md#design-notes)).
 
