@@ -7,6 +7,13 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Extend the E2E epoch-zero diagnostic to `mcb_drive` and `mcb_match`: every
+  ghost spawns at its scenario t=0 pose and yaw, and target and match timers
+  start at zero ([sim #74](https://github.com/Thornbots/sim/pull/74)). Fixes the
+  intermittent Gazebo abort, caused by one test launch's surviving gz server
+  latching stale MCB readiness for the next. The aim phase can still slip 1 ms;
+  scored acceptance remains open.
+
 - Wire the opt-in parked E2E diagnostic to paused epoch-zero robot and opponent
   scene verification, detector and aim timer initialization, and MCB bootstrap
   before lockstep release ([sim #73](https://github.com/Thornbots/sim/pull/73)).
