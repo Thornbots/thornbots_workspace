@@ -171,7 +171,7 @@ impact, and link the corresponding package changes.
   The sim aiming bench uses the same policy without a fire-rate override
   ([sim #55](https://github.com/Thornbots/sim/pull/55)).
 
-- Sol agents do their own work by default, delegating to another Sol only for large, independent parallel work, and no agent delegates tasks it can finish in a few tool calls ([AGENTS](AGENTS.md#delegation)).
+- The workspace [AGENTS](AGENTS.md) no longer sets delegation rules; agents follow their own harness and user defaults.
 - Sentry MMM now owns indicators and restrictions in its command, keeps odometry pods pointing in every mapping state while the remote is connected, and services pings through Jetson UART refresh ([MCBV3 #111](https://github.com/Thornbots/MCBV3/pull/111)). Turning the remote off now stops every motor, gimbal and pods included, without leaving the mapping state ([MCBV3 #114](https://github.com/Thornbots/MCBV3/pull/114)).
 - Sentry MMM starts from the controller: left switch down and the right stick held up for 5 s. Inside MMM, each later 5 s hold (after a release) tries to save; no input leaves MMM ([MCBV3 #113](https://github.com/Thornbots/MCBV3/pull/113), [firmware README](firmware/MCBV3/README.md#mcb-mapping-machine-sentry)).
 
@@ -489,9 +489,6 @@ impact, and link the corresponding package changes.
   ([c95e286](https://github.com/Thornbots/isaac_ros_common/commit/c95e286)).
   Standard now runs JetPack 7.2.1 on firmware 39.2.1.
 
-- Agents delegate general tasks to a Sol agent; Haiku/Luna stay
-  for high-volume repetitive edits ([AGENTS](AGENTS.md#delegation)).
-
 - isaac_ros_common's README now links this fork's clone, image and Mac
   setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
   Standalone MCB flashing points at this repo's GitHub CI ELF artifacts and
@@ -701,10 +698,8 @@ impact, and link the corresponding package changes.
 - Agents run tests, sim integration tests, sim benches and reruns as they see
   fit, and start laptop containers, VMs and stacks as needed, without asking.
   Physical-robot runs and restarting or stopping what an agent did not start
-  still need the user. Delegated agents never wait on user input: a brief
-  naming other user-approved actions counts as that approval, and anything
-  else is skipped and reported. See [delegation](AGENTS.md#delegation) and
-  [runs](AGENTS.md#containers-and-runs).
+  still need the user. A delegation brief naming other user-approved actions
+  counts as that approval ([runs](AGENTS.md#containers-and-runs)).
 - Sim temporary-world cleanup tolerates repeated shutdown events, and the native
   log checker rejects launch exceptions. Fresh hosted MCB builds, UART traffic
   and live gimbal aiming were verified on x86_64. See
