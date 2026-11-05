@@ -37,6 +37,18 @@ impact, and link the corresponding package changes.
   ([sim #73](https://github.com/Thornbots/sim/pull/73)). Scored T17 acceptance
   and downstream deterministic consumption gates remain open.
 
+- `waypoint_nav` gains an off-field test route: `nav_route:=square` on `auto.launch.py` (or
+  `route:=square` standalone) loops a 1 m square from the robot's first localized pose, +x then +y,
+  for either team and without referee data. The match route stays the default
+  ([nav_pkg #2](https://github.com/Thornbots/nav_pkg/pull/2),
+  [bringup #62](https://github.com/Thornbots/thornbots_pkg/pull/62)).
+
+- Sim's hosted MCB plant now round-trips sentry's real pitch encoder offset, counts successive
+  physical chamber exits and models the indexer output shaft
+  ([sim #76](https://github.com/Thornbots/sim/pull/76)). With it, `mcb_drive` scores hits again on the
+  Season 2 field: it had scored 0 because the plant's pitch offset (1.62 rad) did not match the
+  firmware's (0.18 rad). Sim only; no robot behavior change.
+
 - **Real-robot behavior:** the sentry's waypoints move from the MCB to the Jetson. `thornbots_nav`'s
   `waypoint_nav`, started by `auto.launch.py` with `real_hardware:=true`, publishes NAV_GOALs. Its route
   runs from the Starting Zone centre, north to the doorway, east through it, and on to a pipes point +y
