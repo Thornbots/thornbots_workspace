@@ -1,7 +1,7 @@
 # T30: localization startup, 2026-10-15–17
 
-Historical evidence. Live commitments: [software/sim](ROADMAP.md),
-[physical validation](ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
+Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
+[physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
 not a separate maintained action list.
 
 Status: PRs remain draft pending full drift acceptance. The orchestrator accepted
@@ -78,7 +78,7 @@ TF publisher was added.
 
 ## Fix
 
-The [localization owner](../sentry_localization/README.md#launchlocalizationlaunchpy)
+The [localization owner](../../sentry_localization/README.md#launchlocalizationlaunchpy)
 now directly constructs and links each backend with its lifecycle manager in one
 C++ process, with a separate executor per node. Backend nodes exist before the
 manager starts. Lifecycle service endpoints share a DDS participant, and startup
@@ -89,7 +89,7 @@ An intermediate local plugin-factory loader had clean startups but reproducible
 shutdown SIGSEGVs. It was rejected. The final directly linked backend has zero
 abnormal shutdowns across its smoke run and twenty startup trials.
 
-The [sim harness](../sim/README.md#more-on-the-tests) now fails a shared-sim robot
+The [sim harness](../../sim/README.md#more-on-the-tests) now fails a shared-sim robot
 startup after its existing single 30-second wait. It no longer restarts that
 robot to rescue the case. Drift and E2E errors distinguish the raw, navigation
 and map links. The old automatic retry masked a broken startup and was not an
@@ -514,7 +514,7 @@ The exact original
 `real_accel` miss was not reproduced, and these observations alone do not prove
 which reset/physics interleaving caused it. The existing model permits reaction
 torque to escape the nominal yaw lock; see
-[the motion model](../sim/README.md#sentry_v2urdfxacro-motion-model).
+[the motion model](../../sim/README.md#sentry_v2urdfxacro-motion-model).
 
 The teleport helper issues model-only resets before and after `set_pose`; it
 currently ignores both reset return values. Treating a successful pose write

@@ -46,7 +46,7 @@ dated narrative/tables retain measurements and their original acceptance boundar
 
 | Evidence source | Current destination / resolved status |
 | --- | --- |
-| [T30 startup](../t30-localization-startup-2026-10-16.md#shared-sim-comparison-and-acceptance-2026-10-18) | Completed; workspace #132 removed T30. Later acceptance supersedes original draft/pending language. Historical record marked accordingly. Broader teardown remains E. |
+| [T30 startup](../investigations/t30-localization-startup-2026-10-16.md#shared-sim-comparison-and-acceptance-2026-10-18) | Completed; workspace #132 removed T30. Later acceptance supersedes original draft/pending language. Historical record marked accordingly. Broader teardown remains E. |
 | [Sentry sim-to-real](../investigations/sentry-sim-to-real-2026-10-18.md) | Scan guard merged rf2o #10, angle compensation merged bringup #18; T39/SENTRY-drift physical, B-timing software audit + physical timing. Serial recalibration pause explained, no fix planned. Replaced recommendation lists; retained complete timing table/evidence. |
 | [Jetson measurements](../investigations/sentry-nightly-jetson-2026-10-18.md#remaining-acceptance) | T38 delivery/calibrated depth/TF/engine; T21 controller interlocks/distance/shots; SENTRY-drift; T27/T34 boot/GPU; E-discovery; interrupted MCAP. Replaced remaining-acceptance action list with links; original failed/draft checkpoints retained as history. |
 | [T39](../investigations/t39-parked-drift-2026-10-25.md), [fieldmap divergence](../investigations/fieldmap-divergence-2026-10-22.md) | T39 physical references-off/on acceptance; H-anomalies/raw-x and H-map. Existing default-off limits and shove evidence preserved, not promoted. |
@@ -146,7 +146,7 @@ completion evidence, `CLAUDE` imports already-read AGENTS, and operational proce
 - `docs/investigations/sentry-sim-to-real-2026-10-18.md`
 - `docs/investigations/t39-parked-drift-2026-10-25.md`
 - `docs/lidar-guided-aiming-2026-10-25.md`
-- `docs/t30-localization-startup-2026-10-16.md`
+- `docs/investigations/t30-localization-startup-2026-10-16.md`
 
 ### Realsense_ROI_Depth_Rectifier
 

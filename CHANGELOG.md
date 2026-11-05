@@ -580,7 +580,7 @@ impact, and link the corresponding package changes.
   Portable CI dependency pins now follow the integrated current UART contract. See
   [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
   [sim #26](https://github.com/Thornbots/sim/pull/26) and
-  [T30 validation](docs/t30-localization-startup-2026-10-16.md).
+  [T30 validation](docs/investigations/t30-localization-startup-2026-10-16.md).
 
 - Add opt-in tracker innovation diagnostics and estimation-bench radius/prior
   controls. G.1 trials expose regressions in the full matrix, so tracker tuning,
