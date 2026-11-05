@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Restore green nightly CI: reformat the bridge's coordinated clock callback
+  for `uncrustify` ([bridge #38](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/38))
+  and refresh all seven portable package CI workspace pins to an integration
+  that includes the bridge's `SimFrameMetadata`, so sim's package CI builds.
+  No behavior change.
+
 - Extend the E2E epoch-zero diagnostic to `mcb_drive` and `mcb_match`: every
   ghost spawns at its scenario t=0 pose and yaw, and target and match timers
   start at zero ([sim #74](https://github.com/Thornbots/sim/pull/74)). Fixes the
