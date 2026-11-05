@@ -1,6 +1,6 @@
 # Physical robot validation
 
-Maintained home for unfinished physical-robot acceptance. Software/sim work stays in
+This is the maintained home for unfinished physical-robot acceptance. Software/sim work stays in
 [ROADMAP](ROADMAP.md); passing sim does not establish robot acceptance. Preserve IDs, numerical gates and
 linked owner contracts when recording results. Follow [robot-run authorization](../AGENTS.md#containers-and-runs)
 and the linked package procedures before running hardware.
@@ -8,8 +8,8 @@ and the linked package procedures before running hardware.
 ## Field starts
 
 - **T40 — sentry_localization / thornbots_pkg — unmeasured:** Survey the independent red/blue team starts
-  before the next event. They are per-robot Jetson configuration in `/etc/thornbots/launch.env`; defaults remain
-  unmeasured spooky scrim values. Firmware receives starts through RELOCALIZE and uses absolute field routes.
+  before the next event; defaults in `/etc/thornbots/launch.env` remain unmeasured spooky scrim values.
+  Firmware receives starts through RELOCALIZE and uses absolute field routes.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
   The failed ARCC-world ingress remains software work under [T40](ROADMAP.md#short-todos).
@@ -27,13 +27,15 @@ and the linked package procedures before running hardware.
 
 - **B-hardware — thornbots_pkg / bridge / MCBV3 — pending:** Validate separate raw aim/navigation frames and RELOCALIZE
   [mailbox loss](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb-receive) under CV traffic. [Aim and navigation frames](../ros2_dji_serial_bridge/README.md#aim-and-navigation-frames).
-- **B-timing — bridge / thornbots_pkg — unmeasured:** Measure residual UART/camera delays on the robot before
-  selecting latency compensation; depends on the [software stamp audit](ROADMAP.md#b-hit-while-we-move). Verify YOLO
-  stamp propagation and set latency parameters. [Stamp contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson),
+- **B-timing — bridge / thornbots_pkg — unmeasured:** Measure residual UART/camera delays, verify YOLO stamp propagation
+  and set latency parameters. [Stamp contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#mcb--jetson),
   [tracker timing](../thornbots_pkg/README.md#target_tracker).
 - **B-settling — thornbots_pkg — sim measured, hardware pending:** Use spin alignment gating after chase/lead/filter
   ablations; measure real gimbal and indexing delays before hardware acceptance.
   [Aimer](../thornbots_pkg/README.md#point_to_cv_target).
+
+B-timing depends on the [software stamp audit](ROADMAP.md#b-hit-while-we-move); measure residual
+UART/camera delay on the robot before selecting physical latency compensation.
 
 ## Parked localization
 

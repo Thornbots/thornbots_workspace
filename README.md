@@ -36,13 +36,18 @@ Do not run `git checkout nightly` in every submodule: it jumps each package to
 its branch tip, which can differ from the pinned commit, and nested
 submodules have no configured branch.
 
-A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package. Push the package before you push here: a gitlink pointing at an unpushed commit fails everyone else's `git submodule update --init`. One logical change, one bump: a bump may move several gitlinks when they belong to the same change, and a one-line package commit still earns its own.
+A package change takes two commits: one in the package, one here to bump the gitlink. `Dockerfile.thornbots` builds from this directory, so your image picks up the change without the bump. Skip it and everyone else builds the old code, and your next `git submodule update` rewinds the package.
 
 [CI and validation](docs/CI.md) covers repository checks, lint debt, and
 robot images. Only `main` runs CI and builds images (`nightly` is covered by
 [local checks](docs/CI.md#local-checks-for-prs-into-nightly) and the
 [nightly tests](docs/CI.md#nightly-tests)); pushes to `main`
 publish tested images to `ghcr.io/thornbots/isaac-ros`, using exact gitlinks.
+
+One logical change, one bump: a bump may move several gitlinks when they belong
+to the same change, and a one-line package commit still earns its own. Push the
+package before you push here — a gitlink pointing at an unpushed commit fails
+everyone else's `git submodule update --init`.
 
 A change across packages can live on a branch of the same name in each, with
 this repo's branch bumping the gitlinks. Follow the

@@ -29,16 +29,15 @@ speed work below makes each run cheaper and makes one run cover more.
 
 ## Speed
 
-Live speed work and its numerical acceptance are in
-[ROADMAP D](ROADMAP.md#d-and-e-acceptance-details).
+Live speed work and its numerical acceptance are maintained in
+[ROADMAP D](ROADMAP.md#d-and-e-acceptance-details). This document retains the match design and scoring reference.
 
-Historical measurements (Mac llvmpipe, 2026-09-29): subscribed 60 Hz RGB-D capped a bare server
-near RTF 2.2; box collisions cost about 2 µs per shape per step; the depth-alone figures are in
-[sim's history](../sim/docs/simulation-history-2026-11-02.md#depth-transport-measurements).
-They do not establish current performance. The design gives only our robot camera/lidar sensors and each ghost
+Historical speed measurements (Mac llvmpipe, 2026-09-29): subscribed 60 Hz RGB-D capped a bare server
+near RTF 2.2; depth alone at 60 Hz reduced bare `sim.launch.py` from RTF 2.66 to 1.1. Box collisions
+cost about 2 µs per shape per step. The design gives only our robot camera/lidar sensors and each ghost
 one body hull plus one box per panel. Camera stays off (`camera:=false`) until scored; the match stand-in
-also replaces `roi_depth_node`. Choose a rate when a stage consumes images.
-Timing measurements belong in each implementation commit.
+also replaces `roi_depth_node`. Choose a rate when a stage consumes images. Timing measurements belong
+in each implementation commit; these historical measurements do not establish current performance.
 
 ## The match test
 
@@ -91,18 +90,22 @@ All three stages run on nightly. Commands and model limits are in
 [sim's README](../sim/README.md#driving-and-combat-diagnostics-mcb_drive);
 current results and open work are in [ROADMAP track A](ROADMAP.md#a-the-match-test).
 
-Opt-in lockstep building blocks exist: the bridge's [capture metadata and
-publication acknowledgment](../ros2_dji_serial_bridge/README.md#simulation-capture-metadata),
-the sim [producer and delivery gate](../sim/README.md#coordinated-uart-fixtures)
-(diagnostic coverage only; scored integration is open), the detector's
-[epoch-zero readiness](../sim/README.md#launch-sim-by-hand), the opponent's
-paused-world spawn readiness, a [strict startup barrier](../sim/README.md#lockstep-startup)
-and the aim publisher's [timer-initialization acknowledgment](../thornbots_pkg/README.md#point_to_cv_target)
-([check](e2e-aim-epoch-2026-11-04.md)). The parked E2E diagnostic coordinates
-the timer and scene signals before releasing physics ([evidence](../sim/docs/e2e-epoch-zero-2026-11-04.md)).
-Selector, relay, translator and TF first-data gates still need integration and
-repeatability checks before scored T17 runs; driving and match stages do not
-yet support this startup mode.
+The bridge provides an optional [verified capture metadata and publication acknowledgment
+interface](../ros2_dji_serial_bridge/README.md#simulation-capture-metadata). The experimental
+[simulator producer and delivery gate](../sim/README.md#coordinated-uart-fixtures)
+have dedicated plugin/bridge diagnostic coverage; scored integration remains open.
+The detector has an independent opt-in [epoch-zero readiness and consumption
+interface](../sim/README.md#launch-sim-by-hand). The opponent can independently
+confirm paused-world spawn readiness, and an opt-in [strict startup barrier](../sim/README.md#lockstep-startup)
+waits for epoch-zero readiness before releasing physics. The aim publisher can
+also acknowledge [epoch-zero timer initialization](../thornbots_pkg/README.md#point_to_cv_target).
+The opt-in parked E2E diagnostic now coordinates those timer and scene readiness
+signals before releasing physics; [startup evidence](../sim/docs/e2e-epoch-zero-2026-11-04.md)
+records its scope. Selector, relay, translator and TF first-data consumption
+gates still need integration and repeatability checks before scored T17 runs.
+Driving and match stages do not yet support this startup mode. The
+[2026-11-04 aim initialization check](e2e-aim-epoch-2026-11-04.md) covers that
+node independently.
 
 ### Scoring
 

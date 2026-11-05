@@ -1,10 +1,9 @@
 # Where the project is going
 
-Prove the firmware-driven CV stack end to end in sim, improve estimation, then validate on robots. This file owns
-unfinished Mini/software/sim work; physical validation lives in [ROBOT_TESTS](ROBOT_TESTS.md); usage, design and
-measurements stay in linked docs. Remove completed items once their implementation and integration have landed.
-An empty roadmap is only the finish gate together with a separately verified complete applicable automated suite
-on integrated `nightly`.
+Prove the firmware-driven CV stack end to end in sim, improve estimation, then validate on robots. This file owns unfinished Mini/software/sim work. Physical validation lives in
+[ROBOT_TESTS](ROBOT_TESTS.md); usage, design and measurements stay in linked docs.
+Remove completed items once their implementation and integration have landed. An empty roadmap is only the
+finish gate together with a separately verified complete applicable automated suite on integrated `nightly`.
 
 ## Where we actually are
 
@@ -17,10 +16,13 @@ on integrated `nightly`.
 
 ## Short todos
 
-- **T40 — sentry_localization / thornbots_pkg — sim ingress open:** Team starts are per-robot Jetson launch
-  configuration; defaults are unmeasured until [surveyed](ROBOT_TESTS.md#field-starts). sim keeps its ARCC spawn and passes matching
-  team starts to bringup. The scrim route still needs validation in the ARCC world: hosted parked ingress fails to
-  reach centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
+- **T40 — sentry_localization / thornbots_pkg — sim ingress open:** Team starts are now independent,
+  per-robot Jetson launch configuration in `/etc/thornbots/launch.env`; firmware receives its start
+  through RELOCALIZE and uses absolute field routes. Defaults remain unmeasured spooky scrim values;
+  [survey them before the next event](ROBOT_TESTS.md#field-starts). sim keeps its ARCC spawn and passes matching team starts to
+  bringup, resolving its former start mismatch.
+  The scrim route still needs validation in the ARCC world: hosted parked ingress fails to reach
+  centre ([sim validation](https://github.com/Thornbots/sim/pull/61)); start/relocalization gates pass.
   [Configuration](../thornbots_pkg/README.md#point_to_cv_target),
   [wire contract](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 - **T29 — workspace / common — publication validation open:** Run the updated Mac/GitHub image-publication
@@ -42,8 +44,10 @@ J, then [issues found](#issues-found); D also supports A. Administration is inde
   [Lockstep order](E2E_LOCKSTEP_PLAN.md#order-and-done-when),
   [hosted baseline](../sim/docs/match-check-2026-10-11.md#parked-cells).
 - **A-combat — sim / thornbots_pkg — open:** Add calibrated combat floors; drive rejects zero native hits, while
-  match still uses diagnostic checks. Board parked-cell repeatability remains open (progress so far is in the
-  [table above](#where-we-actually-are)). Retain navigation startup failures in the acceptance record.
+  match still uses diagnostic checks. Raw aim no longer follows EKF/RELOCALIZE. Spin alignment gating clears the
+  hosted near-range spinning floors. Three accepted board drive/match repeats improve hits over nightly;
+  calibrated combat floors and board parked-cell repeatability remain open. Retain navigation startup
+  failures in the acceptance record.
   [Diagnostic design](../sim/README.md#driving-and-combat-diagnostics-mcb_drive).
 
 ### G. Estimation accuracy
@@ -149,10 +153,13 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
 - **SIM-returns — sim — open:** Sim lidar matches the real 720-bin grid ([sim #31](https://github.com/Thornbots/sim/pull/31))
   but has no no-return (`inf`) beams beyond the self-filter; real has about 40%. SLAM drift in sim rose from
   0.08–0.13 m to 0.15–0.22 m with the new grid (limit 0.40 m, 3 trials); cause unknown.
-  Offline recorded-returns replay/model work is Mini-executable, owned by H. Local inputs are under
-  `/Users/blaise/ros2_ws/robot-session-20261026/rf2o-replay/inputs/`: three `sentry-20261026__*.mcap` files carry
-  3,869 raw 720-bin scans (median raw `inf` 41.5–41.9%, clustered/persistent missing bins);
-  `sentry-20261026b__1-room-04-odom.mcap` and `sentry-20261026c__4-drive-v4.mcap` contain **no scans**.
+  Offline recorded-returns replay/model work is Mini-executable, owned by H. Scan-bearing local inputs under
+  `/Users/blaise/ros2_ws/robot-session-20261026/rf2o-replay/inputs/` are
+  `sentry-20261026__1__headturn-yaw.mcap` (1,645 raw scans),
+  `sentry-20261026__1c__1c-old.mcap` (1,119) and `sentry-20261026__1d__1d-new.mcap` (1,105).
+  H reports all 3,869 raw scans have 720 bins, with median raw `inf` fractions 41.5–41.9% and
+  clustered/persistent missing bins. `sentry-20261026b__1-room-04-odom.mcap` and
+  `sentry-20261026c__4-drive-v4.mcap` contain **no scans** and cannot support returns analysis.
   [H's exact provenance and measurements](https://github.com/Thornbots/thornbots_workspace/blob/7154d241844ea91e8cd869adb143a9b4b9222f4c/docs/investigations/slam-ekf-mini-2026-11-02.md#recorded-returns-available-on-the-mini)
   are observational evidence, not a causal conclusion or accepted replay/model pass; H owns the findings.
 
@@ -223,7 +230,7 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
 
 - **E-map-graph — localization / bringup — OPEN, unassigned Mini investigation:** Diagnose the two
   `passthrough_odom_publisher` graph entries in the [original round 2 evidence](investigations/mapping-procedure-2026-10-26.md#round-2-source-re-audit-and-shorter-operator-card).
-  Prerequisites: recover exact source/configuration and logs from that checkpoint; coordinate with
+  Prerequisites: recover exact source/configuration and available logs from that checkpoint; coordinate with
   E-discovery/E-launch and S2-foundation before runtime work on accepted exact refs with granted capacity.
   Acceptance: correlate process/launch ownership, node identities and publisher endpoint identities over time;
   distinguish simultaneous real duplicate publishers from ROS daemon cache/discovery artifacts. CLI duplicate-name
@@ -286,10 +293,9 @@ Physical camera/lidar checks live in [ROBOT_TESTS](ROBOT_TESTS.md#lidar-and-came
   `nav_pkg` currently has only a placeholder README; it does not establish a completed planner.
   [Boundary](E2E_PLAN.md#the-match-test), [wire](../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types).
 - **RULES-S2 — sim / firmware / nav — dependency-owned plus unassigned remainder:** Integrate Season 2 3v3 field/maps/
-  routes through S2-foundation. The figure transcription and read-only 80 W (3v3) / 120 W (Tournament) chassis
-  audit are done ([evidence](rules/season2-geometry.md#coverage-and-authority)); firmware and sim defaults still
-  disagree with it, so owners apply the findings. Do not duplicate the active 3v3 field generator work. Validate new
-  map/route geometry against the cited drawings and package tests.
+  routes through S2-foundation; separately transcribe exact Sentry Tournament geometry and audit chassis limits
+  against 80 W (3v3), 120 W (Tournament). Do not duplicate the active 3v3 field generator work. Validate new map/route
+  geometry against cited drawings and package tests; rules geometry is a prerequisite for event-map/nav updates.
   Unpublished Site Manual, armor style/mounting and zig-zag pole details remain external blockers under DOC14g.
   [Sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 
@@ -306,12 +312,12 @@ Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-0
 
 - **DOC14a — lidar docs — unassigned:** Repair the remaining `$echo`/`$source` shell examples and verify executable
   setup snippets; the directory typo was fixed in sllidar #5. [Audit](audits/docs-audit-2026-10-06.md#14a--lidar-readme).
-- **DOC14g — workspace — audit open (#14g):** Event-map geometry from E27 Figs 3-3–3-13 and 4-3–4-4 is transcribed
-  ([evidence](rules/season2-geometry.md#coverage-and-authority)). Track the unpublished dependencies: Site Manual
-  match formats/venue details, BS27 §2.1.4/§3.6.2 dot-matrix style/mounting/dimensions (needed for CV training and
-  armor priors) and E27 §3.2.4.4 zig-zag pole details. Preserve exact source/page authority for each claim; older
-  inferred rules must not appear as verified current requirements.
-  [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
+- **DOC14g — workspace — audit open:** Extract remaining event-map geometry from the figures and check unpublished Site Manual and armor details (#14g).
+  Track the unpublished Site Manual, dot-matrix armor style/mounting/dimensions and zig-zag pole; transcribe exact
+  event-map geometry from E27 Figs 3-3–3-13 and 4-3–4-4 in coordination with RULES-S2. Preserve exact
+  source/page authority for each claim; older inferred rules must not appear as verified current requirements.
+  Site Manual match formats/venue details, BS27 §2.1.4/§3.6.2 dot-matrix style/mounting/dimensions
+  (needed for CV training and armor priors), and E27 §3.2.4.4 zig-zag pole details remain unpublished dependencies. [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
 - **SIM-wall — sim — untested:** Establish wall-impact behavior before demonstrating avoidance.
   [Motion-model limits](../sim/README.md#sentry_v2urdfxacro-motion-model).
 
