@@ -1,7 +1,7 @@
 # Plan: end-to-end tests in sim, and faster benches
 
-Live actions: [A](ROADMAP.md#a-acceptance-details), [D](ROADMAP.md#d-and-e-acceptance-details),
-[model gaps](ROADMAP.md#a-acceptance-details), [navigation](ROADMAP.md#additional-mini-work).
+Live actions: [consistent runs](ROADMAP.md#c-consistent-sim-runs); match, model and speed work is
+[paused](ROADMAP.md#paused-sim-work) (2026-11-05).
 The table below is design/reference, not a second action list. The goal is one test, the match
 test, that runs the robot's code as `auto.launch.py` runs it on the field.
 Sim plays only what sits outside the Jetson:

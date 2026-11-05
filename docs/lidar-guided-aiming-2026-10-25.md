@@ -102,7 +102,7 @@ reports a hit, follows the gun instead of pulling the head back.
 
 ## Stages
 
-Live stage commitments and dependencies are maintained in [ROADMAP T23](ROADMAP.md#j-lidar-and-camera).
+Stages 2–4 are [paused](ROADMAP.md#paused-sim-work) (2026-11-05).
 Stage 1 merged. The design separates robot visibility in sim lidar (stage 2), visualization-only tracker
 output with no head effect (stage 3), and ranked-track head direction (stage 4). These are interface boundaries;
 implementation status, ordering, dependencies and acceptance live only in the roadmap. The design above defines
