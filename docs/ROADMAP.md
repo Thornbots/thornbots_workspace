@@ -281,8 +281,6 @@ Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-0
   source/page authority for each claim; older inferred rules must not appear as verified current requirements.
   Site Manual match formats/venue details, BS27 §2.1.4/§3.6.2 dot-matrix style/mounting/dimensions
   (needed for CV training and armor priors), and E27 §3.2.4.4 zig-zag pole details remain unpublished dependencies. [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
-- **SIM-wall — sim — untested:** Establish wall-impact behavior before demonstrating avoidance.
-  [Motion-model limits](../sim/README.md#sentry_v2urdfxacro-motion-model).
 
 <a id="later-needs-a-robot"></a>
 
