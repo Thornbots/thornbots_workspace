@@ -5,9 +5,8 @@ Only `main` builds an image and runs the full CI: workspace and package CI run
 on pushes to `main`, on PRs into `main` and on manual dispatch. `nightly` runs
 no CI on pushes or PRs; authors run the
 [local checks](#local-checks-for-prs-into-nightly) before merging, and the
-[nightly tests](#nightly-tests) run on the Mac mini each night. All eleven `.gitmodules` entries track `nightly`
-on this integration branch, with exact gitlink pins. Sim and MCB firmware are
-initialized by normal submodule checkout; firmware can be skipped.
+[nightly tests](#nightly-tests) run on the Mac mini each night. Submodule
+tracking, pins and the optional firmware are in the [README](../README.md#working-with-submodules).
 
 | Repositories | Automatic validation |
 | --- | --- |
@@ -23,15 +22,13 @@ Portable packages are thornbots_pkg, sim, sentry_localization,
 rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,
 and sllidar_ros2. Package workflows pin reusable tooling to existing immutable
 workspace commits retained by `ci-tooling-884bfe6` and `ci-ros-58b7bf0` tags.
-Their `workspace-ref` independently pins the integrated dependency workspace.
-Refresh this immutable dependency pin across all seven portable package
-workflows when integrated interfaces change. Updating workspace nightly alone
-does not move package CI's dependency checkout. Keep the reusable tooling pins
-unchanged unless the tooling itself changes.
-Startup pins the native host-test tooling introduced by the C++ CI repair.
-When updating reusable tooling, move workflow references and their
-`tooling-ref` inputs together; dependency pins must continue to describe
-nightly. The workspace uses its own tested revision.
+Their `workspace-ref` independently pins the integrated dependency workspace;
+refresh it across all seven portable package workflows when integrated
+interfaces change (updating workspace nightly alone does not move it). Keep the
+reusable tooling pins unchanged unless the tooling itself changes; then move
+workflow references and their `tooling-ref` inputs together. Dependency pins
+must continue to describe nightly. Startup pins the native host-test tooling
+introduced by the C++ CI repair; the workspace uses its own tested revision.
 Host helper jobs use the workspace's exact package pins and archive their JUnit
 reports. Package quality workflows use the same
 [host test runner](../.github/scripts/test_host_packages.sh).
@@ -40,9 +37,8 @@ reports. Package quality workflows use the same
 
 Before merging into `nightly`, in each changed repo (workspace included):
 
-- Python 3.12 venv with `.github/quality/requirements.txt`: `python
-  .github/quality/check.py` and `actionlint -shellcheck=""`; checker changes
-  also need `python -m unittest discover -s .github/quality -v`.
+- The [repository checks](../AGENTS.md#repository-checks) (quality checker,
+  `actionlint`, checker tests).
 - ROS packages: `colcon build` and `colcon test --packages-select <pkg>` in
   your own agent container (`isaac_ros_common/scripts/agent_container.sh`,
   see the [Docker skill](../.claude/skills/isaac-ros-docker/SKILL.md)).
@@ -174,8 +170,7 @@ string/cast pitfalls. Registered ament lint runs in the Jazzy tier too.
 
 `.github/quality-baseline.json` records reviewed debt by file, rule, message
 and count. Existing findings pass; new or increased findings fail. Syntax and
-document parse errors always fail, even if baselined. Do not grow the baseline
-to hide regressions. Existing driver debt includes C-style casts and `sprintf`;
+document parse errors always fail, even if baselined. Existing driver debt includes C-style casts and `sprintf`;
 these are departures from standard C++ practice, not endorsed conventions.
 
 ## Validation boundaries
@@ -200,7 +195,7 @@ counts belong in commit messages; old PR results do not validate new pins.
 
 The Mac mini publishes `ghcr.io/thornbots/isaac-ros:nightly-arm64-jetpack`
 plus `sha-<full workspace SHA>-arm64-jetpack` from `origin/nightly` after its
-nightly tests pass; see [Nightly tests](#nightly-tests). It builds the existing
+nightly tests pass (see [Nightly tests](#nightly-tests)). It builds the existing
 Isaac ROS CLI JetPack layer chain natively under Colima and tests the built
 packages and builds the robot overlay with networking disabled before pushing.
 
@@ -209,7 +204,7 @@ manual builds on GitHub's arm64 runner. Pushes to
 `main` publish `ghcr.io/thornbots/isaac-ros:main-arm64-jetpack`
 and `sha-<full workspace SHA>-arm64-jetpack`. PRs into `main` build and test
 without publishing robot tags. Manual dispatch can publish its selected branch revision (for
-example `nightly`), with slashes replaced by dashes; see [Nightly tests](#nightly-tests). Simulation images are not published.
+example `nightly`), with slashes replaced by dashes. Simulation images are not published.
 
 Base layers are cached as `isaac-ros:base-<layer>_<hash>-arm64-jetpack`, with
 the hash covering Dockerfiles and build arguments. Cached layers let a run

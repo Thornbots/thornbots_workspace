@@ -14,9 +14,8 @@ postmortems.
 ## Your own container
 
 Every agent task makes its own container from the existing image and removes
-it when done. Never build the image (`isaac-ros activate`, `docker build`,
-`buildx bake`), and never stop, restart or `rm` a container you did not
-create, above all the user's long-lived `isaac_ros_jazzy_container`.
+it when done ([workspace rules](../../../AGENTS.md#containers-and-runs)).
+Never build the image (`isaac-ros activate`, `docker build`, `buildx bake`).
 [`agent_container.sh`](../../../isaac_ros_common/scripts/agent_container.sh)
 enforces the rest:
 
@@ -72,7 +71,7 @@ container has no `sim` build and no gz-sim: see Key facts.
 `docker ps --format '{{.Names}}\t{{.Status}}'` shows who is up. The user's
 `isaac_ros_jazzy_container` (name from `docker.run.container_name` in
 `isaac_ros_common/.isaac-ros-cli/config.yaml`) and the frozen Humble
-`isaac_ros_dev-x86_64-container` are not yours; don't work there.
+`isaac_ros_dev-x86_64-container` are not yours.
 `ISAAC_ROS_CONTAINER=<name>` picks which container the scripts drive.
 
 ## Driving it: `smoke.sh`
@@ -149,7 +148,7 @@ above.
 
 So the same `ros2 launch` runs different code depending on where it's typed,
 and a package built only into `isaac_ros-dev` is invisible from the user's
-terminal. Nothing warns you. **Always check through the entry point you will
+terminal, with no warning. **Always check through the entry point you will
 launch from:**
 
 ```bash
@@ -172,7 +171,7 @@ uses SIMPLE discovery, so nodes on one machine find each other with no env
 changes, and lists the robots' tailscale IPs as unicast initial peers for
 cross-machine work. Don't unset it. Its recorded invariants were measured on
 Fast DDS 2.6 (Humble); Jazzy ships 2.14 and they are due a re-measure
-([ROADMAP T38](../../../docs/ROADMAP.md#later-needs-a-robot)).
+([ROBOT_TESTS T38](../../../docs/ROBOT_TESTS.md#robot-acceptance)).
 
 Two things in that file look removable and aren't: the `239.255.0.1` peer
 (without it local discovery breaks, the 2026-07-20 postmortem) and

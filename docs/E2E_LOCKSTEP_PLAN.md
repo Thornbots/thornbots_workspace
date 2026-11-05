@@ -7,27 +7,20 @@ with zero-phase scheduling, timeout rejection and transport/physics tests.
 Firmware runs inside each 1 ms physics step with CAN motor feedback and force
 outputs ([motor plant](../sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
 and deterministic bring-up remain open. Every stage runs the MCB emulator,
-so step 8 is done ([`E2E_PLAN.md`](E2E_PLAN.md)).
+so step 8 is done ([`E2E_PLAN.md`](E2E_PLAN.md)). The optional
+[Type C backend](../sim/README.md#type-c-board-execution-with-renode) runs the
+normal board ELF per virtual step; that is not cycle-accurate STM32 timing.
 
-The optional [Type C backend](../sim/README.md#type-c-board-execution-with-renode)
-executes the normal board ELF and its drivers during each virtual step. This
-does not establish cycle-accurate STM32 deadlines or finish the remaining UART
-serialization and consumption-chain gates.
 The independent `sim/uart_wire.hpp` queue schedules 8N1 bytes in simulation time,
 but `McbFirmwareSystem::Configure` still passes the PTY master directly to
 `Firmware`; `LockstepGate` and `lockstep_coordinator` only hold for MCB batch
 acknowledgments. The relay, explicit shared baud and frame-delivery/bridge
 acknowledgments must be integrated together before UART timing is accepted.
 
-Asked by the user, 2026-10-08: fix the end-to-end tests so a result doesn't
-depend on how fast the machine runs, and make them run as fast as the
-machine allows. This plan covers that, plus two related asks from the same
-day:
-
-- Every stage runs on the MCB emulator.
-- Localization error never costs a hit: the robot only needs its parts to
-  agree on where it is.
-
+Asked by the user, 2026-10-08: make end-to-end results independent of
+machine speed, and run as fast as the machine allows. Two related asks the
+same day: every stage runs on the MCB emulator, and localization error never
+costs a hit (the robot only needs its parts to agree on where it is).
 `E2E_PLAN.md` still owns the stages and the scoring.
 
 ## Why results don't repeat
@@ -220,11 +213,9 @@ a fixed sim-time boundary, as `case_align_s` does on the estimation bench.
 
 ### 8. The MCB emulator for every stage
 
-Done: every stage runs the MCB emulator and the former `cv_head_aim` +
-`pose_emulator` + `team_stub` path is gone from `e2e.launch.py` and
-`sim/test/e2e/e2e_harness.cpp`; `E2E_PLAN.md`'s Stages match.
-
-Keep `pose_emulator` and `cv_head_aim` themselves. The drift suite and the
+Done: the former `cv_head_aim` + `pose_emulator` + `team_stub` path is gone
+from `e2e.launch.py` and `sim/test/e2e/e2e_harness.cpp`. Keep `pose_emulator`
+and `cv_head_aim` themselves. The drift suite and the
 benches still use them (`sim/AGENTS.md`).
 
 ## Order and done-when

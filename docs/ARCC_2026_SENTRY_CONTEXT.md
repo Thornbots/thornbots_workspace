@@ -84,8 +84,8 @@ the cited drawings.
 
 ## Match phases (Season 2)
 
-E27 Table 9-2, §§3, 5 and 9.4–9.8 specify 3v3 Setup of 3 minutes and Battle of
-5 minutes; Sentry Tournament Setup and Battle are 2 minutes each. At 30 seconds
+E27 Table 9-2, §§3, 5 and 9.4–9.8 give the Setup and Battle lengths (3v3 in
+the limits table, Sentry Tournament above). At 30 seconds
 remaining in Setup robots must be powered up or removed. After Setup, place the
 Sentry remote in the designated area. A 15-second referee initialization
 follows, then a 5-second countdown, then Battle; the game ends at timeout or
@@ -128,8 +128,8 @@ building spec ([B27][build27]).
 
 The build-spec body frame has **+Z down** (§3.6.1), with X the chassis's
 maximum-efficiency motion direction, not its firing direction. This is a
-rulebook construction convention; ROS frames still follow
-[REP 103](https://www.ros.org/reps/rep-0103.html).
+rulebook construction convention; ROS frames still follow the
+[workspace frame rules](../AGENTS.md#frames).
 
 ### Visual status and stickers
 
@@ -167,7 +167,7 @@ field and its own S-IDs. Cite BS27/E27, not B27/R27, for ARCC decisions.
 
 ## Not yet extracted / worth pulling in later
 
-Unfinished extraction, unpublished-source dependencies and firmware/sim power audits are maintained in
+Unpublished-source dependencies and the remaining Season 2 integration are in
 [ROADMAP DOC14g](ROADMAP.md#issues-found) and [RULES-S2](ROADMAP.md#additional-mini-work).
 The [figure and power audit](rules/season2-geometry.md#coverage-and-authority) maps
 the extracted evidence to those IDs; it does not close their integration or

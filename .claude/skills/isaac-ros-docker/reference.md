@@ -1,9 +1,8 @@
 # Docker dev container: full reference (Jazzy)
 
-Tier-two detail behind `SKILL.md`. Read `SKILL.md` first; come here for the
-`isaac-ros` flag catalogue, where the CLI reads its config, the manual
-equivalents of the helper scripts, and the dated postmortems. Where the two
-disagree, `SKILL.md` is newer and wins.
+Tier-two detail behind `SKILL.md` (read it first; where the two disagree it
+wins): the `isaac-ros` flag catalogue, where the CLI reads its config, the
+manual equivalents of the helper scripts, and the dated postmortems.
 
 The container comes from `isaac-ros-cli` (release-4.6), which replaced the
 fork's `run_dev.sh` and `build_image_layers.sh`. Host `$ISAAC_ROS_WS` is
@@ -233,9 +232,8 @@ you start one.)
 
 ## Troubleshooting
 
-- **"not a member of the docker group"**: `sudo usermod -aG docker $USER &&
-  newgrp docker`, then re-run.
-- **"Unable to run docker commands"**: check `docker ps` works standalone;
+- **"not a member of the docker group"** (`SKILL.md` has the fix) or
+  **"Unable to run docker commands"**: check `docker ps` works standalone;
   you may need to log out/in after being added to the `docker` group.
 - **"git-lfs is not installed" / LFS files missing**: install `git-lfs`,
   then re-clone the repos in this workspace (the CLI checks LFS files in
@@ -272,8 +270,8 @@ the dev container:
   `odom_stuck` drift scenario passed in 46s, the same as with no profile.
 - Two-real-machine validation remains [ROADMAP PORTABILITY-DDS](../../../docs/ROADMAP.md#additional-mini-work).
 
-Keep `239.255.0.1` in the list: an explicit `<initialPeersList>` replaces the
-default multicast peer, the likely cause of the 2026-07-20 postmortem below.
+An explicit `<initialPeersList>` replaces the default multicast peer, so keep
+`239.255.0.1` in it (the likely cause of the 2026-07-20 postmortem below).
 
 **2026-09-02 to 2026-09-14 (replaced):** the profile made every node a
 `SUPER_CLIENT` of Fast DDS discovery servers on the robots, started by hand with
@@ -350,7 +348,7 @@ There are two colcon workspaces in the container, and they overlap:
 | `/workspaces/isaac_ros-dev` | `sim`, `thornbots_pkg`, `sentry_localization`, … | the **bind-mounted host `src/`** you actually edit |
 
 **Which copy wins depends on the entry point** (re-measured 2026-07-26;
-earlier notes here blamed `AMENT_PREFIX_PATH` ordering, which was wrong). The
+`AMENT_PREFIX_PATH` ordering was a wrong earlier theory). The
 entry-point table is in
 [SKILL.md](SKILL.md#two-workspaces-ros2_ws-silently-shadows-your-src-edits):
 the user's terminal sources only `ros2_ws`, `dexec.sh` prepends `isaac_ros-dev`.
@@ -381,16 +379,11 @@ Shadowing has a second failure mode. A package built *only* into
 sim …` there fails with "package not found" while the same command through
 `dexec.sh` works.
 
-So the same `ros2 launch` can run *different code* depending on where it's
-launched from, and a `dexec.sh` check followed by a launch in the user's
-terminal gives a confidently wrong answer. **Always run `ros2 pkg prefix`
-through the same entry point you'll launch from:**
+A `dexec.sh` check followed by a launch in the user's terminal gives a
+confidently wrong answer; run `ros2 pkg prefix` through the entry point you'll
+launch from ([`SKILL.md`](SKILL.md#two-workspaces-ros2_ws-silently-shadows-your-src-edits)).
+To see the actual file a node will load (follows symlink-install):
 ```bash
-dexec.sh -- ros2 pkg prefix sentry_localization
-# /workspaces/ros2_ws/install/...      -> your src/ edit is NOT live
-# /workspaces/isaac_ros-dev/install/... -> your src/ edit IS live
-
-# the actual file a node will load (follows symlink-install):
 dexec.sh -- bash -lc 'readlink -f $(ros2 pkg prefix sentry_localization)/share/sentry_localization/config/ekf.yaml'
 ```
 
@@ -417,9 +410,9 @@ GitHub repo to survive: teammates' images are built from the committed
 submodules.
 
 Packages that exist *only* in `isaac_ros-dev` (notably `sim`, which
-`Dockerfile.thornbots` deliberately leaves out; see `install-sim.sh`) have no shadow copy, so `src/` edits to them are live
-immediately. That asymmetry is itself confusing: `sim/urdf/*.xacro` edits
-apply instantly while `sentry_localization/config/*.yaml` edits appear to
+`Dockerfile.thornbots` deliberately leaves out; see `install-sim.sh`) have no
+shadow copy, so `src/` edits to them are live immediately: `sim/urdf/*.xacro`
+edits apply instantly while `sentry_localization/config/*.yaml` edits appear to
 do nothing.
 
 
@@ -477,11 +470,8 @@ through `dexec.sh`.
 ## Before/after running any test or one-off sim launch
 
 **Before** launching anything (a background launch, either test launch
-file, or an ad hoc probe script), check for a live session first:
-```bash
-dexec.sh -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
-```
-A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
+file, or an ad hoc probe script), run the `ps aux` check from
+[`SKILL.md`](SKILL.md#before-and-after-any-test-or-sim-launch). A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
 list` but never publish; a *live* session (the user's own manual sim/CV
 work, or a previous test that didn't clean up) collides on the same
 topics/services (duplicate `/pose_emulator`, `/scan`, etc. publishers) and
