@@ -59,7 +59,7 @@ UART/camera delay on the robot before selecting physical latency compensation.
   [Depth input](../thornbots_pkg/README.md#target_tracker).
 - **SENTRY-drift — robot run — open:** Angle compensation ([thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18))
   and the RF2O scan-size guard ([rf2o #10](https://github.com/Thornbots/rf2o_laser_odometry/pull/10)) are merged; measure
-  stationary drift (was 1–2 m) and moving SLAM scan acceptance on the robot.
+  stationary drift (was 1–2 m) and moving scan acceptance under AMCL on the robot.
   [Drift](investigations/sentry-sim-to-real-2026-10-18.md#stationary-localization-drift).
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).

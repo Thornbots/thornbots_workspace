@@ -110,8 +110,10 @@ settles below 5 cm. [Bench](../sim/README.md#run-the-tests).
   [Ownership](../thornbots_pkg/README.md#nodes), [integration](../docs/CI.md#coordinated-package-integration).
 
 <a id="h-slam-at-amcls-level"></a>
+<a id="localization-policy"></a>
 
-Track H (SLAM at amcl's level) was dropped on 2026-11-05; this anchor keeps package links working.
+**Localization (2026-11-05):** AMCL is the match backend; SLAM is second class. Track H (SLAM at amcl's level),
+SLAM tuning and carried-map work are dropped. Map building for AMCL stays in scope.
 
 ### J. Lidar and camera
 
