@@ -63,10 +63,11 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 
 The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
 
-- **T17 — sim / thornbots_pkg — open:** Finish sim-time UART serialization (bytes × 10 / baud, shared explicit baud), POSE/EKF/scan/
-  detection/aimer/environment consumption acknowledgments, fixed sim-time bring-up, zero latest-TF fallbacks and
-  per-robot/frame seeded noise. Finish UART first, then wall-time-free bring-up/TF/seeds; test and commit each
-  step with its own gitlink bump before the next. Preserve the 1 ms physics step and existing timeout limits.
+- **T17 — sim / thornbots_pkg — open (UART done 2026-11-05):** Sim-time UART serialization is the e2e default
+  ([sim #79](https://github.com/Thornbots/sim/pull/79), [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41)).
+  Remaining: POSE/EKF/scan/detection/aimer/environment consumption acknowledgments, fixed sim-time bring-up,
+  zero latest-TF fallbacks and per-robot/frame seeded noise, in the order wall-time-free bring-up, TF, seeds, chain
+  acks; test and commit each step with its own gitlink bump before the next. Preserve the 1 ms physics step and existing timeout limits.
   Validate `mcb_parked` stationary-lateral first, then **all** `mcb_parked` cells, `mcb_drive` and `mcb_match`.
   For that complete coverage, compare three unthrottled runs, one RTF=1 run and one gz two-core run using
   `compare_runs`: identical `shots.jsonl`, zero lockstep timeouts/latest-TF fallbacks. Each suite reports RTF,

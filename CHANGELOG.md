@@ -7,6 +7,15 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation E2E stages (`mcb_parked`, `mcb_drive`, `mcb_match`) now default to
+  coordinated sim-time UART: frames are serialized at bytes x 10 / baud with
+  per-frame bridge acknowledgments, and the bridge gates Jetson-to-MCB
+  decisions on the same simulated wire. `uart_deterministic:=false` keeps the
+  old PTY. Robot UART behavior is unchanged
+  ([sim #79](https://github.com/Thornbots/sim/pull/79),
+  [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41);
+  [ROADMAP T17](docs/ROADMAP.md#c-consistent-sim-runs)).
+
 - Move aim planning to the MCB. The Jetson now sends the tracked enemy armor
   model as a new 80-byte `TARGET_STATE` UART frame on every tracker update, and
   the MCB does lead, panel choice, spin shot windows, fire lock, confidence and
