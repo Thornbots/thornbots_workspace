@@ -41,7 +41,7 @@ jobs:
       MCB_FIRMWARE_BINARY: ${{ github.workspace }}/ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
     steps:
       - name: Checkout pinned dependency workspace
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Thornbots/thornbots_workspace
           ref: ${{ inputs.workspace-ref }}
@@ -59,7 +59,7 @@ jobs:
             ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2 nav_pkg
       - name: Overlay the caller's tested revision
         if: github.repository != 'Thornbots/thornbots_workspace'
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ws/src/${{ inputs.package-repo }}
           persist-credentials: false
@@ -121,7 +121,7 @@ jobs:
         run: tar -czf ros-jazzy-install.tar.gz install
       - name: Upload build and test reports
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ros-jazzy-${{ inputs.package-repo }}-${{ github.sha }}
           path: |
@@ -145,7 +145,7 @@ jobs:
       ROS_LOCALHOST_ONLY: '1'
     steps:
       - name: Checkout pinned workspace
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.workspace-ref }}
           path: ws/src
@@ -175,7 +175,7 @@ jobs:
           tar -czf ros-jazzy-install.tar.gz install
       - name: Upload GPU build and test reports
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: isaac-jazzy-${{ inputs.package-repo }}-${{ github.run_id }}
           path: |
