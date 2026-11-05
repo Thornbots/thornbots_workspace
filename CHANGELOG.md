@@ -10,7 +10,9 @@ impact, and link the corresponding package changes.
 - Wire the opt-in parked E2E diagnostic to paused epoch-zero robot and opponent
   scene verification, detector and aim timer initialization, and MCB bootstrap
   before lockstep release ([sim #73](https://github.com/Thornbots/sim/pull/73)).
-  Scored acceptance and downstream first-data gates remain open.
+  The verifier safely tears down its transport callbacks and the diagnostic pins
+  the expected timer phases. Scored acceptance and downstream first-data gates
+  remain open.
 
 - Add opt-in simulated epoch-zero initialization for the aim publisher’s
   timers, with a latched readiness acknowledgment
