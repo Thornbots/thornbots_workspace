@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- `waypoint_nav` gains an off-field test route: `nav_route:=square` on `auto.launch.py` (or
+  `route:=square` standalone) loops a 1 m square from the robot's first localized pose, +x then +y,
+  for either team and without referee data. The match route stays the default
+  ([nav_pkg #2](https://github.com/Thornbots/nav_pkg/pull/2),
+  [bringup #62](https://github.com/Thornbots/thornbots_pkg/pull/62)).
+
 - Sim's hosted MCB plant now round-trips sentry's real pitch encoder offset, counts successive
   physical chamber exits and models the indexer output shaft
   ([sim #76](https://github.com/Thornbots/sim/pull/76)). With it, `mcb_drive` scores hits again on the
