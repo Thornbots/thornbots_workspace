@@ -7,6 +7,16 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation runs now stop with one SIGINT per process and leave nothing behind, on completion, Ctrl-C, SIGTERM,
+  SIGHUP and a killed shell, for the hosted and Renode board backends: `run_suite.sh` forwards the signals and starts
+  the launch behind a parent-death guard, gz sim starts without the `sh -c` wrapper that orphaned it, the `gz_bridge`
+  executable replaces `parameter_bridge` (which crashed in Fast DDS teardown), the lockstep gate, firmware waits, board
+  adapter and Renode honour a stop request, and `tools/lifecycle_check.sh` is the acceptance test. `seeded_ekf`
+  exits 0 when interrupted during startup, absorbing a `robot_localization` startup abort. A Fast DDS receive-thread
+  race still kills a bridge in about 1 of 20 early interrupts
+  ([sim #78](https://github.com/Thornbots/sim/pull/78), [sim #88](https://github.com/Thornbots/sim/pull/88),
+  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). No robot behavior changes.
+
 - Simulation: rf2o's scan odometry no longer varies between runs and its result reaches the
   EKF at a fixed lockstep hold. rf2o gains `extrinsic_lookahead_s` (default 0; the robot is
   unchanged) and `sentry_localization` gains the simulation launch arguments

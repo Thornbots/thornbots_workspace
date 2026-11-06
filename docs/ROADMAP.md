@@ -93,16 +93,19 @@ The only active sim work: the same inputs give the same results, and runs start 
   external dependency (trace and document any per-shot difference to gz floating point) and is not claimed from Mini
   repeats. [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md),
   [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
-- **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
-  scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
-  [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).
-- **E-launch — sim — open:** Ensure one-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
-  cleanup, including children outside `kill_launch.sh`. [Build prerequisite](../sim/README.md#build).
-  Estimation reset/pacing passed the finite quiet Mini batch (registered tests
-  with no skips and nine native-accepted tracking runs); independent review and
-  broader lifecycle/RTF gates remain open:
-  [harness investigation](../sim/docs/de-harness-2026-11-02.md),
-  [sim #68](https://github.com/Thornbots/sim/pull/68). This does not complete E-launch or D-speed.
+- **E-teardown — sim — open (one residual):** The orphaned gz server, SIGKILL-only shutdown and node exit -2 are fixed, and
+  matching aarch64 backtraces are recorded; hosted and Renode runs end by completion, Ctrl-C, SIGTERM, SIGHUP and a
+  killed shell with no leftover process, gz topic or pty and no SIGKILL
+  ([evidence and counts](../sim/docs/lifecycle-2026-11-05.md), [sim #78](https://github.com/Thornbots/sim/pull/78),
+  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). Remaining: a Fast DDS 2.14.6
+  receive-thread race (`StatefulWriter::matched_reader_remove`) still kills a `gz_bridge` in about 1 of 20 interrupts during
+  startup or early in a run; the lifecycle check fails on it and it is not whitelisted. Fix or upstream it, then rerun
+  `tools/lifecycle_check.sh --repeat 5` on both backends.
+- **E-launch — sim — RTF gates open:** One-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
+  cleanup, including children outside `kill_launch.sh`, passed on the same runs
+  ([startup and shutdown contract](../sim/README.md#startup-and-shutdown-contract)), and the estimation reset/pacing change
+  was independently reviewed ([review](../sim/docs/lifecycle-2026-11-05.md#independent-review-of-sim-68-estimation-reset-and-pacing),
+  [harness investigation](../sim/docs/de-harness-2026-11-02.md)). Remaining: the broader RTF gates; this does not complete D-speed.
 
 <a id="b-hit-while-we-move"></a>
 <a id="g-estimation-accuracy"></a>
