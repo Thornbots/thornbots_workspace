@@ -7,6 +7,10 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation detector and ghost-aim noise is drawn per (seed, robot, stamp) instead
+  of from one shared stream, so it no longer depends on message arrival order
+  ([sim #82](https://github.com/Thornbots/sim/pull/82)).
+
 - Simulation E2E stages read `point_to_cv_target`'s TF at a stamp, not the
   newest to arrive, and fail on any miss (`allow_latest_tf:=false`,
   `tf_lookup_lag_s`; the robot keeps reading the newest TF)
