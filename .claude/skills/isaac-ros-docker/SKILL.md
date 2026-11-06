@@ -46,6 +46,11 @@ What the script refuses or guarantees, so you do not have to:
 - **Network:** default bridge, private IPC, no published ports, not
   privileged; the user's host-network container and other agents cannot see
   its DDS, gz or Foxglove sockets (Foxglove 8765 is the container's own).
+  On Colima, forwarded Docker bridge traffic to `100.64.0.0/10` is dropped
+  to protect Lima usernet. For cross-machine DDS tests only, `up` or `run`
+  accepts `-T`, creating a dedicated task bridge exempt from that guard.
+  The VM systemd unit reapplies the rule after Docker starts, including after
+  Colima restarts; host-network traffic is not forwarded through this rule.
 - **Mounts:** only your worktree (`-w`, default the checkout holding the
   script) at `/workspaces/isaac_ros-dev/src`, an optional `/evidence`, and
   per-task `build`/`install`/`log` volumes. It refuses `$ISAAC_ROS_WS/src` and

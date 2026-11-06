@@ -90,6 +90,11 @@ impact, and link the corresponding package changes.
   ([sim #79](https://github.com/Thornbots/sim/pull/79),
   [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41);
   [ROADMAP T17](docs/ROADMAP.md#c-consistent-sim-runs)).
+- On the Mac mini, agent container setup blocks Docker-bridged traffic to the
+  Tailscale CGNAT range to protect Colima usernet. Cross-machine DDS tests can
+  use `agent_container.sh up <task> -T` for a task-scoped exception
+  ([common #23](https://github.com/Thornbots/isaac_ros_common/pull/23);
+  [investigation](docs/investigations/colima-dds-egress-2026-11-06.md)).
 
 - Move aim planning to the MCB. The Jetson now sends the tracked enemy armor
   model as a new 80-byte `TARGET_STATE` UART frame on every tracker update, and
