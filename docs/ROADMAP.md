@@ -164,6 +164,7 @@ RULES-S2. Full text: [previous roadmap](https://github.com/Thornbots/thornbots_w
 - **PORTABILITY-DDS — common — external validation dependency:** Verify the supported SIMPLE/initial-peers
   profile between two real machines over Tailscale, including node/topic discovery and delivered stamped data;
   loopback filler-participant success is insufficient. Requires a second nonrobot host, outside Mini-only scope.
+  Remote DDS is off by default now: run both machines with `THORNBOTS_REMOTE_DDS=true` (agent container: `up -T`).
   [Evidence boundary](../.claude/skills/isaac-ros-docker/reference.md#cross-machine-ros-2-over-tailscale).
 - **COMMON-mounts — common — decision open:** Decide whether robot `.isaac_ros_dev-dockerargs` should be empty rather
   than mounting host configuration/credential directories. Inspect configuration paths only; this task never authorizes

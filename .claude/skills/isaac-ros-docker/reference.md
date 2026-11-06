@@ -172,7 +172,9 @@ no-root install into `~/.local` (its header says how).
 - FastDDS profile (`FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds/profile.xml`,
   source `isaac_ros_common/docker/fastdds_cable.xml`) set as every interactive
   shell's default RTPS participant profile. SIMPLE discovery plus the robots' tailscale IPs
-  as unicast peers; see "Cross-machine ROS 2 over Tailscale" below.
+  as unicast peers; see "Cross-machine ROS 2 over Tailscale" below. Since
+  2026-11-06 the bashrc exports it only when `THORNBOTS_REMOTE_DDS` is `true`/`1`;
+  otherwise it unsets it and exports `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`.
 
 ## Manual equivalents of what `dexec.sh` does
 
@@ -253,6 +255,28 @@ you start one.)
   top of `Dockerfile.thornbots` was lost; those flags need `1.7-labs`.
 
 ### Cross-machine ROS 2 over Tailscale
+
+**Off by default (2026-11-06).** Measured in an agent container with one
+`ros2 topic pub`, 15 s, packets to `100.64.0.0/10` on the VM bridge:
+
+| profile | `ROS_AUTOMATIC_DISCOVERY_RANGE` | packets |
+|---|---|---|
+| cable (peers) | unset | 1056 (startup) to 1920 (steady, ~125/s) |
+| cable (peers) | `LOCALHOST` | 1920 |
+| `udp_only` (peers) | `LOCALHOST` | 1920 |
+| none | `LOCALHOST` | 0 |
+| peers-free XML | none | 0 (14 multicast) |
+| peers-free XML | `LOCALHOST` | 0 |
+
+So `LOCALHOST` does not suppress the peers; off means no profile plus the
+range. `LOCALHOST` also re-adds the SHM transport to a UDP-only XML (8 segments
+under `/dev/shm`, 0 without it), so the pinned UDP-only nodes use loopback-only
+`*_local.xml` twins (interface whitelist and peer `127.0.0.1`) and
+`ROS_AUTOMATIC_DISCOVERY_RANGE=SYSTEM_DEFAULT`; those interoperate with
+`LOCALHOST` participants in both directions. 14 `LOCALHOST` participants
+discovered each other at the default peer range. Turn it on with
+`THORNBOTS_REMOTE_DDS=true` / `remote_dds:=true`; the history below is the
+on-state. Record: [investigation](../../../docs/investigations/colima-dds-egress-2026-11-06.md).
 
 tailscale0 carries no usable multicast, so SIMPLE discovery alone never finds a
 peer on another machine, though plain UDP to its 100.x address works.
