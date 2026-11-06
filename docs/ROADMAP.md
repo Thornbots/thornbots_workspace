@@ -63,21 +63,25 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 
 The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
 
-- **T17 — sim / thornbots_pkg — open (UART, epoch-zero bring-up, TF and seeds done 2026-11-05):** Sim-time UART serialization
-  ([sim #79](https://github.com/Thornbots/sim/pull/79), [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41)),
-  the epoch-zero barrier ([sim #80](https://github.com/Thornbots/sim/pull/80)) and stamped, counted TF reads
-  ([thornbots_pkg #64](https://github.com/Thornbots/thornbots_pkg/pull/64), [sim #81](https://github.com/Thornbots/sim/pull/81))
-  are the e2e defaults, and noise is keyed per (seed, robot, stamp) ([sim #82](https://github.com/Thornbots/sim/pull/82)).
-  Remaining: POSE/EKF/scan/detection/aimer/environment consumption acknowledgments and the harness's own
-  sim-time actions; test and commit each step with its own gitlink bump before the next. Preserve the 1 ms physics step and existing timeout limits.
-  Validate `mcb_parked` stationary-lateral first, then **all** `mcb_parked` cells, `mcb_drive` and `mcb_match`.
-  For that complete coverage, compare three unthrottled runs, one RTF=1 run and one gz two-core run using
-  `compare_runs`: identical `shots.jsonl`, zero lockstep timeouts/latest-TF fallbacks. Each suite reports RTF,
-  holds/wall wait per chain and its longest-holding chain. **Nothing in the scored loop sleeps on wall time.**
-  The original Mac/Archlinux same-hit-sequence comparison remains an external dependency (trace and document any
-  per-shot difference to gz floating point),
-  not authority to use another host in a Mini-only task; do not claim it passed from Mini repeats.
-  [Design and original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
+- **T17 — sim / thornbots_pkg — open, acceptance not met (2026-11-05):** Landed and validated on the hosted
+  fixture, Mac mini: sim-time UART ([sim #79](https://github.com/Thornbots/sim/pull/79),
+  [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41)), the epoch-zero barrier with no
+  wall-timed bring-up ([sim #80](https://github.com/Thornbots/sim/pull/80)), stamped, counted TF reads
+  ([thornbots_pkg #64](https://github.com/Thornbots/thornbots_pkg/pull/64), [sim #81](https://github.com/Thornbots/sim/pull/81)),
+  per-(seed, robot, stamp) noise ([sim #82](https://github.com/Thornbots/sim/pull/82)) and the harness as a lockstep
+  chain with chain/RTF reporting ([sim #83](https://github.com/Thornbots/sim/pull/83)). All 12 `mcb_parked` cells,
+  `mcb_drive` and `mcb_match` run with 0 lockstep timeouts and 0 latest-TF fallbacks; stationary-lateral first
+  shots spread 0.020 s over three runs (was 9.9 s) and Renode passes. **`shots.jsonl` is still not identical** across
+  the three unthrottled, RTF=1 and two-CPU runs: Jetson-to-MCB frames (CV_TARGET, TARGET_STATE, NAV_GOAL,
+  RELOCALIZE) reach the firmware on different 1 ms steps because each producer writes the PTY from a wall-timed
+  callback. Remaining, in order: TX acks from the bridge with any-of ack groups and a per-tick "nothing sent" mark from
+  `point_to_cv_target`, `target_tracker`, `waypoint_nav`, `mcb_relay`; then POSE/EKF/rf2o/detector/environment
+  consumption acks; re-trace with `MCB_UART_TRACE` until the read streams match; then the full acceptance campaign
+  (three unthrottled, one RTF=1, one two-core run over every cell, drive and match). Keep the 1 ms physics step and
+  existing timeout limits; the original Mac/Archlinux same-hit-sequence comparison remains an external dependency
+  (trace and document any per-shot difference to gz floating point) and is not claimed from Mini repeats.
+  [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md),
+  [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),
   [later observations](../sim/docs/mcb-auto-drive-2026-10-12.md).

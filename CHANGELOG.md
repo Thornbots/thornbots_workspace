@@ -7,6 +7,13 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation: ROADMAP T17 status recorded. Sim UART, epoch-zero bring-up, stamped TF
+  reads, keyed noise and a lockstep harness have landed; runs are still not
+  bit-identical because Jetson-to-MCB frames arrive on different 1 ms steps
+  ([investigation](sim/docs/t17-consistent-runs-2026-11-05.md),
+  [sim #84](https://github.com/Thornbots/sim/pull/84),
+  [sim #85](https://github.com/Thornbots/sim/pull/85)).
+
 - The scored simulation harness is now a lockstep chain: it holds physics at a 50 ms
   tick until it has decided, bring-up ends at a fixed 10 s of sim time, cells start
   on whole simulated seconds, and the MCB plugin applies harness parameter changes
