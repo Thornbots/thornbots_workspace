@@ -7,6 +7,18 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- **Behavior change, robots:** off-machine DDS is now off by default and Foxglove on. The robot service sets
+  `THORNBOTS_REMOTE_DDS=false` (no Fast DDS profile with Tailscale peers, `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`;
+  `thornbots_pkg`'s pinned UDP-only nodes and `sentry_localization`'s two use loopback-only profile twins), so
+  `ros2 topic`/`node` from a laptop sees nothing; `THORNBOTS_FOXGLOVE` (default `true`) keeps the read-only Foxglove
+  bridge on port 8765. Cross-machine `ros2` returns with `THORNBOTS_REMOTE_DDS=true` in `/etc/thornbots/launch.env`
+  (and a service restart); manual launches take `remote_dds:=true`. Sim, test launches and agent containers have both
+  off (`foxglove:=true`, `remote_dds:=true`, `agent_container.sh up -F/-T` turn them on). The image's bashrc applies
+  the switch after the next image build; `dexec.sh` applies it to agent containers now. Cause: bridged agent
+  containers' SPDP to the robots' Tailscale IPs (~125 packets/s per `ros2` process) hung Colima twice on 2026-11-06;
+  the Colima VM also drops bridged traffic to `100.64.0.0/10` unless a task opts out with `-T`
+  ([investigation](docs/investigations/colima-dds-egress-2026-11-06.md)).
+
 - Simulation runs now stop with one SIGINT per process and leave nothing behind, on completion, Ctrl-C, SIGTERM,
   SIGHUP and a killed shell, for the hosted and Renode board backends: `run_suite.sh` forwards the signals and starts
   the launch behind a parent-death guard, gz sim starts without the `sh -c` wrapper that orphaned it, the `gz_bridge`

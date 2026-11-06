@@ -46,6 +46,23 @@ What the script refuses or guarantees, so you do not have to:
 - **Network:** default bridge, private IPC, no published ports, not
   privileged; the user's host-network container and other agents cannot see
   its DDS, gz or Foxglove sockets (Foxglove 8765 is the container's own).
+- **Off-machine traffic:** DDS and Foxglove are off. The container env has
+  `THORNBOTS_REMOTE_DDS=false` and `THORNBOTS_FOXGLOVE=false`; `dexec.sh`
+  gives its shells `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST` and no
+  `FASTRTPS_DEFAULT_PROFILES_FILE`, and launches start no Foxglove bridge.
+  Turn one on for a task that tests it: `up -F` (Foxglove; or `foxglove:=true`
+  on the launch) and `up -T` (remote DDS, below). On Colima the VM also drops
+  bridged traffic to Tailscale's `100.64.0.0/10` (`THORNBOTS-AGENT` chain in
+  `DOCKER-USER`), re-created after every Docker start by the
+  `thornbots-agent-guard` systemd unit, so it survives `colima stop/start`
+  and every `up` re-asserts it idempotently. `-T` puts that task on its own
+  bridge outside the rule and sets `THORNBOTS_REMOTE_DDS=true`, for
+  [PORTABILITY-DDS](../../../docs/ROADMAP.md#additional-mini-work)-style
+  cross-machine runs; it is refused off Colima and with `-n`. Without these,
+  a bridged container's SPDP to the robots' Tailscale IPs ran at ~125
+  packets/s per `ros2` process and filled Lima's userspace NAT until the VM
+  hung ([2026-11-06](../../../docs/investigations/colima-dds-egress-2026-11-06.md)).
+  The user's host-network container never crosses `DOCKER-USER`'s bridge rules.
 - **Mounts:** only your worktree (`-w`, default the checkout holding the
   script) at `/workspaces/isaac_ros-dev/src`, an optional `/evidence`, and
   per-task `build`/`install`/`log` volumes. It refuses `$ISAAC_ROS_WS/src` and
@@ -115,7 +132,8 @@ still opens on the user's display.
   `agent_container.sh` there too. It has gz baked
   in, no `ros2_ws` and no `admin` user, so the scripts run as root there
   (`scripts/container.sh`). It has no display: benches drop the gz and
-  rviz windows and you watch in Foxglove, `ws://<Mac tailscale IP>:8765`.
+  rviz windows and you watch in Foxglove, `ws://<Mac tailscale IP>:8765`
+  (`up -F`, or `foxglove:=true`: it is off by default).
   The host tmux session `keepalive` (`scripts/mac-keepalive.sh`) carries the
   Mac's docker.sock forward and that Foxglove forward. Killing it
   cuts `docker` off; re-run the script instead.
@@ -170,7 +188,12 @@ edit against the shadowing copy.
 `/etc/fastdds/profile.xml` (source `isaac_ros_common/docker/fastdds_cable.xml`)
 uses SIMPLE discovery, so nodes on one machine find each other with no env
 changes, and lists the robots' tailscale IPs as unicast initial peers for
-cross-machine work. Don't unset it. Its recorded invariants were measured on
+cross-machine work. It applies only with **remote DDS on**
+(`THORNBOTS_REMOTE_DDS=true`, launch argument `remote_dds:=true`). Off, the
+default everywhere (robot, sim, agent containers), the shell has no profile
+and `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`: a profile listing peers defeats
+the range (measured), so both go together. A shell and the stack it inspects
+must agree, or neither sees the other. Its recorded invariants were measured on
 Fast DDS 2.6 (Humble); Jazzy ships 2.14 and they are due a re-measure
 ([ROADMAP T38](../../../docs/ROADMAP.md#later-needs-a-robot)).
 
@@ -286,7 +309,9 @@ check. reference.md covers the official suites and the `--headless` flag.
 - A TF/topic problem unreproducible from `docker exec` but real in the user's
   terminal → that session never loaded `FASTRTPS_DEFAULT_PROFILES_FILE`. Use
   `dexec.sh`.
-- Topics from another machine over tailscale never arrive → one side's
+- Topics from another machine over tailscale never arrive → remote DDS is off
+  by default: set `THORNBOTS_REMOTE_DDS=true` on both sides (robot:
+  `launch.env`; agent container: `up -T`). Then one side's
   `fastdds_cable.xml` must list the other's tailscale IP, and both need
   the same `ROS_DOMAIN_ID`.
 - "not a member of docker group" → `sudo usermod -aG docker $USER && newgrp docker`
