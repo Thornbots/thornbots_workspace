@@ -7,6 +7,16 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation E2E stages now start from an epoch-zero barrier by default: gz
+  starts paused and is released only once the detector, aim timer, opponents,
+  MCB, robot spawn and every stack node are up, so no robot-start or spawn
+  timer sets the simulated start time. The EKF starts at epoch zero from the
+  spawn team's start (new simulation-only `seed_known_team`; robots unchanged),
+  and Renode board runs are accepted by the same path
+  ([sim #80](https://github.com/Thornbots/sim/pull/80),
+  [sentry_localization #40](https://github.com/Thornbots/sentry_localization/pull/40),
+  [thornbots_pkg #63](https://github.com/Thornbots/thornbots_pkg/pull/63)).
+
 - Simulation E2E stages (`mcb_parked`, `mcb_drive`, `mcb_match`) now default to
   coordinated sim-time UART: frames are serialized at bytes x 10 / baud with
   per-frame bridge acknowledgments, and the bridge gates Jetson-to-MCB
