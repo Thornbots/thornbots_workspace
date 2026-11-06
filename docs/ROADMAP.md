@@ -63,24 +63,30 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 
 The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
 
-- **T17 — sim / thornbots_pkg — open, acceptance not met (2026-11-05):** Landed and validated on the hosted
+- **T17 — sim / thornbots_pkg — open, acceptance not met (2026-11-06):** Landed and validated on the hosted
   fixture, Mac mini: sim-time UART ([sim #79](https://github.com/Thornbots/sim/pull/79),
   [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41)), the epoch-zero barrier with no
   wall-timed bring-up ([sim #80](https://github.com/Thornbots/sim/pull/80)), stamped, counted TF reads
   ([thornbots_pkg #64](https://github.com/Thornbots/thornbots_pkg/pull/64), [sim #81](https://github.com/Thornbots/sim/pull/81)),
-  per-(seed, robot, stamp) noise ([sim #82](https://github.com/Thornbots/sim/pull/82)) and the harness as a lockstep
-  chain with chain/RTF reporting ([sim #83](https://github.com/Thornbots/sim/pull/83)). All 12 `mcb_parked` cells,
-  `mcb_drive` and `mcb_match` run with 0 lockstep timeouts and 0 latest-TF fallbacks; stationary-lateral first
-  shots spread 0.020 s over three runs (was 9.9 s) and Renode passes. **`shots.jsonl` is still not identical** across
-  the three unthrottled, RTF=1 and two-CPU runs: Jetson-to-MCB frames (CV_TARGET, TARGET_STATE, NAV_GOAL,
-  RELOCALIZE) reach the firmware on different 1 ms steps because each producer writes the PTY from a wall-timed
-  callback. Remaining, in order: TX acks from the bridge with any-of ack groups and a per-tick "nothing sent" mark from
-  `point_to_cv_target`, `target_tracker`, `waypoint_nav`, `mcb_relay`; then POSE/EKF/rf2o/detector/environment
-  consumption acks; re-trace with `MCB_UART_TRACE` until the read streams match; then the full acceptance campaign
-  (three unthrottled, one RTF=1, one two-core run over every cell, drive and match). Keep the 1 ms physics step and
-  existing timeout limits; the original Mac/Archlinux same-hit-sequence comparison remains an external dependency
-  (trace and document any per-shot difference to gz floating point) and is not claimed from Mini repeats.
-  [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md),
+  per-(seed, robot, stamp) noise ([sim #82](https://github.com/Thornbots/sim/pull/82)), the harness as a lockstep
+  chain ([sim #83](https://github.com/Thornbots/sim/pull/83)) and now every Jetson-side UART producer as a chain:
+  bridge TX acks and per-hold queue ([bridge #42](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/42)),
+  none-marks, message clock and tracker delay ([thornbots_pkg #66](https://github.com/Thornbots/thornbots_pkg/pull/66),
+  [nav_pkg #3](https://github.com/Thornbots/nav_pkg/pull/3)), a 34 ms simulation EKF
+  ([sentry_localization #41](https://github.com/Thornbots/sentry_localization/pull/41)) and the coordinator,
+  POSE-consumption hold, keyed lidar noise and `mmm` off ([sim #86](https://github.com/Thornbots/sim/pull/86)).
+  All 12 `mcb_parked` cells and `mcb_drive` pass and `mcb_match` runs with 0 lockstep timeouts and 0 latest-TF
+  fallbacks (it fails only its known 10% combat floor, paused combat work). **`shots.jsonl` is still not identical:**
+  the Jetson-to-MCB read stream now matches for the first 19-68 lines (was 0) and its frame timing and order no
+  longer differ; what remains is below it. rf2o's scan odometry differs at 1e-13 from its first graded scan with
+  bit-identical inputs, which reaches CV_TARGET/RELOCALIZE as 1 ulp, and physics and the scan diverge by 1e-5 once the
+  chassis moves at 14 s. Next: locate the rf2o difference, then the post-motion physics difference, re-trace with
+  `MCB_UART_TRACE` and `/odom` CSVs until the streams match; then the full acceptance campaign (three unthrottled,
+  one RTF=1, one gz two-core run over every cell, drive and match), which also needs a Mini with no other agent
+  container (the 2026-11-06 runs shared it with a ~395% CPU container, so no RTF number was taken). Keep the 1 ms
+  physics step and existing timeout limits; the original Mac/Archlinux same-hit-sequence comparison remains an
+  external dependency (trace and document any per-shot difference to gz floating point) and is not claimed from Mini
+  repeats. [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md),
   [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
 - **E-teardown — sim — open:** Resolve DDS teardown races and SIGKILL-only shutdown; obtain a matching-library aarch64
   scan-bridge backtrace. [Shutdown findings](../sim/docs/mcb-hosted-check-2026-10-11.md#shutdown-findings),

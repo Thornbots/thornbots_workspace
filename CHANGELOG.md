@@ -7,6 +7,25 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation: every Jetson-side producer of a UART frame is now a lockstep chain, so
+  frames reach the firmware on a fixed 1 ms step instead of whenever a callback ran.
+  `dji_serial_bridge` publishes a TX ack per frame and, in the simulator's
+  `sim_tx_queue` mode, writes its frames when the coordinator flushes each hold, in a
+  fixed order and gated on the hold time. The coordinator accepts any-of and counted
+  ack groups and lagged holds; producers (`point_to_cv_target`, `target_selector`,
+  `target_tracker`, `mcb_relay`, `waypoint_nav`) publish a none-mark when they send
+  nothing; the MCB plugin holds physics at a delivered POSE until `/odom`, the EKF
+  input, the relay and TF carry it. The E2E stack no longer launches `mmm` (its ping
+  protocol runs on wall time), sets the stock EKF to a 34 ms period and the tracker to
+  a fixed 25 ms processing delay (simulation only; robot defaults unchanged).
+  T17 is still open: see the [investigation](sim/docs/t17-consistent-runs-2026-11-05.md)
+  for what still differs between runs
+  ([bridge #42](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/42),
+  [thornbots_pkg #66](https://github.com/Thornbots/thornbots_pkg/pull/66),
+  [nav_pkg #3](https://github.com/Thornbots/nav_pkg/pull/3),
+  [sentry_localization #41](https://github.com/Thornbots/sentry_localization/pull/41),
+  [sim #86](https://github.com/Thornbots/sim/pull/86)).
+
 - Simulation: ROADMAP T17 status recorded. Sim UART, epoch-zero bring-up, stamped TF
   reads, keyed noise and a lockstep harness have landed; runs are still not
   bit-identical because Jetson-to-MCB frames arrive on different 1 ms steps
