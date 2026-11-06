@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation E2E stages read `point_to_cv_target`'s TF at a stamp, not the
+  newest to arrive, and fail on any miss (`allow_latest_tf:=false`,
+  `tf_lookup_lag_s`; the robot keeps reading the newest TF)
+  ([thornbots_pkg #64](https://github.com/Thornbots/thornbots_pkg/pull/64),
+  [sim #81](https://github.com/Thornbots/sim/pull/81)).
+
 - Simulation E2E stages now start from an epoch-zero barrier by default: gz
   starts paused and is released only once the detector, aim timer, opponents,
   MCB, robot spawn and every stack node are up, so no robot-start or spawn
