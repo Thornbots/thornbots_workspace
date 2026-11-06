@@ -85,15 +85,20 @@ The only active sim work: the same inputs give the same results, and runs start 
   matching aarch64 backtraces are recorded; hosted and Renode runs end by completion, Ctrl-C, SIGTERM, SIGHUP and a
   killed shell with no leftover process, gz topic or pty and no SIGKILL
   ([evidence and counts](../sim/docs/lifecycle-2026-11-05.md), [sim #78](https://github.com/Thornbots/sim/pull/78),
-  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). Remaining: a Fast DDS 2.14.6
-  receive-thread race (`StatefulWriter::matched_reader_remove`) still kills a `gz_bridge` in about 1 of 20 interrupts during
-  startup or early in a run; the lifecycle check fails on it and it is not whitelisted. Fix or upstream it, then rerun
-  `tools/lifecycle_check.sh --repeat 5` on both backends.
-- **E-launch — sim — RTF gates open:** One-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
+  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). Remaining: the Fast DDS 2.14.6
+  crash that killed a `gz_bridge` in about 1 of 20 early interrupts is traced to the bridge, not a Fast DDS bug (apt's
+  2.14.7 has no fix): `ros_gz_bridge`'s node was never destroyed, so the participant died against rmw's listener thread in
+  static destruction. [sim #89](https://github.com/Thornbots/sim/pull/89) frees the context in `gz_bridge`
+  ([investigation](../sim/docs/lifecycle-2026-11-05.md#2026-11-06-the-fast-dds-bridge-race-and-the-rtf-gate)); the stress
+  hunt shows 0 of 300 iterations killing a bridge on the final build (1 of 800 on the build before it) against 3 of 150 before. Open until `tools/lifecycle_check.sh --repeat 5` passes on
+  both backends.
+- **E-launch — sim — open (nothing owned left):** One-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
   cleanup, including children outside `kill_launch.sh`, passed on the same runs
   ([startup and shutdown contract](../sim/README.md#startup-and-shutdown-contract)), and the estimation reset/pacing change
   was independently reviewed ([review](../sim/docs/lifecycle-2026-11-05.md#independent-review-of-sim-68-estimation-reset-and-pacing),
-  [harness investigation](../sim/docs/de-harness-2026-11-02.md)). Remaining: the broader RTF gates; this does not complete D-speed.
+  [harness investigation](../sim/docs/de-harness-2026-11-02.md)). "The broader RTF gates" are D-speed, not
+  E-launch ([history](../sim/docs/lifecycle-2026-11-05.md#2026-11-06-the-fast-dds-bridge-race-and-the-rtf-gate)); stalled-clock,
+  lockstep-timeout and wall-cap failures are already gated and every suite reports its RTF.
 
 <a id="b-hit-while-we-move"></a>
 <a id="g-estimation-accuracy"></a>
@@ -104,7 +109,7 @@ The only active sim work: the same inputs give the same results, and runs start 
 
 Paused 2026-11-05 until sim/robot comparisons show where it matters: match combat floors and sim model
 (A-combat, A-model), estimation accuracy (G.1–G.3, T15, T7, T8), moving-aim floors (B-moving), suite speed
-(D-speed), lidar-guided aiming stages 2–4 (T23), mapping diagnostics (E-map-graph, E-map-freshness), sim/hardware
+(D-speed, which also owns the RTF gates E-launch once listed), lidar-guided aiming stages 2–4 (T23), mapping diagnostics (E-map-graph, E-map-freshness), sim/hardware
 producer selection (LAUNCH-producers), sim route checks (T40 ingress, NAV-route) and sim field integration under
 RULES-S2. Full text: [previous roadmap](https://github.com/Thornbots/thornbots_workspace/blob/4331d436c84d02b9b983a616e2bb969b10e999f4/docs/ROADMAP.md).
 

@@ -40,9 +40,11 @@ impact, and link the corresponding package changes.
   the launch behind a parent-death guard, gz sim starts without the `sh -c` wrapper that orphaned it, the `gz_bridge`
   executable replaces `parameter_bridge` (which crashed in Fast DDS teardown), the lockstep gate, firmware waits, board
   adapter and Renode honour a stop request, and `tools/lifecycle_check.sh` is the acceptance test. `seeded_ekf`
-  exits 0 when interrupted during startup, absorbing a `robot_localization` startup abort. A Fast DDS receive-thread
-  race still kills a bridge in about 1 of 20 early interrupts
+  exits 0 when interrupted during startup, absorbing a `robot_localization` startup abort. The early-interrupt bridge
+  crash (about 1 of 20) came from `ros_gz_bridge`'s node never being destroyed, so Fast DDS's participant was torn down
+  against rmw's listener thread at exit; `gz_bridge` now frees its context first
   ([sim #78](https://github.com/Thornbots/sim/pull/78), [sim #88](https://github.com/Thornbots/sim/pull/88),
+  [sim #89](https://github.com/Thornbots/sim/pull/89),
   [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). No robot behavior changes.
 
 - Simulation: rf2o's scan odometry no longer varies between runs and its result reaches the
