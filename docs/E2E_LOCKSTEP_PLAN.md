@@ -1,23 +1,22 @@
 # Plan: E2E tests independent of machine speed
 
-**Historical design status: partial implementation (2026-10-12).**
-Current work/acceptance: [ROADMAP T17](ROADMAP.md#a-acceptance-details). The done bar below is not
-met. The pinned sim implements the [native MCB-batch gate and coordinator](../sim/README.md#mcb-emulator),
-with zero-phase scheduling, timeout rejection and transport/physics tests.
-Firmware runs inside each 1 ms physics step with CAN motor feedback and force
-outputs ([motor plant](../sim/README.md#mcb-emulator)). UART in sim time, other consumption chains,
-and deterministic bring-up remain open. Every stage runs the MCB emulator,
-so step 8 is done ([`E2E_PLAN.md`](E2E_PLAN.md)).
+**Historical design status: mostly implemented, acceptance not met (2026-11-05).**
+Current work/acceptance: [ROADMAP T17](ROADMAP.md#c-consistent-sim-runs), with the measurements in
+the [T17 investigation](../sim/docs/t17-consistent-runs-2026-11-05.md). Implemented in the pinned sim:
+the [MCB-batch gate and coordinator](../sim/README.md#mcb-emulator); firmware inside each 1 ms
+step with CAN feedback and force outputs; sim-time UART (section 3: bytes x 10 / baud, shared explicit
+baud, per-frame bridge acks, the wire-busy gate on the simulated wire); the epoch-zero bring-up of
+section 5 (`startup_barrier`, no `ROBOT_DELAY_S`, Renode accepted); `allow_latest_tf` with a counter
+the harness asserts (section 6); keyed per-(seed, robot, stamp) noise; and the harness as its own
+lockstep chain (50 ms). Aiming has moved to the MCB (`TARGET_STATE`, `mcb_aim_standin` in the benches),
+so section 4's `point_to_cv_target` rows describe only its idle look and tick. Still open: section 4's
+acks for the Jetson-side producers whose frames reach the firmware (the dominant remaining difference
+between runs), POSE/EKF/scan/detector/environment consumption, and the full identity campaign.
+Every stage runs the MCB emulator, so step 8 is done ([`E2E_PLAN.md`](E2E_PLAN.md)).
 
 The optional [Type C backend](../sim/README.md#type-c-board-execution-with-renode)
 executes the normal board ELF and its drivers during each virtual step. This
-does not establish cycle-accurate STM32 deadlines or finish the remaining UART
-serialization and consumption-chain gates.
-The independent `sim/uart_wire.hpp` queue schedules 8N1 bytes in simulation time,
-but `McbFirmwareSystem::Configure` still passes the PTY master directly to
-`Firmware`; `LockstepGate` and `lockstep_coordinator` only hold for MCB batch
-acknowledgments. The relay, explicit shared baud and frame-delivery/bridge
-acknowledgments must be integrated together before UART timing is accepted.
+does not establish cycle-accurate STM32 deadlines.
 
 Asked by the user, 2026-10-08: fix the end-to-end tests so a result doesn't
 depend on how fast the machine runs, and make them run as fast as the
