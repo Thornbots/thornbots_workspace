@@ -63,11 +63,12 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 
 The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
 
-- **T17 — sim / thornbots_pkg — open (UART and epoch-zero bring-up done 2026-11-05):** Sim-time UART serialization
-  ([sim #79](https://github.com/Thornbots/sim/pull/79), [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41))
-  and the epoch-zero barrier ([sim #80](https://github.com/Thornbots/sim/pull/80)) are the e2e defaults.
-  Remaining: POSE/EKF/scan/detection/aimer/environment consumption acknowledgments, zero latest-TF fallbacks
-  and per-robot/frame seeded noise, in the order TF, seeds, chain acks; test and commit each step with its own gitlink bump before the next. Preserve the 1 ms physics step and existing timeout limits.
+- **T17 — sim / thornbots_pkg — open (UART, epoch-zero bring-up and TF done 2026-11-05):** Sim-time UART serialization
+  ([sim #79](https://github.com/Thornbots/sim/pull/79), [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41)),
+  the epoch-zero barrier ([sim #80](https://github.com/Thornbots/sim/pull/80)) and stamped, counted TF reads
+  ([thornbots_pkg #64](https://github.com/Thornbots/thornbots_pkg/pull/64), [sim #81](https://github.com/Thornbots/sim/pull/81))
+  are the e2e defaults. Remaining: per-robot/frame seeded noise, then POSE/EKF/scan/detection/aimer/environment
+  consumption acknowledgments; test and commit each step with its own gitlink bump before the next. Preserve the 1 ms physics step and existing timeout limits.
   Validate `mcb_parked` stationary-lateral first, then **all** `mcb_parked` cells, `mcb_drive` and `mcb_match`.
   For that complete coverage, compare three unthrottled runs, one RTF=1 run and one gz two-core run using
   `compare_runs`: identical `shots.jsonl`, zero lockstep timeouts/latest-TF fallbacks. Each suite reports RTF,
