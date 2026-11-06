@@ -7,6 +7,14 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- The scored simulation harness is now a lockstep chain: it holds physics at a 50 ms
+  tick until it has decided, bring-up ends at a fixed 10 s of sim time, cells start
+  on whole simulated seconds, and the MCB plugin applies harness parameter changes
+  on a known step. `point_to_cv_target` gains `nav_tf_lookup_lag_s` for its
+  stamped-TF mode (robot default unchanged)
+  ([sim #83](https://github.com/Thornbots/sim/pull/83),
+  [thornbots_pkg #65](https://github.com/Thornbots/thornbots_pkg/pull/65)).
+
 - Simulation detector and ghost-aim noise is drawn per (seed, robot, stamp) instead
   of from one shared stream, so it no longer depends on message arrival order
   ([sim #82](https://github.com/Thornbots/sim/pull/82)).
