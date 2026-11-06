@@ -7,6 +7,17 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation: rf2o's scan odometry no longer varies between runs and its result reaches the
+  EKF at a fixed lockstep hold. rf2o gains `extrinsic_lookahead_s` (default 0; the robot is
+  unchanged) and `sentry_localization` gains the simulation launch arguments
+  `rf2o_extrinsic_lookahead_s` and `scan_navigation_odom_topic`; `sim` adds `scan_odom_gate` and
+  the `ekf_pre` chain. The Jetson-to-MCB stream now matches for 800+ lines (was 19) and `/odom`
+  for about 26 s (was 14 s). T17 is still open: equal-stamp measurement order inside the stock EKF
+  ([investigation](sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-2-rf2o-the-ekf-hand-off-and-what-is-left),
+  [rf2o #28](https://github.com/Thornbots/rf2o_laser_odometry/pull/28),
+  [sentry_localization #43](https://github.com/Thornbots/sentry_localization/pull/43),
+  [sim #87](https://github.com/Thornbots/sim/pull/87)).
+
 - Simulation: every Jetson-side producer of a UART frame is now a lockstep chain, so
   frames reach the firmware on a fixed 1 ms step instead of whenever a callback ran.
   `dji_serial_bridge` publishes a TX ack per frame and, in the simulator's

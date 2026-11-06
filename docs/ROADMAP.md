@@ -76,14 +76,19 @@ The only active sim work: the same inputs give the same results, and runs start 
   ([sentry_localization #41](https://github.com/Thornbots/sentry_localization/pull/41)) and the coordinator,
   POSE-consumption hold, keyed lidar noise and `mmm` off ([sim #86](https://github.com/Thornbots/sim/pull/86)).
   All 12 `mcb_parked` cells and `mcb_drive` pass and `mcb_match` runs with 0 lockstep timeouts and 0 latest-TF
-  fallbacks (it fails only its known 10% combat floor, paused combat work). **`shots.jsonl` is still not identical:**
-  the Jetson-to-MCB read stream now matches for the first 19-68 lines (was 0) and its frame timing and order no
-  longer differ; what remains is below it. rf2o's scan odometry differs at 1e-13 from its first graded scan with
-  bit-identical inputs, which reaches CV_TARGET/RELOCALIZE as 1 ulp, and physics and the scan diverge by 1e-5 once the
-  chassis moves at 14 s. Next: locate the rf2o difference, then the post-motion physics difference, re-trace with
-  `MCB_UART_TRACE` and `/odom` CSVs until the streams match; then the full acceptance campaign (three unthrottled,
-  one RTF=1, one gz two-core run over every cell, drive and match), which also needs a Mini with no other agent
-  container (the 2026-11-06 runs shared it with a ~395% CPU container, so no RTF number was taken). Keep the 1 ms
+  fallbacks (it fails only its known 10% combat floor, paused combat work). **`shots.jsonl` is still not identical.** The 2026-11-06 second pass found and fixed the earlier
+  causes: rf2o's 1e-13 was a tf2 timing race (a scan stamped on a TF sample is looked up exactly or slerped,
+  by whether the next sample had arrived; `extrinsic_lookahead_s`, [rf2o #28](https://github.com/Thornbots/rf2o_laser_odometry/pull/28),
+  [sentry_localization #43](https://github.com/Thornbots/sentry_localization/pull/43)) and rf2o's result reached
+  the EKF at either of two ticks (`scan_odom_gate`, [sim #87](https://github.com/Thornbots/sim/pull/87)). The
+  14 s physics divergence was downstream of those: `/odom` is now bit-identical for about 26 s and the
+  Jetson-to-MCB stream for 807 lines (to 20.1 s). Regression: 12/12 `mcb_parked` and `mcb_drive` pass with 0 lockstep
+  timeouts and 0 latest-TF fallbacks; `mcb_match` fails only its known 10% floor. **Open:** equal-stamp
+  measurement order inside the stock EKF varies on about 9% of the ticks that carry a scan result (a wall-time race
+  between `odom0` and `odom1` callbacks; 2e-16 in yaw, ulps in RELOCALIZE/TARGET_STATE). Closing it needs an EKF-side
+  consumption ack (sim-only patch of `robot_localization`) or distinct stamps for pose and twist; then the acceptance
+  campaign (three unthrottled, one RTF=1, one gz two-core run over every cell, drive and match), which needs a Mini
+  with no other agent container (`isaac-agent-lifecycle` was up throughout, so no RTF or two-core run was taken). Keep the 1 ms
   physics step and existing timeout limits; the original Mac/Archlinux same-hit-sequence comparison remains an
   external dependency (trace and document any per-shot difference to gz floating point) and is not claimed from Mini
   repeats. [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md),
