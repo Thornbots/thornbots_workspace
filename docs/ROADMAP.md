@@ -63,25 +63,14 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 
 The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
 
-- **T17 — sim — open, two timing runs left (2026-11-07):** Repeated hosted runs on the Mini now write
-  identical `shots.jsonl` and `states.jsonl`: three unthrottled runs of all 12 `mcb_parked` cells (1883 / 14468 records),
-  `mcb_drive` (109 / 1148) and `mcb_match` (329 / 1109), each with 0 lockstep timeouts and 0 latest-TF fallbacks;
-  `mcb_parked` and `mcb_drive` are accepted by the native log checker, and `mcb_match` is rejected only by its known
-  combat floor (7.9% against 10%, paused combat work, not tuned). The last causes were all timing: the EKF's tick
-  membership and tie order (a sim-only [`robot_localization` fork](https://github.com/Thornbots/robot_localization),
-  [PR 1](https://github.com/Thornbots/robot_localization/pull/1), submodule on `nightly`), acks that a neighbouring tick
-  could satisfy, path samples and parameter changes taken by arrival instead of tick, the scorer's own windows,
-  and the opponents' heads in `mcb_match`
-  ([sim #92](https://github.com/Thornbots/sim/pull/92), [sentry_localization #45](https://github.com/Thornbots/sentry_localization/pull/45),
-  [thornbots_pkg #70](https://github.com/Thornbots/thornbots_pkg/pull/70), [nav_pkg #4](https://github.com/Thornbots/nav_pkg/pull/4)).
-  **Left:** the RTF=1 run and the run with gz pinned to two cores over every cell, drive and match, which need a Mini
-  with no other agent container (`isaac-agent-lifecycle-resid` was up for the whole session, so neither was taken); then
-  remove this item. Keep the 1 ms physics step and existing timeout limits; the original Mac/Archlinux
-  same-hit-sequence comparison remains an external dependency (trace and document any per-shot difference to
-  gz floating point) and is not claimed from Mini repeats.
-  [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-3-the-remaining-timing-races),
-  [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
-- **E-teardown — sim — open (Renode repeats):** Every early-interrupt, completion, Ctrl-C, SIGTERM, SIGHUP and killed-shell
+- **E-renode-bring-up — sim — open (found 2026-11-07):** The T17 hosted acceptance passes (three unthrottled, RTF=1 and
+  gz two-core runs of every stage: identical `shots.jsonl`/`states.jsonl`, 0 lockstep timeouts and latest-TF fallbacks;
+  [record](../sim/docs/t17-consistent-runs-2026-11-05.md#rtf1-and-gz-two-core-acceptance-2026-11-07)), but sim
+  `9360b27` (T17 "identical hosted runs", [sim #92](https://github.com/Thornbots/sim/pull/92)) stalls every Renode board
+  stage at the first release (`gz not held at 0.020 s`, 3 of 3; `b934372` and earlier pass). Find and fix the cause, then
+  rerun a Renode cell; [bisect and suspect](../sim/docs/t17-consistent-runs-2026-11-05.md#renode-bring-up-regression-found-by-the-lifecycle-repeats-2026-11-07).
+  The original Mac/Archlinux same-hit-sequence comparison remains an external dependency and is not claimed from Mini repeats.
+- **E-teardown — sim — open (Renode repeats, blocked by E-renode-bring-up):** Every early-interrupt, completion, Ctrl-C, SIGTERM, SIGHUP and killed-shell
   ending leaves no process, gz topic or pty and no SIGKILL ([contract](../sim/README.md#startup-and-shutdown-contract),
   [evidence and counts](../sim/docs/lifecycle-2026-11-05.md#final-acceptance-runs-2026-11-06-aarch64-mac-mini-workspace-nightly-899dfae3-plus-the-prs-below)).
   The Fast DDS 2.14.6 crash was our bridge, not Fast DDS (apt's 2.14.7 has no fix): `ros_gz_bridge`'s node was never
@@ -89,7 +78,7 @@ The only active sim work: the same inputs give the same results, and runs start 
   ([sim #89](https://github.com/Thornbots/sim/pull/89)). Hosted `tools/lifecycle_check.sh --repeat 5`: 100 of 100 on the final
   code; early-interrupt hunt 0 deaths in 1,200 iterations (3 of 150 before). Renode: one full matrix, 20 of 20, plus one
   completion of each MCB suite (about 12 min per completion and 8.5 min per interrupted run, so `--repeat 5` is about 11 h
-  of machine time and was not run). Remaining: Renode repeats 2 to 5. Found and fixed on the way: the defaults-off DDS
+  of machine time). Remaining: Renode repeats 2 to 5; on 2026-11-07 the first run of `--repeat 4` failed at bring-up on nightly (E-renode-bring-up), so none were taken. Found and fixed on the way: the defaults-off DDS
   profile ([thornbots_pkg #68](https://github.com/Thornbots/thornbots_pkg/pull/68), [#69](https://github.com/Thornbots/thornbots_pkg/pull/69),
   [sim #91](https://github.com/Thornbots/sim/pull/91)), a suite clock that kept a node past `main`, and a logged 3 s bridge
   teardown watchdog (one hang in about 1,000 bridge exits, not diagnosed).

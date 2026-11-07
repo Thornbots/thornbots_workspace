@@ -27,8 +27,8 @@ impact, and link the corresponding package changes.
   start on the stock package. The robot image and overlay do not build it, so robots keep the apt 3.8.3. `sim`
   gains exact-stamp coordinator acks, tick-keyed path, truth and parameter handling, a tick-counted scorer and
   `run_suite.sh` waits for the previous run's gz advertisements; `target_tracker` gains `tf_lookahead_s` and orders
-  empty frames; `waypoint_nav` gains `epoch_zero_ready`. The RTF=1 and two-core runs of the T17 acceptance are still
-  to be taken ([ROADMAP T17](docs/ROADMAP.md#c-consistent-sim-runs),
+  empty frames; `waypoint_nav` gains `epoch_zero_ready`. The RTF=1 and gz two-core runs of the T17 acceptance now pass (hosted; Renode bring-up regressed, see
+  [ROADMAP E-renode-bring-up](docs/ROADMAP.md#c-consistent-sim-runs),
   [robot_localization #1](https://github.com/Thornbots/robot_localization/pull/1),
   [sim #92](https://github.com/Thornbots/sim/pull/92),
   [sentry_localization #45](https://github.com/Thornbots/sentry_localization/pull/45),
