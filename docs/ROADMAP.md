@@ -1,7 +1,7 @@
 # Where the project is going
 
 Measure the real robot, run the matching sim scenario, find the differences and fix them (2026-11-05). Sim feature
-work is paused; the only sim work left is making runs consistent, so sim/robot comparisons mean something.
+work is paused until sim/robot comparisons show where it matters; runs are consistent (T17 and Renode board repeats accepted 2026-11-07).
 This file owns unfinished Mini/software/sim work. Physical validation lives in [ROBOT_TESTS](ROBOT_TESTS.md); usage,
 design and measurements stay in linked docs. Remove completed items once their implementation and integration have
 landed.
@@ -32,7 +32,7 @@ landed.
 
 ## Tracks, in order of work
 
-Order (2026-11-05): R, C, then the remaining software items and [issues found](#issues-found). Administration is
+Order (2026-11-05): R, then the remaining software items and [issues found](#issues-found). Administration is
 independent. Navigation waits until after the Midwest competition.
 
 <a id="localization-policy"></a>
@@ -44,8 +44,9 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 ### R. Real robot against sim
 
 - **R-compare — robot / sim — open:** For each [ROBOT_TESTS](ROBOT_TESTS.md) measurement (drift, moving-aim
-  delays, plant response, camera/lidar), run the same scenario in sim on consistent runs (track C), record the
-  differences in a dated investigation, and fix whichever side is wrong. Prior comparison:
+  delays, plant response, camera/lidar), run the same scenario in sim on consistent runs ([T17 record](../sim/docs/t17-consistent-runs-2026-11-05.md)), record the
+  differences in a dated investigation, and fix whichever side is wrong. The original Mac/Archlinux same-hit-sequence
+  comparison remains an external dependency and is not claimed from Mini repeats. Prior comparison:
   [sim to real, 2026-10-18](investigations/sentry-sim-to-real-2026-10-18.md).
 - **SIM-plant-model — sim / firmware — blocked on physical measurements:** Apply measured tire/braking/suspension
   and board gimbal/indexer response to the simulation, then rerun affected plant and combat regressions under
@@ -58,31 +59,6 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 <a id="a-the-match-test"></a>
 <a id="a-acceptance-details"></a>
 <a id="d-and-e-acceptance-details"></a>
-
-### C. Consistent sim runs
-
-The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
-
-- **E-renode-bring-up — sim — open (found 2026-11-07):** The T17 hosted acceptance passes (three unthrottled, RTF=1 and
-  gz two-core runs of every stage: identical `shots.jsonl`/`states.jsonl`, 0 lockstep timeouts and latest-TF fallbacks;
-  [record](../sim/docs/t17-consistent-runs-2026-11-05.md#rtf1-and-gz-two-core-acceptance-2026-11-07)), but sim
-  `9360b27` (T17 "identical hosted runs", [sim #92](https://github.com/Thornbots/sim/pull/92)) stalls every Renode board
-  stage at the first release (`gz not held at 0.020 s`, 3 of 3; `b934372` and earlier pass). Find and fix the cause, then
-  rerun a Renode cell; [bisect and suspect](../sim/docs/t17-consistent-runs-2026-11-05.md#renode-bring-up-regression-found-by-the-lifecycle-repeats-2026-11-07).
-  The original Mac/Archlinux same-hit-sequence comparison remains an external dependency and is not claimed from Mini repeats.
-- **E-teardown — sim — open (Renode repeats, blocked by E-renode-bring-up):** Every early-interrupt, completion, Ctrl-C, SIGTERM, SIGHUP and killed-shell
-  ending leaves no process, gz topic or pty and no SIGKILL ([contract](../sim/README.md#startup-and-shutdown-contract),
-  [evidence and counts](../sim/docs/lifecycle-2026-11-05.md#final-acceptance-runs-2026-11-06-aarch64-mac-mini-workspace-nightly-899dfae3-plus-the-prs-below)).
-  The Fast DDS 2.14.6 crash was our bridge, not Fast DDS (apt's 2.14.7 has no fix): `ros_gz_bridge`'s node was never
-  destroyed, so the participant died against rmw's listener thread in static destruction
-  ([sim #89](https://github.com/Thornbots/sim/pull/89)). Hosted `tools/lifecycle_check.sh --repeat 5`: 100 of 100 on the final
-  code; early-interrupt hunt 0 deaths in 1,200 iterations (3 of 150 before). Renode: one full matrix, 20 of 20, plus one
-  completion of each MCB suite (about 12 min per completion and 8.5 min per interrupted run, so `--repeat 5` is about 11 h
-  of machine time). Remaining: Renode repeats 2 to 5; on 2026-11-07 the first run of `--repeat 4` failed at bring-up on nightly (E-renode-bring-up), so none were taken. Found and fixed on the way: the defaults-off DDS
-  profile ([thornbots_pkg #68](https://github.com/Thornbots/thornbots_pkg/pull/68), [#69](https://github.com/Thornbots/thornbots_pkg/pull/69),
-  [sim #91](https://github.com/Thornbots/sim/pull/91)), a suite clock that kept a node past `main`, and a logged 3 s bridge
-  teardown watchdog (one hang in about 1,000 bridge exits, not diagnosed).
-
 
 <a id="b-hit-while-we-move"></a>
 <a id="g-estimation-accuracy"></a>

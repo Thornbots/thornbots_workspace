@@ -7,6 +7,14 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Simulation: the Renode board backend runs again. sim `9360b27` (T17 "identical hosted runs") stalled every Renode stage
+  at its first release (`lockstep timeout: gz not held at 0.020 s`): `OpponentMover` waited 5 s wall for a path sample no
+  producer makes, because the first sample, stamped with the producer's first tick, reached it during the board boot
+  before the clock had left zero ([sim #96](https://github.com/Thornbots/sim/pull/96)). Hosted runs are unchanged
+  (identical `shots`/`states` again, 0 lockstep timeouts and latest-TF fallbacks). `lifecycle_check.sh --repeat 4` on
+  the board backend then passed 80 of 80 ([sim #97](https://github.com/Thornbots/sim/pull/97),
+  [record](sim/docs/lifecycle-2026-11-05.md)); roadmap track C is complete.
+
 - **Behavior change, robots:** off-machine DDS is now off by default and Foxglove on. The robot service sets
   `THORNBOTS_REMOTE_DDS=false` (no Fast DDS profile with Tailscale peers, `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`;
   `thornbots_pkg`'s pinned UDP-only nodes and `sentry_localization`'s two use loopback-only profile twins), so
@@ -27,8 +35,8 @@ impact, and link the corresponding package changes.
   start on the stock package. The robot image and overlay do not build it, so robots keep the apt 3.8.3. `sim`
   gains exact-stamp coordinator acks, tick-keyed path, truth and parameter handling, a tick-counted scorer and
   `run_suite.sh` waits for the previous run's gz advertisements; `target_tracker` gains `tf_lookahead_s` and orders
-  empty frames; `waypoint_nav` gains `epoch_zero_ready`. The RTF=1 and gz two-core runs of the T17 acceptance now pass (hosted; Renode bring-up regressed, see
-  [ROADMAP E-renode-bring-up](docs/ROADMAP.md#c-consistent-sim-runs),
+  empty frames; `waypoint_nav` gains `epoch_zero_ready`. The RTF=1 and gz two-core runs of the T17 acceptance now pass (hosted; Renode bring-up regressed and was fixed, see
+  [the T17 record](sim/docs/t17-consistent-runs-2026-11-05.md#cause-and-fix-2026-11-07),
   [robot_localization #1](https://github.com/Thornbots/robot_localization/pull/1),
   [sim #92](https://github.com/Thornbots/sim/pull/92),
   [sentry_localization #45](https://github.com/Thornbots/sentry_localization/pull/45),
@@ -131,7 +139,7 @@ impact, and link the corresponding package changes.
   old PTY. Robot UART behavior is unchanged
   ([sim #79](https://github.com/Thornbots/sim/pull/79),
   [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41);
-  [ROADMAP T17](docs/ROADMAP.md#c-consistent-sim-runs)).
+  [T17 record](sim/docs/t17-consistent-runs-2026-11-05.md)).
 
 - Move aim planning to the MCB. The Jetson now sends the tracked enemy armor
   model as a new 80-byte `TARGET_STATE` UART frame on every tracker update, and
