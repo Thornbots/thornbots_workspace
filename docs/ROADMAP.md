@@ -63,35 +63,23 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 
 The only active sim work: the same inputs give the same results, and runs start and stop cleanly.
 
-- **T17 — sim / thornbots_pkg — open, acceptance not met (2026-11-06):** Landed and validated on the hosted
-  fixture, Mac mini: sim-time UART ([sim #79](https://github.com/Thornbots/sim/pull/79),
-  [bridge #41](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/41)), the epoch-zero barrier with no
-  wall-timed bring-up ([sim #80](https://github.com/Thornbots/sim/pull/80)), stamped, counted TF reads
-  ([thornbots_pkg #64](https://github.com/Thornbots/thornbots_pkg/pull/64), [sim #81](https://github.com/Thornbots/sim/pull/81)),
-  per-(seed, robot, stamp) noise ([sim #82](https://github.com/Thornbots/sim/pull/82)), the harness as a lockstep
-  chain ([sim #83](https://github.com/Thornbots/sim/pull/83)) and now every Jetson-side UART producer as a chain:
-  bridge TX acks and per-hold queue ([bridge #42](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/42)),
-  none-marks, message clock and tracker delay ([thornbots_pkg #66](https://github.com/Thornbots/thornbots_pkg/pull/66),
-  [nav_pkg #3](https://github.com/Thornbots/nav_pkg/pull/3)), a 34 ms simulation EKF
-  ([sentry_localization #41](https://github.com/Thornbots/sentry_localization/pull/41)) and the coordinator,
-  POSE-consumption hold, keyed lidar noise and `mmm` off ([sim #86](https://github.com/Thornbots/sim/pull/86)).
-  All 12 `mcb_parked` cells and `mcb_drive` pass and `mcb_match` runs with 0 lockstep timeouts and 0 latest-TF
-  fallbacks (it fails only its known 10% combat floor, paused combat work). **`shots.jsonl` is still not identical.** The 2026-11-06 second pass found and fixed the earlier
-  causes: rf2o's 1e-13 was a tf2 timing race (a scan stamped on a TF sample is looked up exactly or slerped,
-  by whether the next sample had arrived; `extrinsic_lookahead_s`, [rf2o #28](https://github.com/Thornbots/rf2o_laser_odometry/pull/28),
-  [sentry_localization #43](https://github.com/Thornbots/sentry_localization/pull/43)) and rf2o's result reached
-  the EKF at either of two ticks (`scan_odom_gate`, [sim #87](https://github.com/Thornbots/sim/pull/87)). The
-  14 s physics divergence was downstream of those: `/odom` is now bit-identical for about 26 s and the
-  Jetson-to-MCB stream for 807 lines (to 20.1 s). Regression: 12/12 `mcb_parked` and `mcb_drive` pass with 0 lockstep
-  timeouts and 0 latest-TF fallbacks; `mcb_match` fails only its known 10% floor. **Open:** equal-stamp
-  measurement order inside the stock EKF varies on about 9% of the ticks that carry a scan result (a wall-time race
-  between `odom0` and `odom1` callbacks; 2e-16 in yaw, ulps in RELOCALIZE/TARGET_STATE). Closing it needs an EKF-side
-  consumption ack (sim-only patch of `robot_localization`) or distinct stamps for pose and twist; then the acceptance
-  campaign (three unthrottled, one RTF=1, one gz two-core run over every cell, drive and match), which needs a Mini
-  with no other agent container (`isaac-agent-lifecycle` was up throughout, so no RTF or two-core run was taken). Keep the 1 ms
-  physics step and existing timeout limits; the original Mac/Archlinux same-hit-sequence comparison remains an
-  external dependency (trace and document any per-shot difference to gz floating point) and is not claimed from Mini
-  repeats. [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md),
+- **T17 — sim — open, two timing runs left (2026-11-07):** Repeated hosted runs on the Mini now write
+  identical `shots.jsonl` and `states.jsonl`: three unthrottled runs of all 12 `mcb_parked` cells (1883 / 14468 records),
+  `mcb_drive` (109 / 1148) and `mcb_match` (329 / 1109), each with 0 lockstep timeouts and 0 latest-TF fallbacks;
+  `mcb_parked` and `mcb_drive` are accepted by the native log checker, and `mcb_match` is rejected only by its known
+  combat floor (7.9% against 10%, paused combat work, not tuned). The last causes were all timing: the EKF's tick
+  membership and tie order (a sim-only [`robot_localization` fork](https://github.com/Thornbots/robot_localization),
+  [PR 1](https://github.com/Thornbots/robot_localization/pull/1), submodule on `nightly`), acks that a neighbouring tick
+  could satisfy, path samples and parameter changes taken by arrival instead of tick, the scorer's own windows,
+  and the opponents' heads in `mcb_match`
+  ([sim #92](https://github.com/Thornbots/sim/pull/92), [sentry_localization #45](https://github.com/Thornbots/sentry_localization/pull/45),
+  [thornbots_pkg #70](https://github.com/Thornbots/thornbots_pkg/pull/70), [nav_pkg #4](https://github.com/Thornbots/nav_pkg/pull/4)).
+  **Left:** the RTF=1 run and the run with gz pinned to two cores over every cell, drive and match, which need a Mini
+  with no other agent container (`isaac-agent-lifecycle-resid` was up for the whole session, so neither was taken); then
+  remove this item. Keep the 1 ms physics step and existing timeout limits; the original Mac/Archlinux
+  same-hit-sequence comparison remains an external dependency (trace and document any per-shot difference to
+  gz floating point) and is not claimed from Mini repeats.
+  [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-3-the-remaining-timing-races),
   [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
 - **E-teardown — sim — open (one residual):** The orphaned gz server, SIGKILL-only shutdown and node exit -2 are fixed, and
   matching aarch64 backtraces are recorded; hosted and Renode runs end by completion, Ctrl-C, SIGTERM, SIGHUP and a

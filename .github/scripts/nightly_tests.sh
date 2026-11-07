@@ -50,7 +50,7 @@ update_checkout() {
     git submodule sync -q --recursive
     # shellcheck disable=SC2086 # PORTABLE is an intentional package list.
     git submodule update -q --init --checkout --force --depth 1 -- \
-        $PORTABLE isaac_ros_common firmware/MCBV3 || return 1
+        $PORTABLE robot_localization isaac_ros_common firmware/MCBV3 || return 1
     git -C firmware/MCBV3 submodule update -q --init --checkout --force --depth 1 taproot-scripts || return 1
 }
 

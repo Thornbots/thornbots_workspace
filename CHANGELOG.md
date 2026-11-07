@@ -19,6 +19,22 @@ impact, and link the corresponding package changes.
   the Colima VM also drops bridged traffic to `100.64.0.0/10` unless a task opts out with `-T`
   ([investigation](docs/investigations/colima-dds-egress-2026-11-06.md)).
 
+- Simulation: repeated hosted runs now write identical `shots.jsonl` and `states.jsonl` for every
+  `mcb_parked` cell, `mcb_drive` and `mcb_match` (three unthrottled runs each; 0 lockstep timeouts, 0 latest-TF
+  fallbacks). New package `robot_localization`, a fork of upstream 3.8.3 with two options that are off
+  by default (`deterministic_measurement_order`, `publish_queued_stamps`), added as a submodule on `nightly`;
+  only the simulation enables them (`sentry_localization`'s `ekf_deterministic_order`) and the E2E stack refuses to
+  start on the stock package. The robot image and overlay do not build it, so robots keep the apt 3.8.3. `sim`
+  gains exact-stamp coordinator acks, tick-keyed path, truth and parameter handling, a tick-counted scorer and
+  `run_suite.sh` waits for the previous run's gz advertisements; `target_tracker` gains `tf_lookahead_s` and orders
+  empty frames; `waypoint_nav` gains `epoch_zero_ready`. The RTF=1 and two-core runs of the T17 acceptance are still
+  to be taken ([ROADMAP T17](docs/ROADMAP.md#c-consistent-sim-runs),
+  [robot_localization #1](https://github.com/Thornbots/robot_localization/pull/1),
+  [sim #92](https://github.com/Thornbots/sim/pull/92),
+  [sentry_localization #45](https://github.com/Thornbots/sentry_localization/pull/45),
+  [thornbots_pkg #70](https://github.com/Thornbots/thornbots_pkg/pull/70),
+  [nav_pkg #4](https://github.com/Thornbots/nav_pkg/pull/4)). No robot behavior changes.
+
 - Simulation runs now stop with one SIGINT per process and leave nothing behind, on completion, Ctrl-C, SIGTERM,
   SIGHUP and a killed shell, for the hosted and Renode board backends: `run_suite.sh` forwards the signals and starts
   the launch behind a parent-death guard, gz sim starts without the `sh -c` wrapper that orphaned it, the `gz_bridge`

@@ -109,7 +109,8 @@ jobs:
         run: |
           source /opt/ros/jazzy/setup.bash
           source install/setup.bash
-          selection=()
+          # The fork's own suite (750 tests) belongs to its repository, not every workspace run.
+          selection=(--packages-skip robot_localization)
           if [[ "$PACKAGE_REPO" != workspace ]]; then
             package_name=$(python3 -c 'import sys, xml.etree.ElementTree as E; print(E.parse(sys.argv[1]).getroot().findtext("name"))' "src/$PACKAGE_REPO/package.xml")
             selection=(--packages-select "$package_name")

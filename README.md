@@ -8,7 +8,7 @@ more work; every robot now runs JetPack 7.2.1, so it is history only.
 A GitHub ruleset makes it read-only (no pushes or deletion, admins
 included).
 
-`nightly` integrates changes across the workspace and all eleven package repos.
+`nightly` integrates changes across the workspace and all thirteen package repos.
 On this branch, `.gitmodules` tracks each package's `nightly` branch while
 keeping exact commit pins. [CHANGELOG.md](CHANGELOG.md) records unreleased
 changes to carry into `main`; update it when adding work to nightly.
@@ -58,11 +58,13 @@ this repo's branch bumping the gitlinks. Follow the
 | `thornbots_pkg` | `nightly` | Hardware interface, URDF, CV target selection, `auto.launch.py` |
 | `sentry_localization` | `nightly` | SLAM / AMCL / EKF backends |
 | `sim` | `nightly` | gz-sim worlds and the localization test suite |
+| `nav_pkg` | `nightly` | Waypoint navigation (`thornbots_nav`) |
 | `realsense-yolov8-nitros-bridge` | `nightly` | YOLOv8 detection on the RealSense stream |
 | `Realsense_ROI_Depth_Rectifier` | `nightly` | Depth rectification for detection ROIs |
 | `ros2_dji_serial_bridge` | `nightly` | Serial link to the DJI Type-C board |
 | `sllidar_ros2` | `nightly` | RPLIDAR driver (fork) |
 | `rf2o_laser_odometry` | `nightly` | Scan-matched odometry (fork) |
+| `robot_localization` | `nightly` | EKF used by `sentry_localization` (fork of 3.8.3; only the simulation uses its added options) |
 | `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
 | `firmware/MCBV3` | `nightly` | MCB firmware, cloned by default but optional, see below |

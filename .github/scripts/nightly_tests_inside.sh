@@ -9,7 +9,8 @@ set -o pipefail  # no -u: ROS setup.bash reads unset variables
 EV=/evidence
 WS=/workspaces/isaac_ros-dev
 PKGS=(thornbots_pkg sim sentry_localization rf2o_laser_odometry
-      ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2)
+      ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2
+      robot_localization)  # the simulation refuses to launch on the stock EKF
 ELF="$WS/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf"
 TOOLS=/tmp/mcb-tools
 SELF="$(cd "$(dirname "$0")" && pwd -P)/$(basename "$0")"
@@ -58,7 +59,8 @@ test_all() {
     source /opt/ros/jazzy/setup.bash && source install/setup.bash &&
     export MCB_FIRMWARE_BINARY="$ELF" ROS_LOCALHOST_ONLY=1
     local rc
-    colcon test --base-paths "${paths[@]}" --event-handlers console_direct+ --return-code-on-test-failure
+    colcon test --base-paths "${paths[@]}" --packages-skip robot_localization \
+        --event-handlers console_direct+ --return-code-on-test-failure
     rc=$?
     colcon test-result --verbose >"$EV/colcon-test-result.txt" 2>&1 || rc=1
     cat "$EV/colcon-test-result.txt"

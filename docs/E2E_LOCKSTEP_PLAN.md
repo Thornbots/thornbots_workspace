@@ -1,6 +1,6 @@
 # Plan: E2E tests independent of machine speed
 
-**Historical design status: mostly implemented, acceptance not met (2026-11-06).**
+**Historical design status: implemented; two timing runs of the acceptance left (2026-11-07).**
 Current work/acceptance: [ROADMAP T17](ROADMAP.md#c-consistent-sim-runs), with the measurements in
 the [T17 investigation](../sim/docs/t17-consistent-runs-2026-11-05.md). Implemented in the pinned sim:
 the [MCB-batch gate and coordinator](../sim/README.md#mcb-emulator); firmware inside each 1 ms
@@ -9,12 +9,14 @@ baud, per-frame bridge acks, the wire-busy gate on the simulated wire); the epoc
 section 5 (`startup_barrier`, no `ROBOT_DELAY_S`, Renode accepted); `allow_latest_tf` with a counter
 the harness asserts (section 6); keyed per-(seed, robot, stamp) noise; and the harness as its own
 lockstep chain (50 ms). Aiming has moved to the MCB (`TARGET_STATE`, `mcb_aim_standin` in the benches),
-so section 4's `point_to_cv_target` rows describe only its idle look and tick. Section 4's chains now exist for every Jetson-side producer of a UART frame (bridge TX acks and a
-per-hold queue, any-of and counted ack groups, none-marks, a POSE-consumption hold, the EKF, rf2o,
-detector and tracker chains), with lidar noise keyed per stamp. Still open: the read stream into the
-firmware matches only for its first 19-68 lines because rf2o's output and post-motion physics are not
-bit-reproducible, and the full identity campaign has not run (see the
-[T17 investigation](../sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-producer-chains)).
+so section 4's `point_to_cv_target` rows describe only its idle look and tick. Section 4's chains now exist for every Jetson-side
+producer of a UART frame (bridge TX acks and a per-hold queue, any-of, counted and exact-stamp ack groups, none-marks,
+a POSE-consumption hold, the EKF with its queued-stamp ack, rf2o, detector and tracker chains), with lidar noise keyed
+per stamp, paths, truth and parameter changes taken by tick, and the scorer's windows counted in ticks. The read stream
+into the firmware, `shots.jsonl` and `states.jsonl` are identical across three unthrottled runs of every
+`mcb_parked` cell, `mcb_drive` and `mcb_match`. Still open: the RTF=1 and two-core gz runs (they need a Mini with no
+other agent container) and the Mac/Archlinux comparison, which stays out of scope
+(see the [T17 investigation](../sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-3-the-remaining-timing-races)).
 Every stage runs the MCB emulator, so step 8 is done ([`E2E_PLAN.md`](E2E_PLAN.md)).
 
 The optional [Type C backend](../sim/README.md#type-c-board-execution-with-renode)
