@@ -40,10 +40,24 @@ impact, and link the corresponding package changes.
   the launch behind a parent-death guard, gz sim starts without the `sh -c` wrapper that orphaned it, the `gz_bridge`
   executable replaces `parameter_bridge` (which crashed in Fast DDS teardown), the lockstep gate, firmware waits, board
   adapter and Renode honour a stop request, and `tools/lifecycle_check.sh` is the acceptance test. `seeded_ekf`
-  exits 0 when interrupted during startup, absorbing a `robot_localization` startup abort. A Fast DDS receive-thread
-  race still kills a bridge in about 1 of 20 early interrupts
+  exits 0 when interrupted during startup, absorbing a `robot_localization` startup abort. The early-interrupt bridge
+  crash (about 1 of 20) came from `ros_gz_bridge`'s node never being destroyed, so Fast DDS's participant was torn down
+  against rmw's listener thread at exit; `gz_bridge` now frees its context first and bounds its teardown with a
+  logged 3 s watchdog, and the estimation and shot-hit suites drop their clock callback (it kept a node past `main`)
+  on every exit. Hosted `lifecycle_check.sh --repeat 5`: 100 of 100; early-interrupt hunt: 0 bridge deaths in 1,200
+  iterations (3 of 150 before). `tools/bridge_teardown_stress.py` repeats it
   ([sim #78](https://github.com/Thornbots/sim/pull/78), [sim #88](https://github.com/Thornbots/sim/pull/88),
-  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). No robot behavior changes.
+  [sim #89](https://github.com/Thornbots/sim/pull/89),
+  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)).
+
+- **Behavior change, robots and sim:** with remote DDS off (the default since #185), `auto.launch.py` and the sim launches
+  now give every node `thornbots_pkg/config/fastdds_local.xml` (shared memory and loopback UDP, initial peer `127.0.0.1`,
+  `maxInitialPeersRange` 128) and no `ROS_AUTOMATIC_DISCOVERY_RANGE`, instead of the `LOCALHOST` range with no profile.
+  Under `LOCALHOST` the 37-participant sim stack did not find itself (a hosted `mcb_parked` cell timed out its first
+  lockstep hold in a fresh container), and a 32-id range lost a hold in about 2% of runs. Still no packet to
+  `100.64.0.0/10` (a defaults-off cell showed none on `docker0`; only gz-transport multicast left the container).
+  Not yet run on a robot ([thornbots_pkg #68](https://github.com/Thornbots/thornbots_pkg/pull/68),
+  [#69](https://github.com/Thornbots/thornbots_pkg/pull/69), [sim #91](https://github.com/Thornbots/sim/pull/91)).
 
 - Simulation: rf2o's scan odometry no longer varies between runs and its result reaches the
   EKF at a fixed lockstep hold. rf2o gains `extrinsic_lookahead_s` (default 0; the robot is

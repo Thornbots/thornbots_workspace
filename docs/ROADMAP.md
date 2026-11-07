@@ -81,19 +81,19 @@ The only active sim work: the same inputs give the same results, and runs start 
   gz floating point) and is not claimed from Mini repeats.
   [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-3-the-remaining-timing-races),
   [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
-- **E-teardown — sim — open (one residual):** The orphaned gz server, SIGKILL-only shutdown and node exit -2 are fixed, and
-  matching aarch64 backtraces are recorded; hosted and Renode runs end by completion, Ctrl-C, SIGTERM, SIGHUP and a
-  killed shell with no leftover process, gz topic or pty and no SIGKILL
-  ([evidence and counts](../sim/docs/lifecycle-2026-11-05.md), [sim #78](https://github.com/Thornbots/sim/pull/78),
-  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). Remaining: a Fast DDS 2.14.6
-  receive-thread race (`StatefulWriter::matched_reader_remove`) still kills a `gz_bridge` in about 1 of 20 interrupts during
-  startup or early in a run; the lifecycle check fails on it and it is not whitelisted. Fix or upstream it, then rerun
-  `tools/lifecycle_check.sh --repeat 5` on both backends.
-- **E-launch — sim — RTF gates open:** One-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
-  cleanup, including children outside `kill_launch.sh`, passed on the same runs
-  ([startup and shutdown contract](../sim/README.md#startup-and-shutdown-contract)), and the estimation reset/pacing change
-  was independently reviewed ([review](../sim/docs/lifecycle-2026-11-05.md#independent-review-of-sim-68-estimation-reset-and-pacing),
-  [harness investigation](../sim/docs/de-harness-2026-11-02.md)). Remaining: the broader RTF gates; this does not complete D-speed.
+- **E-teardown — sim — open (Renode repeats):** Every early-interrupt, completion, Ctrl-C, SIGTERM, SIGHUP and killed-shell
+  ending leaves no process, gz topic or pty and no SIGKILL ([contract](../sim/README.md#startup-and-shutdown-contract),
+  [evidence and counts](../sim/docs/lifecycle-2026-11-05.md#final-acceptance-runs-2026-11-06-aarch64-mac-mini-workspace-nightly-899dfae3-plus-the-prs-below)).
+  The Fast DDS 2.14.6 crash was our bridge, not Fast DDS (apt's 2.14.7 has no fix): `ros_gz_bridge`'s node was never
+  destroyed, so the participant died against rmw's listener thread in static destruction
+  ([sim #89](https://github.com/Thornbots/sim/pull/89)). Hosted `tools/lifecycle_check.sh --repeat 5`: 100 of 100 on the final
+  code; early-interrupt hunt 0 deaths in 1,200 iterations (3 of 150 before). Renode: one full matrix, 20 of 20, plus one
+  completion of each MCB suite (about 12 min per completion and 8.5 min per interrupted run, so `--repeat 5` is about 11 h
+  of machine time and was not run). Remaining: Renode repeats 2 to 5. Found and fixed on the way: the defaults-off DDS
+  profile ([thornbots_pkg #68](https://github.com/Thornbots/thornbots_pkg/pull/68), [#69](https://github.com/Thornbots/thornbots_pkg/pull/69),
+  [sim #91](https://github.com/Thornbots/sim/pull/91)), a suite clock that kept a node past `main`, and a logged 3 s bridge
+  teardown watchdog (one hang in about 1,000 bridge exits, not diagnosed).
+
 
 <a id="b-hit-while-we-move"></a>
 <a id="g-estimation-accuracy"></a>
@@ -104,7 +104,7 @@ The only active sim work: the same inputs give the same results, and runs start 
 
 Paused 2026-11-05 until sim/robot comparisons show where it matters: match combat floors and sim model
 (A-combat, A-model), estimation accuracy (G.1–G.3, T15, T7, T8), moving-aim floors (B-moving), suite speed
-(D-speed), lidar-guided aiming stages 2–4 (T23), mapping diagnostics (E-map-graph, E-map-freshness), sim/hardware
+(D-speed, which also owns the RTF gates E-launch once listed), lidar-guided aiming stages 2–4 (T23), mapping diagnostics (E-map-graph, E-map-freshness), sim/hardware
 producer selection (LAUNCH-producers), sim route checks (T40 ingress, NAV-route) and sim field integration under
 RULES-S2. Full text: [previous roadmap](https://github.com/Thornbots/thornbots_workspace/blob/4331d436c84d02b9b983a616e2bb969b10e999f4/docs/ROADMAP.md).
 
