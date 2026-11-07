@@ -46,3 +46,7 @@
 	path = nav_pkg
 	url = https://github.com/Thornbots/nav_pkg.git
 	branch = nightly
+[submodule "robot_localization"]
+	path = robot_localization
+	url = https://github.com/Thornbots/robot_localization.git
+	branch = nightly

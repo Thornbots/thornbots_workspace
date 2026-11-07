@@ -5,7 +5,7 @@ Only `main` builds an image and runs the full CI: workspace and package CI run
 on pushes to `main`, on PRs into `main` and on manual dispatch. `nightly` runs
 no CI on pushes or PRs; authors run the
 [local checks](#local-checks-for-prs-into-nightly) before merging, and the
-[nightly tests](#nightly-tests) run on the Mac mini each night. All eleven `.gitmodules` entries track `nightly`
+[nightly tests](#nightly-tests) run on the Mac mini each night. All thirteen `.gitmodules` entries track `nightly`
 on this integration branch, with exact gitlink pins. Sim and MCB firmware are
 initialized by normal submodule checkout; firmware can be skipped.
 
@@ -18,6 +18,12 @@ initialized by normal submodule checkout; firmware can be skipped.
 | Workspace | Native arm64 robot-image build and package tests |
 | Workspace, covering bumped package commits | [Repository policy](#repository-policy) and its [regression tests](../.github/quality/test_policy.py) |
 | MCBV3 | ARM builds in all robot/sysid combinations and hosted control/UART tests on `main` pushes and PRs into `main` |
+
+The `robot_localization` fork has no workflow of its own yet: its 750-test suite runs locally
+(`colcon test --packages-select robot_localization`; `test_filter_base_diagnostics_timestamps`
+fails alone on stock 3.8.3 too) and is skipped by the workspace and nightly runs, which still build it
+because the simulation refuses to launch on the stock EKF. It is not in the robot image or overlay package
+lists, so a robot keeps the apt 3.8.3.
 
 Portable packages are thornbots_pkg, sim, sentry_localization,
 rf2o_laser_odometry, ros2_dji_serial_bridge, Realsense_ROI_Depth_Rectifier,

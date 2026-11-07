@@ -14,8 +14,9 @@ Sim plays only what sits outside the Jetson:
 
 Everything between those is the real code: `dji_serial_bridge`,
 `mcb_relay`, `pose_translator`, localization (amcl + EKF + rf2o),
-`target_selector`, `target_tracker` and
-`point_to_cv_target`. Our robot drives and shoots in the same run, against
+`target_selector` and `target_tracker`, whose `TARGET_STATE` the MCB
+firmware aims from (aiming moved there; `point_to_cv_target` now only
+sends the idle look). Our robot drives and shoots in the same run, against
 other `sentry_v2` copies that move, spin and shoot back. One run then
 scores localization, tracking and hitting together, and a wrong stamp,
 frame or unit between any two stages shows up as a lost hit.
@@ -68,7 +69,7 @@ from stage to stage, so a drop belongs to the hops that stage added. Every
 stage runs the MCB emulator (the user, 2026-10-08).
 
 1. `mcb_parked`, the wire, our robot parked. The detector stand-in,
-   the real selector, tracker and `point_to_cv_target`, then
+   the real selector and tracker (and `point_to_cv_target`'s idle look), then
    `dji_serial_bridge` and `mcb_relay` on a pty against the MCB emulator.
    Tests the `CV_TARGET` packing, the stamps both ways, the fire path, and
    `REF_SYS` into the selector, scoring through the compiled firmware on
