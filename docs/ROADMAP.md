@@ -81,24 +81,19 @@ The only active sim work: the same inputs give the same results, and runs start 
   gz floating point) and is not claimed from Mini repeats.
   [Evidence and design](../sim/docs/t17-consistent-runs-2026-11-05.md#2026-11-06-pass-3-the-remaining-timing-races),
   [original acceptance](E2E_LOCKSTEP_PLAN.md#approach-lockstep-as-the-estimation-bench-does).
-- **E-teardown — sim — open (one residual):** The orphaned gz server, SIGKILL-only shutdown and node exit -2 are fixed, and
-  matching aarch64 backtraces are recorded; hosted and Renode runs end by completion, Ctrl-C, SIGTERM, SIGHUP and a
-  killed shell with no leftover process, gz topic or pty and no SIGKILL
-  ([evidence and counts](../sim/docs/lifecycle-2026-11-05.md), [sim #78](https://github.com/Thornbots/sim/pull/78),
-  [sentry_localization #42](https://github.com/Thornbots/sentry_localization/pull/42)). Remaining: the Fast DDS 2.14.6
-  crash that killed a `gz_bridge` in about 1 of 20 early interrupts is traced to the bridge, not a Fast DDS bug (apt's
-  2.14.7 has no fix): `ros_gz_bridge`'s node was never destroyed, so the participant died against rmw's listener thread in
-  static destruction. [sim #89](https://github.com/Thornbots/sim/pull/89) frees the context in `gz_bridge`
-  ([investigation](../sim/docs/lifecycle-2026-11-05.md#2026-11-06-the-fast-dds-bridge-race-and-the-rtf-gate)); the stress
-  hunt shows 0 of 300 iterations killing a bridge on the final build (1 of 800 on the build before it) against 3 of 150 before. Open until `tools/lifecycle_check.sh --repeat 5` passes on
-  both backends.
-- **E-launch — sim — open (nothing owned left):** One-command startup, gz checks, readiness and clean completion/Ctrl-C/shell-death
-  cleanup, including children outside `kill_launch.sh`, passed on the same runs
-  ([startup and shutdown contract](../sim/README.md#startup-and-shutdown-contract)), and the estimation reset/pacing change
-  was independently reviewed ([review](../sim/docs/lifecycle-2026-11-05.md#independent-review-of-sim-68-estimation-reset-and-pacing),
-  [harness investigation](../sim/docs/de-harness-2026-11-02.md)). "The broader RTF gates" are D-speed, not
-  E-launch ([history](../sim/docs/lifecycle-2026-11-05.md#2026-11-06-the-fast-dds-bridge-race-and-the-rtf-gate)); stalled-clock,
-  lockstep-timeout and wall-cap failures are already gated and every suite reports its RTF.
+- **E-teardown — sim — open (Renode repeats):** Every early-interrupt, completion, Ctrl-C, SIGTERM, SIGHUP and killed-shell
+  ending leaves no process, gz topic or pty and no SIGKILL ([contract](../sim/README.md#startup-and-shutdown-contract),
+  [evidence and counts](../sim/docs/lifecycle-2026-11-05.md#final-acceptance-runs-2026-11-06-aarch64-mac-mini-workspace-nightly-899dfae3-plus-the-prs-below)).
+  The Fast DDS 2.14.6 crash was our bridge, not Fast DDS (apt's 2.14.7 has no fix): `ros_gz_bridge`'s node was never
+  destroyed, so the participant died against rmw's listener thread in static destruction
+  ([sim #89](https://github.com/Thornbots/sim/pull/89)). Hosted `tools/lifecycle_check.sh --repeat 5`: 100 of 100 on the final
+  code; early-interrupt hunt 0 deaths in 1,200 iterations (3 of 150 before). Renode: one full matrix, 20 of 20, plus one
+  completion of each MCB suite (about 12 min per completion and 8.5 min per interrupted run, so `--repeat 5` is about 11 h
+  of machine time and was not run). Remaining: Renode repeats 2 to 5. Found and fixed on the way: the defaults-off DDS
+  profile ([thornbots_pkg #68](https://github.com/Thornbots/thornbots_pkg/pull/68), [#69](https://github.com/Thornbots/thornbots_pkg/pull/69),
+  [sim #91](https://github.com/Thornbots/sim/pull/91)), a suite clock that kept a node past `main`, and a logged 3 s bridge
+  teardown watchdog (one hang in about 1,000 bridge exits, not diagnosed).
+
 
 <a id="b-hit-while-we-move"></a>
 <a id="g-estimation-accuracy"></a>
