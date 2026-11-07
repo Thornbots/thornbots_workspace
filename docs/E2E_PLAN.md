@@ -1,6 +1,6 @@
 # Plan: end-to-end tests in sim, and faster benches
 
-Live actions: [consistent runs](ROADMAP.md#c-consistent-sim-runs); match, model and speed work is
+Live actions: [consistent runs](../sim/docs/t17-consistent-runs-2026-11-05.md); match, model and speed work is
 [paused](ROADMAP.md#paused-sim-work) (2026-11-05).
 The table below is design/reference, not a second action list. The goal is one test, the match
 test, that runs the robot's code as `auto.launch.py` runs it on the field.

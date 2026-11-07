@@ -1,8 +1,7 @@
 # Plan: E2E tests independent of machine speed
 
-**Historical design status: implemented; two timing runs of the acceptance left (2026-11-07).**
-Current work/acceptance: [ROADMAP T17](ROADMAP.md#c-consistent-sim-runs), with the measurements in
-the [T17 investigation](../sim/docs/t17-consistent-runs-2026-11-05.md). Implemented in the pinned sim:
+**Historical design status: implemented and accepted, hosted and Renode (2026-11-07).**
+Acceptance and measurements: the [T17 investigation](../sim/docs/t17-consistent-runs-2026-11-05.md). Implemented in the pinned sim:
 the [MCB-batch gate and coordinator](../sim/README.md#mcb-emulator); firmware inside each 1 ms
 step with CAN feedback and force outputs; sim-time UART (section 3: bytes x 10 / baud, shared explicit
 baud, per-frame bridge acks, the wire-busy gate on the simulated wire); the epoch-zero bring-up of
