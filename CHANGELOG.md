@@ -7,6 +7,15 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Add an opt-in CAN bus health diagnostic to the MCB firmware. Building with
+  `scons build robot=<robot> can-bus-health=true` sends one DEBUG message per
+  second with each bus's not-ready command cycles, per-motor feedback rates
+  and bxCAN error state. Normal builds don't change. `tools/decode_can_health.py`
+  decodes bags or hex, and `--command-frames CAN1,CAN2` adds a lower-bound
+  bus-load estimate
+  ([usage](firmware/MCBV3/README.md#optional-can-bus-health-layout-v1);
+  [MCBV3 #134](https://github.com/Thornbots/MCBV3/pull/134)). Not yet
+  exercised on a physical robot.
 - Simulation: the Renode board backend runs again. sim `9360b27` (T17 "identical hosted runs") stalled every Renode stage
   at its first release (`lockstep timeout: gz not held at 0.020 s`): `OpponentMover` waited 5 s wall for a path sample no
   producer makes, because the first sample, stamped with the producer's first tick, reached it during the board boot
