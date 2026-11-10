@@ -7,6 +7,8 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Reject simulation run comparisons without usable shared evidence and distinguish boolean diagnostics from numbers ([sim #70](https://github.com/Thornbots/sim/pull/70)).
+
 - Serial bridge checks decision freshness after acquiring the transmit lock,
   preventing stale aim data from being sent after contention
   ([serial bridge #43](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/43)).
