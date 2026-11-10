@@ -10,7 +10,7 @@ EV=/evidence
 WS=/workspaces/isaac_ros-dev
 PKGS=(thornbots_pkg sim sentry_localization rf2o_laser_odometry
       ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2
-      robot_localization)  # the simulation refuses to launch on the stock EKF
+      nav_pkg robot_localization)  # the simulation refuses to launch on the stock EKF
 ELF="$WS/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf"
 TOOLS=/tmp/mcb-tools
 SELF="$(cd "$(dirname "$0")" && pwd -P)/$(basename "$0")"

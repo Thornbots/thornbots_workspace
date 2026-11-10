@@ -7,7 +7,7 @@ no CI on pushes or PRs; authors run the
 [local checks](#local-checks-for-prs-into-nightly) before merging, and the
 [nightly tests](#nightly-tests) run on the Mac mini each night. All thirteen `.gitmodules` entries track `nightly`
 on this integration branch, with exact gitlink pins. Sim and MCB firmware are
-initialized by normal submodule checkout; firmware can be skipped.
+initialized by normal submodule checkout, like the other packages.
 
 | Repositories | Automatic validation |
 | --- | --- |

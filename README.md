@@ -67,7 +67,7 @@ this repo's branch bumping the gitlinks. Follow the
 | `robot_localization` | `nightly` | EKF used by `sentry_localization` (fork of 3.8.3; only the simulation uses its added options) |
 | `isaac_ros_common` | `nightly` | Isaac ROS base, our Dockerfiles and container scripts |
 | `isaac-ros-startup` | `nightly` | systemd service that starts the robot stack at boot |
-| `firmware/MCBV3` | `nightly` | MCB firmware, cloned by default but optional, see below |
+| `firmware/MCBV3` | `nightly` | MCB firmware for native UART and simulation tests, see below |
 
 Start with [ROADMAP](docs/ROADMAP.md) for unfinished Mini/software/sim work and
 [ROBOT_TESTS](docs/ROBOT_TESTS.md) for physical-robot acceptance.
@@ -77,11 +77,11 @@ identifies where shared information belongs; link there instead of copying it.
 
 ### MCB firmware
 
-`firmware/MCBV3` is the MCB team's repo, so a wire change and its firmware half can be checked together. `clone --recurse-submodules` and `submodule update --init --recursive` fetch it with its taproot submodules like any other package. Nothing on the ROS side needs it: `firmware/COLCON_IGNORE` and `.dockerignore` keep it out of colcon and the image, and sim's firmware-dependent tests skip without it. To skip it, clone without `--recurse-submodules`, then:
+`firmware/MCBV3` is a standard workspace submodule, so a wire change and its firmware half can be checked together. `clone --recurse-submodules` and `submodule update --init --recursive` fetch it with its taproot submodules like any other package. Workspace CI and nightly tests build its hosted firmware for native UART and simulation tests. `firmware/COLCON_IGNORE` and `.dockerignore` keep firmware sources out of colcon and the ROS image.
+
+If an existing checkout used the former firmware opt-out, remove that local setting before updating:
 
 ```sh
-git config submodule.firmware/MCBV3.update none
+git config --unset-all submodule.firmware/MCBV3.update
 git submodule update --init --recursive
 ```
-
-On an existing clone, set that config and run `git submodule deinit firmware/MCBV3`.
