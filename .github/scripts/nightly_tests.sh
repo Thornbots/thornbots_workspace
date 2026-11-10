@@ -18,7 +18,7 @@ KEEP=14
 TASK=nightly-ci
 LABEL=com.thornbots.nightly-ci
 SRC="$ROOT/src"
-PORTABLE="thornbots_pkg sim sentry_localization rf2o_laser_odometry ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2"
+PORTABLE="thornbots_pkg sim sentry_localization rf2o_laser_odometry ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2 nav_pkg"
 # Repos with a `CI` workflow; MCBV3 also has firmware.yml.
 CI_REPOS="thornbots_workspace $PORTABLE realsense-yolov8-nitros-bridge isaac_ros_common isaac-ros-startup MCBV3"
 

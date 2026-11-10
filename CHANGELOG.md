@@ -7,6 +7,11 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Nightly tests include `nav_pkg` in checkout, dependency resolution and builds,
+  fixing setup failures on the `thornbots_nav` dependency. MCBV3 is a standard
+  workspace submodule; remove the former local firmware opt-out as described in
+  [clone setup](README.md#mcb-firmware).
+
 - Add an opt-in CAN bus health diagnostic to the MCB firmware. Building with
   `scons build robot=<robot> can-bus-health=true` sends one DEBUG message per
   second with each bus's not-ready command cycles, per-motor feedback rates
