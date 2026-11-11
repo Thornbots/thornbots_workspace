@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Refresh package CI dependency pins for `thornbots_pkg`, `sim` and the serial
+  bridge so their ROS jobs include `thornbots_nav` and build compatible
+  `CVTarget` consumers ([thornbots_pkg #73](https://github.com/Thornbots/thornbots_pkg/pull/73),
+  [sim #100](https://github.com/Thornbots/sim/pull/100),
+  [serial bridge #44](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/44)).
+
 - Serial bridge checks decision freshness after acquiring the transmit lock,
   preventing stale aim data from being sent after contention
   ([serial bridge #43](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/43)).
