@@ -7,6 +7,12 @@ impact, and link the corresponding package changes.
 
 ## Unreleased
 
+- Include `thornbots_nav` in the robot image, offline overlay and startup checks,
+  and use the ROS apt `robot_localization` package for robot images
+  ([common #25](https://github.com/Thornbots/isaac_ros_common/pull/25),
+  [startup #28](https://github.com/Thornbots/isaac-ros-startup/pull/28)).
+  Publication validation remains open; see the [investigation](docs/investigations/robot-publication-2026-11-11.md).
+
 - Restore the firmware's automatic RMUL match-stage fire gate and report
   sampled IMU yaw in POSE telemetry. Correct sentry pitch wrapping at boot and
   align the simulation's encoder offset with its current calibration; firmware CI uses the matching

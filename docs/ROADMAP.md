@@ -27,7 +27,7 @@ landed.
   workflow end to end, including the offline overlay gate and the documented emergency local-build/shipping fallback; linting alone did not establish this acceptance. The documented laptop shipping fallback also lacks
   end-to-end evidence and requires external nonrobot capacity; Mini publication success cannot establish it.
   Equipped-robot startup is separately tracked in [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
-  [Validation boundary](investigations/robot-overlay-2026-11-01.md).
+  [Validation boundary](investigations/robot-overlay-2026-11-01.md); [publication attempt](investigations/robot-publication-2026-11-11.md).
 
 
 ## Tracks, in order of work
