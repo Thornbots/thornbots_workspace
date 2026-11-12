@@ -12,6 +12,13 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** Sentry aim follows and leads facing armor panels on
+  spinning targets. Reflash the MCB firmware to apply; physical robot validation
+  is pending. The sim aiming bench follows firmware defaults and retains an
+  explicit shotgating comparison mode
+  ([MCBV3 #140](https://github.com/Thornbots/MCBV3/pull/140),
+  [sim #103](https://github.com/Thornbots/sim/pull/103)).
+
 - **Real-robot behavior:** Sentry must run the restored upright lidar defaults
   to localize with its remounted sensor. The translation, yaw, blind sector
   and floor-to-scan height have not been remeasured on the robot since the
