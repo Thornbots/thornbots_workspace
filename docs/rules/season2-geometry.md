@@ -3,8 +3,7 @@
 This is the maintained transcription of E27 event-map figures, subordinate to
 [the rules context](../ARCC_2026_SENTRY_CONTEXT.md#which-rules-govern).
 It describes source evidence, not an accepted simulator/map implementation.
-Open acceptance lives only in [DOC14g](../ROADMAP.md#issues-found) and
-[RULES-S2](../ROADMAP.md#additional-mini-work).
+Open follow-up lives in [RULES-S2](../ROADMAP.md#additional-mini-work).
 
 ## Coverage and authority
 
@@ -17,10 +16,10 @@ arrow endpoints; coordinates below never come from measuring image pixels.
 
 | Canonical commitment | Evidence completed here | Acceptance boundary |
 | --- | --- | --- |
-| DOC14g event geometry | Every figure 3-3–3-13 (pp.16–24), 4-3–4-4 (pp.37–38), including printed placement chains below | Nominal transcription; ambiguities remain explicit, no package acceptance |
+| Event geometry | Every figure 3-3–3-13 (pp.16–24), 4-3–4-4 (pp.37–38), including printed placement chains below | Nominal transcription; ambiguities remain explicit, no package acceptance |
 | RULES-S2 Tournament geometry | Corner starts, marked bunker corners, dimensions and derived placement below | Implementation/acceptance stays with package owners |
 | RULES-S2 chassis audit | E27 Table 3-4 p.13: 80; Table 5-2 p.40: 120; read-only implementation audit below | No firmware/default changes or electrical compliance proof |
-| DOC14g publication checks | Manuals page lists only Season 2 Participant, Building and Events V1.0; BS27 mounting instructions extracted below | Site Manual, dot-matrix appearance/dimension authority and detailed zig-zag shape have no newly published authority in these sources |
+| Publication checks | Manuals page lists only Season 2 Participant, Building and Events V1.0; BS27 mounting instructions extracted below | Site Manual, dot-matrix appearance/dimension authority and detailed zig-zag shape have no newly published authority in these sources |
 
 Reproducible source fingerprints (SHA-256 of downloaded bytes):
 

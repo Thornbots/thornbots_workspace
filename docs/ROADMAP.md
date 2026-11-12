@@ -32,7 +32,7 @@ landed.
 
 ## Tracks, in order of work
 
-Order (2026-11-05): R, then the remaining software items and [issues found](#issues-found). Administration is
+Order (2026-11-05): R, then the remaining software items. Administration is
 independent. Navigation waits until after the Midwest competition.
 
 <a id="localization-policy"></a>
@@ -122,10 +122,13 @@ RULES-S2. Full text: [previous roadmap](https://github.com/Thornbots/thornbots_w
 - **COMMON-mounts — common — decision open:** Decide whether robot `.isaac_ros_dev-dockerargs` should be empty rather
   than mounting host configuration/credential directories. Inspect configuration paths only; this task never authorizes
   credential reads. Test the chosen mount contract without reading secrets. [Owner](../isaac_ros_common/AGENTS.md#scope).
-- **RULES-S2 — firmware / workspace — unassigned:** Transcribe exact Sentry Tournament geometry and audit chassis
-  limits against 80 W (3v3) and 120 W (Tournament). Unpublished Site Manual, armor style/mounting and zig-zag pole
-  details remain external blockers under DOC14g.
-  [Sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
+<a id="issues-found"></a>
+
+- **RULES-S2 — firmware / sim — unassigned:** Act on the [chassis power audit](rules/season2-geometry.md#chassis-power-audit--read-only-2026-11-03):
+  SENTRY's 3v3 startup limit is 100 W against E27's 80 W, there is no Tournament (120 W) mode, and the sim MCB
+  sends a fixed 240 W. Geometry is transcribed in [season2-geometry](rules/season2-geometry.md); using it in sim
+  belongs to S2-foundation. Still unpublished, so re-check when ARC publishes: Season 2 Site Manual, dot-matrix
+  armor style and dimensions (BS27 §2.1.4), zig-zag pole details (E27 §3.2.4.4).
 
 ## Later: deferred
 
@@ -133,14 +136,6 @@ RULES-S2. Full text: [previous roadmap](https://github.com/Thornbots/thornbots_w
   (it already contains all of `newMain`; nothing references `newMain`), then deletes `newMain`.
   [Repository](https://github.com/Thornbots/MCBV3), [branch policy](../AGENTS.md#branches).
 
-
-## Issues found
-
-Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-06.md):
-
-- **DOC14g — workspace — audit open:** Track the unpublished Season 2 Site Manual (match formats and venue),
-  BS27 §2.1.4/§3.6.2 dot-matrix armor style, remaining mounting details and dimensions, and E27 §3.2.4.4
-  zig-zag pole details. Published geometry and mounting evidence: [figure transcription](rules/season2-geometry.md#coverage-and-authority).
 
 <a id="later-needs-a-robot"></a>
 

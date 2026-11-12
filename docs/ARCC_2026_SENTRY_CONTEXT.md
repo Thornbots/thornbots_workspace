@@ -167,11 +167,10 @@ field and its own S-IDs. Cite BS27/E27, not B27/R27, for ARCC decisions.
 
 ## Not yet extracted / worth pulling in later
 
-Unpublished-source dependencies and firmware/sim power audits are maintained in
-[ROADMAP DOC14g](ROADMAP.md#issues-found) and [RULES-S2](ROADMAP.md#additional-mini-work).
-The [figure and power audit](rules/season2-geometry.md#coverage-and-authority) maps
-the extracted evidence to those IDs; it does not close their integration or
-unpublished-source acceptance.
+E27 figure geometry and the chassis power audit are in
+[season2-geometry](rules/season2-geometry.md#coverage-and-authority). Firmware/sim
+power follow-up and the sources ARC has not published yet (Site Manual, dot-matrix
+armor style, zig-zag pole) are tracked in [RULES-S2](ROADMAP.md#additional-mini-work).
 
 [arc-2027]: https://www.arc-robotics.org/participants/2027-manuals
 [arc-preview]: https://www.arc-robotics.org/announcements/2027-season-preview
