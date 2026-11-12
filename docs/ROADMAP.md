@@ -17,12 +17,6 @@ landed.
 
 ## Short todos
 
-- **AMCL-map-odom — localization / thornbots_pkg — decision open:** First trace whether AMCL's `map->nav_odom`
-  correction reaches the MCB through `mcb_relay`'s `/localization/odom` input; firmware drives absolute field routes.
-  Then decide the relay input: keep `/localization/odom`, or consume `/localization/map_odom` (no reader today),
-  whose AMCL covariance (0.17–0.30 m std in sim) never passes the relay's 0.02 m std gate. Do not loosen the gate
-  without a user decision; validate the chosen policy against truth metrics and existing gates.
-  [Interface](../sentry_localization/README.md#contract-with-thornbots_pkg), [relay](../thornbots_pkg/README.md#mcb_relay).
 - **T29 — workspace / common — publication and shipping validation open:** The coordinated fix passed
   image publication, package tests and the offline overlay gate on its draft branch, and the Mini
   emergency local image build passed. Validate publication on integrated `nightly` after the package
