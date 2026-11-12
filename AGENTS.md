@@ -73,7 +73,9 @@ instructions, open decisions and links. Put test runs/measurements in commits
 or dated investigations linked to current status. Dated investigations and
 audits are HTML styled by [`docs/assets/doc.css`](docs/assets/doc.css): short
 claims, each with its key numbers and evidence link; name local-only evidence
-paths instead of pasting raw logs. Other docs stay Markdown.
+paths instead of pasting raw logs. Other docs stay Markdown. Once an
+investigation is historical or superseded, move it to the Mac mini archive
+(`~/ros2_ws/docs-archive-*`) and remove every pointer to it from the repos.
 Chart and diagram series use yellow (`#d48c00`, dark `#c98500`) then green
 (`#0d7f45`); red and blue denote only the ARCC red/blue teams. Links keep
 the default blue.

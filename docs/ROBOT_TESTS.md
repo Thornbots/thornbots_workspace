@@ -18,7 +18,6 @@ and the linked package procedures before running hardware.
 
 - **T29 — startup / common — hardware acceptance:** Registry bases plus offline source overlays are the supported
   [workflow](../isaac_ros_common/docker/README.md#building-the-robots-image); local image builds/shipping remain emergency fallback.
-  [Orin measurements and acceptance boundary](investigations/robot-overlay-2026-11-01.html).
   Remaining: restart a fully equipped robot on the overlay and confirm a working `thornbots` stack; the dev board
   lacks camera/lidar/model assets and the equipped robots were unreachable. Existing images also need a manual
   pull after upstream CLI/base configuration changes; their offline contract covers Thornbots Docker inputs/manifests.
@@ -45,8 +44,7 @@ UART/camera delay on the robot before selecting physical latency compensation.
   same head angle once `/odom` has held still for 2 s: sim `mcb_parked` p95 0.002-0.009 m in every cell (was up to 0.090 m), and a 4 cm shove with the
   wheels held still shows up (`parked_push`). These results used references enabled, not the default configuration. Next: confirm on the robot parked with
   the head idle and turning for idle looks, and a hand shove. `mcb_parked` keeps its 0.15 m p95 gate.
-  [Investigation](investigations/t39-parked-drift-2026-10-25.html),
-  [reference scans](../rf2o_laser_odometry/README.md), [parked gate](../sim/README.md#more-on-the-tests).
+  [Reference scans](../rf2o_laser_odometry/README.md), [parked gate](../sim/README.md#more-on-the-tests).
 - **T41 — thornbots_pkg / firmware — unmeasured:** Confirm absolute RELOCALIZE on the robot: after boot
   and after driving, the MCB's navigation position should match the AMCL field pose within the sim result
   (0.087 m RMS), with no rejected-jump lockout. [Gates and measurements](investigations/absolute-relocalize-2026-11-11.html).
@@ -63,7 +61,6 @@ UART/camera delay on the robot before selecting physical latency compensation.
 - **SENTRY-drift — robot run — open:** Angle compensation ([thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18))
   and the RF2O scan-size guard ([rf2o #10](https://github.com/Thornbots/rf2o_laser_odometry/pull/10)) are merged; measure
   stationary drift (was 1–2 m) and moving scan acceptance under AMCL on the robot.
-  [Drift](investigations/sentry-sim-to-real-2026-10-18.html#stationary-localization-drift).
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
 
@@ -106,8 +103,7 @@ UART/camera delay on the robot before selecting physical latency compensation.
   sectors and floor-to-scan height; update the map slice only from the measurement. Inspect `/scan_raw` between
   0.05–0.15 m before lowering the retained 0.15 m filtering margin. Validate fixed-heading rf2o against real chassis
   yaw drift, head still/slewing and moving scans. Depends on T38 and surveyed field registration.
-  [Upright-mount evidence](investigations/lidar-mount-2026-10-26.html),
-  [range rationale](../sentry_localization/README.md#configslamyaml).
+  [Range rationale](../sentry_localization/README.md#configslamyaml).
 - **T23 (continued):** Observe a real referee-triggered hit turn and verify head-idle rf2o steps near the measured
   0.7 mm still-head baseline. Measure detection range and time-to-first-detection; do not enable stage 4 from sim
   alone. Depends on S2-foundation and software stages 2–4. [Design](lidar-guided-aiming-2026-10-25.html#design).
@@ -116,13 +112,10 @@ UART/camera delay on the robot before selecting physical latency compensation.
   persistence/reload and physical field coverage. Exercise both team starts after survey; verify raw-x displacement
   loss/slip on measured distances. Verify MCB shared-power timing, storage durability, systemd activation and actual
   Jetson power-off. Depends on T38/T40/T27.
-  [Operator contract](../thornbots_pkg/README.md#field-day-and-room-workflow),
-  [MMM evidence boundary](investigations/mmm-node-validation-2026-10-29.html#corrections-and-limits),
-  [mapping evidence](investigations/mapping-procedure-2026-10-26.html#repository-checks-and-open-acceptance).
+  [Operator contract](../thornbots_pkg/README.md#field-day-and-room-workflow).
 - **T38 (continued):** Isolate source/pipeline loss from subscriber loss at 60 fps; verify calibrated depth, camera-to-
   odom TF at capture stamps and lit-panel depth. Measure real PING RTT and capture-to-CV latency; inspect interrupted
   MCAP integrity/replay after power loss. Rebuild per-Orin TensorRT assets before performance acceptance.
-  [Unresolved capture](investigations/sentry-nightly-jetson-2026-10-18.html#remaining-acceptance).
 - **T34 / T27 (continued):** Exercise actual GPU failure/recovery, real disk-pressure bag pruning and mid-run Wi-Fi
   without a clock step/restart. Host pruning tests (T20 merged) do not establish hardware acceptance.
   [Startup design](../isaac-ros-startup/README.md#design-notes).

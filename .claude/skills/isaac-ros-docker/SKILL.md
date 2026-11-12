@@ -61,7 +61,7 @@ What the script refuses or guarantees, so you do not have to:
   cross-machine runs; it is refused off Colima and with `-n`. Without these,
   a bridged container's SPDP to the robots' Tailscale IPs ran at ~125
   packets/s per `ros2` process and filled Lima's userspace NAT until the VM
-  hung ([2026-11-06](../../../docs/investigations/colima-dds-egress-2026-11-06.html)).
+  hung (2026-11-06).
   The user's host-network container never crosses `DOCKER-USER`'s bridge rules.
 - **Mounts:** only your worktree (`-w`, default the checkout holding the
   script) at `/workspaces/isaac_ros-dev/src`, an optional `/evidence`, and

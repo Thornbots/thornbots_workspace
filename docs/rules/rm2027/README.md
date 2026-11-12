@@ -80,6 +80,3 @@ checked-in editions by default.
 Run `python -m unittest discover -s scripts/tests -v` in the PDF environment
 for navigation regressions (English-only contents entries, numbered titles,
 and manuals whose printed numbering includes the cover).
-
-The [layout validation](../../audits/rules-pdf-layout-2026-10-15.html) records
-page counts, contents-link checks and visual review.
