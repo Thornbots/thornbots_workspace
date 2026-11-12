@@ -1,5 +1,7 @@
 # Flipped lidar mount — 2026-10-31
 
+Superseded: the lidar has since been returned to the [upright mount](lidar-mount-2026-10-26.md).
+
 Historical evidence. Live commitments: [software/sim](../ROADMAP.md),
 [physical validation](../ROBOT_TESTS.md). Draft/open status below records the dated checkpoint,
 not a separate maintained action list.
