@@ -1,6 +1,6 @@
 # Documentation audit of main
 
-Dated record (2026-10-06). Open items are tracked from [ROADMAP](../ROADMAP.md#issues-found).
+Dated record (2026-10-06). All findings are resolved.
 
 Reviewed 2026-10-06 against workspace `main` at `59e5b2d`, with every package at that commit's gitlink. Findings concern main; unmerged branches, external rulebooks and upstream release claims were out of scope. No containers, robot services, simulation suites, or flashing commands were run.
 
@@ -25,27 +25,12 @@ Rechecked against package `nightly` branches on 2026-10-15; git history keeps th
 - #14c Common README: fork section links the container and Mac setup ([isaac_ros_common #8](https://github.com/Thornbots/isaac_ros_common/pull/8)).
 - #14d Firmware deployment docs: GitHub CI artifacts and a working build link ([MCBV3 #95](https://github.com/Thornbots/MCBV3/pull/95)).
 - #14e Dockerfile 'LAYER 5' references: none remain.
+- #14a Lidar README: directory typo fixed by sllidar #5; setup steps made runnable on Jazzy in sllidar `a78411a`.
+- #14b rf2o README: [rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), integrated in workspace #157.
+- #14f Simulation docs: [sim #71](https://github.com/Thornbots/sim/pull/71) moved historical experiments to
+  [dated package history](../../sim/docs/simulation-history-2026-11-02.md) and
+  [pacing results](../../sim/docs/cv-bench-results-2026-09-28.md#clock-pacing-observations-2026-09-25-and-2026-10-01).
+- #14g Rules context: E27 figures transcribed in [season2-geometry](../rules/season2-geometry.md); unpublished
+  sources are tracked under [RULES-S2](../ROADMAP.md#additional-mini-work).
 
-## Open: supporting docs are hard to follow from a fresh checkout (#14)
-
-This dated finding list is superseded by [ROADMAP documentation work](../ROADMAP.md#issues-found).
-
-#### 14a — Lidar README
-
-Live shell-example repair: [DOC14a](../ROADMAP.md#issues-found); directory typo fixed by sllidar #5.
-
-#### 14b — rf2o README
-
-Completed by [rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), integrated in workspace #157.
-
-#### 14f — Simulation docs
-
-Completed by [sim #71](https://github.com/Thornbots/sim/pull/71): historical experiments moved to
-[dated package history](../../sim/docs/simulation-history-2026-11-02.md) and
-[pacing results](../../sim/docs/cv-bench-results-2026-09-28.md#clock-pacing-observations-2026-09-25-and-2026-10-01),
-with current instructions and incoming README anchors retained.
-
-#### 14g — Rules context
-
-Live extraction and unpublished-source dependencies: [DOC14g](../ROADMAP.md#issues-found).
-Season 2 authority/timing was integrated in workspace #153/#157; these do not complete remaining geometry extraction.
+<a id="open-supporting-docs-are-hard-to-follow-from-a-fresh-checkout-14"></a>
