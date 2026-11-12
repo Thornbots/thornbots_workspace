@@ -71,6 +71,9 @@ usage tutorials. READMEs serve humans in container terminals (`colcon`,
 `ros2`); agent host commands belong in the Docker skill. Keep AGENTS files to
 instructions, open decisions and links. Put test runs/measurements in commits
 or dated investigations linked to current status.
+Chart and diagram series use yellow (`#d48c00`, dark `#c98500`) then green
+(`#0d7f45`); red and blue denote only the ARCC red/blue teams. Links keep
+the default blue.
 
 | Information | Maintained home |
 | --- | --- |

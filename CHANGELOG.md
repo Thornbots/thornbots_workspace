@@ -776,6 +776,9 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Docs charts and diagrams use yellow and green series colors; red and blue
+  are reserved for the ARCC red/blue teams ([AGENTS](AGENTS.md#documentation)).
+
 - Refresh package CI dependency pins for `thornbots_pkg`, `sim` and the serial
   bridge so their ROS jobs include `thornbots_nav` and build compatible
   `CVTarget` consumers ([thornbots_pkg #73](https://github.com/Thornbots/thornbots_pkg/pull/73),
