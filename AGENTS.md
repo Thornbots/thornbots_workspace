@@ -53,7 +53,8 @@ Docker command or command inside a container.
   unpushed commit.
 - Keep [CHANGELOG](CHANGELOG.md) Unreleased current: each workspace change
   that alters behavior, interfaces or contributor workflow adds or updates
-  its entry in the same PR.
+  its entry in the same PR, under the High/Medium/Low level defined in the
+  [CHANGELOG intro](CHANGELOG.md).
 - Stage explicit superproject paths; never `git commit -a`. Inspect
   `git diff --cached --stat`; only deliberately chosen gitlinks may move.
   Stale checkouts must not revert someone else's gitlink updates.
