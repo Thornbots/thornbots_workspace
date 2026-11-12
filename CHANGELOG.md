@@ -12,6 +12,13 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** The Season 2 side wall moves to its rule-book
+  position and the shipped `clean_map`, the robot's default AMCL map, is
+  regenerated to match. AMCL drives RELOCALIZE, so field positions near that
+  wall change. Not yet run on a robot
+  ([sim #99](https://github.com/Thornbots/sim/pull/99),
+  [sentry_localization #47](https://github.com/Thornbots/sentry_localization/pull/47)).
+
 - **Real-robot behavior:** The armor tracker keeps the second armor-pair radius
   in its filter state, so both radii retain their uncertainty across panel
   handoffs instead of being reset. Not yet run on a robot
