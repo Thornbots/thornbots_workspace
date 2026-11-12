@@ -70,7 +70,7 @@ Sentry vs Sentry, following 1v1 rules (E27 §5, §4):
 | --- | --- | --- |
 | Arena | E27 §3.2.1, Figs 3-1–3-3: 12×8 m, mirrored about the central line; ±10% (±5 mm under 100 mm), ±3° structure / ±1° components; magnetic fields, wind, lighting possible | Same size; **new layout**, do not reuse E26 geometry |
 | Start / resupply | E27 §3.2.2, Fig 3-4: Starting Zone = Resupply Zone, **1500×2000 mm** in the team's corner, RFID cards; RFID dead zones possible | Same role |
-| High Ground | E27 §3.2.3: Central 3000×2000 mm, 210 mm, 15° ramps 784 mm long, against the far wall; Side High Ground beside each Resupply Zone, tiers 210/410 mm | Changed layout |
+| High Ground | E27 §3.2.3: Central 3000×2000 mm, 210 mm, 15° ramps with 784 mm horizontal runs, against the far wall; Side High Ground beside each Resupply Zone, tiers 210/410 mm | Changed layout |
 | Limbo Bars | E27 §3.2.6, Table 3-5: Central **420 mm** clearance / 600 mm wide; Side **300 mm** / 1000 mm. Referee modules may be briefly blocked passing under (BS27 §3.1) | **New**; a taller Sentry must plan around them |
 | Bumpy Road | E27 §3.2.5: 400×400 mm PVC tiles, 2.5 mm thick, four 1.2 mm bumps | Similar |
 | Objectives | E27 §3.2.4: cube (Central High Ground), bucket of 10 pipes, 2 donuts; scored on a 300×300×50 mm Scoring Area or through a 52.5 mm Pipe Chute. **Only Engineers may Control Objectives** (§3.2.4.5, R51) | **New**; replaces the Capture Point |
@@ -167,7 +167,7 @@ field and its own S-IDs. Cite BS27/E27, not B27/R27, for ARCC decisions.
 
 ## Not yet extracted / worth pulling in later
 
-Unfinished extraction, unpublished-source dependencies and firmware/sim power audits are maintained in
+Unpublished-source dependencies and firmware/sim power audits are maintained in
 [ROADMAP DOC14g](ROADMAP.md#issues-found) and [RULES-S2](ROADMAP.md#additional-mini-work).
 The [figure and power audit](rules/season2-geometry.md#coverage-and-authority) maps
 the extracted evidence to those IDs; it does not close their integration or

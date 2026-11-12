@@ -138,14 +138,9 @@ RULES-S2. Full text: [previous roadmap](https://github.com/Thornbots/thornbots_w
 
 Open findings from the [documentation audit](../docs/audits/docs-audit-2026-10-06.md):
 
-- **DOC14a — lidar docs — unassigned:** Repair the remaining `$echo`/`$source` shell examples and verify executable
-  setup snippets; the directory typo was fixed in sllidar #5. [Audit](audits/docs-audit-2026-10-06.md#14a--lidar-readme).
-- **DOC14g — workspace — audit open:** Extract remaining event-map geometry from the figures and check unpublished Site Manual and armor details (#14g).
-  Track the unpublished Site Manual, dot-matrix armor style/mounting/dimensions and zig-zag pole; transcribe exact
-  event-map geometry from E27 Figs 3-3–3-13 and 4-3–4-4 in coordination with RULES-S2. Preserve exact
-  source/page authority for each claim; older inferred rules must not appear as verified current requirements.
-  Site Manual match formats/venue details, BS27 §2.1.4/§3.6.2 dot-matrix style/mounting/dimensions
-  (needed for CV training and armor priors), and E27 §3.2.4.4 zig-zag pole details remain unpublished dependencies. [Unextracted sources](ARCC_2026_SENTRY_CONTEXT.md#not-yet-extracted--worth-pulling-in-later).
+- **DOC14g — workspace — audit open:** Track the unpublished Season 2 Site Manual (match formats and venue),
+  BS27 §2.1.4/§3.6.2 dot-matrix armor style, remaining mounting details and dimensions, and E27 §3.2.4.4
+  zig-zag pole details. Published geometry and mounting evidence: [figure transcription](rules/season2-geometry.md#coverage-and-authority).
 
 <a id="later-needs-a-robot"></a>
 
