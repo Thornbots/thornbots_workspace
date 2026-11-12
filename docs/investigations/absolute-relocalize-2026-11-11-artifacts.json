@@ -1,0 +1,43 @@
+{
+  "workspace_base": "2c48a8237d42403370b95a6d334a53a6bcb256d6",
+  "baseline_packages": {
+    "thornbots_pkg": "c064430f4e6059a5746681a0e1a922cdef662aa5",
+    "sentry_localization": "3cc047a34b27a8577fed69cd30953df053b08580"
+  },
+  "final_packages": {
+    "firmware/MCBV3": "eea90671eca7ed5b841bdc872be4dba3214593a5",
+    "sentry_localization": "a57f1860b7f52d6753fb501decebb82bb7a689e1",
+    "thornbots_pkg": "2aace6426217960d517fa8519f7e7a33b99a238a",
+    "nav_pkg": "358d728d9c0967fada6aff0b810e27bd8bf254b8",
+    "sim": "934ccf855f09355a24e732da821af10e473ca796",
+    "ros2_dji_serial_bridge": "7cd56ed63eb41d5bfdb4b369a93449bc309d18a6"
+  },
+  "image_id": "sha256:a5c4b40f792e6abd9d8b4ee3802bfc9c41a1096d48034b1d07f299f9c7df4744",
+  "ros_domain_id": 185,
+  "gz_partition": "agent-absolute-amcl-185",
+  "runtime_sha256": {
+    "baseline": {
+      "/workspaces/isaac_ros-dev/src/log/absolute-amcl/baseline-install/thornbots_pkg/lib/thornbots_pkg/mcb_relay": "a3239195a2f1955a115b3832644c8cf475a7c76e6c333552965e60dbf1b1fe96",
+      "/workspaces/isaac_ros-dev/src/log/absolute-amcl/baseline-install/sentry_localization/lib/sentry_localization/map_pose_publisher": "55eada1fc20304f65a6de9d268f5d5c5f815e570ad1e2b5ed9670b038ebda9c7"
+    },
+    "final": {
+      "install/thornbots_pkg/lib/thornbots_pkg/mcb_relay": "6d9d176a6a3dd871479ba40361c165b79c06eaa7fe0a971ff76ae0aefae23a27",
+      "install/sentry_localization/lib/sentry_localization/map_pose_publisher": "48683820831c09267b005e6e6dbdef505c24cb7bfe0984992591dd7a76c89e78",
+      "install/sim/lib/sim/mmm_suite": "cb266d08d71fd0c89c7111c65710b08a9ad48b4d89cf3b535ffaf359bf7de1d8",
+      "src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf": "15d7401a88f4561b5794a1126304831bb7a8e60b6dcc6986866b7ca2e8b32fc3"
+    }
+  },
+  "raw_archive": {
+    "path": "log/absolute-amcl/evidence.tar.gz",
+    "sha256": "c07357dfc54142ef0c11341ff59e5ede50353d05670cc33bee1f2571eef560b0",
+    "bytes": 7326301,
+    "tracked": false
+  },
+  "measurement_csv_sha256": "e147dd3993a86dcf34428c2d204e5b3245548aea615ebb2807d0a6382259f896",
+  "notes": [
+    "Before uses exact baseline source archives rebuilt in a separate overlay; current sim fixture and hosted-only firmware position readout are common to both arms.",
+    "After repeats are final-prior-1 through final-prior-3; their existing raw traces and native checker verdicts were audited on resumption.",
+    "Raw archive retains all inherited exploratory failures, audited baseline repeats, final repeats, unit/hosted test logs, source snapshots and CTest XML.",
+    "Package draft PRs into nightly have no scheduled checks because package workflows target main."
+  ]
+}

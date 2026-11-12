@@ -12,6 +12,21 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** UART RELOCALIZE now sends the absolute AMCL field
+  position instead of the drifting EKF `nav_odom` estimate, behind gates sized
+  for AMCL (std ≤ 0.35 m, age ≤ 0.20 s, 1 m jump / 0.30 m step limits, 1 s
+  refresh). Blank mapping keeps team-start odometry, and waypoint arrival uses
+  the relay's held-position estimate. In sim, firmware-held position RMS fell
+  from 0.31/0.28 m to 0.087 m (red/blue). Not yet run on a robot. Deploy
+  firmware and ROS packages together
+  ([MCBV3 #139](https://github.com/Thornbots/MCBV3/pull/139),
+  [sentry_localization #48](https://github.com/Thornbots/sentry_localization/pull/48),
+  [thornbots_pkg #74](https://github.com/Thornbots/thornbots_pkg/pull/74),
+  [nav_pkg #5](https://github.com/Thornbots/nav_pkg/pull/5),
+  [sim #101](https://github.com/Thornbots/sim/pull/101),
+  [bridge #45](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/45);
+  [measurements](docs/investigations/absolute-relocalize-2026-11-11.md)).
+
 - Deploy matching firmware and ROS packages together: this batch separates
   raw aiming odometry from navigation corrections, changes hit-turn/reporting
   behavior, and rejects stale CV decisions at UART transmission. Head-TF/rf2o

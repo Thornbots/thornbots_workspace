@@ -47,6 +47,9 @@ UART/camera delay on the robot before selecting physical latency compensation.
   the head idle and turning for idle looks, and a hand shove. `mcb_parked` keeps its 0.15 m p95 gate.
   [Investigation](investigations/t39-parked-drift-2026-10-25.md),
   [reference scans](../rf2o_laser_odometry/README.md), [parked gate](../sim/README.md#more-on-the-tests).
+- **T41 — thornbots_pkg / firmware — unmeasured:** Confirm absolute RELOCALIZE on the robot: after boot
+  and after driving, the MCB's navigation position should match the AMCL field pose within the sim result
+  (0.087 m RMS), with no rejected-jump lockout. [Gates and measurements](investigations/absolute-relocalize-2026-11-11.md).
 
 ## Lidar and camera
 
