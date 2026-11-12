@@ -31,6 +31,19 @@ landed.
   [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
   [Evidence](investigations/robot-publication-2026-11-11.md).
 
+## Tracks, in order of work
+
+Order (2026-11-05): R, then the remaining software items and [issues found](#issues-found). Administration is
+independent. Navigation waits until after the Midwest competition.
+
+<a id="localization-policy"></a>
+<a id="h-slam-at-amcls-level"></a>
+
+**Localization (2026-11-05):** AMCL is the match backend; SLAM is second class. Track H (SLAM at amcl's level),
+SLAM tuning and carried-map work are dropped. Map building for AMCL stays in scope.
+
+### R. Real robot against sim
+
 - **R-compare — robot / sim — open:** For each [ROBOT_TESTS](ROBOT_TESTS.md) measurement (drift, moving-aim
   delays, plant response, camera/lidar), run the same scenario in sim on consistent runs ([T17 record](../sim/docs/t17-consistent-runs-2026-11-05.md)), record the
   differences in a dated investigation, and fix whichever side is wrong. The original Mac/Archlinux same-hit-sequence
