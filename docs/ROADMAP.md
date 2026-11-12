@@ -23,12 +23,13 @@ landed.
   whose AMCL covariance (0.17–0.30 m std in sim) never passes the relay's 0.02 m std gate. Do not loosen the gate
   without a user decision; validate the chosen policy against truth metrics and existing gates.
   [Interface](../sentry_localization/README.md#contract-with-thornbots_pkg), [relay](../thornbots_pkg/README.md#mcb_relay).
-- **T29 — workspace / common — publication validation open:** Run the updated Mac/GitHub image-publication
-  workflow end to end, including the offline overlay gate and the documented emergency local-build/shipping fallback; linting alone did not establish this acceptance. The documented laptop shipping fallback also lacks
-  end-to-end evidence and requires external nonrobot capacity; Mini publication success cannot establish it.
-  Equipped-robot startup is separately tracked in [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
-  [Validation boundary](investigations/robot-overlay-2026-11-01.md).
-
+- **T29 — workspace / common — publication and shipping validation open:** The coordinated fix passed
+  image publication, package tests and the offline overlay gate on its draft branch, and the Mini
+  emergency local image build passed. Validate publication on integrated `nightly` after the package
+  and workspace changes land; validate Mac shipping to a nonrobot destination and laptop shipping
+  with external nonrobot capacity. Equipped-robot startup is separately tracked in
+  [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
+  [Evidence](investigations/robot-publication-2026-11-11.md).
 
 ## Tracks, in order of work
 
