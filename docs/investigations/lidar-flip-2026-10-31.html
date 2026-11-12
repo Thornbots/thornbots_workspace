@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flipped lidar mount</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Flipped lidar mount</h1>
+<p class="meta">Investigation · 2026-10-31 · CAD exports plus one robot pose on <code>ts-nano-sentry</code></p>
+
+<p class="status">Superseded: the lidar has since been returned to the
+<a href="lidar-mount-2026-10-26.html">upright mount</a>. Historical evidence.
+Live commitments: <a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Open items below are the
+dated checkpoint, not a maintained action list. Maintained values live in the
+<a href="../../thornbots_pkg/README.md#lidar_self_filter">filter owner</a>.</p>
+
+<p>The team flipped sentry's lidar upside down to lower the scan plane and
+exported a new <code>sentry_low_res_model</code> (SHA256
+<code>0ae239a37fae038f98be52ae93456841a9f8abeb85ad94700af4ad0f2784391d</code>),
+superseding the <a href="lidar-mount-2026-10-26.html">Oct 26 upright mount</a>.</p>
+
+<h2 id="cad-comparison">CAD comparison</h2>
+<dl class="claims">
+<dt>The export moved the scan reference about 0.1 m in head x and 37.6 mm lower.</dt>
+<dd>Forward kinematics in the gun-aligned <code>head</code> frame:</dd>
+</dl>
+<table>
+<tr><th></th><th>Oct 26</th><th>Oct 31</th></tr>
+<tr><td>Scan-plane reference (m)</td><td class="n">(-0.105, -0.193326, 0.101293)</td><td class="n">(-0.0056, -0.193326, 0.063707)</td></tr>
+<tr><td>Radius / bearing from gun</td><td class="n">0.220 m / -118.5°</td><td class="n">0.1934 m / -91.7°</td></tr>
+<tr><td>Lidar body z</td><td>up</td><td>down</td></tr>
+</table>
+<dl class="claims">
+<dt>Nothing else in the CAD changed.</dt>
+<dd>Chassis, armor, wheels and pitch-group parts agree within 0.5 mm. Scan
+height above the CAD root datum drops to 0.3312 m. Only XML and STL data were
+read.</dd>
+</dl>
+
+<h2 id="robot-measurement">Robot measurement</h2>
+<p>One head pose (yaw 179.7° in <code>root</code>), level pitch, parked in a
+room with the stack on the old values and read-only probes.</p>
+<dl class="claims">
+<dt>The scan is mirrored; the new CAD translation fits best.</dt>
+<dd>Fraction of RealSense depth points at lidar height within 5 cm of
+<code>/scan_raw</code>: old-CAD TF 0.052, unmirrored best 0.238, mirrored
+with old translation 0.596, <strong>mirrored with new translation 0.751</strong>
+at 147.75° CCW of the gun. The driver's <code>inverted</code> option
+(<code>a -> -a</code>, <code>sllidar_node.cpp</code>) is needed; yaw is then 2.579 rad.</dd>
+
+<dt>The new CAD head wall matches the self-occlusion sector.</dt>
+<dd>No return or &lt;0.2 m hits at 14.8..105.4° in <code>/scan_raw</code>, which
+is 43..133° from the gun under the fit. The CAD head wall slices at 51..124°,
+centres within 0.25°. Inverted-frame filter: -110.4..-9.8° (5° margin),
+-1.927..-0.171 rad.</dd>
+
+<dt>The old setup was unusable.</dt>
+<dd>AMCL yaw sd was 14°, and the old filter passed head hits at 61..66° and
+73..75°.</dd>
+</dl>
+
+<h2>Not measured</h2>
+<ul>
+<li>Nose-up/down sectors.</li>
+<li>A head-turn yaw fit (single pose, about ±1° here).</li>
+<li>Floor-to-scan height that sets the
+<a href="../../sentry_localization/README.md">map slice</a> (still 0.357296694 m).</li>
+<li>The sim head mesh still shows the upright lidar; sim's sensor ignores it.</li>
+</ul>
+</main>
+</body>
+</html>

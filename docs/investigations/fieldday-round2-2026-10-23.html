@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field-day round 2</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Field-day round-2 operator checks — 2026-10-23</h1>
+<p class="meta">Investigation · 2026-10-23 · sim only, hardware untested</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>.
+Draft/open status below records the dated checkpoint, not a separate maintained action list.
+The maintained <a href="../../thornbots_pkg/README.md#field-day-and-room-workflow">operator card</a> holds the room,
+field and explicit practice-field commands. This record covers the review fixes; it does not establish hardware
+or full-field accuracy.</p>
+
+<p class="meta">Evidence is local to the Mac mini and not published:
+<code>~/ros2_ws/round2-workflow-evidence-20261023/</code> (scripts, maps, session/boot records, process logs,
+stamped JSONL scoring). Container <code>isaac-agent-round2-workflow</code> (domain 121) and its volumes were removed.</p>
+
+<h2 id="changes">Changes</h2>
+<dl class="claims">
+<dt>Room sessions no longer need a referee assignment.</dt>
+<dd>Finding 1: sentry_localization <code>90fd717</code>, integrated by workspace <code>5d9f69d</code>. Room sessions
+persist <code>frame_mode: room</code>, capture <code>team: null</code> and save/prepare without assignment.
+Explicit practice-field team selection still checks raw odometry against the contract start.</dd>
+
+<dt>Field startup checks the live team and raw start before the backend launches.</dt>
+<dd>Findings 2 and 3: bootstrap uses only UART input and pose translation, then stops before launching the backend,
+with no command producer or relay. EKF requires a nonzero referee assignment, then a newer raw sample within 0.3 m
+of the team start. Practice mode skips assignment but checks its team's seed after restart. Surveyed alignment
+refinements over 0.3 m from captured raw odometry fail.</dd>
+
+<dt>Convergence and map initialization use live data.</dt>
+<dd>Findings 4 and 5: automatic convergence uses the standalone 3 s freshness limit. Field maps keep registration
+provenance but initialize AMCL from the live team's contract root, checked against live raw odometry.</dd>
+
+<dt>Process hygiene.</dt>
+<dd>Findings 6–8: EKF executes its installed binary directly, seed timeout logs an error and shuts launch down,
+spontaneous mapping exits warn with the backup path, and signal cleanup stops the owned process group.
+Findings 2–8 are sentry_localization <code>a1d96c5</code> and thornbots_pkg <code>2f46adb</code>, retaining the
+moving-lidar fix <code>2f348c3</code>; follow-up <code>b23289c</code> prints the next step after a save.
+All three PRs remain drafts targeting <code>nightly</code>.</dd>
+
+<dt>AMCL does not repair a wrongly seeded navigation odometry topic.</dt>
+<dd>In AMCL mode <code>/localization/odom</code> is raw passthrough by default; with <code>--rf2o</code> EKF fuses
+raw velocity/fixed heading and rf2o position. AMCL supplies <code>map-&gt;nav_odom</code> and does not correct a
+bad seed consumed by <code>mcb_relay</code>.</dd>
+</dl>
+
+<h2 id="validation-and-evidence">Validation and evidence</h2>
+<dl class="claims">
+<dt>The full room sequence passed in sim.</dt>
+<dd>Mapping, boot, manual circuit, save, <code>prepare-room</code>, full sim restart and AMCL printed
+<code>LOCALIZE PASS</code>. The final repeat after the moving-lidar merge: 300/300 stamped TF samples, p95 and
+max 0.000239 m, head travel 2.00032 rad, chassis displacement 0.000369 m. The native bench-log checker accepted
+the room and delayed-referee runs. No firmware, movement implementation or physical robot changed.</dd>
+
+<dt>A late blue assignment seeds from blue coordinates, not the previous red position.</dt>
+<dd>The fixture gave zero-ID telemetry with red raw coordinates, then blue assignment and blue coordinates after
+12 wall seconds. Direct launch had no EKF before assignment, then seeded near (4.6249, -0.00034). The operator
+workflow also passed boot capture and EKF seeding. Graph discovery confirmed bootstrap had no relay, CV command
+producers or backend. Fixture adapters change telemetry only.</dd>
+
+<dt>Tests: host 94 passed (two fixture skips), registered container 265 passed with no failures or skips.</dt>
+<dd>Coverage includes zero-ID room/field, explicit practice team, late-assignment ordering, seed timeout, live
+blue start on red registration and SIGTERM cleanup. Both package checks, workspace checks, actionlint, helper Ruff
+and diff checks passed; no baselines changed. A parallel build exhausted memory; two compile jobs succeeded.</dd>
+</dl>
+
+<h2 id="limits-and-discarded-attempts">Limits and discarded attempts</h2>
+<ul>
+<li>The only guarded red deployment map covers x near the red start; blue's x = 4.625 lies outside its 84×163
+raster. Cross-team start validation is unit-tested; localizing that partial map on blue was skipped. The other
+mapping investigation's broad map predates guarded provenance and was not relabelled as a validated bundle.</li>
+<li>Two host map-fixture tests skip without <code>FIELD_MAP_WORLD</code>; container tests supply it.</li>
+<li>Two evidence-script assertions were wrong (literal <code>4.625</code> vs a float near 4.6249; stale ROS CLI
+daemon entries). Corrected checks passed; neither showed a runtime failure.</li>
+<li>The first post-rebase room repeat rejected a stale/non-increasing scan during save and stopped without a
+bundle; a fresh full repeat passed with the scan gate unchanged.</li>
+<li>Sim convergence and the unchanged parked gates do not validate real lidar geometry, surveyed extrinsics,
+wheel slip or referee behavior on hardware.</li>
+</ul>
+</main>
+</body>
+</html>

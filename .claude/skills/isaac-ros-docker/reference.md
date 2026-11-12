@@ -277,7 +277,7 @@ under `/dev/shm`, 0 without it), so the pinned UDP-only nodes use loopback-only
 `LOCALHOST` participants in both directions. 14 `LOCALHOST` participants
 discovered each other at the default peer range. Turn it on with
 `THORNBOTS_REMOTE_DDS=true` / `remote_dds:=true`; the history below is the
-on-state. Record: [investigation](../../../docs/investigations/colima-dds-egress-2026-11-06.md).
+on-state. Record: [investigation](../../../docs/investigations/colima-dds-egress-2026-11-06.html).
 
 tailscale0 carries no usable multicast, so SIMPLE discovery alone never finds a
 peer on another machine, though plain UDP to its 100.x address works.

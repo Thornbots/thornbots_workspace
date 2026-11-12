@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field-day SLAM to AMCL</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Field-day SLAM to AMCL rehearsal — 2026-10-22</h1>
+<p class="meta">Investigation · 2026-10-22 · sim only, hardware untested</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>.
+Draft/open status below records the dated checkpoint, not a separate maintained action list.
+The later <a href="fieldday-operator-safety-2026-10-22.html">operator safety rehearsal</a> supersedes this run's
+hand-entered seed procedure and adds both real team starts. Operator procedure:
+<a href="../../thornbots_pkg/README.md#field-day-and-room-workflow">thornbots_pkg room and field workflow</a>.</p>
+
+<p>The operator workflow and a room rehearsal passed, and a flat central sim-field circuit passed AMCL accuracy
+gates after a full sim restart. Broad field mapping failed with both fused and raw odometry; the successful map has
+partial coverage. This is not a claim of competition readiness over the whole field. Firmware, routes, waypoints,
+odometry constants and drive behavior were unchanged.</p>
+
+<p class="meta">Evidence is local to the Mac mini and not published:
+<code>~/ros2_ws/fieldday-slam-amcl-evidence-20261022/</code> (<code>HARNESS.md</code>, harness scripts,
+<code>compare_maps.py</code>, JSONL logs, <code>field3-*</code> and <code>room-*</code> snapshots, manifests and scores).
+Container <code>isaac-agent-fieldday-20261022</code>, domain 120, repository field, <code>sentry_v2</code>, headless
+Gazebo at real-time factor 1. The room SDF is evidence-only (8 by 6 m walls plus an asymmetric box).</p>
+
+<h2 id="reproduction-and-artifacts">Reproduction and artifacts</h2>
+<ul>
+<li>Mapping captured the stamped boot root and chassis heading before driving, then saved PGM/YAML plus
+<code>.posegraph/.data</code> and prepared the occupancy bundle.</li>
+<li>Room preparation kept the captured nonzero boot coordinates (spawn (-2, 0, 0)); field registration used
+simulated surveyed boot truth (spawn (0, 0, 0)), not a fit to the reference map.</li>
+<li>Each AMCL rehearsal restarted the whole sim at the captured start. Raw wheel passthrough fed SLAM in both
+successful runs; room AMCL used raw passthrough, field AMCL the default rf2o/EKF input.</li>
+</ul>
+
+<h2 id="results">Results</h2>
+<p>Scoring uses the existing parked/drift planar error contract: each pose evaluated at the ground-truth capture
+stamp via <code>map-&gt;root</code>, missing samples kept in the coverage denominator, three sim seconds of
+settling after TF discovery. Parked acceptance: coverage ≥95%, p95 ≤0.15 m, max ≤0.20 m, chassis displacement
+≤0.03 m, head travel ≥1.5 rad. Scored intervals are not trimmed.</p>
+<table>
+<tr><th>Run</th><th>Distance / duration</th><th>p95 error</th><th>Max error</th><th>TF coverage</th></tr>
+<tr><td>Room parked, head slewing</td><td class="n">30 s</td><td class="n">0.01216 m</td><td class="n">0.01216 m</td><td class="n">300/300</td></tr>
+<tr><td>Room short drive</td><td class="n">5.861 m / 21.95 s</td><td class="n">0.02397 m</td><td class="n">0.02413 m</td><td class="n">99.09%</td></tr>
+<tr><td>Field parked, head slewing</td><td class="n">30 s</td><td class="n">0.01158 m</td><td class="n">0.01172 m</td><td class="n">300/300</td></tr>
+<tr><td>Field short drive</td><td class="n">3.461 m / 13.98 s</td><td class="n">0.04034 m</td><td class="n">0.04416 m</td><td class="n">140/140</td></tr>
+</table>
+
+<dl class="claims">
+<dt>Both operator convergence checks reported <code>CONVERGED</code>.</dt>
+<dd>Parked head travel 2.0003 / 2.0004 rad (room / field), chassis displacement 0.00037 m each. The room circuit
+covered 11.826 m; the successful field circuit 8.958 m with 1.224 m minimum collision-grid clearance.</dd>
+
+<dt>Observed surfaces sit within 0.15 m of the CAD reference, but coverage is partial.</dt>
+<dd>Against <code>clean_map</code> (occupied cell centres, no ICP or fitted transform): all 796 observed cells within
+0.15 m, median 0.00895 m, p95 0.02942 m, max 0.04802 m. Reverse coverage was only 60.19% within 0.15 m (reverse
+p95 2.996 m). This shows placement of observed surfaces, not full coverage or arbitrary-heading registration on
+hardware. Rotation, raster sampling and nonzero boot registration are covered by offline regression tests.
+The <a href="fieldmap-divergence-2026-10-22.html">follow-up divergence investigation</a> isolates the moving-lidar
+mount bug and a simulated vertical-motion artifact; the partial-coverage result describes this original
+rehearsal.</dd>
+
+<dt>Build and registered tests: 201 tests, zero failures, errors or skips.</dt>
+<dd>Quality checks, helper Ruff and actionlint passed. Native sim log checking accepted the successful runs;
+Gazebo parameter bridges exited -6 during teardown, recorded as shutdown notes, not accuracy failures.</dd>
+</dl>
+
+<h2 id="failures-and-limits">Failures and limits</h2>
+<ul>
+<li>The first broad field circuit with rf2o/EKF SLAM input diverged beyond 5.4 m and was stopped. The second,
+raw-input circuit covered about 50 m but reached 10.23 m error. Neither map is deployable. Terrain tilt is a
+suspected contributor (the raw run crossed a raised region, truth z about 0.083 m, with chassis heading drift) but
+the experiment does not isolate the cause. Planar matching, terrain and odometry need further investigation.</li>
+<li>The second run's alignment command hit argparse's negative scientific-notation parsing
+(<code>--yaw -2e-05</code>); the harness now uses <code>--yaw=VALUE</code>. It never advanced to AMCL on that bad
+map.</li>
+<li>The initial room parked score failed 95% TF coverage (90.97%) because scoring began before discovery. The failed
+evidence is kept; the explicit readiness wait produced the reported repeat without removing samples.</li>
+<li>Real hardware was not run. The <a href="sentry-nightly-jetson-2026-10-18.html">Oct 18 investigation</a> saw
+340–361 beams with varying angular increments rejected by the localization stack. Current lidar config enables
+angle compensation, but its real stream is unvalidated. The workflow rejects inconsistent geometry clearly.</li>
+<li>Wheel slip, surveyed heading, lidar extrinsics, dynamic obstacles and thin rasterized features remain hardware
+risks. Visual scan/wall inspection and adequate map coverage are mandatory; filter convergence is not truth.</li>
+<li>Field registration affects localization only. Firmware START_X/Y, raw aim coordinates and routes remain the
+team's responsibility; the operator must supply current firmware odometry seeds separately from measured physical
+pose. No movement or firmware adaptation was attempted.</li>
+<li>Saved graphs stay in their original boot frame. Transformed graph reload and the existing saved-graph zero-pose
+startup are not implemented or rehearsed; recovery is remapping, or documented odometry-only operation with no
+map-localization claim. No PR was merged and no main promotion was performed.</li>
+</ul>
+</main>
+</body>
+</html>

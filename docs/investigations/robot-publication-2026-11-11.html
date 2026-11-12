@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot publication validation</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Robot publication validation</h1>
+<p class="meta">Investigation · 2026-11-11 · CI and Mac mini builds, no physical robot</p>
+
+<p class="status">Live commitment: <a href="../ROADMAP.md#short-todos">T29</a>.</p>
+
+<h2 id="finding">Finding</h2>
+<dl class="claims">
+<dt>The nightly publication run failed because the image build selected neither the workspace <code>robot_localization</code> fork nor the apt underlay.</dt>
+<dd><a href="https://github.com/Thornbots/thornbots_workspace/actions/runs/43133577047">Run 43133577047</a>
+(source <code>2c48a8237d42403370b95a6d334a53a6bcb256d6</code>) failed after 9 min 9 s.
+The cache pull worked; native compilation failed because <code>colcon</code> found the
+fork. The offline overlay gate and image publication were skipped, so no
+digest was produced.</dd>
+
+<dt><code>thornbots_pkg</code> also needs <code>thornbots_nav</code> at runtime, which the image, overlay and startup package lists omitted.</dt>
+<dd>The coordinated draft changes add it and exclude the simulation-only
+<code>robot_localization</code> fork from the robot build context so rosdep installs
+the apt package.</dd>
+
+<dt>The corrected draft publishes, but this is not an integrated nightly publication.</dt>
+<dd><a href="https://github.com/Thornbots/thornbots_workspace/actions/runs/43135391848">Run 43135391848</a>
+passed on draft source <code>146d8dd68f2478b6d84a2a19f78e7a0904fab3b9</code> in
+20 min 22 s. Image build 7 min 11 s; baked package tests 615, zero errors or
+failures, 22 skipped. The offline gate (3 min 47 s) printed
+<code>Robot image dependency contract matches checkout.</code> and built all eight
+packages. Tags <code>ghcr.io/thornbots/isaac-ros:sha-146d8dd68f2478b6d84a2a19f78e7a0904fab3b9-arm64-jetpack</code>
+and <code>t3-t29-publication-validation-arm64-jetpack</code> went out with manifest
+digest <code>sha256:d2a640eb5b655835bc8f80fda1cb32a2d59422362e2c3efd6fcf8d0b49ad30ea</code>
+(push 5 min 32 s). The overlay line's
+<code>sha256:54a79c5d6cb66b7ea74797d646806c5a74c761eff921a971c5d1fede1e6da9e6</code>
+is the runner's local image ID, not the registry digest. This validates
+the draft's exact gitlinks only.</dd>
+
+<dt>A Mini emergency build with the proposed fixes passed.</dt>
+<dd>1,243.31 s, 42 layers, local image ID
+<code>sha256:7041876b84a8c455ecd4979672f72847fe43f7ec3e1e1d61a7d9547c7e85b8fc</code>.
+An earlier build was interrupted at 598.96 s when the hosted failure exposed
+the same inputs. The shipping destination must be a nonrobot; laptop shipping
+additionally needs external nonrobot capacity and remains unvalidated.</dd>
+
+<dt>Host checks and tests passed.</dt>
+<dd>Quality checks (Python 3.12) and actionlint for workspace, common and
+startup; common robot contract tests 11/11; startup Linux build and tests
+13/13 in a task-owned container. A native macOS startup build cannot compile
+Linux <code>CLOCK_BOOTTIME</code>.</dd>
+</dl>
+
+<p class="meta">The task-owned Mini container and volumes were removed; Colima
+stayed running for another agent container.</p>
+</main>
+</body>
+</html>

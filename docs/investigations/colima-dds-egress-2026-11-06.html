@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colima DDS egress hangs</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Colima hangs from agent-container DDS egress (2026-11-06)</h1>
+<p class="meta">Investigation · 2026-11-06 · Mac mini Colima VM, Jazzy, Fast DDS 2.14.6; no robot</p>
+
+<p class="status">Fixed by a VM guard plus off-by-default remote DDS and Foxglove.
+Not yet validated across <code>colima stop/start</code> (other agent containers were
+running), nor on a robot.</p>
+
+<h2 id="symptom">Symptom</h2>
+<p>Colima on the Mac mini hung twice (about 02:00 and 09:10). The VM journal shows
+<code>virtio_net eth0: NETDEV WATCHDOG ... transmit queue 0 timed out</code> for
+minutes, with no OOM; Docker and SSH, forwarded over that link, then died. VM egress
+goes through Lima's userspace NAT (<code>limactl usernet</code>): 151% CPU and 1.5 GB
+RSS during the first hang, 2.1 GB 32 minutes after a restart.</p>
+
+<h2 id="cause">Cause</h2>
+<p>Bridged agent containers run the image's default Fast DDS profile
+(<code>isaac_ros_common/docker/fastdds_cable.xml</code>), whose
+<code>initialPeersList</code> holds the robots' Tailscale IPs with
+<code>maxInitialPeersRange</code> 32. Each participant sends SPDP unicast to every peer
+address and port in range. tcpdump on the VM eth0 saw 731k packets / 388 MB to
+100.93.23.77 in about 30 minutes, and the NAT keeps state for each flow.</p>
+
+<h2 id="measurements-2026-11-06-one-agent-container-jazzy-fast-dds-2146">Measurements (2026-11-06, one agent container, Jazzy, Fast DDS 2.14.6)</h2>
+<p>Packets leaving the container for <code>100.64.0.0/10</code>, captured on
+<code>docker0</code>, one <code>ros2 topic pub</code>, 15 s (the cable and
+<code>udp_only</code> rows are the old behaviour):</p>
+<table>
+<tr><th>Fast DDS profile</th><th><code>ROS_AUTOMATIC_DISCOVERY_RANGE</code></th><th>To Tailscale</th><th>Other off-box</th></tr>
+<tr><td>cable (peers)</td><td>unset</td><td class="n">1056</td><td class="n">1071</td></tr>
+<tr><td>cable (peers)</td><td><code>LOCALHOST</code></td><td class="n">1920</td><td class="n">1930</td></tr>
+<tr><td><code>udp_only</code> (peers)</td><td><code>LOCALHOST</code></td><td class="n">1920</td><td class="n">1930</td></tr>
+<tr><td>none</td><td><code>LOCALHOST</code></td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>none</td><td>unset</td><td class="n">0</td><td class="n">14 (multicast)</td></tr>
+<tr><td>peers-free XML (SHM+UDP) and peers-free UDP-only XML</td><td>unset / <code>LOCALHOST</code></td><td class="n">0</td><td class="n">14 / 0</td></tr>
+<tr><td>loopback-only UDP-only XML</td><td>unset</td><td class="n">0</td><td class="n">0</td></tr>
+</table>
+<dl class="claims">
+<dt><code>LOCALHOST</code> does not suppress initial peers.</dt>
+<dd>An XML profile's <code>initialPeersList</code> wins, so remote DDS off means no
+peers profile and the range, together.</dd>
+
+<dt><code>LOCALHOST</code> adds the SHM transport back to a UDP-only XML.</dt>
+<dd>8 <code>fastrtps_*</code> segments with it, 0 without. The pinned UDP-only nodes
+avoid SHM (stale-segment hangs, visibility from a robot shell), so they use
+loopback-only twins (interface whitelist, peer <code>127.0.0.1</code>) with
+<code>ROS_AUTOMATIC_DISCOVERY_RANGE=SYSTEM_DEFAULT</code>: 0 off-box packets, 0 SHM
+files.</dd>
+
+<dt>Local discovery still works.</dt>
+<dd>14 <code>LOCALHOST</code> participants with no profile found each other at the
+default peer range; a loopback-only pinned node and a <code>LOCALHOST</code> default
+node saw each other's topics both ways, 6 of 6.</dd>
+</dl>
+
+<h2 id="stack-measurements">Stack measurements</h2>
+<p><code>sim.launch.py gui:=false rviz:=false</code> plus <code>auto.launch.py
+real_hardware:=false localization_mode:=none use_rf2o:=false</code>, about 21 nodes,
+captured on <code>docker0</code>. An <code>mcb_parked</code> lateral cell could not run
+because the <code>firmware/MCBV3</code> submodule is not available in this checkout.</p>
+<table>
+<tr><th>Case</th><th>Window</th><th>To Tailscale</th><th>Other off-box</th><th>Foxglove</th></tr>
+<tr><td>defaults</td><td class="n">60 s</td><td class="n">0</td><td class="n">0</td><td>none</td></tr>
+<tr><td><code>foxglove:=true</code></td><td class="n">30 s</td><td class="n">0</td><td class="n">0</td><td>1 process</td></tr>
+<tr><td><code>remote_dds:=true</code> (guard on; old behaviour)</td><td class="n">40 s</td><td class="n">52,327 (~1,300/s)</td><td class="n">53,167</td><td>none</td></tr>
+</table>
+<ul>
+<li>The VM guard dropped all of the <code>remote_dds:=true</code> traffic: VM eth0
+transmit delta 44 KB in 40 s, at idle level (30 to 60 KB per 30 s);
+<code>limactl usernet</code> stays 47 to 82 MB RSS, 0% CPU.</li>
+<li>Pinned nodes use <code>fastdds_udp_only_local.xml</code> with range
+<code>SYSTEM_DEFAULT</code>; with remote on, <code>fastdds_udp_only.xml</code>.</li>
+<li>The first defaults run showed 8,064 packets because <code>sim</code>'s
+<code>gz_bridge</code> (<code>sim/clock_bridge.py</code>) still pinned the peers
+profile. All pinned sites now go through <code>udp_env()</code> in
+<code>sim/dds_switch.py</code>.</li>
+</ul>
+
+<h2 id="guard-vm">Guard (VM)</h2>
+<p><code>scripts/agent_container.sh</code> installs
+<code>/usr/local/sbin/thornbots-agent-guard</code> and a
+<code>thornbots-agent-guard.service</code> unit in the Colima VM (tied to
+<code>docker.service</code>). It creates chain <code>THORNBOTS-AGENT</code>
+(<code>-d 100.64.0.0/10 -j DROP</code>), jumped to from <code>DOCKER-USER</code> for
+<code>docker0</code> and <code>br+</code>; each step checks with <code>iptables -C</code>
+first so reruns add nothing. It is a unit, not Colima's provision list, because the
+unit lives on the VM disk (survives <code>colima stop/start</code>) and reruns after
+each Docker start when Docker recreates <code>DOCKER-USER</code>; <code>up</code> also
+reapplies it.</p>
+<dl class="claims">
+<dt>Opt-out leaks as expected.</dt>
+<dd><code>up -T</code> makes a dedicated bridge <code>ta&lt;cksum&gt;</code> that
+<code>br+</code> does not match and sets <code>THORNBOTS_REMOTE_DDS=true</code>.
+Measured: 1440 packets to <code>100.64.0.0/10</code> on VM eth0 in 25 s from one
+<code>ros2 topic pub</code>, <code>limactl usernet</code> RSS 47 to about 99 MB within
+6 s. Removed with the container.</dd>
+
+<dt>Host-network containers bypass the guard.</dt>
+<dd>UDP to <code>100.93.23.77:9998</code> from <code>--network host</code> reached VM
+eth0 (5 of 5); from a bridged container 0 of 5. Host-network traffic takes
+<code>OUTPUT</code>, not <code>DOCKER-USER</code>.</dd>
+
+<dt>The guard has absorbed substantial traffic.</dt>
+<dd>5.77M packets / 2.99 GB dropped since install. <code>isaac-agent-t17rl</code>
+(172.17.0.2), started before the switch existed, was still sending about 1,150
+packets/s to Tailscale, all dropped; its launches pick up defaults when restarted.</dd>
+
+<dt>Not covered or tested.</dt>
+<dd>IPv6 (<code>fd7a:115c:a1e0::/48</code>) is not guarded because the peers list is
+IPv4 only. <strong>Not tested:</strong> a real <code>colima stop/start</code> (two other
+agent containers were running) and a robot.</dd>
+</dl>
+
+<h2 id="changes">Changes</h2>
+<p><code>isaac_ros_common</code> (guard follow-up, <code>THORNBOTS_*</code> container
+env, <code>up -F/-T</code>, <code>dexec.sh</code>, bashrc), <code>thornbots_pkg</code>
+(<code>remote_dds</code>, <code>fastdds_udp_only_local.xml</code>,
+<code>operator_workflow</code>), <code>sentry_localization</code>
+(<code>fastdds_no_shm_local.xml</code>), <code>sim</code> (<code>dds_switch.py</code>,
+<code>foxglove:=</code>, <code>remote_dds:=</code>), <code>isaac-ros-startup</code>
+(<code>THORNBOTS_REMOTE_DDS</code>, <code>THORNBOTS_FOXGLOVE</code>). Robot defaults:
+remote DDS off, Foxglove on; sim, tests and agent containers: both off. The image's
+bashrc part takes effect on the next image build; <code>dexec.sh</code> covers agent
+containers now.</p>
+</main>
+</body>
+</html>

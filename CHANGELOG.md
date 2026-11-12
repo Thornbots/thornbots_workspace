@@ -59,7 +59,7 @@ a dated release section when promoting the workspace to main.
   [nav_pkg #5](https://github.com/Thornbots/nav_pkg/pull/5),
   [sim #101](https://github.com/Thornbots/sim/pull/101),
   [bridge #45](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/45);
-  [measurements](docs/investigations/absolute-relocalize-2026-11-11.md)).
+  [measurements](docs/investigations/absolute-relocalize-2026-11-11.html)).
 
 - Deploy matching firmware and ROS packages together: this batch separates
   raw aiming odometry from navigation corrections, changes hit-turn/reporting
@@ -138,7 +138,7 @@ a dated release section when promoting the workspace to main.
   the switch after the next image build; `dexec.sh` applies it to agent containers now. Cause: bridged agent
   containers' SPDP to the robots' Tailscale IPs (~125 packets/s per `ros2` process) hung Colima twice on 2026-11-06;
   the Colima VM also drops bridged traffic to `100.64.0.0/10` unless a task opts out with `-T`
-  ([investigation](docs/investigations/colima-dds-egress-2026-11-06.md)).
+  ([investigation](docs/investigations/colima-dds-egress-2026-11-06.html)).
 - **Behavior change, robots and sim:** with remote DDS off (the default since #185), `auto.launch.py` and the sim launches
   now give every node `thornbots_pkg/config/fastdds_local.xml` (shared memory and loopback UDP, initial peer `127.0.0.1`,
   `maxInitialPeersRange` 128) and no `ROS_AUTOMATIC_DISCOVERY_RANGE`, instead of the `LOCALHOST` range with no profile.
@@ -155,12 +155,12 @@ a dated release section when promoting the workspace to main.
   Longer gaps, target timeout or switched tracks restart the wait. The minimum fire exit
   delay increases from 25 to 40 ms to give the gimbal time to acquire each aim
   ([thornbots_pkg #43](https://github.com/Thornbots/thornbots_pkg/pull/43)).
-- Robots now use an explicitly pulled registry image as their dependency base and build current source as an offline overlay. Startup pins the prepared image and rejects missing or shadowed overlay packages; image publication also checks the offline build. Ordinary source changes no longer require image builds or pulls. Local image building/shipping is an emergency fallback; equipped-robot startup acceptance remains open ([common #21](https://github.com/Thornbots/isaac_ros_common/pull/21), [startup #24](https://github.com/Thornbots/isaac-ros-startup/pull/24), [workflow](isaac_ros_common/docker/README.md#building-the-robots-image), [Orin measurements](docs/investigations/robot-overlay-2026-11-01.md)).
+- Robots now use an explicitly pulled registry image as their dependency base and build current source as an offline overlay. Startup pins the prepared image and rejects missing or shadowed overlay packages; image publication also checks the offline build. Ordinary source changes no longer require image builds or pulls. Local image building/shipping is an emergency fallback; equipped-robot startup acceptance remains open ([common #21](https://github.com/Thornbots/isaac_ros_common/pull/21), [startup #24](https://github.com/Thornbots/isaac-ros-startup/pull/24), [workflow](isaac_ros_common/docker/README.md#building-the-robots-image), [Orin measurements](docs/investigations/robot-overlay-2026-11-01.html)).
 - Include `thornbots_nav` in the robot image, offline overlay and startup checks,
   and use the ROS apt `robot_localization` package for robot images
   ([common #25](https://github.com/Thornbots/isaac_ros_common/pull/25),
   [startup #28](https://github.com/Thornbots/isaac-ros-startup/pull/28)).
-  Publication validation remains open; see the [investigation](docs/investigations/robot-publication-2026-11-11.md).
+  Publication validation remains open; see the [investigation](docs/investigations/robot-publication-2026-11-11.html).
 - CV targeting now requests fire on every eligible 40 Hz publish tick instead
   of throttling requests to 2 Hz; the MCB filters pending requests. Confidence,
   detection freshness, planner shot windows and the 25 ms default delay floor
@@ -304,9 +304,9 @@ a dated release section when promoting the workspace to main.
   slam_toolbox receive a fixed angular grid (720 bins on the measured A2M8)
   rather than a varying beam count. Stationary drift after this change still
   needs a robot run. See [thornbots_pkg #18](https://github.com/Thornbots/thornbots_pkg/pull/18).
-- Sentry's lidar is now mounted upside down. A new `lidar_inverted` launch arg (default `true`) sets the driver's `inverted` flag, and the defaults move to the Oct 31 CAD mount: yaw 2.579 rad, self-filter -1.927..-0.171 rad. The robot needs this to localize and map again. Nose-up/down sectors and a head-turn fit still need measuring ([thornbots_pkg #47](https://github.com/Thornbots/thornbots_pkg/pull/47), [sim #59](https://github.com/Thornbots/sim/pull/59), [measurement](docs/investigations/lidar-flip-2026-10-31.md)).
+- Sentry's lidar is now mounted upside down. A new `lidar_inverted` launch arg (default `true`) sets the driver's `inverted` flag, and the defaults move to the Oct 31 CAD mount: yaw 2.579 rad, self-filter -1.927..-0.171 rad. The robot needs this to localize and map again. Nose-up/down sectors and a head-turn fit still need measuring ([thornbots_pkg #47](https://github.com/Thornbots/thornbots_pkg/pull/47), [sim #59](https://github.com/Thornbots/sim/pull/59), [measurement](docs/investigations/lidar-flip-2026-10-31.html)).
 - Replace the Jetson head patrol with idle looks (stage 1 of the
-  [lidar-guided aiming design](docs/lidar-guided-aiming-2026-10-25.md)). With no
+  [lidar-guided aiming design](docs/lidar-guided-aiming-2026-10-25.html)). With no
   camera target the head holds the last enemy for 3 s, holds where a hit turn
   left it for 2 s, then faces the enemy starting zone (`auto.launch.py`
   `idle_direction:=zone|hold`). The patrol launch argument is gone. Every
@@ -341,7 +341,7 @@ a dated release section when promoting the workspace to main.
   The lidar moves only 16.6 mm in XY. The Oct 26 five-pose robot fit replaces
   the authored FOV-marker yaw (-8.568°) with scan zero 0.5907 rad (33.84°)
   and the verified scan-frame blind sector -0.5585..1.0123 rad. The
-  [dated investigation](docs/investigations/sentry-cad-2026-10-26.md)
+  [dated investigation](docs/investigations/sentry-cad-2026-10-26.html)
   records the archive SHA256, frame derivation and before/after tests.
   Round 2 preserves the muzzle's pitch-axis aiming contract with the CAD
   lateral offset; the unchanged aiming acceptance tests now pass. Independent
@@ -384,7 +384,7 @@ a dated release section when promoting the workspace to main.
   the shutdown opt-in into the mapping node.
   Host shutdown is explicitly opt-in through startup's fixed request-file watcher;
   incomplete saves never request shutdown. See the
-  [validation record](docs/investigations/mmm-node-validation-2026-10-29.md).
+  [validation record](docs/investigations/mmm-node-validation-2026-10-29.html).
   Revalidated after merging nightly `33d0ef8` on the Mac mini: ROS reports
   612 tests, zero errors/failures and 11 skips; the updated MMM integration
   flow passes. GCC 14 firmware unit/control tests and all 95 UART fixture
@@ -419,7 +419,7 @@ a dated release section when promoting the workspace to main.
   [thornbots_pkg #33](https://github.com/Thornbots/thornbots_pkg/pull/33),
   [sentry_localization #24](https://github.com/Thornbots/sentry_localization/pull/24),
   [startup #12](https://github.com/Thornbots/isaac-ros-startup/pull/12);
-  [validation](docs/investigations/operator-workflow-move-2026-10-27.md).
+  [validation](docs/investigations/operator-workflow-move-2026-10-27.html).
 - Each robot's stack now defaults to its own `ROS_DOMAIN_ID`: sentry 7, standard 3, hero 1, chosen by hostname when `launch.env` leaves it blank. Sharing domain 1 over the tailscale peers let the sentry's `ref_sys` and TF reach standard, flipping its team colour filter. Shells joining a robot export its domain; the image's shells still start on 1 ([isaac-ros-startup #18](https://github.com/Thornbots/isaac-ros-startup/pull/18), [domain per robot](isaac-ros-startup/README.md#design-notes)).
 - The Jetson now owns independent `red_start_x/y` and `blue_start_x/y` launch configuration, overridable per robot through `/etc/thornbots/launch.env`. Navigation, EKF/AMCL/saved-map SLAM priors, idle enemy-zone looks and operator registration use the same values. Defaults remain the unmeasured scrim starts ([ROADMAP T40](docs/ROADMAP.md#short-todos)). Firmware routes use field-centred coordinates and return to the boot point the Jetson's RELOCALIZE places, even after a mid-match reschedule; PURDUE2V2 is removed. Hosted firmware no longer sends a start in its simulator handshake; sim keeps its ARCC spawn and passes matching launch arguments to bringup ([MCBV3 #128](https://github.com/Thornbots/MCBV3/pull/128), [#129](https://github.com/Thornbots/MCBV3/pull/129), [localization #33](https://github.com/Thornbots/sentry_localization/pull/33), [bringup #50](https://github.com/Thornbots/thornbots_pkg/pull/50), [sim #61](https://github.com/Thornbots/sim/pull/61), [UART docs #33](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/33), [startup #21](https://github.com/Thornbots/isaac-ros-startup/pull/21)).
 - USB installs now hand boot control back to the installed NVMe after
@@ -466,7 +466,7 @@ a dated release section when promoting the workspace to main.
   from 0.735 m to 0.012 m p95 error, and a head-sweeping AMCL drive from
   0.205 m to 0.10 m max. Start new mapping sessions; old serialized graphs used
   the `root` base. See the
-  [investigation](docs/investigations/fieldmap-divergence-2026-10-22.md) and
+  [investigation](docs/investigations/fieldmap-divergence-2026-10-22.html) and
   [sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16).
 - Fix the head-TF timing and rf2o head-motion handling that caused 0.1-0.4 m
   parked-localization errors during simulated target-acquisition slews. The
@@ -505,7 +505,7 @@ a dated release section when promoting the workspace to main.
   recovery, caps its reference bank, and grades speed independently of anchor
   age. `/scan_odom` twist reports robot-frame vx/vy from consecutive accepted
   poses, with no robot consumer. See the
-  [investigation](docs/investigations/t39-parked-drift-2026-10-25.md),
+  [investigation](docs/investigations/t39-parked-drift-2026-10-25.html),
   [rf2o_laser_odometry #17](https://github.com/Thornbots/rf2o_laser_odometry/pull/17),
   [sim #43](https://github.com/Thornbots/sim/pull/43).
 - `fire_lock_s` (same-track dwell before firing, default 1.0 s) is now an `auto.launch.py` argument, so a robot can set it in `launch.env`'s `AUTO_LAUNCH_ARGS` ([thornbots_pkg #48](https://github.com/Thornbots/thornbots_pkg/pull/48)).
@@ -567,7 +567,7 @@ a dated release section when promoting the workspace to main.
   robot-measured scan zero/self-filter; the spawned sim sensor matches the TF
   ([thornbots_pkg #32](https://github.com/Thornbots/thornbots_pkg/pull/32),
   [sim #50](https://github.com/Thornbots/sim/pull/50),
-  [measurement and validation](docs/investigations/lidar-mount-2026-10-26.md)).
+  [measurement and validation](docs/investigations/lidar-mount-2026-10-26.html)).
 - Passive parked room health checks with dated evidence and PASS/FAIL/SKIP for
   serial/head TF rates, scan geometry, rf2o output, stamps and stationary drift,
   plus optional camera and stale-CV blocks
@@ -580,18 +580,18 @@ a dated release section when promoting the workspace to main.
   ([sentry_localization #16](https://github.com/Thornbots/sentry_localization/pull/16),
   [thornbots_pkg #24](https://github.com/Thornbots/thornbots_pkg/pull/24)).
   Room and flat central-field sim rehearsals are in the
-  [initial results](docs/investigations/fieldday-slam-amcl-2026-10-22.md).
+  [initial results](docs/investigations/fieldday-slam-amcl-2026-10-22.html).
   Full-field mapping uses level observation stations with `pause`/`resume`
   scan insertion; field mapping and localization default to raw wheel input
   (`--rf2o` opts in). A sim full-field map reached 97.55% `clean_map` coverage
   and passed raw-input AMCL parked/drive gates; see the
-  [follow-up](docs/investigations/fieldmap-divergence-2026-10-22.md).
+  [follow-up](docs/investigations/fieldmap-divergence-2026-10-22.html).
   The operator card now uses one session directory, derives the referee team,
   rejects wrong-side/heading registrations and stale boot captures, retains
   separate autosave backups, warns on unsaved stops, and runs parked gates
   automatically during localization. No firmware or movement changes.
   Both team-start rehearsals passed after nonzero registration and restart;
-  see the [operator safety results](docs/investigations/fieldday-operator-safety-2026-10-22.md).
+  see the [operator safety results](docs/investigations/fieldday-operator-safety-2026-10-22.html).
   Room sessions now capture and prepare without referee input (`robot_id: 0`);
   practice fields can explicitly select `--no-referee --team red|blue` while
   retaining the raw-odometry start check.
@@ -601,7 +601,7 @@ a dated release section when promoting the workspace to main.
   gates use 3 s freshness, and EKF/unsaved-launch exits are supervised explicitly.
   After save, the NEXT prompt selects `prepare-room` for room sessions and the
   yaw-only alignment step for fields.
-  See the [round-2 validation and remaining limits](docs/investigations/fieldday-round2-2026-10-23.md).
+  See the [round-2 validation and remaining limits](docs/investigations/fieldday-round2-2026-10-23.html).
 - Construct localization backends and their lifecycle managers in one process
   to avoid startup service-response discovery races, and remove the drift suite's
   automatic robot restart. Startup errors identify the missing TF link.
@@ -615,7 +615,7 @@ a dated release section when promoting the workspace to main.
   Portable CI dependency pins now follow the integrated current UART contract. See
   [localization #9](https://github.com/Thornbots/sentry_localization/pull/9),
   [sim #26](https://github.com/Thornbots/sim/pull/26) and
-  [T30 validation](docs/investigations/t30-localization-startup-2026-10-16.md).
+  [T30 validation](docs/investigations/t30-localization-startup-2026-10-16.html).
 - Firmware: setting the first UI container no longer dereferences a null
   container; sentry now schedules its draw command at startup like hero and
   infantry ([MCBV3 3a98bf0](https://github.com/Thornbots/MCBV3/commit/3a98bf0)).
@@ -776,8 +776,10 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
-- Docs charts and diagrams use yellow and green series colors; red and blue
-  are reserved for the ARCC red/blue teams ([AGENTS](AGENTS.md#documentation)).
+- Dated investigations and audits are now HTML pages with a shared stylesheet,
+  cut to claims linked to their evidence; raw logs stay in git history. Charts
+  and diagrams use yellow and green series colors; red and blue are reserved
+  for the ARCC red/blue teams ([AGENTS](AGENTS.md#documentation)).
 
 - Refresh package CI dependency pins for `thornbots_pkg`, `sim` and the serial
   bridge so their ROS jobs include `thornbots_nav` and build compatible
@@ -857,7 +859,7 @@ a dated release section when promoting the workspace to main.
   [validation status](sim/docs/de-harness-2026-11-02.md)).
 - The sim suite wrapper and T3 shortcuts use `localization_drift`, `ekf`, `aim` and `tracking`; `mcb_*` stage names are unchanged ([sim #65](https://github.com/Thornbots/sim/pull/65), [sim tests](sim/README.md#run-the-tests)).
 - Unfinished plans, package open-work lists and dated follow-ups now route to two canonical homes;
-  [consolidation coverage](docs/audits/open-work-consolidation-2026-11-02.md) records sources and dependencies, including distinct T23 visibility/visualization/head stages corrected H scan-bag provenance, and complete T17 suite-order/no-wall-time-sleep gates. Distinct mapping duplicate-graph and transient save-freshness investigations remain explicitly open with source evidence and acceptance.
+  [consolidation coverage](docs/audits/open-work-consolidation-2026-11-02.html) records sources and dependencies, including distinct T23 visibility/visualization/head stages corrected H scan-bag provenance, and complete T17 suite-order/no-wall-time-sleep gates. Distinct mapping duplicate-graph and transient save-freshness investigations remain explicitly open with source evidence and acceptance.
 - Open work now separates unfinished Mini/software/sim tasks in [ROADMAP](docs/ROADMAP.md) from physical validation in [ROBOT_TESTS](docs/ROBOT_TESTS.md). Completed items are removed after integration; final completion also requires a separate full automated-suite pass on integrated nightly.
 - Document [rf2o fork usage](rf2o_laser_odometry/README.md#thornbots-fork-and-usage), move [October 3 parked results](sim/docs/mcb-parked-results-2026-10-03.md) into a dated report, and narrow the [remaining documentation audit](docs/ROADMAP.md#issues-found) with sourced Season 2 match timing ([rf2o #23](https://github.com/Thornbots/rf2o_laser_odometry/pull/23), [sim #64](https://github.com/Thornbots/sim/pull/64)).
 - Adding a package submodule no longer needs a `reviewed_history` line; the policy hook and CI trust the imported history and check later bumps ([policy](docs/CI.md#repository-policy)).
@@ -876,22 +878,22 @@ a dated release section when promoting the workspace to main.
   compiled sentry firmware to the real bridge and in-stack mapping node, covering
   telemetry load, UART faults/backpressure, restarts, restrictions and validated
   saving. Start/save inputs are private to the hosted fixture; the hardware
-  target excludes the hook. [Mini validation](docs/investigations/mmm-firmware-e2e-2026-10-29.md).
-- Clarify the [field-mapping procedure](docs/investigations/mapping-procedure-2026-10-26.md): boot-pose
+  target excludes the hook. [Mini validation](docs/investigations/mmm-firmware-e2e-2026-10-29.html).
+- Clarify the [field-mapping procedure](docs/investigations/mapping-procedure-2026-10-26.html): boot-pose
   provenance and SLAM save gate, session/room terms, still-head and slow-drive
   checks, controller continuity, and post-flash power/clock/container recovery.
   The [package workflow](https://github.com/Thornbots/sentry_localization/pull/23)
   owns the gate rationale; match boot keeps rf2o off
   after false-motion head-sweep replay findings.
-- Complete [Map a new field](docs/investigations/mapping-procedure-2026-10-26.md) operator procedure,
+- Complete [Map a new field](docs/investigations/mapping-procedure-2026-10-26.html) operator procedure,
   deliberately mirrored to the Notion mapping doc: stop boot mapping, synchronize
   the clock, capture/map/save/register, check AMCL and configure/recheck match boot.
   Ten steps use the baked release image (verified by image ID), explicit manual
   head controls and CV suppression, plus Oct 25 odometry/head-motion gates and a
   technical reference correction ([sentry_localization #21](https://github.com/Thornbots/sentry_localization/pull/21)).
-  [Verification](docs/investigations/mapping-procedure-2026-10-26.md) records the
+  [Verification](docs/investigations/mapping-procedure-2026-10-26.html) records the
   isolated room-sim rehearsal and remaining robot-side acceptance. No behavior changes.
-- [CAD odometry pod identities](docs/investigations/sentry-cad-2026-10-26.md#odometry-pods),
+- [CAD odometry pod identities](docs/investigations/sentry-cad-2026-10-26.html#odometry-pods),
   with wheel positions, rolling directions and firmware encoder/field signs.
   Firmware and Oct 25 motion data establish the start-frame axes; the missing
   motor-to-CAD yaw datum limits source-part assignment. The models omit the pods.
@@ -927,7 +929,7 @@ a dated release section when promoting the workspace to main.
 - MCBV3 IMU recalibration now lives in `MCB-project/src/util/ImuRecalibration.hpp`; class text and behavior are unchanged.
 - Correct the hosted parked E2E idle-look zone to match its existing scene
   frame, restoring camera acquisition after patrol removal without changing
-  paths or acceptance gates ([evidence](docs/investigations/sentry-cad-2026-10-26.md#e2e-idle-zone-regression)).
+  paths or acceptance gates ([evidence](docs/investigations/sentry-cad-2026-10-26.html#e2e-idle-zone-regression)).
 - Refresh the [Sentry rules context](docs/ARCC_2026_SENTRY_CONTEXT.md) against
   ARC 2026 V1.6 / building diff V1.3.1 and RMUS/RMUL 2027 V1.0.0; correct
   armor citations, distinguish actual rule changes from stale 2024 values,

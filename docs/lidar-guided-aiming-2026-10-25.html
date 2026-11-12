@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lidar-guided aiming</title>
+<link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Lidar-guided aiming (design draft, 2026-10-25)</h1>
+<p class="meta">Design · 2026-10-25 · sim and 2026-10-25 robot session evidence; replaces the Jetson head patrol</p>
+
+<p class="status">Stage 1 is built (no Jetson patrol, idle looks, fire age limit);
+stages 2-4 are open. Evidence: the 2026-10-25 robot session
+(<a href="#evidence">Evidence</a>). Game rules:
+<a href="ARCC_2026_SENTRY_CONTEXT.md">ARCC context</a>.</p>
+
+<h2 id="why">Why</h2>
+<dl class="claims">
+<dt>Jetson patrol breaks rf2o because the lidar sits on the head.</dt>
+<dd>The RPLIDAR is 0.22 m off the yaw axis
+(<a href="../thornbots_pkg/README.md#lidar_self_filter">lidar_self_filter</a>); patrol
+turns at -2 rad/s, about 0.19 rad per 93 ms sweep. rf2o's per-scan step grew from
+0.7 mm (head still) to about 23 mm (patrol), and the parked reference check failed
+under patrol (82.9 mm steps, 0.81 m drift).</dd>
+
+<dt>The lidar does not need head motion to cover the field; only the camera does.</dt>
+<dd>It sees about 285 deg whichever way the head faces (blind only 6-79.5 deg CCW
+of the gun).</dd>
+</dl>
+
+<h2 id="current-chain">Current chain</h2>
+<table>
+<tr><th>Stage</th><th>Behaviour</th><th>Timeouts</th></tr>
+<tr><td>YOLO -&gt; <code>target_selector</code> -&gt; <code>target_tracker</code></td><td><code>/cv/target_state</code>, capture-stamped, per detection only</td><td>track resets after 0.5 s gap (<code>track_max_gap_s</code>)</td></tr>
+<tr><td><code>point_to_cv_target</code></td><td>40 Hz <code>/cv/target</code>, <code>now()</code>-stamped; aims and fires on a held state; patrol point after 0.2 s without target</td><td><code>target_timeout_s</code> 0.5 s</td></tr>
+<tr><td><code>mcb_relay</code> -&gt; bridge</td><td>republish; bridge drops frames &gt;= 200 ms old since decision</td><td>decision age only, not detection age</td></tr>
+<tr><td>Firmware <code>AutoAimAndFireCommand</code></td><td>aims/fires per frame; after expiry: hit turn (if <code>turn_to_hit</code>), else firmware patrol (if <code>type_c_based_patrol</code>), else hold</td><td><code>TARGET_VALID_TIME</code> 200 ms; <code>HIT_TURN_DURATION</code> 500 ms</td></tr>
+</table>
+<p>Firmware keeps the <strong>last frame's flags</strong>. If the Jetson goes
+silent after a target frame (which clears <code>turn_to_hit</code>), firmware hit
+turns stop working, so any no-patrol design must keep sending non-firing frames.
+On a hit, firmware turns the head toward the hit armor's side
+(<code>util/HitOrientation.hpp</code>) and reports it on REF_SYS.</p>
+
+<h2 id="decided">Decided</h2>
+<ul>
+<li>No Jetson patrol.</li>
+<li>Fire on a prediction only while the newest detection is at most 0.15 s old
+(<code>fire_max_state_age_s</code>); keep aiming without firing until
+<code>target_timeout_s</code> (0.5 s).</li>
+<li><code>room_check</code> stale-CV mode is a diagnostic, not a requirement; YOLO
+outages need no design beyond the stack restarting.</li>
+<li>Shooting with no referee engages every robot (already true:
+<code>team_from_ref_sys</code> returns no team for <code>robot_id</code> 0).</li>
+<li>Firmware hit handling unchanged; hold 2 s after a hit. Obstacles come from the
+saved field map.</li>
+</ul>
+
+<h2 id="design">Design</h2>
+<h3 id="where-the-head-looks-with-no-camera-target">Where the head looks with no camera target</h3>
+<p>Non-firing frames, <code>turn_to_hit</code> set, <code>patrol</code> bit set (meaning:
+not a target point). In order:</p>
+<ol>
+<li><strong>Last enemy</strong>, 3 s after losing it: follow the prediction until
+0.5 s, then hold its last position.</li>
+<li><strong>Hit</strong>, 2 s: follow the gun so the head stays where firmware's
+hit turn left it. The newer of 1 and 2 wins.</li>
+<li><strong>Lidar track worth checking</strong> (head integration is stage 4).</li>
+<li><strong>Enemy starting zone.</strong> Raw odometry is field-centred: firmware
+boots red at (-<code>START_X</code>, <code>START_Y</code>) facing +x, blue at
+(+<code>START_X</code>, <code>START_Y</code>) facing -x
+(<code>OdometrySubsystemConstants.hpp</code>; <code>START_X</code> 4.625 m, not yet
+measured on the field). The enemy zone is our start with x negated. Team comes from
+the REF_SYS blue flag as firmware uses it, so with no referee both sides assume red.</li>
+</ol>
+<p>Aim height is armor height (~0.15 m; Standard-class panels sit 60-150 mm up),
+not lidar height. Turns are rate capped to limit lidar smear.</p>
+
+<h3 id="lidar-tracker-new-lidar_tracker-node-thornbots_pkg">Lidar tracker (new <code>lidar_tracker</code> node, thornbots_pkg)</h3>
+<ul>
+<li>Uses <code>/scan</code>, skipping scans taken while the head turns fast.</li>
+<li>Opponents taller than the 0.355 m scan plane mostly show their head: small
+clusters, but on the yaw axis, so the centre is steady while the chassis spins.</li>
+<li>Size from our own head as stand-in (<code>sentry_v2</code> CAD sliced at z
+0.275-0.425 m, within 0.13 m of the yaw axis, excluding the lidar arm): 0.15-0.25 m
+wide, median 0.23 m. Accept clusters of roughly 0.10-0.40 m.</li>
+<li>Obstacles from the saved map (<code>/map</code>, in <code>localization_mode</code>
+<code>amcl</code> and <code>slam</code>): scan points within ~0.25 m of an occupied
+cell (absorbing localization and URDF mount error) are obstacles; the rest may be
+robots. A robot that close to a wall is missed.</li>
+<li>No map frame (<code>none</code>) or a live map (<code>mapping</code>, which can
+map robots): no lidar looks; the enemy-zone look still works.</li>
+<li>Tracks hold position and velocity a few seconds through dropouts (tilt on the
+Bumpy Road or ramps moves the plane ~7 cm per degree at 4 m). Each is unchecked,
+enemy (camera confirmed) or checked-empty (teammate or false cluster; ignored for
+a while).</li>
+<li>Ranking: enemy &gt; unchecked, then moving/approaching, then closer. Look ~0.6 s;
+no enemy found marks it checked.</li>
+<li>Tracks live in <code>map</code>. A look only has to land the robot in the
+camera's view (~1 m at 2-3 m), but obstacle removal needs localization within the
+margin: a misaligned map turns walls into candidates.</li>
+</ul>
+
+<h3 id="hits">Hits</h3>
+<p>No firmware change. The Jetson keeps the hit turn permitted
+(<code>turn_to_hit</code> on every non-target frame) and, for 2 s after REF_SYS
+reports a hit, follows the gun instead of pulling the head back.</p>
+
+<h2 id="stages">Stages</h2>
+<p>Stages 2–4 are <a href="ROADMAP.md#paused-sim-work">paused</a> (2026-11-05).
+Stage 1 merged. Stage 2 makes robots visible in sim lidar, stage 3 adds
+visualization-only tracker output with no head effect, stage 4 adds ranked-track
+head direction. These are interface boundaries; status, ordering, dependencies and
+acceptance live only in the roadmap. This design defines saved-map rejection,
+ranking, confirmation and head priorities.</p>
+
+<h2 id="risks">Risks</h2>
+<ul>
+<li>Detection range is unmeasured. A 0.23 m head spans about 6-7 of the 0.5 deg
+bins at 4 m and about 3 at 8 m, before missing returns (~408 of 720 bins return per
+scan); other teams' heads may differ.</li>
+<li>Head-sized clutter (posts, corners, ramp edges); robots on the High Ground or
+with heads off the plane; teammates cost one look each.</li>
+<li>Turning toward targets still smears scans; rf2o/AMCL should skip fast-turn scans
+(localization side). The URDF lidar offset (~10 cm) shifts localization when the head
+turns until the new CAD lands.</li>
+<li>Staring at the zone covers less than patrol did until stage 4; compare
+time-to-first-detection in the sim match stages before promoting.</li>
+</ul>
+
+<h2 id="acceptance-before-main">Acceptance before <code>main</code></h2>
+<p>Software gates: <a href="ROADMAP.md#j-lidar-and-camera">ROADMAP T23/A-model</a>.
+Physical gates: <a href="ROBOT_TESTS.md#consolidated-hardware-checks">ROBOT_TESTS T23</a>.</p>
+
+<h2 id="match-day-settings">Match-day settings</h2>
+<p><code>auto.launch.py</code> arguments, set through <code>AUTO_LAUNCH_ARGS</code> in
+<code>/etc/thornbots/launch.env</code>; a change needs a <code>thornbots</code>
+restart. Patrol is not an option. <code>fire_max_state_age_s</code> stays a node
+parameter.</p>
+<table>
+<tr><th>Argument</th><th>Default</th><th>Effect</th></tr>
+<tr><td><code>lidar_looks</code></td><td><code>true</code></td><td><code>false</code>: lidar tracks never steer the head; last-enemy, hit-hold and idle looks remain. Also off by itself with no saved map</td></tr>
+<tr><td><code>idle_direction</code></td><td><code>zone</code></td><td><code>hold</code>: with nothing else to look at, the head stays put (still sending non-firing frames, so hit turns work) instead of facing the enemy starting zone</td></tr>
+<tr><td><code>lidar_obstacle_margin_m</code></td><td><code>0.25</code></td><td>distance from a mapped obstacle within which scan points count as obstacle</td></tr>
+</table>
+<table>
+<tr><th>At the venue</th><th>Set</th></tr>
+<tr><td>Head chases walls or empty spots</td><td><code>lidar_obstacle_margin_m:=0.4</code>, or <code>lidar_looks:=false</code></td></tr>
+<tr><td>No saved map for this field</td><td><code>lidar_looks:=false</code> (automatic)</td></tr>
+<tr><td>Idle head faces a wrong direction</td><td><code>idle_direction:=hold</code></td></tr>
+<tr><td>Localization degrades whenever the head moves</td><td><code>lidar_looks:=false idle_direction:=hold</code></td></tr>
+</table>
+
+<h2 id="open-questions">Open questions</h2>
+<p>None at this revision.</p>
+
+<h2 id="evidence">Evidence</h2>
+<p class="meta">Local to the Mac mini and not published:
+<code>~/ros2_ws/robot-session-20261025/REPORT.md</code> (steps 3-4,
+<code>step4/patrol-lidar.txt</code>); partial deskew work in
+<code>~/ros2_ws/scan-deskew-20261025/</code>.</p>
+</main>
+</body>
+</html>

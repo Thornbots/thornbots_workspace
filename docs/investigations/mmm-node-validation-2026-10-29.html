@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>In-stack MMM validation</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>In-stack MMM validation — 2026-10-29</h1>
+<p class="meta">Investigation · 2026-10-29 · sim and native host tests, no physical robot</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Draft/open status below records
+the dated checkpoint, not a separate maintained action list. The
+<a href="mmm-firmware-e2e-2026-10-29.html">firmware-to-node UART follow-up</a>
+exercises the compiled sentry and real coordinator together. Maintained docs:
+<a href="../../thornbots_pkg/README.md#mcb-mapping-machine">thornbots_pkg</a>,
+<a href="../../sentry_localization/README.md#explicit-mapping-snapshots">save service</a>,
+<a href="../../isaac-ros-startup/README.md#mmm-shutdown-opt-in">host shutdown</a>,
+<a href="../../ros2_dji_serial_bridge/UART_PROTOCOL.md#ping-id5--mcb-mapping-machine-and-link-check">wire contract</a>.</p>
+
+<p class="meta">Evidence is the commands in the task container and host checks, not
+published logs. Package revisions: thornbots_pkg <code>b42af41</code>, bridge
+<code>09b0fb1</code>, localization <code>394e4b5</code>, startup <code>4ee08a4</code>;
+review round thornbots <code>834207f</code>, startup <code>afe654c</code>.</p>
+
+<h2 id="scope-and-environment">Scope and environment</h2>
+<p>Own isolated <code>isaac-agent-mmm-node</code> container (Mac arm64 Jazzy,
+domain 128, software rendering), created and removed by
+<code>agent_container.sh</code>. No physical robot, host unit installation, real
+shutdown, firmware or sim edits; <code>operator_workflow</code> is unchanged from
+<code>origin/nightly</code>. SLAM/AMCL/EKF backend behaviour and noise parameters
+were unchanged, so the conditional drift/EKF suites were not required.</p>
+
+<h2 id="commands-and-output">Commands and output</h2>
+<dl class="claims">
+<dt>Host checks are clean.</dt>
+<dd>Python 3.12 checker with the workspace <code>check.py</code> and
+<code>actionlint -shellcheck=""</code> in five repositories: thornbots_pkg 66 files,
+bridge 32, localization 37, startup 27; 0 diagnostics, 0 new.</dd>
+
+<dt>The container build and test pass.</dt>
+<dd><code>colcon test</code> summary: <strong>380 tests, 0 errors, 0 failures, 11
+skipped</strong> (thornbots_pkg 11, localization 9, bridge 10 CTest cases). The sim
+integration printed <code>MMM INTEGRATION PASS: start -&gt; ready -&gt; mapping -&gt;
+ready -&gt; save</code>. Startup native CMake/CTest: 8/8.</dd>
+
+<dt>What the 20 core tests cover.</dt>
+<dd>Odd acknowledgement before dispatch, sliding work gates, all even
+retries/cooldowns, unsolicited/unknown echoes, heartbeat independence,
+single-frame loss for 1/2/3/4/6, StartGate hysteresis/stamps/dwell, save
+selection, latched parked guards, failed Ready save recovery through 4 before 2,
+and failed or non-mapping setup through 6. Localization fake-backend tests cover
+valid bundles, invalid/stale maps, concurrent/busy saves, missing graph files,
+serialize failure/timeout and destination races.</dd>
+
+<dt>The launch test saves a validated map in the normal entrypoints.</dt>
+<dd>Normal Gazebo and auto entrypoints with the matching <code>sentry_v2</code> and
+a fake MCB; drives away, returns using the captured map-frame pose, and verifies
+nonempty serialized graph/image/YAML/boot metadata and a validated marker.</dd>
+</dl>
+
+<h2 id="corrections-and-limits">Corrections and limits</h2>
+<ul>
+<li>The first localization run lacked Pillow and the sim build lacked
+nlohmann-json; the prescribed dependency helper fixed both. The first integration
+attempt returned by raw odometry with the old ghost robot and did not regain the
+map-frame gate; the final test uses the matching robot model and the captured
+map frame. Three launch line-length findings were fixed.</li>
+<li>Gazebo's <code>/clock</code> parameter bridge logged exit code -11 during
+teardown after the successful flow. This does not establish clean simulator
+shutdown. Gazebo also left a child process after launch teardown; the failed
+run's known child was stopped after checking its command line, the rest was removed
+with the container. No foreign processes were touched.</li>
+<li>Not tested: physical storage, MCB shared-power timing, real systemd
+activation, actual Jetson power-off. Graph files are checked only for nonempty
+regular output; a graph deserialization round-trip and physical field mapping
+acceptance remain separate checks.</li>
+</ul>
+
+<h2 id="mini-only-review-fix-round">Mini-only review-fix round</h2>
+<p>On the Mac mini (macOS arm64), no SSH, robot, host install or shutdown.</p>
+<dl class="claims">
+<dt>Review fixes changed coordinator behaviour.</dt>
+<dd>Transient invalid scans clear fresh-scan evidence and restart boot dwell;
+real geometry changes still fail the session. Fresh starts reset session and
+protocol even bookkeeping while keeping odd duplicate suppression. Busy starts
+send 6 without interrupting the save; old reset callbacks are generation-guarded.
+The sim launch test adds stale boot/Ready scans and a second ready session.</dd>
+
+<dt>Native subsets pass: 23 core tests, startup <code>mmm_poweroff</code> 1/1.</dt>
+<dd>AppleClang C++17 build of <code>mmm_core.cpp</code> against GoogleTest 1.17.0;
+startup wiring assertions pass under an isolated Bash 5.3. Checkers (66, 27 and 86
+files) and actionlint pass. These subsets do not replace the Linux host suite:
+the full native build fails on macOS (no <code>CLOCK_BOOTTIME</code>) and the
+installer fixture needs GNU/Linux tools.</dd>
+
+<dt>The updated sim flow and Linux startup suite did not run this round.</dt>
+<dd>Creating the private container failed three times with a Docker volume
+<code>input/output error</code> (<code>/var/lib/docker/volumes/...</code>), so
+<code>colcon build</code>/<code>test</code> and the updated sim flow did not run;
+earlier passes do not validate these edits. Colima stayed running because three
+foreign containers were up; none was touched.</dd>
+
+<dt>Documentation conflict left open.</dt>
+<dd>The bridge's statement suppressing starts for the process lifetime conflicts
+with the requested retry behaviour and needs a coordinated documentation update.
+Only thornbots/startup gitlinks moved; the bridge is unchanged.</dd>
+</dl>
+</main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operator workflow package move</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Operator workflow package move</h1>
+<p class="meta">Change record · 2026-10-27 · room sim only, no hardware</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Open items below are the
+dated checkpoint, not a maintained action list. Maintained interface:
+<a href="../../thornbots_pkg/README.md#field-day-and-room-workflow">thornbots_pkg operator workflow</a>.</p>
+
+<p><code>ros2 run thornbots_pkg operator_workflow</code> replaces the
+localization-package command. The executable, ROS-free tests and operator
+reference moved together; localization backends and broad-field coverage stay
+in <code>sentry_localization</code>. The concurrent Oct 26 mapping notes are
+kept in the moved reference and root card. The local Notion mirror was updated
+without accessing Notion.</p>
+
+<h2 id="bridge-provenance-and-lifecycle">Bridge provenance and lifecycle</h2>
+<dl class="claims">
+<dt>The Foxglove bridge command is reconstructed, not recorded.</dt>
+<dd><code>isaac_ros_common/docker/Dockerfile.thornbots</code> already installs
+<code>ros-jazzy-foxglove-bridge</code>. The Oct 26 part 2 report and
+<code>next/robot/sentry-20261026b/foxglove.log</code> show bridge 3.6.0 on 8765,
+but not the exact manual command. The settings reused come from the existing
+read-only invocation in <code>isaac-ros-startup/thornbots-launch.sh</code>:
+port 8765, address 0.0.0.0, capabilities <code>[connectionGraph, assets]</code>.</dd>
+
+<dt>The bridge is supervised with the robot launch.</dt>
+<dd>Mapping/localize own a separate bridge process group; signals and final
+cleanup stop both, escalating after the existing timeout. Unexpected bridge exit
+fails the workflow and stops the launch; a requested stop does not report a
+failure. Capabilities omit client publishing, services and parameter access.
+No Dockerfile or movement behavior changed.</dd>
+</dl>
+
+<h2 id="checks">Checks</h2>
+<dl class="claims">
+<dt>Behavior is unchanged except package names and bridge supervision.</dt>
+<dd>Root and all 11 subcommand help output and exit codes match the original
+executable exactly. Both package suites: 281 tests, zero errors/failures/skips,
+including bridge failure, SIGINT/SIGTERM propagation and both clean-stop
+orderings. Quality and <code>actionlint</code> pass in four repos, no baseline
+changes. No operator workflow entry was listed in ROADMAP.</dd>
+</dl>
+<p class="meta">Evidence is local to the Mac mini and not published:
+<code>~/ros2_ws/move-operator-workflow-20261026/</code>.</p>
+
+<h2 id="isolated-room-rehearsal">Isolated room rehearsal</h2>
+<p>Container <code>isaac-agent-move-operator-workflow</code>, domain 189, six
+CPUs, 12 GiB. The Mac image had bridge 3.5.0; the robot session had 3.6.0. A
+parallel sim compile hit the memory limit; two jobs passed.</p>
+<dl class="claims">
+<dt>Save rejected a stale or non-increasing scan stamp on the first run; the cause is not diagnosed.</dt>
+<dd>Boot, pause/resume and the 11.8 m drive passed. The retry at half sim speed
+passed without changing any gate, so it does not explain the rejection. Live
+investigation: <a href="../ROADMAP.md#mapping-diagnostics">E-map-freshness</a>.
+Two harness-only failures were also retained (probe used the old websocket
+subprotocol instead of <code>foxglove.sdk.v1</code>; one retry refused to
+overwrite prior drive evidence).</dd>
+
+<dt>The final session passed mapping and localization with the moved package.</dt>
+<dd><code>card-room-session-r4</code>: boot capture, pause/resume, 11.8267 m
+circuit, return to boot within 0.0342 m, save, <code>prepare-room</code>,
+<code>check</code>, clean stop; then <code>LOCALIZE PASS</code> and sustained
+convergence (<code>--hold 30 --samples 20</code>). Server-info advertised exactly
+<code>connectionGraph</code> and <code>assets</code>; port 8765 was released
+after each stop.</dd>
+
+<dt>Circuit accuracy is a room-sim diagnostic only.</dt>
+<dd>425/425 truth-stamped transforms; p95 0.01165 m, max 0.01985 m. Not
+hardware or full-field acceptance; live scan/wall inspection is still required.
+No robot, firmware or movement change.</dd>
+</dl>
+<p class="meta">Failed attempts are under <code>failed-probe/</code>,
+<code>failed-save/</code> and <code>failed-harness/</code> in the same local
+directory (<code>~/ros2_ws/move-operator-workflow-20261026/</code>, not
+published). The task container and volumes were removed; Colima stayed up for
+other containers.</p>
+</main>
+</body>
+</html>

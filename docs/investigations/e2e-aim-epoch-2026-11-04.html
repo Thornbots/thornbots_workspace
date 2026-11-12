@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aim timer epoch initialization</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Aim timer epoch initialization</h1>
+<p class="meta">Investigation · 2026-11-04 · isolated Mac arm64 Jazzy agent container, aim-node timer setup only</p>
+
+<dl class="claims">
+<dt>Aim-node timer setup passes its tests.</dt>
+<dd><code>thornbots_pkg</code> built and its full run passed 280 tests with no
+errors or failures. The node tests delivered a zero ROS clock and observed a
+latched zero readiness acknowledgment before the first 25 ms aim tick.
+Wall-time configuration and an already advanced clock were rejected. Host
+repository quality and actionlint passed.</dd>
+
+<dt>The first test run lacked Pillow.</dt>
+<dd>Installing <code>python3-pil</code> in the disposable container resolved
+collection.</dd>
+</dl>
+
+<h2 id="limits">Limits</h2>
+<p>This establishes only aim-node timer setup. It does not verify E2E launch,
+robot spawn and other node readiness, downstream consumption, board firmware,
+or a scored T17 campaign.</p>
+</main>
+</body>
+</html>

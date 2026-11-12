@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentry CAD integration</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Sentry CAD integration</h1>
+<p class="meta">Investigation · 2026-10-26 · sim, offline analysis of Oct 25 robot data, hosted firmware fixture; no physical robot run</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Open items below are the
+dated checkpoint, not a maintained action list. The robot measurement update
+supersedes the round-1/2 lidar yaw, self-filter and outstanding scan-zero
+validation; round 2 supersedes the round-1 muzzle choice. Earlier CAD
+measurements and runs are kept as provenance; their results do not validate the
+updated pins.</p>
+
+<p><strong>Accepted deviation (2026-10-26):</strong> the 103.8847 mm armor
+lower-edge spread exceeds the 2027 manual V1.0.0 &sect;3.6.1.3 S124 100 mm limit
+(older notes use S126). It is accepted as a mechanical issue with no material CV
+impact and is no longer a merge blocker. The test uses a temporary 0.104 m bound;
+restore 0.100 m after the mechanical team fixes the plates. The ARCC 2026 base
+spec V1.3.0 wording is unconfirmed; see the
+<a href="../../sim/README.md#urdfsentry_v2-the-teams-low-resolution-cad">sim rule reference</a>.</p>
+
+<p>Input: the team's <code>sentry_low_res_model</code> Onshape URDF export
+(<code>sentry_low_res_model.zip</code>, SHA256
+<code>0841b0ca27e54125ad8d962edf78dad97ce76198bb9d3b7c69036974ba32adff</code>);
+only XML and STL data were read. Acceptance: all 29 <code>test_cv_bench.cpp</code>
+cases pass in the task container (compiled directly; the fresh container lacked
+colcon-ready installs). Host quality and <code>actionlint</code> pass for sim and
+the workspace, no baseline changed. The
+<a href="#e2e-idle-zone-regression">E2E fixture diagnosis</a> records the restored
+hosted acceptance and matched nightly controls.</p>
+
+<p class="meta">All raw logs, bags, scripts and hashes are local to the Mac mini
+and not published, under <code>~/ros2_ws/</code>:
+<code>sentry-cad-20261026/</code> (<code>odom-pods/</code>,
+<code>validation-20261026/</code>, <code>round2/offline/</code>,
+<code>round2/offline-parent-final/</code>, <code>round2/visibility/</code>),
+<code>sentry-cad-e2e-fix-20261026/</code>,
+<code>sentry-cad-e2e-resume-20261026/</code>,
+<code>odom-x-deeper-20261025/</code>, <code>robot-session-20261025/</code>;
+armor derivation in <code>/tmp/cad-armor-round2-20261026/</code>.</p>
+
+<h2 id="robot-measurement-update">Robot measurement update</h2>
+<dl class="claims">
+<dt>The Oct 26 five-pose robot fit replaces the authored lidar yaw.</dt>
+<dd>Scan zero 0.5907 rad (33.84°) CCW of the gun, replacing the FOV-marker
+-0.149533673 rad. CAD translation (-0.105, -0.193326, 0.101293) m stays; its 0.220 m
+radius agrees with the fitted 0.2225 m. Scan-frame self-filter
+-0.5585..1.0123 rad (-32..58°), zero head-return leakage on both Oct 25 bags and
+live. Evidence: <a href="lidar-mount-2026-10-26.html">measurement note</a>. Lidar yaw
+relative to <code>root</code> at head yaw 0, +90, -90°: 0.5907, 2.161496327,
+-0.980096327 rad. Every other CAD transform, mesh, height and dimension remains.</dd>
+
+<dt>Package merges preserve the measurement in either order.</dt>
+<dd>thornbots_pkg #30 merges measured-mount #32 (launch overrides, xacro defaults,
+shared filter); sim #48 merges the matching sim update. The armor-spread
+decision above supersedes the earlier hold and failing-test reports below.</dd>
+</dl>
+
+<h2 id="measured-mount-validation">Measured-mount validation</h2>
+<dl class="claims">
+<dt>Registered tests pass except the known armor-rule case.</dt>
+<dd>Pins thornbots_pkg #30 <code>c40ca88</code>, sim #48 <code>1dc2dc2</code>,
+sentry_localization #20 <code>9607e2a</code>. thornbots_pkg 142 tests,
+sentry_localization 135, zero failures. Sim 224 tests, 87 skips, and two failure
+reports (<code>UrdfConstants.ArmorRules</code> plus its CTest wrapper:
+0.103884704 m &gt; 0.100 m). Lidar TF/sensor consistency checks pass. Quality and
+<code>actionlint</code> pass in four repos.</dd>
+
+<dt>One AMCL/rf2o baseline passes; this is not repeated accuracy acceptance.</dt>
+<dd><code>scenario:=baseline</code> in 7.93 s, native checker accepts logs, no
+leftover processes. No physical robot run.</dd>
+</dl>
+
+<h2 id="frame-derivation">Frame derivation</h2>
+<dl class="claims">
+<dt>The CAD yaw frame maps to ROS <code>head</code> by Rz(+90°), with the yaw coordinate reversed.</dt>
+<dd>The yaw bearing <code>revolute_3_2</code> (translation (0, 0, 0.171275), yaw
+1.72033, axis -z) defines the export's <code>root</code>. The barrel points along
+gun-local -z, i.e. <code>lpr_yaw</code> -y in plan, so
+<code>(x_head, y_head) = (-y_CAD, x_CAD)</code> and
+<code>heading = 1.72033 - pi/2 - q_CAD</code>.</dd>
+
+<dt>Pitch converts as <code>q_ROS = -q_CAD - 20°</code>.</dt>
+<dd><code>pitch_revolute</code> is 0.136 m above the yaw bearing (CAD axis -x). Zero
+ROS pitch is a horizontal gun; positive +y pitch points down. The existing
+&plusmn;0.6 rad sim limits stay an explicit approximation (export limits convert to
+about [-0.349066, +0.366519] rad).</dd>
+
+<dt>The wheel datum is not a measured ground plane.</dt>
+<dd>Wheel-mesh minima in export-root z are -0.236906, -0.234981, -0.267504 and
+-0.241994 m (32.523 mm spread: an uneven suspension pose). The lowest wheel sets
+yaw bearing z = 0.267503694 m. Wheel/suspension dynamics keep existing sim values.</dd>
+</dl>
+
+<h2 id="odometry-pods">Odometry pods</h2>
+<dl class="claims">
+<dt>Encoder 2 (Pico Y) is start-forward; encoder 1 (Pico X) is start-right. These are start-heading axes, not chassis axes.</dt>
+<dd>Confidence is <strong>high</strong> for geometry and the encoder/start-axis/field-sign
+mapping, from geometry, firmware and recorded motion. No new robot run.</dd>
+
+<dt>Which physical part is which channel is an inference.</dt>
+<dd>The part-to-channel column in the table assumes the exported pair is about
+5.380° clockwise from its held start orientation. The sources do not give the
+motor-position-to-<code>ode_yaw</code> zero, and the calibrated 1.320795 rad offset
+cannot simply be used as a CAD joint angle. A quarter-turn alternative could swap
+which part is Y or X. Not a wiring observation.</dd>
+
+<dt>In the exported pose both wheels roll during reference-forward motion.</dt>
+<dd>The rolling lines are perpendicular but slightly diagonal. For 1 m along
+reference +x the CAD-positive projections are +0.995595 m (<code>part_18_1</code>)
+and +0.093752 m (<code>part_18</code>); a common <code>ode_yaw</code> of about +5.380°
+would align them. These are pose projections, not a claim the powered robot holds
+that angle.</dd>
+</dl>
+<p>Axle centres in imported <code>root</code> (m; +x forward, +y left, +z up) at the
+exported pose, zero chassis/head yaw; rolling = axle axis &times; +z (positive CAD
+joint rotation, not quadrature count sign):</p>
+<table>
+<tr><th>Export wheel</th><th>Axle centre</th><th>CAD rolling (x, y)</th><th>Encoder / start axis if near-start-aligned</th></tr>
+<tr><td><code>part_18_1</code> (rear, slightly left), <code>ode_wheel_1</code></td><td class="n">(-0.083262, +0.007841, +0.060929)</td><td class="n">(+0.995595, -0.093757)</td><td>Y / 2 / forward</td></tr>
+<tr><td><code>part_18</code> (right, slightly rear), <code>ode_wheel_1_1</code></td><td class="n">(-0.007321, -0.077746, +0.052861)</td><td class="n">(+0.093752, +0.995596)</td><td>X / 1 / right</td></tr>
+</table>
+<p>Mount <code>part_16</code> (<code>ode_yaw</code>) at (0, 0, 0.087104). Rotate wheel/arm
+positions and rolling axes about the pod mount when its heading changes; head and
+chassis yaw do not define pod axes.</p>
+
+<h3 id="firmware-and-recorded-motion-evidence">Firmware and recorded-motion evidence</h3>
+<dl class="claims">
+<dt>Firmware maps Pico channels to field axes as red <code>(Y, -X)</code>, blue <code>(-Y, X)</code>.</dt>
+<dd>MCBV3 <code>8d46da5</code>:
+<a href="../../firmware/MCBV3/pico-encoder.ino"><code>pico-encoder.ino</code></a> scales
+each channel by <code>-0.024 * 2*pi / (64*4096)</code> (encoder 1 GPIO 12/13,
+encoder 2 GPIO 14/15);
+<a href="../../firmware/MCBV3/MCB-project/src/communication/LocalizationPico.hpp"><code>LocalizationPico.hpp</code></a>
+exposes <code>getX()</code>/<code>getY()</code>;
+<a href="../../firmware/MCBV3/MCB-project/src/subsystems/odometry/OdometrySubsystem.cpp"><code>OdometrySubsystem.cpp</code></a>
+uses <code>fromStart(rawY, -rawX)</code> with start yaw 0 / pi. Positive hardware
+counts give negative Pico metres on both channels. Pico X/Y labels are not field x/y.</dd>
+
+<dt>The pod motor holds the start heading; its angle is not recoverable from firmware constants.</dt>
+<dd><a href="../../firmware/MCBV3/MCB-project/src/subsystems/odometry/OdometryPointForwardsCommand.hpp"><code>OdometryPointForwardsCommand</code></a>
+drives <code>head_world_yaw - head_encoder_yaw + odo_encoder_yaw</code> toward
+<code>-chassis_angular_velocity/200</code>. At rest
+<code>motor_position &asymp; head_encoder_yaw - head_world_yaw - 1.320795</code> mod
+2*pi (<code>encoderOffsetOdo = -0.25 + pi/2</code>). CAD cannot establish quadrature
+phase; the held-start CAD pose and unique part-to-channel assignment cannot be
+recovered from these constants.</dd>
+
+<dt>Recorded Oct 25 motion confirms the sign mapping.</dt>
+<dd>Reported red forward legs increase x: attempt 3 (+0.1435, -0.0006) m, attempt 4
+(+0.1594, +0.0054) m; a strafe sample gives (0, -0.1892) m. CSVs reproduce
+1,780 / 3,834 finite rows. These are sampled <code>/odom</code> positions, not direct
+encoder traces or a CAD-yaw calibration; invalid rows are excluded, not repaired.</dd>
+
+<dt>Pods are not modelled in the sim URDFs, and nothing was renamed or added.</dt>
+<dd>No pod mount, arm or wheel survived round 1 as a link, joint or mesh. If pods
+are imported once their angular datum is known, use <code>odom_pod_yaw_mount</code>,
+<code>odom_pod_y_enc2_arm</code> / <code>odom_wheel_y_enc2</code>,
+<code>odom_pod_x_enc1_arm</code> / <code>odom_wheel_x_enc1</code>.</dd>
+</dl>
+
+<h3 id="pod-documentation-validation">Pod documentation validation</h3>
+<dl class="claims">
+<dt>Hosted E2E stages did not pass in this run; later diagnosed as a fixture issue.</dt>
+<dd>Parked failed setup after 60 s with no valid <code>/cv/target_state</code> (12 cells
+unscored); drive at <code>real_time_factor:=1</code> reached no center and fired
+0/1 shots. Both native checks reject the runs. A parked-fixture acquisition mismatch
+was only a candidate here; see <a href="#e2e-idle-zone-regression">E2E idle-zone regression</a>.
+These results do not establish integration acceptance. Pod edits are docs only.</dd>
+
+<dt>Registered tests pass; the first sim run skipped 87 cases.</dt>
+<dd>thornbots_pkg 142, sim 224, zero failures. The first sim run lacked the
+hosted-firmware environment; the final run sets <code>MCB_FIRMWARE_BINARY</code>
+(ELF SHA256 <code>2800ac7cf9835a5dd3b8049da29dec9450dce5f4da146026c4e27dbc75987c99</code>,
+MCBV3 <code>8d46da5</code>). The first two-job cold build was OOM-killed; a serial build
+works. Container <code>isaac-agent-odom-pods-20261026</code>, domain 127, removed.</dd>
+</dl>
+
+<h2 id="lidar-comparison">Lidar comparison</h2>
+<p>Metres from the yaw axis in <code>head</code>; bearing CCW from the gun; radius is XY.</p>
+<table>
+<tr><th>Source</th><th>x</th><th>y</th><th>z</th><th>Radius</th><th>Bearing</th></tr>
+<tr><td>Previous <code>lidarlink</code></td><td class="n">-0.119391</td><td class="n">-0.185010</td><td class="n">0.0968001</td><td class="n">0.220188</td><td class="n">-122.835°</td></tr>
+<tr><td>New CAD FOV reference</td><td class="n">-0.105000</td><td class="n">-0.193326</td><td class="n">0.101293</td><td class="n">0.220000</td><td class="n">-118.507°</td></tr>
+<tr><td>Oct 25 fit</td><td class="n">&asymp;-0.190</td><td class="n">&asymp;-0.130</td><td class="n">unknown</td><td class="n">&asymp;0.230217</td><td class="n">&asymp;-145.620°</td></tr>
+</table>
+<dl class="claims">
+<dt>CAD and the Oct 25 fit disagreed by 106 mm; the user chose CAD anyway.</dt>
+<dd>Previous to CAD: 16.621 mm in XY. CAD to fit: about 105.996 mm in XY, well over
+the requested 3 cm warning threshold. This does not establish that CAD alone fixes
+the Oct 25 head-turn SLAM displacement (superseded by the robot measurement above).</dd>
+
+<dt>The authored scan-zero yaw of -8.568° was an unverified CAD reference.</dt>
+<dd><code>fastened_6</code> places the <code>lidar_fov__1_</code> reference 5.875 mm lower
+and rotated -1.72033 rad, giving <code>pi/2 - 1.72033 = -0.149533673</code> rad. The FOV
+link has no mesh: not proof of the physical scan plane or driver scan zero (superseded
+by the measured 0.5907 rad).</dd>
+</dl>
+
+<h2 id="optical-and-armor-references">Optical and armor references</h2>
+<dl class="claims">
+<dt>Superseded 2026-10-29: <code>camera</code> is the RGB FOV apex, not the IR apex.</dt>
+<dd>RGB apex (0.095700, 0.032500, 0.055000) in <code>head_pitch</code>, 44 mm left of the
+IR apex. <code>/cv/panel_detections</code> deproject with colour intrinsics, so the IR apex
+put real-robot aim points right of the panels. The round-1 camera apex used the IR
+<code>ir_fov</code> origin with REP 103 axes.</dd>
+
+<dt>Head, camera and muzzle moved; armor frames use outward panel faces.</dt>
+<dd>Head height 0.267504 m (previously 0.248293) and pitch axis 0.136 m above it.
+Imported armor bearings 36.432°, 126.432°, -143.568°, -53.568°; radii 0.253729 m
+(low pair), 0.249716 m (high pair). Each frame sits at the largest outward panel face
+centre, 3 mm scoring box centred 1.5 mm behind, normals 15° up, scoring rectangle
+135 &times; 125 mm, indices sorted by CCW bearing. (The full previous/imported
+per-joint translation table is in the original commit history.)</dd>
+
+<dt>Collision, mass and dynamics stay the old approximation.</dt>
+<dd>Low-res meshes aggregate <code>base</code> into <code>root</code>, <code>lpr_yaw</code> and
+<code>lpr_lidar</code> into <code>head</code>, pitch parts into <code>head_pitch</code>; FOV cones
+and dummy loop links are excluded. Head collision meshes are convex hulls; chassis
+collision, masses, inertias, wheels, suspension, plugins and topics are unchanged.
+The export's gram-scale masses are not credible dynamic parameters.</dd>
+
+<dt>The new vertical stagger of about 103.885 mm is reported, not flattened.</dt>
+<dd>It exceeds the existing 100 mm rule assertion (see <a href="#armor-lower-edge-rule">armor lower-edge rule</a>).</dd>
+</dl>
+
+<h2 id="integration-boundaries">Integration boundaries</h2>
+<ul>
+<li>sim draft <a href="https://github.com/Thornbots/sim/pull/46">#46</a> (head <code>2dc107d</code>)
+changes opponent visibility and <code>sentry_v2.urdf.xacro</code>. Keep its visibility and
+opponent-driver changes when rebasing; rerun its visibility test against the new
+head/gun meshes and scan height/sector.</li>
+<li>thornbots_pkg draft <a href="https://github.com/Thornbots/thornbots_pkg/pull/27">#27</a>
+is outside this change. Its <code>lidar_tracker.cpp</code> hardcodes output z = 0.355 m; that
+should become a carried scan-frame transform or use the new scan height, and its map
+filtering must use the matching slice.</li>
+<li>Firmware, movement/routes, odometry constants, wire format and patrol/aiming
+algorithms are outside this integration. Any solver assumption exposed by the new
+geometry needs a separate aiming change.</li>
+</ul>
+
+<h2 id="validation">Validation</h2>
+<p>Mac mini container <code>isaac-agent-cad-20261026</code>, Colima, domain 164,
+hosted firmware fixture for E2E, AMCL/rf2o for drift, <code>headless:=true foxglove:=false</code>.
+Single runs, not a controlled accuracy improvement claim. Source began at workspace
+<code>d0fd482</code>; the workspace PR is based on nightly
+<code>fe4849d6f49a5ae0e229535d8829df2f7a123a14</code> (advances reviewed: docs, host
+setup and image build only).</p>
+<dl class="claims">
+<dt>Baseline and imported CAD both pass the native log checker for parked and drive.</dt>
+<dd>Baseline: parked 12/12, drive 1/1, drift 9/10 (<code>parked_push</code> missed
+0.0161 m vs 0.015 m; isolated rerun passed), 499 package tests, zero failures. Changed
+model: parked 12/12, drive 1/1. A first drift run passed 10/10, but review found
+<code>scan_degraded</code> restored the old mask during recovery; the test now captures
+and restores actual parameters (including exception cleanup). The final rerun passed
+<strong>10/10</strong>. No baseline or threshold was expanded.</dd>
+
+<dt>Round 1 ended with six reported test failures, including a real aiming limitation.</dt>
+<dd>499 tests, four failed GTest cases plus two CTest wrappers:
+<code>UrdfConstants.ArmorRules</code> (103.885 mm &gt; 100 mm) and three
+<code>CvHeadAim</code> cases (<code>RandomAnglesRoundTrip</code>,
+<code>SolvedRayPassesThroughTargetPoint</code>, <code>TargetLevelWithRootIsAimedDownward</code>).
+The unchanged aiming algorithm assumes the muzzle is on the pitch axis; with the forward
+muzzle, ray tests miss by about 7&ndash;53 mm. This was a real limitation, not a tolerance
+to relax (fixed in round 2). All thornbots_pkg and sentry_localization tests pass; the
+field-map fixture passes 2/2. Draft PRs were to stay unmerged until resolved.</dd>
+
+<dt>Worst-case localization p95 got worse after the import in these single runs.</dt>
+<dd>They do not validate the CAD against the Oct 25 physical displacement. The drive
+suite still reports aiming/TF diagnostics when completion gates pass; it is not a
+combat-accuracy test.</dd>
+</dl>
+<table>
+<tr><th>Localization p95</th><th>Baseline</th><th>Imported CAD</th></tr>
+<tr><td>Parked: range across 12 cases</td><td class="n">0.014456&ndash;0.075829 m</td><td class="n">0.008254&ndash;0.112258 m</td></tr>
+<tr><td>Drive: approach</td><td class="n">0.039312 m</td><td class="n">0.084792 m</td></tr>
+<tr><td>Drive: drive</td><td class="n">0.035643 m</td><td class="n">0.038770 m</td></tr>
+<tr><td>Drive: spin</td><td class="n">0.009432 m</td><td class="n">0.017085 m</td></tr>
+</table>
+<dl class="claims">
+<dt>Sparse drift-harness samples are not acceptance gates.</dt>
+<dd>p95 of sparse printed truth-error samples (8&ndash;27 per scenario, including deliberate
+fault injection) were mixed between baseline and CAD, e.g. <code>odom_stuck</code> 2.3955 m vs
+4.13846 m. <code>odom_stuck</code> checks liveness, not accurate recovery. Other scenarios
+(drift_correction, moving_obstacles, real_accel, scan_degraded) are in the commit history.</dd>
+
+<dt>Map and build checks pass.</dt>
+<dd>Both xacro renders pass <code>check_urdf</code>. Regenerating the field map at nominal
+sim scan height 0.357296694 m reproduces the existing PGM byte-for-byte. An unrestricted
+compile was killed for memory (two jobs succeeded); the first container requested eight
+CPUs on a six-CPU VM and cleaned up. No image rebuilt. Exactly thornbots_pkg, sim and
+sentry_localization are bumped.</dd>
+
+<dt>TF sanity: independent review verified geometry to about 2 &micro;m.</dt>
+<dd>Lidar yaws relative to root at head yaw 0/+90/-90&deg; were -0.149533673, +1.421262654,
+-1.720330000 rad (pre-measurement); camera/muzzle yaws equal head yaw. Transformed visual
+vertices, sensor positions, armor radii and head collision-hull containment all checked.</dd>
+</dl>
+<ul>
+<li><a href="https://github.com/Thornbots/thornbots_pkg/pull/30">thornbots_pkg #30</a>
+<code>ec913d14b8b108fad9599f44e475a7d70b74efdb</code></li>
+<li><a href="https://github.com/Thornbots/sim/pull/48">sim #48</a>
+<code>293eb5e50a792f3e08925e4077314411f128e2b9</code></li>
+<li><a href="https://github.com/Thornbots/sentry_localization/pull/20">sentry_localization #20</a>
+<code>d4207c6a1031d9ee6075134d294e6430ca3e24ee</code></li>
+</ul>
+
+<h2 id="round-2-pitch-axis-contract-and-independent-cad-checks">Round 2: pitch-axis contract and independent CAD checks</h2>
+<dl class="claims">
+<dt>The <code>muzzle</code> frame is an aiming origin on the pitch axis; round 1 was wrong.</dt>
+<dd>Round 2 restores <code>(0, 0.00190269, 0)</code> in <code>head_pitch</code> (CAD lateral offset
+only); the bore front stays 172.9764 mm ahead. No aiming algorithm changed. The FK
+fixture's literal origin and pitch-invariant z expectation were updated; the three
+failing aiming assertions and tolerances were not. All aiming tests now pass.</dd>
+</dl>
+
+<h3 id="armor-lower-edge-rule">Armor lower-edge rule</h3>
+<dl class="claims">
+<dt>The 103.885 mm spread is a real violation in the CAD, not an import artifact.</dt>
+<dd>The 100 mm bound is the physical lower-edge rule (S126 in these notes), not a model
+tolerance. Panels attach to <code>base</code> by fixed joints; low/high mount z are
+47.8454/151.7300 mm, already 103.8846 mm apart. Lower edges: low 83.7035&ndash;83.7037 mm,
+high 187.5882&ndash;187.5883 mm, max spread 103.884783 mm (outward faces 103.884837 mm;
+imported scoring rectangle 103.884705 mm). Wheel datum and suspension do not change the
+separation. Tilting worsens it (1&deg; sweep 107.223&ndash;110.233 mm; 5&deg; 120.238&ndash;135.269 mm);
+a numerical minimization finds the minimum near level, not a formal global proof.</dd>
+
+<dt>This is a modeled violation, not measured noncompliance of the robot.</dt>
+<dd>A CAD correction needs at least 3.885 mm less separation (e.g. 1.943 mm per pair).
+That decision was left unresolved at this point and is covered by the accepted deviation
+above. Registered tests reported one failing GTest case plus its CTest wrapper.</dd>
+</dl>
+
+<h3 id="oct-25-head-turn-displacement-offline-evidence">Oct 25 head-turn displacement: offline evidence</h3>
+<dl class="claims">
+<dt>Raw-scan registration reproduces a CAD discrepancy of about 160 mm.</dt>
+<dd>Six settled scans (three near 0, three near +0.65 rad), all nine pairs with three yaw
+guesses, trimmed ICP (closest 80%, under 0.3 m, ranges up to 8 m): 27 fits, retained RMS
+25.9&ndash;32.1 mm. Median effective <code>u = Rz(-delta) l</code> is (-0.202956, -0.104684) m
+versus CAD <code>u</code> (-0.075027, -0.206811) m, a 163.7 mm difference. An earlier
+selection gave (-0.2051, -0.1111) m, 161 mm. A 108-fit sweep over retained fractions
+0.6&ndash;0.9 moves median <code>u</code> only from about (-0.199, -0.111) to (-0.210, -0.101) m.
+These dependent fits give sensitivity ranges, not confidence intervals. Limits: scene
+changes, partial overlap, limited heading separation, nearest-neighbour fitting.</dd>
+
+<dt>The combined CAD translation and yaw is inconsistent with the fits; neither conditional extrinsic is a calibration.</dt>
+<dd>CAD translation held fixed: best direction-only yaw +34.21&deg;, 8.36 mm radius residual.
+CAD yaw held fixed: implied translation (-0.216287, -0.073280) m. (The measured fit above
+later gave 33.84&deg;.)</dd>
+
+<dt>Parked registration constrains <code>u = Rz(-delta) l</code>, not translation and yaw separately.</dt>
+<dd>If scan B registers into A by <code>p_A = R(theta) p_B + t</code>, then
+<code>t = (R(theta)-I) u</code>. Absolute scan-zero yaw is not separately observable from
+parked rotations without an external heading/geometry constraint. The authored FOV yaw
+stays unverified here.</dd>
+
+<dt>Original session CSV fits are diagnostic only.</dt>
+<dd>The original fit implementation is unavailable and its convention cannot be certified from
+the rounded report. Refitting five CSV windows gives head-frame translation
+(-0.2007, -0.1169) m ignoring map yaw, (-0.1844, -0.1261) m with reported SLAM yaw. SLAM yaw
+ratchets from 0 to 0.0942 rad after the positive turn and ends near 0.1082 rad; a
+position-only fit cannot explain that. Positive/negative-turn estimates disagree by
+centimetres. The first recorded TF yaw was about +0.1036 rad but the baseline before the
+deliberate turns was about zero. Raw scans (<code>step4/bag/bag_0.mcap</code>) are from later
+Oct 25, not the &plusmn;90&deg; CSV run; recorded pod displacement between those headings is about 1 mm.</dd>
+
+<dt>What is established and what is not.</dt>
+<dd>CAD-to-head Rz(+90&deg;) is a proper rotation, and converting the CAD -z yaw joint to ROS +z
+reverses its coordinate. Raw scans register at the recorded positive head rotation with small
+residual yaw, so a wholesale reversed yaw sign is poorly supported. Swapping old negative x/y
+gives a vector near the fits, but a swap alone is a reflection and numerical proximity does not
+establish that failure. A wrong yaw-axis location could alter the lever arm; a fixed
+root-position offset cancels. The old head-joint XY offset is 0.196 mm and cannot explain
+this.</dd>
+</dl>
+<p><strong>Open (not run in round 2):</strong> immobilize the chassis, disable patrol and hold
+0 &rarr; +90&deg; &rarr; 0 &rarr; -90&deg; &rarr; 0 for about 3 s per pose. Record <code>/scan_raw</code>,
+<code>/tf</code>, <code>/tf_static</code>, <code>/odom</code> and head joint/MCB pose; fit only settled
+scans, check return repeatability, and include one surveyed target bearing relative to the gun
+and scan centre to separate scan yaw from lever-arm direction.</p>
+
+<h3 id="localization-geometry-audit-and-map-controls">Localization geometry audit and map controls</h3>
+<dl class="claims">
+<dt>No supported yaw or sign mismatch was found in the consumers.</dt>
+<dd>The generated SDF lidar pose (-0.105, -0.193326, 0.101293), yaw -0.149534 rad matches the
+real URDF within 0.327 microradian. Sim head yaw becomes world head yaw in
+<code>pose_emulator</code>, matching the heading-fixed <code>root->head</code> chain. RF2O composes
+live extrinsics into its prior; <code>fixed_heading</code> rebuilds laser pose through them.</dd>
+
+<dt>A stale map slice is unsupported as the regression explanation.</dt>
+<dd>Regeneration at z = 0.3335931, 0.338085694 and 0.357296694 m gives the same PGM as the
+checked-in map (SHA256 <code>f802d689183e715bd13fa06f426b0d0643ec010d7709a118cd6dd17fd98fe9ca</code>);
+the actual-field map fixture passes 2/2.</dd>
+
+<dt>RF2O pyramid sampling is nonstandard and a candidate, unproven, orientation sensitivity.</dt>
+<dd>Decimation centres at previous index <code>2*u</code> but reduced-level angles span the whole
+FOV; at the 45-column level the last centre derives from original index 704 while its angle
+corresponds to 719, a 7.51&deg; discrepancy (720 inclusive beams). Not established as a cause;
+RF2O was not changed.</dd>
+
+<dt>The yaw toggle tests the complete yaw change; matched-mask controls separate effects.</dt>
+<dd>Scan-frame mask 0.32&ndash;1.62 rad held fixed covers head bearings 0.170466327&ndash;1.470466327
+at CAD yaw and 0.32&ndash;1.62 at zero yaw. Temporary overrides were restored after each group.</dd>
+</dl>
+
+<h3 id="opponent-visibility-compatibility">Opponent-visibility compatibility</h3>
+<dl class="claims">
+<dt>Sim #46's visibility tests pass 6/7 against the new assets; the failure is an old-model empirical bound.</dt>
+<dd>Run on a scratch copy of the assets with #46's opponent render-mask expression (active CAD
+branches do not incorporate #46). Self/opponent mask checks pass; <code>test_head_section[0.425]</code>
+fails because that upper slice is narrower in the new CAD (central width median 0.1783 m vs
+0.2255&ndash;0.2321 m at 0.275&ndash;0.375 m). The scan-height neighbourhood stays within #46's bounds.
+Bounds were not relaxed. These tests establish masks and mesh sections, not live renderer
+returns or tracker detection rates; no combined #27/#46 deployment or robot run was done and
+their live acceptance must be repeated when integrated.</dd>
+</dl>
+
+<h3 id="round-2-registered-tests-and-environment">Round-2 registered tests and environment</h3>
+<dl class="claims">
+<dt>499 registered tests, 2 reported failures (the S126 case and its CTest wrapper).</dt>
+<dd>thornbots_pkg 140, sentry_localization 135, sim 224. Built with two compiler jobs in
+<code>isaac-agent-cad-r2</code>, domain 160. Hosted firmware is the same <code>8d46da5</code> ELF
+(<code>2800ac7c&hellip;</code>) via <code>MCB_FIRMWARE_BINARY</code>. Both xacro renders pass
+<code>check_urdf</code>; quality and <code>actionlint</code> pass; no baseline or threshold expanded. An
+initial A/B invocation was refused by suite preflight (registered launch-exit test's clock
+bridge) before starting a stack and was discarded.</dd>
+</dl>
+
+<h3 id="controlled-sim-ab">Controlled sim A/B</h3>
+<p>Localization p95 in <strong>cm</strong>; three values are runs in order; parked is the worst of
+each run's 12 cells. Round-1 rows are earlier single runs, not matched reruns. The drive stage has
+completion/diagnostic gates, not an accuracy gate.</p>
+<table>
+<tr><th>Configuration</th><th>Parked worst-cell</th><th>Drive approach</th><th>Drive</th><th>Spin</th></tr>
+<tr><td>Round-1 baseline, one run</td><td class="n">7.58</td><td class="n">3.93</td><td class="n">3.56</td><td class="n">0.94</td></tr>
+<tr><td>Round-1 CAD, one run</td><td class="n">11.23</td><td class="n">8.48</td><td class="n">3.88</td><td class="n">1.71</td></tr>
+<tr><td>CAD yaw -8.568&deg;, CAD mask</td><td class="n">7.23 / 6.02 / 8.53</td><td class="n">9.58 / 11.38 / 71.31</td><td class="n">2.69 / 2.13 / 2.80</td><td class="n">0.98 / 1.51 / 1.32</td></tr>
+<tr><td>Yaw 0&deg;, same scan-frame mask</td><td class="n">6.42 / 10.08 / 7.73</td><td class="n">21.78 / 23.50 / 21.47</td><td class="n">6.89 / 8.01 / 9.11</td><td class="n">2.65 / 3.78 / 3.54</td></tr>
+<tr><td>Yaw 0&deg;, matched CAD physical sector</td><td class="n">&mdash;</td><td class="n">21.75 / 20.60 / 22.17</td><td class="n">8.46 / 7.64 / 6.44</td><td class="n">4.37 / 3.62 / 4.13</td></tr>
+<tr><td>CAD yaw, old physical sector</td><td class="n">&mdash;</td><td class="n">4.36 / 2.98 / 4.70</td><td class="n">4.72 / 3.30 / 2.20</td><td class="n">0.73 / 2.63 / 1.98</td></tr>
+<tr><td>CAD yaw/mask, old nominal scan height</td><td class="n">&mdash;</td><td class="n">3.90 / 38.81 / 4.18</td><td class="n">2.53 / 3.21 / 2.33</td><td class="n">1.23 / 1.79 / 1.06</td></tr>
+<tr><td>Old sensor config, current CAD model</td><td class="n">&mdash;</td><td class="n">22.10 / 21.35 / 22.96</td><td class="n">8.20 / 9.12 / 10.07</td><td class="n">6.51 / 6.24 / 6.84</td></tr>
+</table>
+<p>Controls change only: <code>zero_mask</code> (lidar yaw 0, mask 0.170466327&ndash;1.470466327 rad);
+<code>old_mask</code> (CAD yaw, mask 0.239533673&ndash;1.559533673 rad, old head-relative 0.09&ndash;1.41);
+<code>old_height</code> (lidar z 0.077589406 m, old plane 0.3335931 m); <code>baseline_sensors</code> (old
+x/y (-0.119391, -0.185010), old plane, yaw 0, old mask; not a full baseline replay, old 0.196 mm
+head-axis offset not restored). All 72 parked cells, six main drive and 12 control drive runs passed
+the native checker with zero lockstep timeouts.</p>
+<dl class="claims">
+<dt>The parked "roughly doubled" worst p95 is not a stable effect.</dt>
+<dd>Three CAD-yaw runs span 6.02&ndash;8.53 cm, overlapping the 7.58 cm baseline. Drive approach
+stays sensitive, with a 71.31 cm CAD outlier retained.</dd>
+
+<dt>The new physical blind sector is the strongest controlled contributor.</dt>
+<dd>Restoring the old physical sector with CAD yaw/height/assets drops approach p95 to
+4.36/2.98/4.70 cm. Zero yaw stays about 21&ndash;23 cm even with the CAD sector preserved, pointing to
+scan-grid/estimator orientation sensitivity as another contributor. Restoring height gave a
+38.81 cm outlier, so it does not establish a height fix.</dd>
+
+<dt>Geometry alone does not explain every outlier; dynamics, startup and estimator interactions are unresolved.</dt>
+<dd>The old-sensor combination does not reproduce the old baseline. Matched poses, identical maps and
+controls do not support a stale-map or omitted-yaw bug. In yaw-zero runs navigation error and AMCL
+correction are both large; aggregate <code>map->root</code> p95 cannot separate RF2O/EKF error from AMCL
+recovery. Old and new ideal field sections (111 segments each) differ by at most 1.577 mm, below
+raster resolution.</dd>
+
+<dt>No mask/yaw/height rollback was committed; the sector needs hardware validation.</dt>
+<dd>The CAD-derived mask is a proposed physical occlusion sector; unmasking it on hardware without
+checking returns could admit self returns. Remaining: physical mount/scan-zero/sector validation and
+estimator robustness, alongside the armor correction. Drafts stay unmerged.</dd>
+
+<dt>Final round-2 drift rerun passes 10/10 in 138.22 s.</dt>
+<dd>Includes noise, degraded-scan recovery and parked-push; <code>odom_stuck</code> is liveness only.
+Signed heads: thornbots_pkg #30 <code>4a9e481cee2abf2220a3807a1d21cd72317d8c87</code>, sim #48
+<code>0e60c632980b756731def50dcae3a22e9cb1703d</code>, sentry_localization #20 unchanged
+<code>d4207c6a1031d9ee6075134d294e6430ca3e24ee</code>; all draft. Container and volumes removed;
+no robot contacted.</dd>
+</dl>
+
+<h2 id="e2e-idle-zone-regression">E2E idle-zone regression</h2>
+<dl class="claims">
+<dt>The parked acquisition failure is a fixture-frame mismatch, not a CAD visibility limit.</dt>
+<dd>After thornbots_pkg #28 removed patrol sweeps, hosted parked paths lie toward world -y but the
+blue idle goal is (-4.625, 0, 0.15), along -x. The detector stand-in applies the camera FOV even
+without rendering; the 90&deg; difference exceeds its 87&deg; horizontal FOV. Treating the generic sim
+spawn heading as the strategy frame was an invalid fixture assumption.</dd>
+
+<dt>Nightly without the CAD fails the same way.</dt>
+<dd>Workspace <code>52489c0</code> with fresh firmware: 5,701 empty panel arrays, no TargetState. Nightly
+controls <code>c3ae0e8</code> and <code>8963533</code> fail the same wait. All three original configurations
+pass drive; the original CAD drive recorded 31 shots, 29 hits, zero lockstep timeouts. The reported
+drive failure was not reproduced.</dd>
+
+<dt>The fix forwards <code>zone_start_x_m</code>/<code>zone_start_y_m</code> through <code>auto.launch.py</code>, for hosted parked only.</dt>
+<dd>Board parked, driving stages and robot defaults keep the field-frame goal. Paths, spawn, movement,
+firmware, CAD geometry, lidar mount/filter and scoring gates are unchanged. Reverting CAD head height,
+camera apex, pitch, muzzle or armor is unsupported.</dd>
+
+<dt>Rotating the paths was rejected.</dt>
+<dd>It restored acquisition, but the footprint at (-1.3, 1.9) comes within 0.104 m of field geometry,
+failing the 0.40 m clearance test. No rotated path or relaxed bound is committed; its logs are
+rejected experiments, not acceptance evidence.</dd>
+</dl>
+<p>Runs use <code>sim/tools/run_suite.sh</code> with <code>backend:=hosted</code>, full default cells,
+and native log checks. Fresh hosted firmware from pinned MCBV3 <code>8d46da5</code> is
+<code>2800ac7c&hellip;</code> (same as round 2); earlier auxiliary runs used another ELF
+(<code>9b0a1df835553b000b1575b1bf7734e86d1ba931ad9f242c76c28964fc03e511</code>) and are labelled
+separately. Earlier attempt: <code>isaac-agent-cad-e2e-fix</code>, domain 155. Hosted runs do not
+establish board or physical-robot acceptance.</p>
+
+<h3 id="resumed-validation">Resumed validation</h3>
+<p>From the pushed fix: thornbots_pkg #30 <code>6a30764e6d7fb631f0bc76a64b02602b570977f2</code>, sim #48
+<code>6dc64ae12fc9a9094dd558c85bef63f9bb461ad6</code>, sentry_localization #20
+<code>9607e2a717658094063335133beda67818d8271c</code>. Workspace #103 had not pinned the fix
+(<code>e4d512da7a28e17570b24f9dfd5cc2cb15f28773</code>). Container
+<code>isaac-agent-cad-e2e-resume</code>, domain 122.</p>
+<table>
+<tr><th>Configuration</th><th>Parked</th><th>Drive</th></tr>
+<tr><td>Nightly <code>8963533</code>, original</td><td>Fails acquisition in 71.81 s, 12 cells unscored (5,655 panel arrays, 4 briefly nonempty, 0 valid target states)</td><td>Passes 30.64 s, 34 shots, 94.12% hits</td></tr>
+<tr><td>Nightly + idle-zone launch wiring only</td><td>12/12 in 234.26 s, 420 shots, min cell hit 70.97%, worst p95 3.224 cm, max displacement 1.389 mm</td><td>Passes 34.35 s, 34 shots, 91.18%</td></tr>
+<tr><td>Pushed CAD fix</td><td>12/12 in 255.44 s, 413 shots, min cell hit 50%, worst p95 5.489 cm, max displacement 2.378 mm</td><td>Passes 35.86 s, 35 shots, 91.43%</td></tr>
+<tr><td>RTF 1, nightly / CAD fix</td><td>&mdash;</td><td>Pass: 38.19 s, 37 shots, 94.59% / 39.82 s, 11 shots, 100%</td></tr>
+</table>
+<dl class="claims">
+<dt>Current nightly is not a passing parked control; the one-factor A/B isolates the launch wiring.</dt>
+<dd>The saved patches add eight sim and twelve robot launch lines. All native checkers accept the fixed/control
+runs with zero lockstep timeouts and unchanged gates. Independent review on archlinux checked both
+package heads and all six stage/backend branches: only hosted parked selects the override.</dd>
+
+<dt>The original drive failure remains unreproduced and its cause unestablished.</dt>
+<dd>RTF 1 passes on both exact nightly and CAD; they reach center. This does not establish repeated
+combat accuracy.</dd>
+
+<dt>The CAD default-speed drive keeps an approach-localization outlier of 33.03 cm.</dt>
+<dd>Then 3.775 cm drive and 1.787 cm spin; at RTF 1: 7.101, 2.950, 0.811 cm. Nightly approach p95 3.849 cm
+(default) and 3.288 cm (RTF 1). Consistent with earlier startup/localization variability, not resolved by the
+idle-zone fix. No tuning or movement change. The drive verdict is diagnostic, not an accuracy gate.</dd>
+
+<dt>Final: 501 registered tests pass, zero errors, failures or skips.</dt>
+<dd>After restoring exact pushed CAD heads, serial build (the cold parallel build was OOM-killed). Quality
+and <code>actionlint</code> pass in workspace, sim, thornbots_pkg and sentry_localization. Task container and
+volumes removed; Colima stayed up for other containers.</dd>
+</dl>
+</main>
+</body>
+</html>

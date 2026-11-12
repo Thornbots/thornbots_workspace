@@ -106,7 +106,7 @@ every ghost at its scenario t=0 pose. [Startup evidence](../sim/docs/e2e-epoch-z
 records its scope. Selector, relay, translator and TF first-data consumption
 gates still need integration and repeatability checks before scored T17 runs;
 the aim timer is not a lockstep chain, so its phase can slip 1 ms. The
-[2026-11-04 aim initialization check](investigations/e2e-aim-epoch-2026-11-04.md) covers that
+[2026-11-04 aim initialization check](investigations/e2e-aim-epoch-2026-11-04.html) covers that
 node independently.
 
 ### Scoring

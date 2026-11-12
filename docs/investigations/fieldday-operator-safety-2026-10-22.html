@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field-day operator safety rehearsal</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Field-day operator safety rehearsal</h1>
+<p class="meta">Investigation · 2026-10-22 · real-field sim, both team starts, no hardware</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Open items below are the
+dated checkpoint, not a maintained action list. Maintained procedure:
+<a href="../../thornbots_pkg/README.md#field-day-and-room-workflow">operator card</a>.</p>
+
+<p>Both real team starts passed the revised SLAM snapshot, field registration,
+AMCL operator workflow after full simulator restarts. These are partial
+start-area maps, not full-field coverage or hardware validation.</p>
+
+<h2 id="changes-and-checks">Changes and checks</h2>
+<dl class="claims">
+<dt>The workflow no longer takes hand-entered seeds and checks the session end to end.</dt>
+<dd><a href="https://github.com/Thornbots/sentry_localization/commit/e8e80cd">sentry_localization e8e80cd</a>:
+waits for fresh raw odometry before EKF startup, validates team/sign/heading
+against boot/referee evidence, ties boot, save and registration to one session
+ID. Explicit saves require returning within 0.15 m / 0.15 rad of boot; autosaves
+use a separate backup directory; unsaved stops warn. Localization runs
+parked-convergence checks and prints a final verdict. The yaw guard rejects
+degrees but accepts negative scientific notation and float32 noise at pi.
+<a href="https://github.com/Thornbots/thornbots_pkg/commit/71a5a19">thornbots_pkg 71a5a19</a>
+forwards safe seeding and backup paths and clarifies the AMCL y default. No
+tuning, firmware, route, movement or odometry-input change.</dd>
+
+<dt>Tests pass, including negative cases.</dt>
+<dd>Dedicated host tests 48 passed; registered package tests 233 passed, zero
+errors/failures/skips. Quality, <code>actionlint</code> and Ruff pass. Negative
+cases cover team, sign, heading, degrees, seed mismatch, stale session/boot pose
+and scientific notation; failed localization stops its process without printing PASS.</dd>
+</dl>
+
+<h2 id="reproduction-and-evidence">Reproduction and evidence</h2>
+<p>Real-field sim, headless Gazebo, sentry_v2, real-time factor 1. Red spawned
+at (-4.625, 0, 0), blue at (4.625, 0, pi). A test-only adapter added
+(+0.12, -0.08) m to raw pose and supplied each referee team to force nonzero
+registration. Each map used a circuit from the team start through
+(sign&times;5.1, 0), (sign&times;5.1, 1), (sign&times;4.625, 1) and back, then
+a 35 s parked head slew; no teleport/reset, firmware or route change. Container
+<code>isaac-agent-operator-safety-20261022</code>, domain 121, removed afterwards.</p>
+<dl class="claims">
+<dt>Registration recovered the injected offset for both teams.</dt>
+<dd>Transforms about (-0.12010, 0.07976) red and (-0.11991, 0.08022) blue.
+Automatic <code>LOCALIZE PASS</code> preceded scoring for both. The blue live
+EKF <code>initial_state</code> began at (4.7449998856, -0.0799999982), matching
+raw odometry, not the surveyed field pose.</dd>
+
+<dt>Parked AMCL passes the existing gate for both teams.</dt>
+<dd>Gate: &ge;95% TF coverage, p95 &le;0.15 m, max &le;0.20 m, head travel
+&ge;1.5 rad, chassis motion &le;0.03 m over untrimmed 30 s.</dd>
+</dl>
+<table>
+<tr><th>Team</th><th>TF coverage</th><th>p95 error</th><th>Max error</th><th>Head travel</th><th>Chassis displacement</th></tr>
+<tr><td>Red</td><td class="n">300/300</td><td class="n">0.009064 m</td><td class="n">0.009317 m</td><td class="n">2.00033 rad</td><td class="n">0.000369 m</td></tr>
+<tr><td>Blue</td><td class="n">300/300</td><td class="n">0.025796 m</td><td class="n">0.028868 m</td><td class="n">2.00035 rad</td><td class="n">0.000369 m</td></tr>
+</table>
+<dl class="claims">
+<dt>Teardown noise and the unsaved-stop warning are not failures.</dt>
+<dd>Blue mapping teardown logged Gazebo parameter-bridge exit -6, a shutdown
+note. A SIGTERM run emitted the unsaved warning and backup path; the ad-hoc
+assertion raced ros2-run's exit, but the warning is in <code>unsaved-stop.log</code>.</dd>
+</dl>
+<p class="meta">Evidence is local to the Mac mini and not published:
+<code>~/ros2_ws/operator-safety-evidence-20261022/</code> (scripts, JSONL,
+boot records, maps, registration manifests, logs, <code>red-session/</code>).</p>
+
+<h2 id="failed-attempts-and-limits">Failed attempts and limits</h2>
+<ul>
+<li>A stationary-only red map left the start cell unknown; alignment correctly
+refused it. A small mapping circuit fixed that; the occupancy gate was not weakened.</li>
+<li>An intermediate harness applied parked accuracy gates to the deliberately
+offset, unregistered mapping frame. Mapping metrics are diagnostic; only the
+registered AMCL runs claim accuracy.</li>
+<li>Blue alignment exposed float32 pi just above double pi. The guard now allows
+1e-6 rad serialization noise (with a regression test) and still rejects degrees.</li>
+<li>Not covered: real hardware, lidar stream consistency, surveyed extrinsics,
+slip, terrain, full-field coverage, broad-field SLAM divergence. No physical-robot
+runs or autonomous movement/firmware changes.</li>
+</ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot registry base and offline overlay</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Robot registry base and offline overlay</h1>
+<p class="meta">Investigation (T29) · 2026-11-01 · <code>ts-nano-dev</code> only, no physical stack</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Open items below are the
+dated checkpoint, not a maintained action list. Maintained procedure:
+<a href="../../isaac_ros_common/docker/README.md#building-the-robots-image">image workflow</a>.</p>
+
+<p>T29 chooses occasional registry pulls and local source overlay builds as the
+supported robot workflow. The image keeps its tested baked application for
+explicit recovery; ordinary source updates no longer rebuild the image.</p>
+
+<h2 id="scope-and-environment">Scope and environment</h2>
+<ul>
+<li>Host <code>ts-nano-dev</code>: Jetson Orin Nano Super, aarch64, 8 GB RAM, six
+cores, NVMe, <code>MAXN_SUPER</code> (unchanged). Campus Wi-Fi over Tailscale; no
+controlled bandwidth benchmark.</li>
+<li>Docker already held a preceding nightly and local base images, so the numbers
+describe a changed-layer pull, not a cold installation.</li>
+<li>Source: branch <code>t3/robot-overlay-workflow</code>, all seven application
+packages from pinned gitlinks in an isolated checkout. No firmware or sim run.</li>
+<li>Manifest <code>ghcr.io/thornbots/isaac-ros@sha256:11e516ae74448627dd6d64e9f5b488c26452566dd7efdfd2039de239adcbe4f1</code>:
+42 layers, 12,482,061,239 compressed bytes total; seven layers downloaded
+(6,747,095,382 bytes by descriptor). Descriptor sizes are not a measured
+network-byte counter.</li>
+</ul>
+
+<h2 id="measurements-and-checks">Measurements and checks</h2>
+<table>
+<tr><th>Operation</th><th>Wall time</th><th>Result</th></tr>
+<tr><td>Changed-layer nightly pull</td><td class="n">416.212 s</td><td>Registry tag updated; base layers reused</td></tr>
+<tr><td>Cached pull + offline compatibility check and pin</td><td class="n">2.640 s</td><td>New nightly matches source dependency inputs</td></tr>
+<tr><td>Clean offline overlay, supported defaults</td><td class="n">426.881 s</td><td>Seven packages built; image readiness marker written</td></tr>
+<tr><td>Offline incremental C++ rebuild</td><td class="n">47.470 s</td><td>Touched <code>dji_serial_bridge_node.cpp</code>; no network, no GPU injection</td></tr>
+<tr><td>Initial clean build, before CUDA fix</td><td class="n">152.668 s</td><td>Failed at YOLO bridge CUDA architecture detection; no ready marker</td></tr>
+</table>
+<dl class="claims">
+<dt>The compatibility check rejects an out-of-date image, as intended.</dt>
+<dd>It rejected the preceding image because <code>sentry_localization/package.xml</code>
+differed from source. The pre-build smoke check reproduced the documented
+shadowing hazard (prefixes resolved to the baked <code>/workspaces/ros2_ws/install</code>).</dd>
+
+<dt>The first clean build failed on CUDA configuration, now fixed in the supported build.</dt>
+<dd>CMake could not infer an architecture with CUDA 13.2.2. The build now selects
+<code>/usr/local/cuda/bin/nvcc</code> and Orin <code>sm_87</code>, with two colcon
+workers and <code>MAKEFLAGS=-j2</code> for the 8 GB board. The failed attempt wrote
+no <code>.robot-overlay-image</code>.</dd>
+
+<dt>The successful builds use the overlay and stay offline.</dt>
+<dd>Clean build: seven packages in 7 min 0 s colcon time (426.881 s includes
+checks, container create/remove and prefix validation). All seven prefixes
+resolved under <code>/workspaces/isaac_ros-dev/install</code>. Incremental: 41.2 s colcon,
+bridge rebuilt in 39.3 s, others reused, no image pull; Docker showed
+<code>NetworkMode=none</code> and no GPU requests. Vendor lidar warnings
+(zero-length arrays, ignored return values) are existing departures from
+standard practice.</dd>
+</dl>
+
+<h2 id="acceptance-boundary-and-robot-state">Acceptance boundary and robot state</h2>
+<dl class="claims">
+<dt>Physical stack startup and restart acceptance remains open; the working-stack end state cannot be claimed.</dt>
+<dd><code>ts-nano-dev</code> had no <code>thornbots.service</code>, camera, lidar or
+model assets, so it validates compilation and package resolution only. SSH to
+<code>ts-nano-sentry</code>, <code>-standard</code> and <code>-hero</code> timed out at
+banner exchange; no commands ran there. The final startup-helper check resolved all
+seven prefixes inside the overlay with no <code>ros2_ws</code> entry in
+<code>AMENT_PREFIX_PATH</code>, and ran no launches. No robot stack was started or
+stopped; no driving, firing or MCB flashing.</dd>
+
+<dt>Dev keeps the prepared image and isolated workspace.</dt>
+<dd>Image (protected by its immutable local base tag) and workspace (140 MB build,
+6.1 MB install, 1.8 MB logs) with matching markers; the original workspace and
+absent service installation are unchanged. Task containers and volumes were removed.</dd>
+</dl>
+
+<h2 id="decision">Decision</h2>
+<ul>
+<li>Pull from the registry explicitly and infrequently: before an event and when
+the offline dependency-input check reports a mismatch.</li>
+<li>Source-only changes build offline against the last pinned compatible image.
+A changed Dockerfile/configuration or dependency manifest needs a compatible
+published image; an upstream CLI/base change needs a new pull and stays a manual
+check for existing images.</li>
+<li>Never attempt a first dependency update without internet at an event. Keep the
+previous compatible source, image and ready overlay in a separate prepared
+workspace as a recovery set; a rebuild mutates its own workspace artifacts.</li>
+<li>Local full-image builds and their compression/cache/USB-versus-reverse-SSH
+optimization questions leave the normal workflow. The legacy build/ship helper
+remains an emergency fallback when the registry cannot supply a compatible image.</li>
+</ul>
+</main>
+</body>
+</html>

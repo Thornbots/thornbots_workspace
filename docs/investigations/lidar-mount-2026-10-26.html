@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lidar mount measurement</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Lidar mount measurement</h1>
+<p class="meta">Investigation · 2026-10-26 · robot session plus sim; the robot was not run again for the implementation</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Open items below are the
+dated checkpoint, not a maintained action list. Supersedes the old zero-yaw
+mount and CAD-only self-filter. Maintained usage:
+<a href="../../thornbots_pkg/README.md#lidar_self_filter">filter owner</a>.</p>
+
+<h2>Measurements</h2>
+<dl class="claims">
+<dt>Translation in <code>head</code> comes from the team's new CAD.</dt>
+<dd>(-0.105, -0.193326, 0.101293) m, XY radius 0.220 m.</dd>
+
+<dt>Scan zero is 0.5907 rad (33.84°) CCW of the gun.</dt>
+<dd>Joint five-pose head-turn fit (<code>headturn-yaw-joint.txt</code>), radius
+0.2225 m; leave-one-out yaw spans 33.33..34.55°. Oct 25 registration gave
+34.2° and the CAD head-outline fit 35.0°. The authored FOV-marker yaw
+-0.149533673 rad (-8.57°) does not describe the driver's scan zero.</dd>
+
+<dt>The new self-filter sector leaks no head hits.</dt>
+<dd>-0.5585..1.0123 rad (-32..58°) in the scan frame: zero head hits on both
+Oct 25 bags and zero near returns live (<code>1a-level-probe.txt</code>). The
+old 0.09..1.41 sector leaked about 8.5 head hits per scan at -10..-1° and
+blanked real returns at 53..81°.</dd>
+
+<dt>Head-turn SLAM displacement fell about fivefold.</dt>
+<dd>At +90/-90°: 18.7/14.0 cm to 3.6/2.6 cm (<code>1c-old-shift.txt</code>,
+<code>1d-new-shift.txt</code>). This A/B used the provisional yaw 0.597, not the
+final joint-fit 0.5907.</dd>
+</dl>
+<p class="meta">Evidence is local to the Mac mini and not published:
+<code>~/ros2_ws/robot-session-20261026/evidence-1/</code>.</p>
+
+<h2>Integration</h2>
+<ul>
+<li><code>thornbots_pkg</code> #32 keeps launch overrides and uses the measured
+defaults in launch, xacro and the standalone filter.</li>
+<li>Sim spawns a separate URDF: its <code>lidarlink</code> must match TF, and its
+gpu lidar has no extra pose. Robot visuals are excluded from the sensor, so the
+shared self-filter supplies the blind sector; the degraded-scan fixture
+restores the measured sector after its temporary occlusion.</li>
+<li>The CAD drafts keep all other imported geometry and the armor stagger hold.
+Merging the measured-mount branch into the CAD branch keeps the launch API and
+identical lidar defaults whichever merges second.</li>
+</ul>
+
+<h2 id="implementation-validation">Implementation validation</h2>
+<dl class="claims">
+<dt>Package tests and one AMCL/rf2o integration pass; this is not an accuracy claim.</dt>
+<dd>thornbots_pkg <code>1c8f9f8</code> (#32): 142 tests; sim <code>280d252</code>
+(#50): 224 tests, 87 skips; zero failures. <code>scenario:=baseline</code>
+passed in 10.98 s and the native checker accepted the logs. The first
+unrestricted sim compile was killed; a two-job rebuild succeeded. Quality and
+<code>actionlint</code> pass; no baseline was expanded. No robot was run and no
+movement logic changed. Container <code>isaac-agent-measured-lidar-20261026</code>,
+domain 100.</dd>
+</dl>
+</main>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentry nightly Jetson checks</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Sentry nightly Jetson checks</h1>
+<p class="meta">Investigation · 2026-10-18 · physical sentry Jetson, partial hardware evidence</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Draft/open status below
+records the dated checkpoint, not a separate maintained action list.
+The initial run observed the already-running stack without firmware changes,
+controller use or actuation; later explicitly authorized flashes are recorded
+below. This is not acceptance of aiming, firing or controller interlocks.</p>
+
+<p class="meta">Raw evidence is local to archlinux
+(<code>~/sentry-deploy/2026-10-18/jetson-validation/</code> and
+<code>~/sentry-deploy/2026-10-18/firmware/</code>) and not published. The
+original record inlined an evidence appendix (A1–A20: log extracts, per-topic
+tables, CSV summaries, collector source); it is kept in git history, not here.
+Jetson journals use EDT (UTC−4).</p>
+
+<h2 id="configuration-and-evidence">Configuration and evidence</h2>
+<dl class="claims">
+<dt>The stack under test was the nightly image, but the MCB firmware was not the pinned source.</dt>
+<dd>Workspace <code>4f9e73a945c99292eaa869d4c38d44dc2b991d1e</code> (clean robot
+tree), image <code>ghcr.io/thornbots/isaac-ros:sha-4f9e73a945c99292eaa869d4c38d44dc2b991d1e-arm64-jetpack</code>
+(ID <code>sha256:aef7f2d8acb4af975dbc2a8e8da2e158b21bf5bdb87dcceeb9d80e43ca355e3e</code>;
+42 layers, arm64). L4T R39.2.1, kernel <code>6.8.12-1021-tegra</code>, MAXN_SUPER,
+TensorRT Python <code>10.16.2.10</code>. Runtime uses the image's
+<code>/workspaces/ros2_ws/install</code> with <code>USE_WS_OVERLAY=false</code>, ROS
+domain 1, mapping, <code>use_rf2o:=true</code>. The source pin for
+<code>firmware/MCBV3</code> (<code>3f14d5b4…</code>) does <strong>not</strong>
+identify what the MCB ran: the previous firmware, exact revision unknown, so
+initial POSE/REF_SYS frame and semantic values are untrusted. No controller-on
+tests were performed.</dd>
+</dl>
+
+<h2 id="method-and-power-recovery">Method and power recovery</h2>
+<dl class="claims">
+<dt>Baseline was 65.166 s of observation with nothing changed.</dt>
+<dd>19:36:15–19:37:20 UTC via Foxglove <code>foxglove.sdk.v1</code>; rate is
+(N−1)/received span per topic. No parameters, models, launch configuration or
+firmware changed. Raw payload images were not streamed; only headers and small
+messages were kept.</dd>
+
+<dt>The battery died mid-run and the restart was an automatic clock-guard recovery, not a crash.</dt>
+<dd>USB vanished 19:37:46 UTC, power returned 19:42:22, NTP stepped the clock
++293.4 s at 19:44:15, the launcher exited 75/TEMPFAIL by design and systemd
+restarted it (<code>NRestarts=1</code>). Shutdown SIGINT errors in that interval
+are not independent crashes. Probes ran in the runtime container with host
+overlay variables cleared and the baked <code>fastdds_udp_only.xml</code> profile;
+a first mixed-overlay probe failed importing custom type support before
+sending anything.</dd>
+</dl>
+
+<h2 id="camera-and-yolo">Camera and YOLO</h2>
+<p>PASS here means the stream or load observation succeeded, not zero loss or
+60 fps raw color/depth acceptance.</p>
+<dl class="claims">
+<dt>Compressed color, camera info and YOLO output arrived near 59-60 Hz.</dt>
+<dd>Compressed color 59.54 Hz (3,858 msgs, 64.78 s; zero inferred missing
+intervals, max 16.8 ms); YOLO arrays 59.07 Hz. Metadata counters missed 2
+(color) and 50 (depth, 11 gaps, max jump 10). Camera-info inferred gaps: 5
+color, 13 depth; YOLO 31. These are observer receipt gaps, not proof of sensor
+drops. ROI arrays were empty in the baseline (no target in view).</dd>
+
+<dt>FAIL to demonstrate 60 fps raw delivery; cause unresolved.</dt>
+<dd>A postboot same-Jetson raw subscriber received <code>/color/image_raw</code>
+at 36.99 Hz (1,517 inferred missing intervals, max gap 201.5 ms) and
+<code>/depth/image_rect_raw</code> at 43.68 Hz (1,065, 134.4 ms), while
+<code>/detections_output</code> reached 57.98 Hz. The observer was a Python
+best-effort UDP subscriber to both large images, so subscriber/transport
+capacity is a plausible limit. Do not call this sensor loss or a 37 fps
+camera. Publisher-side versus observer loss is unresolved; depth 60 fps
+acceptance is open.</dd>
+
+<dt>The 38 MiB TensorRT engine loaded, with a portability warning.</dt>
+<dd><code>yolo11s_fp16.plan</code> initialized successfully; startup warned that
+an engine plan across device models may degrade or deadlock. No rebuild was
+performed.</dd>
+
+<dt>Capture-to-receipt latency was about 33 ms (compressed) and 48 ms (YOLO) median.</dt>
+<dd>YOLO to Foxglove median 47.8 ms, p95 51.4 ms, max 68.7 ms; postboot YOLO to a
+local subscriber 47.7 / 53.7 / 97.9 ms. These include driver, pipeline and
+receipt time and are not isolated inference benchmarks. Inter-host receipt
+ages (archlinux YOLO median 229 ms; about 8 ms clock offset) are not Jetson
+processing latency.</dd>
+</dl>
+
+<h2 id="tracking-and-roi-depth">Tracking and ROI depth</h2>
+<dl class="claims">
+<dt>PASS: a visible illuminated panel gave ROI depth and a steady, valid track.</dt>
+<dd>30 s postboot capture, 1,759 selected-panel messages; depth median
+0.812 m (0.807–0.823 m, p95 0.818 m). 1,652/1,652 TargetState messages valid,
+track ID 1 throughout. The user supplied the panel without a measured
+distance, so <strong>depth accuracy at 1/2/4 m remains untested</strong>.
+Apparent target motion in <code>odom</code> cannot validate tracking accuracy
+while localization itself drifts. Empty baseline arrays preceded a confirmed
+view and indicate no visibility bug.</dd>
+
+<dt>Capture-to-receipt latency of tracker outputs is an estimate, about 53 ms median.</dt>
+<dd><code>/cv/tracker/measurement</code> median 52.7 ms, p95 74.7 ms, max 213.7 ms.
+TargetState's own header is publication time; the proxy paired 3,878 states
+with the nearest measurement within 3 ms, with no shared capture ID. Do not
+present state publication-to-receipt age (1.1 ms median) as camera-to-state
+latency. See the
+<a href="../../thornbots_pkg/README.md#target_tracker">tracker timestamp contract</a>.</dd>
+
+<dt>Restart and serial gaps cause transient TF lookup drops that recover unaided.</dt>
+<dd>192 dropped detections in the first reported window (odom TF lag over 0.4 s,
+later 1 s), then zero drops with capture-to-update mean 50–57 ms. A second
+serial gap at 19:47:40 UTC repeated this (34 and 191 drops, then zero). A
+warning, not a persistent failure.</dd>
+</dl>
+
+<h2 id="lidar-localization-and-tf">Lidar, localization and TF</h2>
+<dl class="claims">
+<dt>Lidar, rf2o and EKF outputs and the TF chain were present.</dt>
+<dd><code>/scan</code> 11.13 Hz, <code>/scan_odom</code> 11.13 Hz,
+<code>/localization/odom</code> 30.00 Hz. TF <code>map→nav_odom→odom→root</code>
+and URDF camera/lidar/muzzle links existed. map→nav_odom was future-dated
+about 0.864 s, consistent with SLAM's 1 s transform tolerance, not by itself a
+freshness bug.</dd>
+
+<dt>FAIL (experimental): localization drifts about 0.85-0.9 m in 60 s with the robot confirmed stationary.</dt>
+<dd>Window 19:52:25.161–19:53:25.161 UTC after an approximately 1 m hand push.
+Net reported motion: <code>/odom</code> 0.893 m, <code>/scan_odom</code> 0.846 m
+(accumulated path 4.42 m, i.e. jitter), <code>/localization/odom</code> and
+<code>map_odom</code> 0.873 m. The marker files cover only the first 30 s
+(0.44 m already, same rate); the last 30 s rest on the user's report of no
+movement. This is an acceptance blocker, but with old firmware frame/semantic
+values untrusted do not blame EKF, rf2o, firmware or frame conversion without
+isolating inputs. No tape measurement or movement marks were supplied, so the
+push is not a scale-accuracy test. Wi-Fi SSH worked with USB down and SSD
+recording continued.</dd>
+</dl>
+
+<h2 id="serial-health-and-ssd-recording">Serial, health and SSD recording</h2>
+<dl class="claims">
+<dt>FAIL/WARN: the diagnostic serial link lost or delayed PINGs.</dt>
+<dd>10 PINGs sent, 7 echoed, 3 unanswered within 70 s; delayed RTTs 1.5-3.5 s
+(two at 5-6 ms). POSE 89.98 Hz and REF_SYS 10.01 Hz arrived (PASS for receipt
+only; semantics untrusted). Root cause not established.</dd>
+
+<dt>Health and recording looked fine over a short window.</dt>
+<dd>16 tegrastats samples over 16.0 s: CPU median 37.6%, GPU 85–96%, RAM
+about 2.5/7.5 GiB, CPU 66–67 °C, GPU 68.2–68.5 °C, input 19.1–19.3 W. No
+thermal-limit acceptance is inferred. SSD bag grew 33.5 MB in 16.04 s
+(1.99 MiB/s; 60 s MCAP splits; 219 GB free). Evidence survived the battery
+loss, but interrupted-MCAP integrity/replay was not tested.</dd>
+
+<dt>No unexplained crash loop; graph enumeration incomplete.</dt>
+<dd>Preloss restarts 0; postboot service restarts 1 (clock guard). Direct
+docker-exec graph enumeration was incomplete and is not proof of missing
+nodes.</dd>
+</dl>
+
+<h2 id="initial-bugs-and-warnings">Initial bugs and warnings</h2>
+<ol>
+<li><strong>Localization blocker:</strong> stationary drift above.</li>
+<li><strong>Serial diagnostic blocker:</strong> 3/10 PINGs unanswered. Recurring
+<code>NO DATA ... ~1000 ms</code> warnings about every 180 s coincide with rf2o's
+missing odom-at-scan-time fallback. Correlation, not diagnosis; firmware
+unmatched.</li>
+<li><strong>Camera delivery unresolved:</strong> raw rates below 60 fps, metadata
+gaps and repeated RealSense libusb EAGAIN warnings. Transport versus source
+loss needs isolation.</li>
+<li><strong>Engine portability:</strong> TensorRT cross-device warning despite
+successful load; validate or rebuild for this Jetson if the model workflow
+requires.</li>
+<li>Transient TF drops recovered. One preboot CRC8 mismatch at 19:31:04 EDT
+(counters read live, not retained); duplicate rf2o logger name and Foxglove
+TensorList schema warning remain.</li>
+<li>Postboot SLAM serialization logged variable lidar range counts (for example
+359 readings, expected 500). Saved-map impact untested; verify reload before
+map acceptance.</li>
+</ol>
+
+<h2 id="initial-sim-to-real-differences-and-promotion">Initial sim-to-real differences and promotion</h2>
+<ul>
+<li>Hardware camera ran about 59.5 fps, not an exact 60 Hz; no Humble hardware
+FPS/latency baseline exists here.</li>
+<li>Stationary drift and real UART stalls are not covered by sim's idealized
+odometry and serial timing; hardware failed this check although topics and TF
+were present.</li>
+<li>A real armor plate gave depth and a valid track, but this does not validate
+calibrated depth or physical aiming.</li>
+<li>Hosted firmware fixtures cannot establish controller-loss behavior.</li>
+</ul>
+<p><strong>Initial promotion assessment: no-go.</strong> Localization drift,
+serial loss/delay, raw-depth delivery, calibrated depth and matched-firmware
+acceptance remain open. The promotion decision is the user's; no main merge was
+performed.</p>
+
+<h2 id="authorized-firmware-follow-up--2010-utc-onward">Authorized firmware follow-up — 20:10 UTC onward</h2>
+<p>The user authorized building the parked-hold fix from
+<a href="https://github.com/Thornbots/MCBV3/pull/97">MCBV3 PR #97</a>, commit
+<code>276e99e0144472d7225f8e0a39776d9749dd7f66</code>, instead of nightly
+<code>3f14d5b</code>. The Jetson image and workspace did not change and the
+localization stack was not reset, so compare increments, not absolute
+positions.</p>
+
+<h3 id="physical-setup-backup-and-build">Physical setup, backup and build</h3>
+<dl class="claims">
+<dt>The flash ran controller-off with motor power on, via a CMSIS-DAP probe.</dt>
+<dd>Controller off, wheels raised or chassis chocked, mechanisms clear. Probe
+Horco CMSIS-DAP (<code>faed:4870</code>), not ST-Link; OpenOCD saw Cortex-M4,
+1024 KiB flash at 2000 kHz SWD using a deployment-only config. Flash began
+20:10:51 UTC, logged Programming Finished and Verified OK, then
+<code>reset run</code>. ELF SHA-256
+<code>281ad265e459817d7ac3072896f59f2316d8dc347a5e1fb82c075137d5b67ce2</code>.
+Initial builds failed on removed <code>telnetlib</code> and an RWX LOAD-segment
+warning; the successful build used CI's Ubuntu linker.</dd>
+
+<dt>A full pre-flash backup exists, but its log does not document the dump.</dt>
+<dd><code>mcb-before-276e99e-20261018.bin</code>, 1,048,576 bytes, SHA-256
+<code>3c2d8280bf2452d49dbda52fdf02445ce7447674135cd6669f96ea4399a398d9</code>.
+<code>backup.log</code> ends after a halt-state warning; only the binary's size
+and checksum were checked. No new backup was taken for later flashes.</dd>
+
+<dt>The user observed motors off after reboot; this is not a CAN-current measurement.</dt>
+<dd>"Motors are all still off", no motion, controller off. Disconnect/reconnect
+interlock acceptance stays outside this controller-off run.</dd>
+</dl>
+
+<h3 id="serial-after-flash">Serial after flash</h3>
+<dl class="claims">
+<dt>PINGs recovered, but intermittent serial stability is not closed.</dt>
+<dd>10/10 PINGs in 3.9–10.8 ms (median 8.1 ms) over 25 s. A two-minute sample
+had POSE 87.0 Hz and REF_SYS 9.67 Hz with maximum gaps 4.01 s and 4.09 s, and
+at 20:14:09 UTC <code>NO DATA ... ~1000 ms</code> and rf2o's prior fallback
+recurred. Frame wiring/calibration accuracy is still unaccepted despite the
+known firmware.</dd>
+</dl>
+
+<h3 id="stationary-chassis-with-moving-people-graded-stability-result">Stationary chassis with moving people: graded stability result</h3>
+<dl class="claims">
+<dt>Raw MCB odometry PASS; rf2o/EKF/map stability in a dynamic scene FAIL; distance accuracy UNTESTED.</dt>
+<dd>Chassis confirmed stationary, people moving nearby, 120 s from 20:12:28.719
+UTC. Net reported displacement: <code>/odom</code> 0.000 m (10,441 msgs,
+constant <code>(-4.625, 0)</code>, <code>ODOM_PODS</code>), <code>/scan_odom</code>
+2.066 m (path 9.48 m), <code>/localization/odom</code> 2.022 m and
+<code>map_odom</code> 2.023 m (path about 2.30 m). Moving people can confound
+scan matching; robust rejection/uncertainty handling is open. This assigns no
+root cause. The user skipped the clean stationary rerun and tape-measured
+push, so neither is claimed, and clean-scene drift is not established.</dd>
+
+<dt>rf2o quality grades were mostly good despite the false motion.</dt>
+<dd>Of 1,336 <code>/scan_odom/quality</code> messages, 976 (73.05%) good, 360
+(26.95%) degraded (mainly <code>valid_fraction</code>; 43 flagged stale
+extrinsics), 0 failed. Valid-point fraction 0.433 / 0.528 / 0.569
+(min/median/max). The internal match grade is not ground-truth confidence.</dd>
+</dl>
+
+<h3 id="confirmed-slam-beam-count-rejection--sim-to-real-gap">Confirmed SLAM beam-count rejection / sim-to-real gap</h3>
+<dl class="claims">
+<dt>SLAM rejects hardware scans because the beam count varies; still present after flash.</dt>
+<dd>Repeated <code>LaserRangeScan contains 356 range readings, expected 580</code>
+(343–359 seen). The observer got 1,335 scans of 340–361 beams, none 580,
+with angular increment 0.01715–0.01760 rad. In
+<a href="https://github.com/SteveMacenski/slam_toolbox/blob/2.8.5/lib/karto_sdk/src/Karto.cpp#L209">Karto 2.8.5 <code>LaserRangeFinder::Validate</code></a>
+that message is followed by <code>return false</code>, so these are rejected
+scans. Logs do not quantify all rejections or prove no map updates occurred.
+Fixed-beam sim scans do not exercise this. The suspected cause is
+<code>angle_compensate</code> false in <code>thornbots_pkg/launch/auto.launch.py</code>;
+that setting is under test. Map updates and saved-map reload on hardware are
+still to verify, and the rejection remains open here.</dd>
+</dl>
+<p>The saved analysis's <code>NOT SCORED</code> verdict predates the revised
+grades above. The original stack stayed active with <code>NRestarts=1</code>
+and no manual restart.</p>
+
+<h2 id="later-firmware-flashes-and-controller-off-checks">Later firmware flashes and controller-off checks</h2>
+<dl class="claims">
+<dt>#97 was superseded by a restore of main's parked hold.</dt>
+<dd><a href="https://github.com/Thornbots/MCBV3/pull/97">MCBV3 #97</a> and
+<a href="https://github.com/Thornbots/thornbots_workspace/pull/63">workspace #63</a>
+closed in favour of <a href="https://github.com/Thornbots/MCBV3/pull/98">MCBV3 #98</a>.
+Main's controller-on hold is the behavior already confirmed on the real robot
+(per the delegating agent's verified report); these controller-off follow-ups
+do not repeat that acceptance. At <code>0e421d8</code> sentry drivetrain and
+controls match main exactly, per #98.</dd>
+
+<dt>Two further flashes verified OK; raw odometry was exactly still after each.</dt>
+<dd>20:59:02 UTC <code>412d10268844e50834c0ae368a3721397d38fd8f</code> (ELF
+<code>45c2efd8…</code>) and 21:17:59 UTC <code>0e421d8484f44644f133979b3d6745c4e943053a</code>
+(#98 head, ELF <code>60490d95…</code>); each <code>flash.log</code> records
+Programming Finished and Verified OK. Bridge POSE resumed at about 90 Hz after
+a roughly 15 s reset gap (delegating agent's report). Raw <code>/odom</code>
+stayed at x −4.625 m, y 0, yaw 0, zero twist: 2,000 samples over 22.3 s
+(<code>412d102</code>), 3,000 over 33.3 s (<code>0e421d8</code>). The
+<code>412d102</code> <code>backup.log</code> records a failed probe attempt, not
+a backup. These checks do not regrade rf2o/EKF/map or measure distance
+accuracy; no controller-on, aiming or firing test was run.</dd>
+</dl>
+
+<h2 id="robot-workspace-and-full-build-follow-up">Robot workspace and full build follow-up</h2>
+<dl class="claims">
+<dt>The robot workspace builds at nightly <code>6f7a166</code>, but the image was not updated.</dt>
+<dd>Per the delegating agent's report, the source workspace moved to
+<code>6f7a166</code> (<code>sim</code> and <code>firmware/MCBV3</code> deinited) and a
+throwaway-container full build passed 19/19 packages, <code>BUILD_RC=0</code>,
+in about 8 min, with only vendored sllidar and GCC psabi warnings. The local
+evidence set does not contain that build log. The robot still runs the
+<code>sha-4f9e73a…</code> image: pulling the <code>6f7a166</code> image failed
+(no ghcr login). The <code>4f9e73a</code>→<code>6f7a166</code> diff is
+CHANGELOG docs plus an <code>isaac_ros_common</code> pin that changes only
+READMEs, so the effective change is docs-only.</dd>
+</dl>
+
+<h2 id="remaining-acceptance">Remaining acceptance</h2>
+<p>Live hardware acceptance is maintained in
+<a href="../ROBOT_TESTS.md#consolidated-hardware-checks">ROBOT_TESTS</a>: T38
+capture/depth/TF, SENTRY-drift, T21 shots/interlocks, T27/T34 boot/recovery and
+MMM-field. The evidence above does not establish promotion readiness. Software
+DDS work is tracked in
+<a href="../ROADMAP.md#d-and-e-acceptance-details">ROADMAP E-discovery</a>.</p>
+</main>
+</body>
+</html>

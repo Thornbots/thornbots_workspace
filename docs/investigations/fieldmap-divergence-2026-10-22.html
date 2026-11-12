@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full-field mapping divergence</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Full-field mapping divergence — 2026-10-22</h1>
+<p class="meta">Investigation · 2026-10-22, follow-up 2026-10-23 · sim only, hardware untested</p>
+
+<p class="status">Historical evidence. Live commitments:
+<a href="../ROADMAP.md">software/sim</a>,
+<a href="../ROBOT_TESTS.md">physical validation</a>. Draft/open status below records the dated
+checkpoint, not a separate maintained action list. Operator instructions:
+<a href="../../sentry_localization/README.md#broad-field-coverage">broad-field coverage</a>.
+Follows the <a href="fieldday-slam-amcl-2026-10-22.html">original field-day rehearsal</a>,
+whose broad failures did not isolate the cause.</p>
+
+<h2 id="summary">Summary</h2>
+<p>The head-mounted lidar violated slam_toolbox's rigid-mount assumption;
+tracking base <code>lidar</code> instead of <code>root</code> fixes that. AMCL
+caches the mount position too (<a href="#amcl-moving-mount">follow-up</a>). A
+separate Gazebo VelocityControl artifact sustains chassis tilt and lifts the
+robot after rough crossings, and continuous planar scan insertion then corrupts
+the map. Pausing insertion during transfers and observing from level, parked
+stations gave a 48.7 m field map with 97.55% reverse coverage within 0.15 m.
+Hardware competition readiness is not established by this sim fixture. No robot
+movement, firmware, production route, noise model, matcher threshold or
+accuracy gate changed.</p>
+
+<h2 id="reproduction">Reproduction</h2>
+<p class="meta">Evidence is local to the Mac mini and not published:
+<code>~/ros2_ws/fieldmap-divergence-evidence-20261022/</code>
+(<code>HARNESS.md</code>, <code>experiment.py</code>, <code>localize_existing.py</code>,
+JSONL, rosbags, <code>analyze.py</code>, <code>scan_geometry.py</code>,
+<code>flight_analysis.py</code>; failures retained) and, for the follow-up,
+<code>~/ros2_ws/fieldmap-finish-20261023/</code> and
+<code>~/ros2_ws/mcb-parked-ab-20261023/SUMMARY.md</code>. Initial heads: workspace
+#90 <code>173776c</code>, sentry_localization #16 <code>50e8eb9</code>,
+thornbots_pkg #24 <code>e4e0fcd</code>, sim <code>c5aa4ba</code>, rf2o
+<code>ddb64de</code>. Isolated container, Gazebo 8.15.0, slam_toolbox
+<code>2.8.5-1noble.20260907.044142</code>, fresh sim per experiment.</p>
+<p>Raw odometry in this zero-slip, zero-noise fixture is derived from truth
+planar position. Truth only steers the teleop route, checks clearance,
+registers the surveyed boot pose and scores localization; it is never a
+localization input. This isolates scan/backend errors and does not validate
+hardware wheels.</p>
+
+<h2 id="moving-mount-failure">Moving-mount failure</h2>
+<dl class="claims">
+<dt>A head-sweeping lidar breaks slam_toolbox when the base is <code>root</code>.</dt>
+<dd>slam_toolbox 2.8.5
+<a href="https://github.com/SteveMacenski/slam_toolbox/blob/2.8.5/src/slam_toolbox_common.cpp#L625"><code>getLaser()</code></a>
+caches a laser by scan frame and
+<a href="https://github.com/SteveMacenski/slam_toolbox/blob/2.8.5/src/laser_utils.cpp"><code>LaserAssistant</code></a>
+sets one offset relative to the base, but <code>root-&gt;lidar</code> changes with
+the head (about 0.22 m lever arm). Refreshing TF alone does not refresh Karto's
+stored offset.</dd>
+
+<dt>Switching the SLAM base to <code>lidar</code> removes the error on a controlled circuit.</dt>
+<dd>Same 8.956 m circuit, 0.30 m/s, raw odometry, head sweeping about ±1 rad;
+only the base changed. The root-base run had truth roll/pitch below 0.002 rad
+yet invented 0.583 rad of map-root yaw and reached 0.946 m error.</dd>
+</dl>
+<table>
+<tr><th>Run</th><th>SLAM base</th><th>Position p95 / max</th><th>Cells within 0.15 m</th><th>Reverse coverage</th></tr>
+<tr><td><code>central-root-sweep-r2</code></td><td>root</td><td class="n">0.7351 / 0.9459 m</td><td class="n">37.56%</td><td class="n">68.37%</td></tr>
+<tr><td><code>central-lidar-sweep</code></td><td>lidar</td><td class="n">0.01154 / 0.01553 m</td><td class="n">100%</td><td class="n">69.64%</td></tr>
+</table>
+<p>With <code>base_frame: lidar</code> the cached offset is identity and each
+stamped <code>nav_odom-&gt;lidar</code> lookup carries head translation and yaw.
+SLAM still publishes <code>map-&gt;nav_odom</code>; the public pose, AMCL and
+rf2o keep the root frame. The angular travel threshold now measures lidar/head
+rotation. Physical tilt and height absent from the planar TF tree remain
+uncorrected. The bug is hardware-relevant (head slew alone reproduced it on flat
+ground) and is not explained by simulated slip or raised regions.</p>
+
+<h2 id="terrain-and-the-artificial-climb">Terrain and the artificial climb</h2>
+<dl class="claims">
+<dt>With the frame fix, continuous insertion on the broad route still corrupts the map.</dt>
+<dd><code>broad-lidar-raw</code> (48.565 m) recovered after crossings but had
+0.4608 m p95 / 1.1013 m max mapping error and spurious cells. Truth reached
+z=0.6091 m, roll=0.7106 rad. Raw/navigation position stayed within 0.265
+micrometres of truth, ruling out wheel drift; all 2,410 scans were well formed
+(720 beams, endpoint error below 0.4 microradians), distinct from the malformed
+Oct 18 hardware scan stream.</dd>
+
+<dt>The sustained climb is a simulator artifact, not a robot behaviour.</dt>
+<dd>Gazebo 8.15.0
+<a href="https://github.com/gazebosim/gz-sim/blob/gz-sim8_8.15.0/src/systems/velocity_control/VelocityControl.cc#L200"><code>VelocityControl</code></a>
+sets velocity every update and the
+<a href="https://github.com/gazebosim/gz-sim/blob/gz-sim8_8.15.0/src/systems/physics/Physics.cc#L3054"><code>Physics</code> system</a>
+rotates the body command through the full chassis orientation, so zero body z
+gives nonzero world z when tilted. At t=194–204 s (roll 0.1394 rad) the model
+predicts measured vertical speed with 0.00000436 m/s RMS residual (mean commanded
+0.0411, observed 0.0313 m/s). The root rose about 0.23 to 0.48 m with over 1 m
+clearance: powered free-space motion, not evidence hardware would climb.</dd>
+
+<dt>Slowing down does not fix it.</dt>
+<dd>At 0.15 m/s <code>broad-lidar-slow</code> still lifted and eventually failed
+the unchanged no-progress guard. Stopping only removes the commanded vertical
+component; the fixture then falls about 1 cm/s.</dd>
+
+<dt>Neither base selection nor a wider search window can recover the missing observations.</dt>
+<dd>Tilted scans hit the floor and an elevated lidar sees over obstacles in the
+nominal-height map; the emulator discards chassis roll, pitch and height.
+Correcting the fixture belongs to simulation movement, outside this task. Real
+rough-ground scan tilt remains an independent hardware risk.</dd>
+</dl>
+
+<h2 id="broad-map-from-level-stations">Broad map from level stations</h2>
+<p>Run <code>broad-lidar-stationary-r2</code>: same route and 0.30 m/s, raw
+input, lidar base. New measurements paused before each transfer; at each
+destination the robot stopped, waited for roll/pitch below 0.015 rad and root
+height within 0.025 m of settled for 2 s, then resumed for a parked head sweep.
+These truth-based readiness checks diagnose the sim and are not an implemented
+hardware attitude sensor. No samples were removed or gates changed.</p>
+<table>
+<tr><th>Mapping method</th><th>Truth distance</th><th>p95 / max</th><th>Cells within 0.15 m</th><th>Reverse coverage</th></tr>
+<tr><td>Continuous</td><td class="n">48.565 m</td><td class="n">0.4608 / 1.1013 m</td><td class="n">93.02%</td><td class="n">96.38%</td></tr>
+<tr><td>Level stations</td><td class="n">48.712 m</td><td class="n">0.04325 / 0.04325 m</td><td class="n">100%</td><td class="n"><strong>97.55%</strong></td></tr>
+</table>
+<p>1,764 occupied cells; observed-to-CAD max 0.04648 m, CAD-to-observed p95
+0.05008 m, over 10,428 CAD cells. Registration uses the captured surveyed boot
+pose, with no ICP, fitted transform or cropping. The remaining 2.45% is
+unobserved coverage, not a relaxed tolerance.</p>
+
+<h2 id="amcl-input-comparison-and-limits">AMCL input comparison and limits</h2>
+<p>Gates: TF coverage at least 95%, p95 at most 0.15 m, max at most 0.20 m;
+parked also chassis displacement at most 0.03 m and head travel at least
+1.5 rad; drive at least 2 m and return within 0.08 m. Missing TF stays in the
+denominator.</p>
+<dl class="claims">
+<dt>Better odometry does not rescue the contaminated continuous map.</dt>
+<dd>Default rf2o/EKF AMCL passed parked (0.03687 m p95) but failed the 21.062 m
+drive at 2.3884 m p95 / 2.6572 m max. Raw-input AMCL reduced the same drive to
+0.15312 m p95 / 0.16793 m max, which still <strong>fails</strong> the 0.15 m gate.</dd>
+
+<dt>The level-station map passes raw-input AMCL parked and drive scoring.</dt>
+<dd>Parked: 0.000362 m p95, 300/300 TF, head travel 2.00 rad. Drive (21.059 m):
+0.07529 m p95 / 0.08266 m max, 986/986 TF, return error 0.03455 m.</dd>
+
+<dt>Coverage is a map comparison, not an AMCL tour of the field.</dt>
+<dd>The drive runs west start, centre and back including rough crossings; it
+does not visit every mapped side/end station.</dd>
+</dl>
+
+<h2 id="follow-up-2026-10-23">Follow-up, 2026-10-23</h2>
+<p>Fresh sim per run via <code>localize_direct.py</code> (the guarded session
+workflow cannot load the 2026-10-22 map); scorer and gates unchanged. Heads:
+sentry_localization <code>90fd717</code> plus this change, workspace
+<code>5d9f69d</code>. <code>DRIVE_SWEEP</code> adds a ±1 rad, 8 s head sweep;
+<code>PARKED_NOMOTION</code> requests 1 Hz AMCL updates while parked.</p>
+
+<h3 id="amcl-moving-mount">AMCL moving mount</h3>
+<dl class="claims">
+<dt>nav2_amcl has a partial form of the SLAM bug.</dt>
+<dd><a href="https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_amcl/src/amcl_node.cpp"><code>addNewScanner</code></a>
+caches the first-scan <code>root-&gt;lidar</code> x/y and never refreshes it;
+<code>updateFilter</code> re-reads only mount yaw. With the lidar 0.22 m off the
+head axis, a head turn of Δ moves the true origin up to 2·0.22·sin(Δ/2) m from
+the cached one.</dd>
+
+<dt>Parked scoring cannot detect it; driving does.</dt>
+<dd>Without odometry motion AMCL adds no motion noise: forced parked updates with
+2.0 rad head travel still scored 0.05 mm p95. Table below.</dd>
+
+<dt>The fix is <code>TrackedMountAmcl</code> in <code>localization_backend</code>.</dt>
+<dd>It sets the laser pose from <code>root-&gt;lidar</code> at the scan stamp
+before AMCL's callback; AMCL keeps <code>root</code> as base so seeds,
+<code>/amcl_pose</code> and convergence gates are unchanged. All runs have 100%
+stamped TF coverage and return within 0.035 m; tracked-mount parked p95 was
+0.02–0.03 mm. Switching AMCL's base to lidar/head would also work but changes
+seed yaw semantics.</dd>
+</dl>
+<table>
+<tr><th>Raw-input AMCL, level-station map, 21.06 m drive</th><th>Head travel</th><th>p95</th><th>Max</th><th>Result</th></tr>
+<tr><td>Cached, no sweep (<code>raw-r2</code>, <code>-r3</code>)</td><td class="n">0.11 rad</td><td class="n">0.0712 / 0.0776 m</td><td class="n">0.0846 / 0.0815 m</td><td>pass</td></tr>
+<tr><td>Cached, sweep (<code>raw-sweepdrive</code>)</td><td class="n">2.03 rad</td><td class="n">0.1404 m</td><td class="n"><strong>0.2048 m</strong></td><td><strong>fail</strong></td></tr>
+<tr><td>Tracked, sweep (<code>fix-sweepdrive-r1</code>, <code>-r2</code>)</td><td class="n">2.00 rad</td><td class="n">0.0724 / 0.0877 m</td><td class="n">0.0997 / 0.0992 m</td><td>pass</td></tr>
+<tr><td>Tracked, no sweep (<code>fix-raw-r1</code>, <code>-r2</code>)</td><td class="n">0.10 rad</td><td class="n">0.0803 / 0.0794 m</td><td class="n">0.1024 / 0.0982 m</td><td>pass</td></tr>
+</table>
+
+<h3 id="input-default">Input default</h3>
+<dl class="claims">
+<dt>rf2o/EKF fails the level-station drive; the workflow now defaults to raw wheel input.</dt>
+<dd>Cached mount: rf2o/EKF drive 0.7599 / 1.0881 m (fail) vs raw 0.0712 / 0.0846 m;
+parked 0.0288 vs 0.00003 m p95. With tracked mount and head sweep rf2o/EKF still
+failed (0.1342 m p95, <strong>0.5211 m</strong> max), so it is not the cache bug
+(rf2o's fork already refreshes its mount per scan). <code>--rf2o</code> is
+opt-in. Sim raw odometry is exact, so this comparison favours raw; on the robot
+slip goes uncorrected in <code>nav_odom</code> and is left to SLAM/AMCL.
+<strong>Why rf2o/EKF fails on this route is not yet isolated.</strong></dd>
+</dl>
+
+<h3 id="mapping-pause">Mapping pause</h3>
+<p><code>operator_workflow pause|resume SESSION</code> replaces the hand-run
+toggle: it reads <code>paused_new_measurements</code>, toggles only when needed
+and verifies afterwards. Live against slam_toolbox in a sim room session each
+call produced the requested state, repeats left it unchanged, and a mismatched
+session was refused without toggling.</p>
+
+<h3 id="regressions">Regressions</h3>
+<p>All with the lidar SLAM base, <code>TrackedMountAmcl</code> and the workflow
+changes; <code>run_suite.sh</code> logs <code>sim_suite_*.log</code>, each
+passing suite trusted by <code>check_bench_log</code>.</p>
+<ul>
+<li><code>colcon test --packages-select sentry_localization</code>: 115 tests, 0 failures.</li>
+<li><code>drift</code> (AMCL, rf2o): 9/9; <code>drift_correction</code> max change 0.0948 m. <code>ekf</code>: 1/1.</li>
+<li><code>mcb_parked</code> (hosted firmware build of pinned, unchanged MCBV3 sources): 12/12; worst cell p95 0.119 m, within the <a href="#parked-odometry-ab">parked odometry spread</a>.</li>
+<li><code>drift backend:=mapping use_rf2o:=false</code>: <strong>4/9 passed, 5 failed</strong>.
+Restoring <code>base_frame: root</code> failed the same five (e.g.
+<code>drift_correction</code> 0.4268 vs 0.4476 m, <code>moving_obstacles</code>
+0.4043 vs 0.4410 m against a 0.4 m limit; <code>odom_stuck</code> 0 m spread in
+both). An existing failure, not introduced here
+(<a href="../../sentry_localization/README.md#why-the-map-based-drift-scenarios-are-hard">why map-based drift is hard</a>).</li>
+</ul>
+<p>Renode <code>mcb_parked</code> was not run: this arm64 image has no ARM GCC;
+the hosted backend matches the workspace nightly runner.</p>
+
+<h3 id="parked-odometry-ab">Parked odometry A/B</h3>
+<p><code>mcb_parked</code> runs AMCL with rf2o/EKF (<code>sim/launch/e2e.launch.py</code>),
+not slam_toolbox. Nine hosted runs, three each of this head (<code>2f348c3</code>),
+the same with <code>base_frame: root</code>, and nightly <code>b88b4ce</code>'s pins
+(sentry_localization <code>f3e4514</code>, thornbots_pkg <code>4054dd0</code>,
+firmware <code>5950960</code>); all 12/12. Diagonal cells, p95 m:</p>
+<table>
+<tr><th>Variant</th><th>stationary</th><th>speed1</th><th>speed2</th><th>speed4</th></tr>
+<tr><td>Head, 3 runs</td><td class="n">0.026-0.048</td><td class="n">0.018-0.063</td><td class="n">0.025-0.082</td><td class="n">0.021-0.088</td></tr>
+<tr><td><code>root</code> base, 3 runs</td><td class="n">0.034-0.085</td><td class="n">0.017-0.081</td><td class="n">0.024-0.092</td><td class="n">0.022-0.133</td></tr>
+<tr><td><code>b88b4ce</code> pins, 3 runs</td><td class="n">0.014-0.060</td><td class="n">0.023-0.073</td><td class="n">0.042-0.085</td><td class="n">0.042-0.102</td></tr>
+<tr><td><code>b88b4ce</code> nightly gate, 1 run</td><td class="n">0.022</td><td class="n">0.020</td><td class="n">0.038</td><td class="n">0.042</td></tr>
+</table>
+<p>Lateral and radial cells stayed at or below 0.072 m. The error is
+<code>nav_odom</code> (rf2o/EKF) drift: AMCL's <code>map-&gt;nav_odom</code>
+correction stayed at or below 0.008 m p95 because parked AMCL never reaches its
+motion update thresholds. Odometry is not reset between cells and diagonal cells
+run last, so error grows with elapsed time, not head speed. <code>b88b4ce</code>
+itself reached 0.102 m; the single gate run was a low draw. See
+<a href="../ROBOT_TESTS.md#parked-localization">robot validation T39</a>.</p>
+
+<h2 id="hardware-risks">Hardware risks</h2>
+<ul>
+<li>Fixed scan geometry, true lidar zero/blind sector, extrinsics, surveyed
+heading, wheel slip, time synchronization and dynamic obstacles remain.</li>
+<li>Pausing insertion needs enough wheel odometry and overlapping views to
+reconnect at the next station; this fixture's exact raw input does not establish
+that margin. Filter convergence is not measured field accuracy.</li>
+<li>AMCL's tracked mount depends on accurate, timely head TF: a stale or wrong
+head angle now moves the modelled sensor origin.</li>
+<li>Real rough-ground tilt is unmodelled in SLAM and AMCL alike.</li>
+</ul>
+</main>
+</body>
+</html>

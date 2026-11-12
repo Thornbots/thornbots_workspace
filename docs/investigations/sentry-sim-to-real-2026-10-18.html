@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentry sim-to-real measurements</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Sentry sim-to-real measurements, 2026-10-18</h1>
+<p class="meta">Investigation · 2026-10-18 · real sentry (<code>ts-nano-sentry</code>) vs sim and hosted firmware</p>
+
+<p class="status">Historical evidence; live work is in
+<a href="../ROADMAP.md">ROADMAP</a> and <a href="../ROBOT_TESTS.md">ROBOT_TESTS</a>.</p>
+
+<p class="meta">Artifacts are local and not published (laptop <code>archlinux</code>):
+<code>~/workspaces/isaac_ros-jazzy/test-hold-ab-2026-10-18/</code> and
+<code>~/sentry-deploy/2026-10-18/</code> (<code>mini-sim/</code>,
+<code>lidar-scan-format/</code>, <code>localization-drift/</code>,
+<code>timing-sim-to-real/</code>). Numbers were copied from those files.
+Firmware <a href="https://github.com/Thornbots/MCBV3/pull/98">MCBV3#98</a>, sim
+<a href="https://github.com/Thornbots/sim/pull/28">sim#28</a>.</p>
+
+<h2 id="parked-hold-firmware">Parked hold (firmware)</h2>
+<p>Sim stage <code>mcb_parked</code>, hosted backend, lockstep; limit chassis
+displacement at most 0.03 m.</p>
+<dl class="claims">
+<dt>Main's peek release makes the parked chassis spin and fail the hold limit; the gate-carrying firmware does not.</dt>
+<dd>MCBV3 <code>412d102</code> (main's hold, nightly's peek/power gates): 3/3
+stationary passed (max 0.000/0.024/0.015 m lateral/radial/diagonal, 122/122 hits)
+and 9/9 moving passed (0.0005–0.0011 m). <code>0e421d8</code> (#98 head, main
+exactly): 0/3 passed, 0.070/0.070/0.067 m, though 120/120 shots hit. Cause: main's
+peek release boots centred manual into keyboard beyblade (fixture spin −12).</dd>
+
+<dt>The Mac mini reproduces it over 12 cells per firmware.</dt>
+<dd><code>0e421d8</code>: 5/12 pass, 0.016–0.073 m (7 cells over 0.03), −12.02 rad/s
+in every cell. <code>f9895ab</code> (<code>feat/drivetrain-power-and-peek-gates</code>):
+12/12, 0.0004–0.0232 m, 0.00 rad/s. The mini ran an unrelated <code>sushi serve</code>
+load during the 0e421d8 run. Laptop and mini displacements for 0e421d8 differ per
+direction (mini 0.069/0.050/0.025 lateral/radial/diagonal), so the spin rate is
+constant while displacement is not.</dd>
+
+<dt>User report on the real robot: main's hold spins in place for minutes without wandering.</dt>
+<dd>Raw <code>/odom</code> is exactly still after both flashes (controller off).</dd>
+</dl>
+
+<h2 id="lidar-scan-format">Lidar scan format</h2>
+<p>RPLIDAR Express mode, 60 s probes on the robot; sim on the Mac mini, 85 s.</p>
+<table>
+<tr><th></th><th>Real default</th><th>Real <code>angle_compensate:=true</code></th><th>Sim</th></tr>
+<tr><td><code>/scan_raw</code> beams</td><td class="n">340–359 (13 distinct counts)</td><td class="n">720 fixed</td><td class="n">800 fixed</td></tr>
+<tr><td>Angle increment</td><td class="n">~1.00–1.01°</td><td class="n">0.5007°</td><td class="n">0.4503°</td></tr>
+<tr><td>Range min / max</td><td class="n">0.05 / 12.0 m</td><td class="n">0.05 / 12.0 m</td><td class="n">0.15 / 12.0 m</td></tr>
+<tr><td>Invalid returns</td><td>inf, 0.36–0.42 of beams</td><td>inf, 0.38–0.44</td><td>none</td></tr>
+<tr><td><code>scan_time</code></td><td class="n">0.084–0.096 s</td><td class="n">0.085–0.097 s</td><td class="n">0.0</td></tr>
+<tr><td>Rate</td><td class="n">11.19 Hz</td><td class="n">11.20 Hz</td><td class="n">10.0 Hz</td></tr>
+<tr><td>Stamp age at receipt</td><td class="n">0.086–0.100 s</td><td class="n">0.086–0.100 s</td><td class="n">0.037–0.108 s</td></tr>
+</table>
+<dl class="claims">
+<dt>Sim differs from real in beam count, increment, range min, invalid-return convention, <code>scan_time</code> and rate.</dt>
+<dd>Sim never triggers slam_toolbox <code>expected N</code> warnings (Karto expected
+is constant 800), so the real warning cannot reproduce there. Real: counter 174 → 181
+in the probe window, up to 499 mismatches per run in the logs; with
+<code>angle_compensate:=true</code> 194 → 195 over 60 s.</dd>
+
+<dt id="fresh-slam_toolbox-with-a-fixed-grid-robot-2026-10-18-17501755-robot-stationary">A fixed 720-beam grid stops the <code>expected N</code> warnings.</dt>
+<dd>Fresh slam_toolbox, robot stationary, 120 s: 0 warnings (baseline 87 → 91 in
+60 s), 720 beams every scan at 11.21 Hz, 25 <code>/map</code> messages (baseline 13).
+<strong>Not shown:</strong> acceptance of later scans. The robot did not move, so the
+graph stays at one vertex in both cases and <code>/pose</code> is silent in both.
+Side effect: the hand-started slam_toolbox wrote to the stack's save path
+<code>/workspaces/isaac_ros-dev/maps/20261018-172133/map.posegraph</code>. The stack
+was restored with <code>systemctl restart thornbots.service</code>.</dd>
+</dl>
+
+<h2 id="stationary-localization-drift">Stationary localization drift</h2>
+<p>Endpoint planar displacement of the scored window, robot/sim parked.</p>
+<table>
+<tr><th>Case</th><th>Raw (m)</th><th>rf2o (m)</th><th>EKF (m)</th><th>Map→root (m)</th></tr>
+<tr><td>Real rerun, 180 s</td><td class="n">0.000</td><td class="n">1.020</td><td class="n">1.025</td><td class="n">1.024</td></tr>
+<tr><td>Archived real, 120 s</td><td class="n">0.000</td><td class="n">2.176</td><td class="n">2.091</td><td class="n">2.091</td></tr>
+<tr><td>Sim, still target, 180 s</td><td class="n">0.000</td><td class="n">0.039</td><td class="n">0.040</td><td class="n">0.040</td></tr>
+<tr><td>Sim, moving target, 180 s</td><td class="n">0.000</td><td class="n">0.054</td><td class="n">0.055</td><td class="n">0.055</td></tr>
+</table>
+<dl class="claims">
+<dt>Leading cause (associational): variable real scan length breaks rf2o, and the EKF has no raw x/y anchor.</dt>
+<dd>Real scans have 335–358 beams (archived 340–361) with
+<code>angle_compensate=false</code>; sim is a fixed 800. rf2o fixes width/FOV from the
+first scan (<code>CLaserOdometry2D.cpp:69</code>) and applies it to every later scan
+(<code>:210</code>), so a shorter scan is read past its valid vector and a longer one
+truncated. The EKF fuses raw yaw/vx/vy but not raw x/y, and rf2o x/y absolute
+(<code>sentry_localization/config/ekf.yaml</code>), so zero raw odom does not anchor
+position.</dd>
+
+<dt>Scan-size normalization/guard is merged (rf2o #10).</dt>
+<dd>The parked-reference follow-up is maintained in
+<a href="../ROBOT_TESTS.md#parked-localization">ROBOT_TESTS T39</a>; the historical
+proposal is not a second backlog.</dd>
+</dl>
+
+<h2 id="serial-camera-and-stamps">Serial, camera and stamps</h2>
+<p>Robot passive; sim on the Mac mini (190 s, camera off, <code>sushi serve</code>
+at ~220% CPU). Clean robot rates come from the run without image subscriptions.</p>
+<table>
+<tr><th></th><th>Real</th><th>Sim</th></tr>
+<tr><td>POSE rate / max gap</td><td class="n">88.1 Hz / 3999 ms (1 gap)</td><td class="n">87.3 Hz / 34.9 ms</td></tr>
+<tr><td>REF_SYS rate / max gap</td><td class="n">9.8 Hz / 4091 ms</td><td class="n">9.7 Hz / 158 ms</td></tr>
+<tr><td>CV_TARGET TX</td><td class="n">40.0 Hz, max gap 57 ms</td><td class="n">38.8 Hz, max gap 49 ms</td></tr>
+<tr><td>CRC errors</td><td>crc8 = 1 of ~241k frames</td><td>not exposed</td></tr>
+<tr><td><code>/scan</code> age p50 / max</td><td class="n">91 / 134 ms</td><td class="n">24 / 31 ms</td></tr>
+<tr><td><code>/odom</code> age p50 / max</td><td class="n">6.6 / 231 ms</td><td class="n">3.0 / 7 ms</td></tr>
+</table>
+<dl class="claims">
+<dt>The real serial link stalls for 4.09 s every 180.0 s; explained, no fix planned.</dt>
+<dd>POSE and REF_SYS stop while <code>cv_target</code> TX continues. The period
+survives a service restart but its phase changed after the MCB flash reset; hosted
+firmware in sim shows none. Explained 2026-10-19 (team): the MCB's periodic IMU
+recalibration (<a href="../../firmware/MCBV3/MCB-project/src/drivers.hpp"><code>ImuRecalibration</code></a>)
+pauses UART output. It does not run in matches.</dd>
+
+<dt>Camera streams are healthy on the robot.</dt>
+<dd>Color/depth <code>camera_info</code> 59.6 Hz, no gap over 100 ms, skew 0.10 ms;
+<code>/detections_output</code> 55.6 Hz, age p50 52.5 / max 251 ms.
+<code>roi_depth_node</code> <code>Depth too stale</code> (0.050 s) rejections: 91 in
+the journal, 82 in the first run with no observer.</dd>
+
+<dt>Timestamp candidates need author confirmation.</dt>
+<dd><code>/cv/target</code> and <code>/dji_serial_bridge/cv_target</code> carry a fresh
+stamp (age 1.8–2.7 ms vs 52 ms on the detections they derive from); sim
+<code>/cv/target_state</code> repeats a stamp on 66% of messages (7246 of 11025).</dd>
+
+<dt>TF lookups at the message stamp mostly fail as "future" on both sides.</dt>
+<dd>250 ms later real is 98–100% OK for non-camera topics. Camera frames to
+<code>odom</code> fail on the robot in every run (not investigated).</dd>
+</dl>
+<p>Live checks: <a href="../ROADMAP.md#b-hit-while-we-move">B-timing</a> and
+<a href="../ROBOT_TESTS.md#lidar-and-camera">SENTRY-drift</a>.</p>
+
+<h2 id="not-measured">Not measured</h2>
+<p>Maintained in <a href="../ROBOT_TESTS.md#consolidated-hardware-checks">T38/B-timing</a>;
+sim stamp propagation remains in <a href="../ROADMAP.md#b-hit-while-we-move">ROADMAP B</a>.</p>
+</main>
+</body>
+</html>
