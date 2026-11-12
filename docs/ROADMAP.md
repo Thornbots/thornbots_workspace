@@ -23,25 +23,13 @@ landed.
   whose AMCL covariance (0.17–0.30 m std in sim) never passes the relay's 0.02 m std gate. Do not loosen the gate
   without a user decision; validate the chosen policy against truth metrics and existing gates.
   [Interface](../sentry_localization/README.md#contract-with-thornbots_pkg), [relay](../thornbots_pkg/README.md#mcb_relay).
-- **T29 — workspace / common — publication validation open:** Run the updated Mac/GitHub image-publication
-  workflow end to end, including the offline overlay gate and the documented emergency local-build/shipping fallback; linting alone did not establish this acceptance. The documented laptop shipping fallback also lacks
-  end-to-end evidence and requires external nonrobot capacity; Mini publication success cannot establish it.
-  Equipped-robot startup is separately tracked in [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
-  [Validation boundary](investigations/robot-overlay-2026-11-01.md); [publication attempt](investigations/robot-publication-2026-11-11.md).
-
-
-## Tracks, in order of work
-
-Order (2026-11-05): R, then the remaining software items and [issues found](#issues-found). Administration is
-independent. Navigation waits until after the Midwest competition.
-
-<a id="localization-policy"></a>
-<a id="h-slam-at-amcls-level"></a>
-
-**Localization (2026-11-05):** AMCL is the match backend; SLAM is second class. Track H (SLAM at amcl's level),
-SLAM tuning and carried-map work are dropped. Map building for AMCL stays in scope.
-
-### R. Real robot against sim
+- **T29 — workspace / common — publication and shipping validation open:** The coordinated fix passed
+  image publication, package tests and the offline overlay gate on its draft branch, and the Mini
+  emergency local image build passed. Validate publication on integrated `nightly` after the package
+  and workspace changes land; validate Mac shipping to a nonrobot destination and laptop shipping
+  with external nonrobot capacity. Equipped-robot startup is separately tracked in
+  [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
+  [Evidence](investigations/robot-publication-2026-11-11.md).
 
 - **R-compare — robot / sim — open:** For each [ROBOT_TESTS](ROBOT_TESTS.md) measurement (drift, moving-aim
   delays, plant response, camera/lidar), run the same scenario in sim on consistent runs ([T17 record](../sim/docs/t17-consistent-runs-2026-11-05.md)), record the
