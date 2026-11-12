@@ -23,7 +23,7 @@ landed.
   and workspace changes land; validate Mac shipping to a nonrobot destination and laptop shipping
   with external nonrobot capacity. Equipped-robot startup is separately tracked in
   [ROBOT_TESTS](ROBOT_TESTS.md#robot-image-workflow).
-  [Evidence](investigations/robot-publication-2026-11-11.md).
+  [Evidence](investigations/robot-publication-2026-11-11.html).
 
 ## Tracks, in order of work
 
@@ -41,8 +41,7 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 - **R-compare — robot / sim — open:** For each [ROBOT_TESTS](ROBOT_TESTS.md) measurement (drift, moving-aim
   delays, plant response, camera/lidar), run the same scenario in sim on consistent runs ([T17 record](../sim/docs/t17-consistent-runs-2026-11-05.md)), record the
   differences in a dated investigation, and fix whichever side is wrong. The original Mac/Archlinux same-hit-sequence
-  comparison remains an external dependency and is not claimed from Mini repeats. Prior comparison:
-  [sim to real, 2026-10-18](investigations/sentry-sim-to-real-2026-10-18.md).
+  comparison remains an external dependency and is not claimed from Mini repeats.
 - **SIM-plant-model — sim / firmware — blocked on physical measurements:** Apply measured tire/braking/suspension
   and board gimbal/indexer response to the simulation, then rerun affected plant and combat regressions under
   existing limits. Depends on [SIM-plant-calibration](ROBOT_TESTS.md#consolidated-hardware-checks); measurement

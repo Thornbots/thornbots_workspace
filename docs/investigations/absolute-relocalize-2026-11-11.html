@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Absolute field RELOCALIZE</title>
+<link rel="stylesheet" href="../assets/doc.css">
+</head>
+<body>
+<main>
+<h1>Absolute field RELOCALIZE — 2026-11-11</h1>
+<p class="meta">Investigation · 2026-11-11, resume audit 2026-11-12 · sim and hosted firmware only, no physical robot run</p>
+
+<p class="status">Gate values approved by the user and integrated on <code>nightly</code>
+2026-11-12; no physical robot run yet
+(<a href="../ROBOT_TESTS.md#parked-localization">T41</a>). Baseline workspace
+<code>2c48a82</code> (<code>origin/nightly</code>).</p>
+
+<p class="meta">Evidence is local and not published: raw archive
+<code>log/absolute-amcl/evidence.tar.gz</code> in the task worktree (ignored
+output, SHA-256 <code>c07357df…560b0</code>; failed exploratory runs, inherited and
+new baseline repeats, final repeats, traces, suite logs, source snapshots, runtime
+identities) and <code>/tmp/amcl-boot-baseline-2026-11-11.tar.gz</code> (original
+startup/blank-mapping baseline). Published:
+<a href="absolute-relocalize-2026-11-11-artifacts.json">artifact manifest</a>,
+<a href="absolute-relocalize-2026-11-11-measurements.csv">measurement CSV</a>.</p>
+
+<h2 id="decision-and-frame-contract">Decision and frame contract</h2>
+<dl class="claims">
+<dt>RELOCALIZE carries the AMCL-corrected absolute field position.</dt>
+<dd>The local EKF pose alone cannot correct global drift. Firmware already treats
+x/y as absolute and replaces a translation-only navigation offset, so the UART
+payload and board behaviour are unchanged.</dd>
+
+<dt>The adapter composes the correction at backend capture time.</dt>
+<dd>It pairs backend <code>map-&gt;root</code> with interpolated
+<code>nav_odom-&gt;root</code> at the backend stamp and composes the planar
+correction with each current EKF input. This avoids AMCL's future-dated TF and
+removes the unbounded latest-TF fallback. The relay rotates raw displacement by
+the correction yaw; neither raw aim odometry nor <code>nav_odom-&gt;odom</code>
+gets a yaw correction.</dd>
+
+<dt>Blank mapping has no absolute source.</dt>
+<dd>Mapping, blank-map SLAM and <code>none</code> keep team-start navigation.
+Waypoint arrival reads the relay's nominal held-position estimate. UART has no
+acknowledgement, so temporary disagreement after a lost fix is possible until a
+fresh retry; the estimate is not actual navigation feedback.</dd>
+
+<dt>Missing history or expired covariance yields an invalid result, not a wait.</dt>
+<dd>NaN position and infinite covariance at that input stamp make the relay emit
+a none-mark and release the lockstep chain. AMCL particle/callback timing stays
+nondeterministic.</dd>
+</dl>
+<p>Contracts:
+<a href="../../sentry_localization/README.md#contract-with-thornbots_pkg">localization</a>,
+<a href="../../thornbots_pkg/README.md#mcb_relay">relay</a>,
+<a href="../../nav_pkg/README.md#frames">arrival</a>,
+<a href="../../ros2_dji_serial_bridge/UART_PROTOCOL.md#message-types">UART</a>.</p>
+
+<h2 id="measurement-method">Measurement method</h2>
+<p>A both-team moving case runs Gazebo scans, the real rf2o/EKF/AMCL stack, the
+real UART bridge and compiled hosted sentry firmware: drop the first startup
+RELOCALIZE, then two 0.6 × 1.2 m loops at 0.4 m/s with 15% pod scale error and
+0.025 m/s accumulating x bias.</p>
+<ul>
+<li>Score is actual firmware <code>odo.getX()/getY()</code> read through the
+private hosted MappingStatus socket against current hardware truth (status is
+one 5 ms tick old, about 2 mm at 0.4 m/s). It includes gate holds, dropped
+frames and the single receive slot; it is not reconstructed from TF or the relay.</li>
+<li>The delivered-target-vs-firmware metric includes observation lag and does not
+prove every target survived the firmware mailbox.</li>
+<li>Before runs use unmodified nightly runtime sources plus the same readout
+fixture, rebuilt from baseline gitlinks in an isolated overlay. Three trusted runs
+per team before and after; native log-check failures invalidate a case. The
+supplied startup archive has no held-position metric and is not used to invent
+moving before values.</li>
+</ul>
+
+<h2 id="proposed-gate-values-and-evidence">Proposed gate values and evidence</h2>
+<table>
+<tr><th>Policy</th><th>Value</th><th>Evidence and limit</th></tr>
+<tr><td>xy std ceiling</td><td>0.35 m</td><td>Before runs reached 0.231 m, after 0.219 m, prior trace 0.17–0.30 m; the old 0.02 m ceiling rejects AMCL. A review margin, not a calibrated confidence bound.</td></tr>
+<tr><td>Pose/raw age</td><td>0.20 s; future 0.05 s</td><td>Repeated pose age at most 0.059 s.</td></tr>
+<tr><td>Backend covariance lifetime</td><td>1.0 s</td><td>Backend-age p95 0.556–0.736 s; samples to 1.103 s correctly give invalid results until fresh data. Fresh no-motion AMCL scan updates requested at age 0.5 s, at most twice per ROS second, including when the first publication was missed.</td></tr>
+<tr><td>Startup</td><td>stable offset 0.10 s within 0.15 m; within 1.0 m of referee start + raw displacement</td><td>A repeat accepted an initially uncertain AMCL basin about 9 m away; stability/covariance alone passed it, the prior rejects it. Exempt from step caps.</td></tr>
+<tr><td>Update trigger</td><td>max(0.10 m, 0.5 × predicted std)</td><td>A 3-sigma deadband would hold roughly 0.6–0.9 m error. Supported by measured improvement, not a significance test.</td></tr>
+<tr><td>Post-start jump / step</td><td>1.0 m / 0.30 m</td><td>Delivered-vs-held steps reach 0.108 m; unit tests prove jump rejection. Not calibrated against kidnapping or high-speed physical faults.</td></tr>
+<tr><td>Hold / refresh</td><td>0.30 s / 1.0 s</td><td>Bounds rate and held time and allows recovery without acknowledgement.</td></tr>
+</table>
+<p>The mapping fallback keeps the existing 0.02 m / 0.05 m / 3-sigma policy. The
+moving fixture's accuracy gate is held-position p95 below 0.35 m. UART latency
+(5 ms), firmware read delay (2 ms) and spread (3 ms) are robot timing estimates.
+These runs validate the joint policy; they do not isolate each threshold or
+calibrate AMCL covariance coverage.</p>
+
+<h2 id="findings-during-implementation">Findings during implementation</h2>
+<dl class="claims">
+<dt>AMCL's stationary prior can report covariance near −1e-12 m².</dt>
+<dd>A 1e-9 roundoff tolerance accepts it; materially negative or nonfinite
+covariance is still rejected.</dd>
+
+<dt>Exact TF lookup at the input stamp cannot bootstrap.</dt>
+<dd>The first transform is future-dated by <code>transform_tolerance</code>;
+same-stamp composition removes the dependency.</dd>
+
+<dt>A parked AMCL backend publishes nothing unless asked.</dt>
+<dd>In a red startup diagnostic only 12 inputs (about 0.37 s) were usable before
+covariance expired; the first fix was dropped with no retry. No-motion scan
+requests restore a fresh source instead of extending the lifetime. The
+<code>replacement</code> run missed the initial publication (<code>backend=0</code>
+throughout); localization <code>a57f186</code> extends refresh to a missing
+backend, with an installed-node test.</dd>
+
+<dt>The firmware's shared receive mailbox is a nonstandard loss point.</dt>
+<dd>A successful Jetson publish is not proof of application, so the metric reads
+actual firmware state.</dd>
+
+<dt>A wrong AMCL basin was accepted despite small covariance.</dt>
+<dd><code>replacement-2</code>: held-position RMS/p95/max 8.841/9.856/9.990 m.
+Relay <code>2aace64</code> adds the referee-start prior and a regression with
+that wrong position. No automatic global reset is added; persistent basin failure
+needs source recovery or operator intervention.</dd>
+
+<dt>The existing EKF fixture was wrong before and after this work.</dt>
+<dd>Truth booted at the loop centre while navigation used the blue start, and
+raw-zero POSE was compared with absolute truth (4.251 m fused mean error). The
+repaired fixture uses its known spawn for seeding and raw translation.</dd>
+
+<dt>Some exploratory runs were excluded.</dt>
+<dd>An occasional PING round-trip over the 100 ms gate and Gazebo teardown
+needing SIGTERM/SIGKILL; gates and baselines were not relaxed and affected cases
+are retained but excluded from trusted accuracy.</dd>
+</dl>
+
+<h2 id="validation-and-open-decisions">Validation and open decisions</h2>
+<ul>
+<li>Not established: doorway clearance, high-speed physical relocalization, robot
+UART timing, behaviour after a sustained &gt;1 m global jump (rejected until a
+plausible source returns or an operator recovers). Package CI dependency pins
+must be refreshed in coordinated integration before promotion.</li>
+<li>Combined package tests: <strong>740 tests, zero errors/failures, 14 existing
+skips</strong>. Firmware: 92 unit, 45 hosted regressions, 3 handshake tests. All
+six packages and the workspace pass the Python 3.12 checker and
+<code>actionlint -shellcheck=""</code>; no baseline expanded.</li>
+<li>Full AMCL/rf2o localization/drift suite passed its existing gates. EKF
+ground-truth over 24 legs: raw mean/RMS/max 0.2354/0.2588/0.4852 m, fused
+0.0618/0.0619/0.0658 m, mean improvement 73.7%, direction error 0.1° mean, 0.2° max.</li>
+<li>Final hosted parked cell: <strong>250/252 shots hit</strong>, 16,188 lockstep
+holds, zero timeouts, no latest-TF fallback. An earlier five-second diagnostic
+missed its only shot and failed the unchanged hit-rate gate. Neither implies a
+full combat-grid pass.</li>
+</ul>
+
+<h2 id="resume-audit--2026-11-12">Resume audit — 2026-11-12</h2>
+<p>The failure fixes and six package draft PRs already existed; no runtime change
+was needed. Both final startup cases drop exactly one fix, recover through a
+fresh retry and keep the overridden red/blue starts; at a goal equal to the
+accepted fix, firmware commanded speed was 0.00141/0.00138 m/s. Both blank-map
+cases publish map (0, 0) and hold firmware within 0.001 m of the field starts.
+The startup baseline archive's four cases also pass but predate the firmware
+readout. Package workflows target PRs into <code>main</code>, so the drafts into
+<code>nightly</code> have no GitHub checks scheduled; local results are the
+validation evidence.</p>
+
+<h2 id="final-moving-comparison">Final moving comparison</h2>
+<p>Held firmware position vs truth, pooled RMS over three runs per team; every
+case dropped one startup fix and passed its native checker.</p>
+<figure>
+<div class="legend"><span style="--c: var(--series-1)">before</span><span style="--c: var(--series-2)">after</span></div>
+<svg viewBox="0 0 640 124" width="100%" role="img" aria-labelledby="chart-m">
+  <title id="chart-m">Pooled RMS held-position error vs truth, before vs after, red and blue team</title>
+  <g transform="translate(90,8)">
+    <line class="grid" x1="0" y1="0" x2="0" y2="108"/>
+    <!-- scale: 400 px = 0.35 m -->
+    <text x="-10" y="38" text-anchor="end">Red</text>
+    <rect x="0" y="8" width="352" height="16" rx="2" fill="var(--series-1)"><title>Red before: 0.3079 m</title></rect>
+    <text class="val" x="358" y="21">0.3079 m</text>
+    <rect x="0" y="26" width="99" height="16" rx="2" fill="var(--series-2)"><title>Red after: 0.0867 m</title></rect>
+    <text class="val" x="105" y="39">0.0867 m</text>
+    <text x="-10" y="95" text-anchor="end">Blue</text>
+    <rect x="0" y="64" width="318" height="16" rx="2" fill="var(--series-1)"><title>Blue before: 0.2782 m</title></rect>
+    <text class="val" x="324" y="77">0.2782 m</text>
+    <rect x="0" y="82" width="100" height="16" rx="2" fill="var(--series-2)"><title>Blue after: 0.0873 m</title></rect>
+    <text class="val" x="106" y="95">0.0873 m</text>
+  </g>
+</svg>
+<figcaption>Falls 71.9% (red) and 68.6% (blue). Pooled RMS, not an average of percentiles.</figcaption>
+<details><summary>Table view</summary>
+<table>
+<tr><th>Team</th><th>Repeat</th><th>Before RMS / p95 / max (m)</th><th>After RMS / p95 / max (m)</th></tr>
+<tr><td>Red</td><td>1</td><td class="n">0.3074 / 0.5543 / 0.5840</td><td class="n">0.0845 / 0.1377 / 0.1501</td></tr>
+<tr><td>Red</td><td>2</td><td class="n">0.3083 / 0.5563 / 0.5876</td><td class="n">0.0875 / 0.1413 / 0.1534</td></tr>
+<tr><td>Red</td><td>3</td><td class="n">0.3080 / 0.5560 / 0.5874</td><td class="n">0.0879 / 0.1624 / 0.1729</td></tr>
+<tr><td>Blue</td><td>1</td><td class="n">0.2954 / 0.5388 / 0.5548</td><td class="n">0.0848 / 0.1612 / 0.1961</td></tr>
+<tr><td>Blue</td><td>2</td><td class="n">0.2871 / 0.5296 / 0.5470</td><td class="n">0.0935 / 0.1628 / 0.1982</td></tr>
+<tr><td>Blue</td><td>3</td><td class="n">0.2501 / 0.4440 / 0.4773</td><td class="n">0.0831 / 0.1612 / 0.1787</td></tr>
+</table></details>
+</figure>
+<p>Per-run after p95 stays below the 0.35 m gate. Before delivers 3–5 fixes per
+case; after delivers 23–27, including fresh retries. Before used the rebuilt
+baseline overlay; after used the package heads in the
+<a href="absolute-relocalize-2026-11-11-artifacts.json">artifact manifest</a>; the
+<a href="absolute-relocalize-2026-11-11-measurements.csv">measurement CSV</a>
+has full-precision samples. The task container and volumes were removed after
+archiving and Colima stopped. Nothing was merged or pushed to <code>nightly</code>.</p>
+
+<h2 id="draft-review-stack">Draft review stack</h2>
+<p>Package changes pushed before their workspace gitlink bump:</p>
+<ul>
+<li><a href="https://github.com/Thornbots/MCBV3/pull/139">Firmware hosted readout</a></li>
+<li><a href="https://github.com/Thornbots/sentry_localization/pull/48">Absolute localization adapter</a></li>
+<li><a href="https://github.com/Thornbots/thornbots_pkg/pull/74">Relay and startup prior</a></li>
+<li><a href="https://github.com/Thornbots/nav_pkg/pull/5">Held-position arrival</a></li>
+<li><a href="https://github.com/Thornbots/sim/pull/101">Simulation metric and fixture frames</a></li>
+<li><a href="https://github.com/Thornbots/ros2_dji_serial_bridge/pull/45">UART contract</a></li>
+</ul>
+</main>
+</body>
+</html>
