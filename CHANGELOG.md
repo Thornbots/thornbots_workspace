@@ -12,6 +12,13 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** Firmware skips non-finite odometry pod readings
+  instead of integrating them, marks navigation not localized and refuses
+  RELOCALIZE until readings are valid again, so AutoDrive stops until the next
+  accepted RELOCALIZE (about 1 s with the current relay). Not yet run on a
+  robot; deploy firmware
+  ([MCBV3 #137](https://github.com/Thornbots/MCBV3/pull/137)).
+
 - **Real-robot behavior:** UART RELOCALIZE now sends the absolute AMCL field
   position instead of the drifting EKF `nav_odom` estimate, behind gates sized
   for AMCL (std ≤ 0.35 m, age ≤ 0.20 s, 1 m jump / 0.30 m step limits, 1 s
