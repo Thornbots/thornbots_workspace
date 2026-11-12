@@ -12,6 +12,14 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** Sentry must run the restored upright lidar defaults
+  to localize with its remounted sensor. The translation, yaw, blind sector
+  and floor-to-scan height have not been remeasured on the robot since the
+  remount; validate them before relying on localization
+  ([thornbots_pkg #75](https://github.com/Thornbots/thornbots_pkg/pull/75),
+  [sim #102](https://github.com/Thornbots/sim/pull/102),
+  [sentry_localization #49](https://github.com/Thornbots/sentry_localization/pull/49)).
+
 - **Real-robot behavior:** The Season 2 side wall moves to its rule-book
   position and the shipped `clean_map`, the robot's default AMCL map, is
   regenerated to match. AMCL drives RELOCALIZE, so field positions near that

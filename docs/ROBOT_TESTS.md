@@ -102,11 +102,11 @@ UART/camera delay on the robot before selecting physical latency compensation.
 
 ## Consolidated hardware checks
 
-- **LIDAR-mount — bringup / localization:** Measure flipped-mount yaw with a head-turn fit, nose-up/down self-filter
+- **LIDAR-mount — bringup / localization:** Revalidate the restored upright mount translation and yaw with a head-turn fit, nose-up/down self-filter
   sectors and floor-to-scan height; update the map slice only from the measurement. Inspect `/scan_raw` between
   0.05–0.15 m before lowering the retained 0.15 m filtering margin. Validate fixed-heading rf2o against real chassis
   yaw drift, head still/slewing and moving scans. Depends on T38 and surveyed field registration.
-  [Flipped-mount evidence](investigations/lidar-flip-2026-10-31.md#robot-measurement),
+  [Upright-mount evidence](investigations/lidar-mount-2026-10-26.md),
   [range rationale](../sentry_localization/README.md#configslamyaml).
 - **T23 (continued):** Observe a real referee-triggered hit turn and verify head-idle rf2o steps near the measured
   0.7 mm still-head baseline. Measure detection range and time-to-first-detection; do not enable stage 4 from sim
