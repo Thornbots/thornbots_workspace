@@ -764,8 +764,7 @@ a dated release section when promoting the workspace to main.
 
 - Live dated investigations are now HTML pages with a shared stylesheet, cut
   to claims linked to their evidence. The 21 historical or superseded
-  investigations and audits moved to a local Mac mini archive, with every
-  pointer removed ([sim #105](https://github.com/Thornbots/sim/pull/105),
+  investigations and audits are deleted, with every pointer removed ([sim #105](https://github.com/Thornbots/sim/pull/105),
   [thornbots_pkg #77](https://github.com/Thornbots/thornbots_pkg/pull/77),
   [sentry_localization #50](https://github.com/Thornbots/sentry_localization/pull/50),
   [serial bridge #47](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/47)). Charts
