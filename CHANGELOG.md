@@ -12,6 +12,11 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** The armor tracker keeps the second armor-pair radius
+  in its filter state, so both radii retain their uncertainty across panel
+  handoffs instead of being reset. Not yet run on a robot
+  ([thornbots_pkg #72](https://github.com/Thornbots/thornbots_pkg/pull/72)).
+
 - **Real-robot behavior:** Firmware skips non-finite odometry pod readings
   instead of integrating them, marks navigation not localized and refuses
   RELOCALIZE until readings are valid again, so AutoDrive stops until the next
