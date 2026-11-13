@@ -12,6 +12,18 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** rf2o recovers when the robot clock jumps backward
+  by more than 1 s: it resets its scan, odometry and head-TF history and keeps
+  its last pose instead of failing. Wheel fallback also recovers once buffered
+  odometry covers a scan. Parked reference scans stay off on the robot;
+  enabling them is held for the parked robot test in
+  [sentry_localization #18](https://github.com/Thornbots/sentry_localization/pull/18).
+  In sim with references on, they hold one anchor per parked head sweep,
+  expire it after 7.5 s and drop degraded matches; long parked patrols drift
+  8–13 mm instead of 56–77 mm with references off. Not yet run on a robot
+  ([rf2o #18](https://github.com/Thornbots/rf2o_laser_odometry/pull/18),
+  [sim #44](https://github.com/Thornbots/sim/pull/44)).
+
 - **Real-robot behavior:** Sentry aim follows and leads facing armor panels on
   spinning targets. Reflash the MCB firmware to apply; physical robot validation
   is pending. The sim aiming bench follows firmware defaults and retains an
@@ -784,6 +796,13 @@ a dated release section when promoting the workspace to main.
   passed at that revision; parked hit-path repeatability remained unresolved.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
+
+- rf2o unit tests run as separate startup, reference-motion,
+  reference-lifecycle and clock-reset executables with 120 s limits, and sim
+  adds an opt-in `long_park_patrol` scenario (3-minute park with obstacle
+  crossings, head patrol and a wheels-held shove)
+  ([rf2o #18](https://github.com/Thornbots/rf2o_laser_odometry/pull/18),
+  [sim #44](https://github.com/Thornbots/sim/pull/44)).
 
 - The field STEP export places the blue Bumpy Road mirror correctly (it was
   stacked on the red side) and the placeholder donut pole sweeps along one
