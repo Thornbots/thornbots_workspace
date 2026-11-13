@@ -12,6 +12,18 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** The target manager assigns and clears tracked targets,
+  and the MCB replans aim continuously with a full-panel impact gate. Above
+  |yaw_rate| = π/2 rad/s it switches from panel chase to fixed crossing-line
+  shot-gating, retaining measured-impact and crossing-window checks. The wire
+  contract changed: reflash the MCB with matching Jetson packages. Type C cycle
+  cost remains to be measured on the board; robot validation is pending
+  ([MCBV3 #141](https://github.com/Thornbots/MCBV3/pull/141),
+  [thornbots_pkg #76](https://github.com/Thornbots/thornbots_pkg/pull/76),
+  [bridge #46](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/46),
+  [sim #107](https://github.com/Thornbots/sim/pull/107),
+  [sim #106](https://github.com/Thornbots/sim/pull/106)).
+
 - **Real-robot behavior:** the sentry boot pitch reads correctly with the new
   pitch encoder zero (`PITCH_OFFSET` -0.26): firmware now wraps the boot
   encoder reading by one pitch-motor turn for every robot, so a level head no
