@@ -447,6 +447,15 @@ a dated release section when promoting the workspace to main.
 
 ### Medium — notable features and fixes
 
+- sim lockstep no longer fails slow runs. `lockstep_coordinator` waits on
+  live producers however long their wall-clock work takes; it fails at once,
+  naming the topic, when a producer exits, and only after a 60 s deadlock
+  guard when one is stuck. The gate times out only on coordinator silence,
+  `bench_world` uses the same guard, and `e2e_suite` fails as soon as its
+  stack exits instead of hanging. Fixes `mcb_parked` timeouts at cell
+  boundaries under host load
+  ([sim #108](https://github.com/Thornbots/sim/pull/108)).
+
 - rf2o no longer carries a permanent offset when the robot moves before its
   first scan, or when rf2o restarts while moving. It used to latch the first
   `/odom` pose and initialize from a later scan; it now seeds at that scan's
@@ -775,6 +784,12 @@ a dated release section when promoting the workspace to main.
   passed at that revision; parked hit-path repeatability remained unresolved.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
+
+- The field STEP export places the blue Bumpy Road mirror correctly (it was
+  stacked on the red side) and the placeholder donut pole sweeps along one
+  smooth spline, so Onshape imports it without self-intersection. In the gz
+  world only the pole visual mesh changes
+  ([sim #104](https://github.com/Thornbots/sim/pull/104)).
 
 - Refresh package CI dependency pins for `thornbots_pkg`, `sim` and the serial
   bridge so their ROS jobs include `thornbots_nav` and build compatible
