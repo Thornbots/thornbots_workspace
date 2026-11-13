@@ -12,6 +12,12 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** the sentry boot pitch reads correctly with the new
+  pitch encoder zero (`PITCH_OFFSET` -0.26): firmware now wraps the boot
+  encoder reading by one pitch-motor turn for every robot, so a level head no
+  longer reads ~2.094 rad. Reflash the MCB to apply
+  ([MCBV3 #142](https://github.com/Thornbots/MCBV3/pull/142)).
+
 - **Real-robot behavior:** rf2o recovers when the robot clock jumps backward
   by more than 1 s: it resets its scan, odometry and head-TF history and keeps
   its last pose instead of failing. Wheel fallback also recovers once buffered
@@ -796,6 +802,10 @@ a dated release section when promoting the workspace to main.
   passed at that revision; parked hit-path repeatability remained unresolved.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
+
+- The sim's emulated sentry pitch encoder zero now matches the firmware's `PITCH_OFFSET` (-0.26, was a stale
+  -0.09), and a sim test fails if they diverge. Sim only; no real-robot behavior change
+  ([sim #109](https://github.com/Thornbots/sim/pull/109)).
 
 - rf2o unit tests run as separate startup, reference-motion,
   reference-lifecycle and clock-reset executables with 120 s limits, and sim
