@@ -13,7 +13,9 @@ a dated release section when promoting the workspace to main.
 ### High — changes what a robot does or how you deploy/operate it
 
 - **Real-robot behavior:** The target manager assigns and clears tracked targets,
-  and the MCB replans aim continuously with a full-panel impact gate. The wire
+  and the MCB replans aim continuously with a full-panel impact gate. Above
+  |yaw_rate| = π/2 rad/s it switches from panel chase to fixed crossing-line
+  shot-gating, retaining measured-impact and crossing-window checks. The wire
   contract changed: reflash the MCB with matching Jetson packages. Type C cycle
   cost remains to be measured on the board; robot validation is pending
   ([MCBV3 #141](https://github.com/Thornbots/MCBV3/pull/141),
