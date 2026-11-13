@@ -465,6 +465,13 @@ a dated release section when promoting the workspace to main.
 
 ### Medium — notable features and fixes
 
+- The sentry's referee-UI aim debug overlay follows whichever aim command is
+  running, autonomous or right-mouse; before, it showed only the manual one.
+  Yaw error wraps on both sides of ±π, the error readouts hide unless that
+  command is targeting, and the shot marker stays on screen for 500 ms.
+  Reflash the MCB to apply
+  ([MCBV3 #143](https://github.com/Thornbots/MCBV3/pull/143)).
+
 - sim lockstep no longer fails slow runs. `lockstep_coordinator` waits on
   live producers however long their wall-clock work takes; it fails at once,
   naming the topic, when a producer exits, and only after a 60 s deadlock
