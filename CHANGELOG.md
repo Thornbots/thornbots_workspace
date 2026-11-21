@@ -10,6 +10,31 @@ a dated release section when promoting the workspace to main.
 
 ## Unreleased
 
+### Low — internal: sim harness, CI, tests, docs, tooling
+
+- Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
+- Build the pinned `robot_localization` fork in portable ROS CI so its install
+  contains the EKF required by simulation; its own test suite remains skipped.
+- Refresh firmware CI action and pyelftools pins
+  ([MCBV3 #147](https://github.com/Thornbots/MCBV3/pull/147)).
+
+- Refresh package ROS CI workspace pins to current nightly
+  ([ROI #16](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/16),
+  [rf2o #32](https://github.com/Thornbots/rf2o_laser_odometry/pull/32),
+  [bridge #51](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/51),
+  [localization #52](https://github.com/Thornbots/sentry_localization/pull/52),
+  [lidar #17](https://github.com/Thornbots/sllidar_ros2/pull/17),
+  [nav #8](https://github.com/Thornbots/nav_pkg/pull/8)).
+- Update the quality-check Python dependencies; all workspace repositories
+  retain their existing lint baselines.
+
+## 2026-11-20
+
+Promoted from `nightly` 073cbb7a. Validated by workspace and package CI and the
+Mac mini nightly tests; no physical robot tests ran for this release (robot
+unavailable). Robot acceptance stays open in
+[ROBOT_TESTS](docs/ROBOT_TESTS.md).
+
 ### High — changes what a robot does or how you deploy/operate it
 
 - **Real-robot behavior:** after applying a RELOCALIZE, the MCB sends PING 7 and
@@ -837,11 +862,6 @@ a dated release section when promoting the workspace to main.
   passed at that revision; parked hit-path repeatability remained unresolved.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
-
-- Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
-
-- Refresh package ROS CI workspace pins to current nightly ([ROI #16](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/16), [rf2o #32](https://github.com/Thornbots/rf2o_laser_odometry/pull/32), [bridge #51](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/51), [localization #52](https://github.com/Thornbots/sentry_localization/pull/52), [lidar #17](https://github.com/Thornbots/sllidar_ros2/pull/17), [nav #8](https://github.com/Thornbots/nav_pkg/pull/8)).
-- Update the quality-check Python dependencies; all workspace repositories retain their existing lint baselines.
 
 - The robot image holds TensorRT at 10.16.2.10 (cuda13.2): NVIDIA's repo now
   also serves 11.4, which broke `ros-jazzy-isaac-ros-tensor-rt` resolution.
