@@ -56,7 +56,8 @@ jobs:
           esac
           git submodule update --init --checkout --depth 1 -- \
             thornbots_pkg sim sentry_localization rf2o_laser_odometry \
-            ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2 nav_pkg
+            ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2 nav_pkg \
+            robot_localization
       - name: Overlay the caller's tested revision
         if: github.repository != 'Thornbots/thornbots_workspace'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

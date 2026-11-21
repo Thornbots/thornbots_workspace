@@ -12,6 +12,8 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Build the pinned `robot_localization` fork in portable ROS CI so its install
+  contains the EKF required by simulation; its own test suite remains skipped.
 - Refresh firmware CI action and pyelftools pins
   ([MCBV3 #147](https://github.com/Thornbots/MCBV3/pull/147)).
 
