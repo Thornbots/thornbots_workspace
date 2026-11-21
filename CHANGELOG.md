@@ -12,6 +12,9 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Refresh firmware CI action and pyelftools pins
+  ([MCBV3 #147](https://github.com/Thornbots/MCBV3/pull/147)).
+
 - Refresh package ROS CI workspace pins to current nightly
   ([ROI #16](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/16),
   [rf2o #32](https://github.com/Thornbots/rf2o_laser_odometry/pull/32),
