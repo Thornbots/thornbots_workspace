@@ -10,6 +10,15 @@ a dated release section when promoting the workspace to main.
 
 ## Unreleased
 
+### High — changes what a robot does or how you deploy/operate it
+
+- Sentry auto-drive finishes nearby waypoints before taking the next leg and
+  waits for chassis yaw to settle before translating. The chassis starts a
+  goal spin only after a close, slow arrival. This keeps the sentry square
+  through the Starting Zone doorway
+  ([MCBV3 #148](https://github.com/Thornbots/MCBV3/pull/148),
+  [nav #9](https://github.com/Thornbots/nav_pkg/pull/9)).
+
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
 - Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
