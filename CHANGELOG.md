@@ -12,6 +12,9 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Frame the arena in E2E RViz and Foxglove views, avoid redundant map uploads,
+  keep recent TF moving through the viewer, and release RViz display resources
+  before shutdown ([sim #116](https://github.com/Thornbots/sim/pull/116)).
 - Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
 - Build the pinned `robot_localization` fork in portable ROS CI so its install
   contains the EKF required by simulation; its own test suite remains skipped.
