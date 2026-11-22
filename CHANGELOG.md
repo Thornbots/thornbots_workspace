@@ -10,8 +10,18 @@ a dated release section when promoting the workspace to main.
 
 ## Unreleased
 
+### High — changes what a robot does or how you deploy/operate it
+
+- **Real-robot behavior:** cap sentry firmware at one launcher request per
+  100 ms to match the robot's 10 Hz launcher. The sim referee enforces barrel
+  heat and the CV aim bench scores against the sentry limits
+  ([MCBV3 #149](https://github.com/Thornbots/MCBV3/pull/149),
+  [sim #114](https://github.com/Thornbots/sim/pull/114)).
+
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Start the paced aim bench clock after the target manager and aim stand-in
+  match their DDS links ([sim #114](https://github.com/Thornbots/sim/pull/114)).
 - Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
 - Build the pinned `robot_localization` fork in portable ROS CI so its install
   contains the EKF required by simulation; its own test suite remains skipped.
