@@ -21,6 +21,9 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Hold the final physics tick while the E2E sim stack shuts down to avoid
+  waiting for acknowledgements from exiting nodes
+  ([sim #113](https://github.com/Thornbots/sim/pull/113)).
 - Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
 - Build the pinned `robot_localization` fork in portable ROS CI so its install
   contains the EKF required by simulation; its own test suite remains skipped.
