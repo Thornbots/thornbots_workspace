@@ -58,6 +58,8 @@ Before merging into `nightly`, in each changed repo (workspace included):
 - Optional GitHub run on a pushed branch:
   `gh workflow run CI -R Thornbots/<repo> --ref <branch>`.
 
+For PRs that change a sim suite, see [how to record a suite video](../sim/README.md#record-a-suite-video).
+
 Push-time [policy hooks](#repository-policy) still check commits and gitlinks.
 
 ## Nightly tests
