@@ -35,20 +35,48 @@ jobs:
         env:
           PACKAGE: ${{ matrix.package }}
         run: git submodule update --init --checkout --depth 1 -- "$PACKAGE"
+      # A pass is keyed by the package pin, the test tooling and the runner image.
+      - name: Key the helper suite
+        id: key
+        env:
+          PACKAGE: ${{ matrix.package }}
+          SUITE: ${{ matrix.suite }}
+          TOOLING: ${{ hashFiles('.github/workflows/ci.yml', '.github/scripts/test_host_packages.sh', '.github/quality/requirements.txt', '.github/scripts/nightly_*.sh', 'scripts/tests/test_nightly_tests.py') }}
+        run: echo "key=host-helpers-v1-$SUITE-$(git rev-parse "HEAD:$PACKAGE")-$ImageOS-$ImageVersion-$TOOLING" >> "$GITHUB_OUTPUT"
+      - name: Look up a passing result
+        id: pass
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .host-helpers-pass
+          key: ${{ steps.key.outputs.key }}
+          lookup-only: true
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        if: steps.pass.outputs.cache-hit != 'true'
         with:
           python-version: '3.12'
-      - run: python -m pip install -r .github/quality/requirements.txt
+      - if: steps.pass.outputs.cache-hit != 'true'
+        run: python -m pip install -r .github/quality/requirements.txt
       - name: Test nightly runner verdicts without services
-        if: matrix.suite == 'common'
+        if: matrix.suite == 'common' && steps.pass.outputs.cache-hit != 'true'
         run: python -m unittest discover -s scripts/tests -p test_nightly_tests.py -v
       - name: Test host helpers
+        id: test
+        if: steps.pass.outputs.cache-hit != 'true'
         env:
           PACKAGE: ${{ matrix.package }}
           UNIT_SUITE: ${{ matrix.suite }}
         run: bash .github/scripts/test_host_packages.sh "$PACKAGE" "$UNIT_SUITE"
+      - name: Record the pass
+        if: steps.test.outcome == 'success'
+        run: echo "$GITHUB_RUN_ID" > .host-helpers-pass
+      - name: Save the pass
+        if: steps.test.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .host-helpers-pass
+          key: ${{ steps.key.outputs.key }}
       - name: Upload host test reports
-        if: always()
+        if: always() && steps.test.outcome != 'skipped'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: host-tests-${{ matrix.suite }}-${{ github.sha }}

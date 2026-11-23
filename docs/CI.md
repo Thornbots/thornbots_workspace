@@ -154,6 +154,9 @@ re-keys the package and everything that depends on it.
   (dispatch CI on the branch to publish it). Bump its `REFRESH` argument to take
   newer apt packages.
 
+Host helper suites skip the same way when their package pin, test tooling and
+runner image match a cached pass.
+
 Caches follow GitHub's branch scoping: a PR reads its own, `nightly`'s and
 `main`'s entries and writes only its own, so fork PRs cannot seed results for
 other branches.
