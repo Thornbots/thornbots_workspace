@@ -96,8 +96,9 @@ jobs:
         with:
           path: ~/.ros/rosdep
           key: rosdep-${{ runner.os }}-jazzy-${{ steps.cache-versions.outputs.date }}
-      - name: Cache compiler results
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Restore compiler cache
+        id: ccache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ runner.os }}-${{ steps.cache-versions.outputs.ros }}-${{ inputs.package-repo }}-${{ hashFiles('ws/src/**/package.xml', 'ws/src/**/CMakeLists.txt') }}-${{ github.sha }}
@@ -124,6 +125,7 @@ jobs:
           fi
           rosdep install --from-paths src --ignore-src --rosdistro jazzy -y
       - name: Build packages with tests enabled
+        id: build
         working-directory: ws
         run: |
           source /opt/ros/jazzy/setup.bash
@@ -134,6 +136,13 @@ jobs:
       - name: Report compiler cache statistics
         if: always()
         run: ccache -s
+      # Saved before tests so a test failure still keeps the compiler results.
+      - name: Save compiler cache
+        if: always() && steps.build.outcome != 'skipped' && steps.ccache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
       - name: Run package tests
         working-directory: ws
         run: |
