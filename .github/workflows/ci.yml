@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, nightly]
   pull_request:
-    branches: [main]
+    branches: [main, nightly]
   workflow_dispatch:
 
 permissions:
@@ -94,6 +94,10 @@ jobs:
       tooling-ref: ${{ github.sha }}
   ros:
     uses: ./.github/workflows/ros.yml
+    # Trusted pushes and dispatches publish the content-tagged CI image; PRs only pull.
+    permissions:
+      contents: read
+      packages: write
     with:
       package-repo: workspace
       workspace-ref: ${{ github.sha }}

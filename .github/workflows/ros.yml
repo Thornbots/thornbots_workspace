@@ -11,6 +11,10 @@ on:
         description: Pinned workspace commit supplying dependency gitlinks
         required: true
         type: string
+      tooling-ref:
+        description: Workspace commit supplying the CI scripts; defaults to workspace-ref
+        type: string
+        default: ''
   workflow_dispatch:
     inputs:
       package-repo:
@@ -28,19 +32,23 @@ permissions:
   contents: read
 
 jobs:
+  # A warm run whose package keys all have a passing result only plans and looks
+  # up; see docs/CI.md#warm-portable-ros-ci.
   portable:
     if: inputs.package-repo != 'isaac_ros_common' && inputs.package-repo != 'realsense-yolov8-nitros-bridge'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
     defaults:
       run:
         shell: bash
     env:
       PACKAGE_REPO: ${{ inputs.package-repo }}
-      ROS_LOCALHOST_ONLY: '1'
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
-      CCACHE_MAXSIZE: 1G
-      MCB_FIRMWARE_BINARY: ${{ github.workspace }}/ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
+      # Registry writes and exact state keys come only from trusted events here.
+      TRUSTED: ${{ github.repository == 'Thornbots/thornbots_workspace' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+      MCB_FIRMWARE_ELF: src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
     steps:
       - name: Checkout pinned dependency workspace
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -56,7 +64,7 @@ jobs:
             workspace|thornbots_pkg|sim|sentry_localization|rf2o_laser_odometry|ros2_dji_serial_bridge|Realsense_ROI_Depth_Rectifier|sllidar_ros2|nav_pkg) ;;
             *) echo "Unsupported portable package: $PACKAGE_REPO" >&2; exit 1 ;;
           esac
-          git submodule update --init --checkout --depth 1 -- \
+          git submodule update --init --checkout --depth 1 --jobs 9 -- \
             thornbots_pkg sim sentry_localization rf2o_laser_odometry \
             ros2_dji_serial_bridge Realsense_ROI_Depth_Rectifier sllidar_ros2 nav_pkg \
             robot_localization
@@ -66,108 +74,153 @@ jobs:
         with:
           path: ws/src/${{ inputs.package-repo }}
           persist-credentials: false
-      - name: Checkout pinned firmware for workspace UART tests
-        if: inputs.package-repo == 'workspace'
+      - name: Checkout CI tooling
+        if: inputs.tooling-ref != ''
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Thornbots/thornbots_workspace
+          ref: ${{ inputs.tooling-ref }}
+          path: tooling
+          sparse-checkout: .github
+          persist-credentials: false
+      - name: Key packages by content and dependencies
+        id: plan
+        env:
+          TOOLING: ${{ inputs.tooling-ref != '' && 'tooling' || 'ws/src' }}
+        run: |
+          echo "ROS_CI_TOOLING=$GITHUB_WORKSPACE/$TOOLING" >> "$GITHUB_ENV"
+          firmware=()
+          if [[ "$PACKAGE_REPO" == workspace ]]; then firmware=(--firmware); fi
+          python3 "$TOOLING/.github/scripts/ros_ci.py" plan ws/src --scope "$PACKAGE_REPO" "${firmware[@]}" \
+            --dockerfile "$TOOLING/.github/ros-ci/Dockerfile" --context "$RUNNER_TEMP/ros-ci-image" \
+            --env-file "$TOOLING/.github/workflows/ros.yml" \
+            --env-file "$TOOLING/.github/scripts/ros_ci.py" \
+            --env-file "$TOOLING/.github/scripts/ros_ci_container.sh" \
+            --out "$RUNNER_TEMP/plan.json"
+      - name: Look up a passing result for every package key
+        id: lookup
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ws/install
+            ws/.ros-ci/manifest.json
+          key: ros-state-v1-${{ inputs.package-repo }}-${{ steps.plan.outputs.state }}
+          lookup-only: true
+      - name: Restore the newest install tree and its package keys
+        id: state
+        if: steps.lookup.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ws/install
+            ws/.ros-ci/manifest.json
+          key: ros-state-v1-${{ inputs.package-repo }}-${{ steps.plan.outputs.state }}
+          restore-keys: ros-state-v1-${{ inputs.package-repo }}-
+      - name: Select stale and untested packages
+        id: select
+        if: steps.lookup.outputs.cache-hit != 'true'
+        working-directory: ws
+        run: |
+          mkdir -p .ros-ci
+          cp "$RUNNER_TEMP/plan.json" .ros-ci/plan.json
+          python3 "$ROS_CI_TOOLING/.github/scripts/ros_ci.py" select --plan .ros-ci/plan.json \
+            --manifest .ros-ci/manifest.json --out .ros-ci
+          echo "firmware=$(cat .ros-ci/firmware.txt)" >> "$GITHUB_OUTPUT"
+          echo "build=$([[ -s .ros-ci/build.txt ]] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+      - name: Restore hosted firmware
+        id: firmware
+        if: steps.select.outputs.firmware == 'yes'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ws/${{ env.MCB_FIRMWARE_ELF }}
+          key: mcb-sim-${{ steps.plan.outputs.firmware }}-${{ steps.plan.outputs.image }}
+      - name: Checkout pinned firmware to build it
+        if: steps.select.outputs.firmware == 'yes' && steps.firmware.outputs.cache-hit != 'true'
         working-directory: ws/src
         run: |
           git submodule update --init --checkout --depth 1 -- firmware/MCBV3
           git -C firmware/MCBV3 submodule update --init --checkout --depth 1 -- taproot-scripts
-      - name: Setup ROS tooling
-        run: |
-          curl --fail --location --retry 3 \
-            https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.3.0/ros2-apt-source_1.3.0.noble_all.deb \
-            --output /tmp/ros2-apt-source.deb
-          echo 'f31d84adf5054c7d60ded0e82c0f776a77ea33af53d08f40b9ad7c94cca55296  /tmp/ros2-apt-source.deb' | sha256sum --check
-          sudo dpkg -i /tmp/ros2-apt-source.deb
-          sudo apt-get update
-          sudo apt-get install -y build-essential ccache ros-jazzy-ros-base \
-            python3-colcon-common-extensions python3-rosdep
-          if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
-            sudo rosdep init
-          fi
-      - name: Identify cache versions
-        id: cache-versions
-        run: |
-          echo "ros=$(dpkg-query -W -f='${Version}' ros-jazzy-ros-base)" >> "$GITHUB_OUTPUT"
-          echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
-      - name: Cache rosdep database
-        id: rosdep-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.ros/rosdep
-          key: rosdep-${{ runner.os }}-jazzy-${{ steps.cache-versions.outputs.date }}
       - name: Restore compiler cache
-        id: ccache-restore
+        id: ccache
+        if: steps.select.outputs.build == 'yes'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ steps.cache-versions.outputs.ros }}-${{ inputs.package-repo }}-${{ hashFiles('ws/src/**/package.xml', 'ws/src/**/CMakeLists.txt') }}-${{ github.sha }}
-          restore-keys: |
-            ccache-${{ runner.os }}-${{ steps.cache-versions.outputs.ros }}-${{ inputs.package-repo }}-
-      - name: Build hosted firmware for workspace UART tests
-        if: inputs.package-repo == 'workspace'
-        working-directory: ws/src/firmware/MCBV3/MCB-project
-        run: |
-          sudo apt-get install -y gcc-14 g++-14 python3-venv
-          python3 -m venv "$RUNNER_TEMP/mcb-tools"
-          "$RUNNER_TEMP/mcb-tools/bin/python" -m pip install \
-            scons==4.11.1 pyelftools==0.32 Jinja2==3.1.6
-          "$RUNNER_TEMP/mcb-tools/bin/scons" build-sim robot=sentry \
-            profile=release compiler-suffix=-14 -j2
-          test -x "$MCB_FIRMWARE_BINARY"
-      - name: Install declared dependencies
-        working-directory: ws
+          path: ws/.ccache
+          key: ccache-v2-${{ steps.plan.outputs.image }}-${{ inputs.package-repo }}-${{ github.sha }}
+          restore-keys: ccache-v2-${{ steps.plan.outputs.image }}-${{ inputs.package-repo }}-
+      - name: Log in to publish the CI image
+        if: steps.lookup.outputs.cache-hit != 'true' && env.TRUSTED == 'true'
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull or build the content-tagged CI image
+        if: steps.lookup.outputs.cache-hit != 'true'
         env:
-          ROSDEP_CACHE_HIT: ${{ steps.rosdep-cache.outputs.cache-hit }}
+          IMAGE: ghcr.io/thornbots/isaac-ros:${{ steps.plan.outputs.image }}
         run: |
-          if [[ "$ROSDEP_CACHE_HIT" != true ]]; then
-            rosdep update --rosdistro jazzy
-          fi
-          rosdep install --from-paths src --ignore-src --rosdistro jazzy -y
-      - name: Build packages with tests enabled
-        id: build
-        working-directory: ws
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          if docker pull -q "$IMAGE"; then exit 0; fi
+          echo "::notice title=CI image::building $IMAGE (inputs changed)"
+          docker build --pull -t "$IMAGE" "$RUNNER_TEMP/ros-ci-image"
+          if [[ "$TRUSTED" == true ]]; then docker push -q "$IMAGE"; fi
+      - name: Build and test selected packages
+        id: run
+        if: steps.lookup.outputs.cache-hit != 'true'
         run: |
-          source /opt/ros/jazzy/setup.bash
-          ccache -z
-          colcon build --event-handlers console_direct+ --parallel-workers 2 \
-            --cmake-args -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-      - name: Report compiler cache statistics
-        if: always()
-        run: ccache -s
-      # Saved before tests so a test failure still keeps the compiler results.
-      - name: Save compiler cache
-        if: always() && steps.build.outcome != 'skipped' && steps.ccache-restore.outputs.cache-hit != 'true'
+          docker run --rm --network host --ipc host \
+            -v "$GITHUB_WORKSPACE/ws:/ws" -v "$ROS_CI_TOOLING:/tooling:ro" -w /ws \
+            -e ROS_CI_TOOLING=/tooling -e ROS_LOCALHOST_ONLY=1 \
+            -e CCACHE_DIR=/ws/.ccache -e CCACHE_MAXSIZE=1G \
+            -e MCB_FIRMWARE_BINARY="/ws/$MCB_FIRMWARE_ELF" \
+            "$IMAGE" bash /tooling/.github/scripts/ros_ci_container.sh
+      - name: Choose state key
+        id: result
+        if: always() && steps.run.outcome != 'skipped'
+        env:
+          STATE: ${{ steps.plan.outputs.state }}
+        run: |
+          result=$(cat ws/.ros-ci/result 2>/dev/null || echo none)
+          # An exact key means every scope package passed; partial keys only seed rebuilds.
+          case "$result" in
+            passed) echo "key=ros-state-v1-$PACKAGE_REPO-$STATE" >> "$GITHUB_OUTPUT" ;;
+            built) echo "key=ros-state-v1-$PACKAGE_REPO-partial-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT" ;;
+          esac
+      - name: Save install tree and package keys
+        if: always() && steps.result.outputs.key != '' && steps.state.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
-      - name: Run package tests
-        working-directory: ws
-        run: |
-          source /opt/ros/jazzy/setup.bash
-          source install/setup.bash
-          # The fork's own suite (750 tests) belongs to its repository, not every workspace run.
-          selection=(--packages-skip robot_localization)
-          if [[ "$PACKAGE_REPO" != workspace ]]; then
-            package_name=$(python3 -c 'import sys, xml.etree.ElementTree as E; print(E.parse(sys.argv[1]).getroot().findtext("name"))' "src/$PACKAGE_REPO/package.xml")
-            selection=(--packages-select "$package_name")
-          fi
-          colcon test "${selection[@]}" --event-handlers console_direct+ --return-code-on-test-failure
-          colcon test-result --verbose
+          path: |
+            ws/install
+            ws/.ros-ci/manifest.json
+          key: ${{ steps.result.outputs.key }}
+      - name: Save compiler cache
+        if: always() && steps.ccache.outcome == 'success' && steps.ccache.outputs.cache-hit != 'true' && steps.result.outputs.key != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ws/.ccache
+          key: ${{ steps.ccache.outputs.cache-primary-key }}
+      - name: Save hosted firmware
+        if: always() && steps.firmware.outcome == 'success' && steps.firmware.outputs.cache-hit != 'true' && hashFiles(format('ws/{0}', env.MCB_FIRMWARE_ELF)) != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ws/${{ env.MCB_FIRMWARE_ELF }}
+          key: ${{ steps.firmware.outputs.cache-primary-key }}
       - name: Archive install tree
+        if: steps.run.outcome == 'success'
         working-directory: ws
         run: tar -czf ros-jazzy-install.tar.gz install
       - name: Upload build and test reports
-        if: always()
+        if: always() && steps.run.outcome != 'skipped'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ros-jazzy-${{ inputs.package-repo }}-${{ github.sha }}
           path: |
             ws/log
             ws/build/**/test_results
-            ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
+            ws/.ros-ci
+            ws/${{ env.MCB_FIRMWARE_ELF }}
             ws/ros-jazzy-install.tar.gz
           retention-days: 14
 
