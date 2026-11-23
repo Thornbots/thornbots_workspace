@@ -12,10 +12,10 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
-- Sentry auto-drive finishes nearby waypoints before taking the next leg and
-  waits for chassis yaw to settle before translating. The chassis starts a
-  goal spin only after a close, slow arrival. This keeps the sentry square
-  through the Starting Zone doorway
+- Sentry auto-drive follows the next leg's centreline as it turns and keeps
+  moving through small yaw corrections. The route follows the wider part of
+  the Starting Zone doorway, and the chassis squares up after a spin before
+  driving. This reduces stops during the sentry's transit
   ([MCBV3 #148](https://github.com/Thornbots/MCBV3/pull/148),
   [nav #9](https://github.com/Thornbots/nav_pkg/pull/9)).
 
