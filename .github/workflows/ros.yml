@@ -38,6 +38,8 @@ jobs:
     env:
       PACKAGE_REPO: ${{ inputs.package-repo }}
       ROS_LOCALHOST_ONLY: '1'
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 1G
       MCB_FIRMWARE_BINARY: ${{ github.workspace }}/ws/src/firmware/MCBV3/MCB-project/build/sim/scons-release/MCB-project.elf
     steps:
       - name: Checkout pinned dependency workspace
@@ -78,11 +80,29 @@ jobs:
           echo 'f31d84adf5054c7d60ded0e82c0f776a77ea33af53d08f40b9ad7c94cca55296  /tmp/ros2-apt-source.deb' | sha256sum --check
           sudo dpkg -i /tmp/ros2-apt-source.deb
           sudo apt-get update
-          sudo apt-get install -y build-essential ros-jazzy-ros-base \
+          sudo apt-get install -y build-essential ccache ros-jazzy-ros-base \
             python3-colcon-common-extensions python3-rosdep
           if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
             sudo rosdep init
           fi
+      - name: Identify cache versions
+        id: cache-versions
+        run: |
+          echo "ros=$(dpkg-query -W -f='${Version}' ros-jazzy-ros-base)" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+      - name: Cache rosdep database
+        id: rosdep-cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.ros/rosdep
+          key: rosdep-${{ runner.os }}-jazzy-${{ steps.cache-versions.outputs.date }}
+      - name: Cache compiler results
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-${{ steps.cache-versions.outputs.ros }}-${{ inputs.package-repo }}-${{ hashFiles('ws/src/**/package.xml', 'ws/src/**/CMakeLists.txt') }}-${{ github.sha }}
+          restore-keys: |
+            ccache-${{ runner.os }}-${{ steps.cache-versions.outputs.ros }}-${{ inputs.package-repo }}-
       - name: Build hosted firmware for workspace UART tests
         if: inputs.package-repo == 'workspace'
         working-directory: ws/src/firmware/MCBV3/MCB-project
@@ -97,14 +117,21 @@ jobs:
       - name: Install declared dependencies
         working-directory: ws
         run: |
-          rosdep update --rosdistro jazzy
+          if [[ '${{ steps.rosdep-cache.outputs.cache-hit }}' != 'true' ]]; then
+            rosdep update --rosdistro jazzy
+          fi
           rosdep install --from-paths src --ignore-src --rosdistro jazzy -y
       - name: Build packages with tests enabled
         working-directory: ws
         run: |
           source /opt/ros/jazzy/setup.bash
+          ccache -z
           colcon build --event-handlers console_direct+ --parallel-workers 2 \
-            --cmake-args -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+            --cmake-args -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - name: Report compiler cache statistics
+        if: always()
+        run: ccache -s
       - name: Run package tests
         working-directory: ws
         run: |
