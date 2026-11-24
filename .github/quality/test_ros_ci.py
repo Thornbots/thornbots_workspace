@@ -92,8 +92,10 @@ class PlannerTests(unittest.TestCase):
         plan = self.root / 'plan.json'
         state = self.root / 'manifest.json'
         state.write_text(json.dumps({'packages': recorded}))
+        install = self.root / 'install'
+        install.mkdir(exist_ok=True)
         ros_ci.main(['select', '--plan', str(plan), '--manifest', str(state),
-                     '--out', str(self.root)])
+                     '--install', str(install), '--out', str(self.root)])
         return [(self.root / f).read_text().split() for f in ('build.txt', 'test.txt')]
 
     def test_selects_stale_packages_and_reuses_passing_ones(self):
@@ -107,6 +109,16 @@ class PlannerTests(unittest.TestCase):
         failed = dict(passed, leaf={'hash': keys['leaf'], 'passed': False})
         self.assertIn('leaf', self.select(failed)[1])
         self.assertEqual(self.select({}), [sorted(keys)] * 2)
+
+    def test_select_discards_install_tree_with_removed_package(self):
+        keys = self.keys()
+        recorded = {n: {'hash': h, 'passed': True} for n, h in keys.items()}
+        self.git('rm', 'leaf/package.xml')
+        self.commit()
+        packages = sorted(self.keys())
+        self.assertEqual(self.select(recorded), [packages, packages])
+        self.assertFalse((self.root / 'install').exists())
+        self.assertFalse((self.root / 'manifest.json').exists())
 
     def test_record_requires_fresh_install(self):
         keys = self.keys()

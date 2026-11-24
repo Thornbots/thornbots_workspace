@@ -145,6 +145,8 @@ re-keys the package and everything that depends on it.
   (with ccache) and tests every package whose key is new or not yet passed.
   Colcon's package list and dependency edges must match the plan. Failed tests
   still save the build under a partial key; only a full pass saves the exact key.
+  Removing a package invalidates the restored install tree so it cannot shadow
+  dependencies on the runner.
 - The hosted firmware is cached by gitlink and image, and built only when sim
   is tested.
 - The image `ghcr.io/thornbots/isaac-ros:ros-ci-<hash>-amd64` is tagged by a
@@ -157,9 +159,9 @@ re-keys the package and everything that depends on it.
 Host helper suites skip the same way when their package pin, test tooling and
 runner image match a cached pass.
 
-Caches follow GitHub's branch scoping: a PR reads its own, `nightly`'s and
-`main`'s entries and writes only its own, so fork PRs cannot seed results for
-other branches.
+GitHub Actions scopes cache writes to the PR merge ref. A PR can restore
+entries from that ref, its base branch and the default branch. Fork PRs
+cannot seed cache entries for other refs.
 
 ## Repository policy
 

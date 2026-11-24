@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -156,6 +157,13 @@ def select(args):
     packages = current['packages']
     path = Path(args.manifest)
     recorded = json.loads(path.read_text())['packages'] if path.exists() else {}
+    install = Path(args.install)
+    if recorded.keys() - packages.keys() or not install.is_dir():
+        # A removed package can still shadow the underlay in a restored tree.
+        if install.is_dir():
+            shutil.rmtree(install)
+        path.unlink(missing_ok=True)
+        recorded = {}
 
     def fresh(name):
         return recorded.get(name, {}).get('hash') == packages[name]['hash']
@@ -224,6 +232,7 @@ def main(argv=None):
     s = sub.add_parser('select')
     s.add_argument('--plan', required=True)
     s.add_argument('--manifest', required=True)
+    s.add_argument('--install', required=True)
     s.add_argument('--out', required=True)
     s.set_defaults(func=select)
     v = sub.add_parser('verify')

@@ -124,7 +124,7 @@ jobs:
           mkdir -p .ros-ci
           cp "$RUNNER_TEMP/plan.json" .ros-ci/plan.json
           python3 "$ROS_CI_TOOLING/.github/scripts/ros_ci.py" select --plan .ros-ci/plan.json \
-            --manifest .ros-ci/manifest.json --out .ros-ci
+            --manifest .ros-ci/manifest.json --install install --out .ros-ci
           echo "firmware=$(cat .ros-ci/firmware.txt)" >> "$GITHUB_OUTPUT"
           echo "build=$([[ -s .ros-ci/build.txt ]] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
       - name: Restore hosted firmware
