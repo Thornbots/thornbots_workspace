@@ -1,11 +1,11 @@
 # CI and robot images
 
 `nightly` integrates package changes; `main` receives promoted releases.
-Only `main` builds an image and runs the full CI: workspace and package CI run
-on pushes to `main`, on PRs into `main` and on manual dispatch. `nightly` runs
-no CI on pushes or PRs; authors run the
-[local checks](#local-checks-for-prs-into-nightly) before merging, and the
-[nightly tests](#nightly-tests) run on the Mac mini each night. All thirteen `.gitmodules` entries track `nightly`
+Only `main` builds a robot image. Workspace CI runs on pushes and PRs into
+`main` and `nightly` and on manual dispatch; package CI runs only for `main`
+and dispatch, so package authors run the
+[local checks](#local-checks-for-prs-into-nightly) before merging into
+`nightly`. The [nightly tests](#nightly-tests) run on the Mac mini each night. All thirteen `.gitmodules` entries track `nightly`
 on this integration branch, with exact gitlink pins. Sim and MCB firmware are
 initialized by normal submodule checkout, like the other packages.
 
@@ -34,6 +34,8 @@ Refresh this immutable dependency pin across all seven portable package
 workflows when integrated interfaces change. Updating workspace nightly alone
 does not move package CI's dependency checkout. Keep the reusable tooling pins
 unchanged unless the tooling itself changes.
+Package ROS jobs that move to a `ros.yml` with [content keys](#warm-portable-ros-ci)
+should also pass its `tooling-ref`; otherwise its scripts come from `workspace-ref`.
 Startup pins the native host-test tooling introduced by the C++ CI repair.
 When updating reusable tooling, move workflow references and their
 `tooling-ref` inputs together; dependency pins must continue to describe
@@ -44,7 +46,9 @@ reports. Package quality workflows use the same
 
 ## Local checks for PRs into nightly
 
-Before merging into `nightly`, in each changed repo (workspace included):
+Workspace PRs into `nightly` run CI automatically. Before merging into
+`nightly`, in each changed package repo (and for the workspace, anything CI
+does not cover):
 
 - Python 3.12 venv with `.github/quality/requirements.txt`: `python
   .github/quality/check.py` and `actionlint -shellcheck=""`; checker changes
@@ -125,6 +129,39 @@ bumps their gitlinks. Open draft PRs into `nightly` for review. Merge package
 PRs first, then update the workspace gitlinks to the resulting package commits
 and merge the workspace PR. Workspace CI validates the pinned commits;
 workspace merges do not push or merge package branches.
+
+## Warm portable ROS CI
+
+[ros_ci.py](../.github/scripts/ros_ci.py) gives each portable package a key:
+its committed git tree, its workspace dependencies' keys, the CI image tag,
+`ros.yml` and the CI scripts. Packages whose source mentions
+`MCB_FIRMWARE_BINARY` (sim) also hash the `firmware/MCBV3` gitlink. A change
+re-keys the package and everything that depends on it.
+
+- If the cache holds a passing result for exactly this set of keys, the
+  `ros / portable` job only checks out, plans and looks it up.
+- Otherwise it restores the newest install tree with its recorded keys, and
+  [in the CI image](../.github/scripts/ros_ci_container.sh) cleanly rebuilds
+  (with ccache) and tests every package whose key is new or not yet passed.
+  Colcon's package list and dependency edges must match the plan. Failed tests
+  still save the build under a partial key; only a full pass saves the exact key.
+  Removing a package invalidates the restored install tree so it cannot shadow
+  dependencies on the runner.
+- The hosted firmware is cached by gitlink and image, and built only when sim
+  is tested.
+- The image `ghcr.io/thornbots/isaac-ros:ros-ci-<hash>-amd64` is tagged by a
+  hash of its [Dockerfile](../.github/ros-ci/Dockerfile) and the generated list
+  of external rosdep keys. Pushes and dispatches in this repository publish a
+  missing tag; PRs pull it, or build it locally if their dependencies changed
+  (dispatch CI on the branch to publish it). Bump its `REFRESH` argument to take
+  newer apt packages.
+
+Host helper suites skip the same way when their package pin, test tooling and
+runner image match a cached pass.
+
+GitHub Actions scopes cache writes to the PR merge ref. A PR can restore
+entries from that ref, its base branch and the default branch. Fork PRs
+cannot seed cache entries for other refs.
 
 ## Repository policy
 
@@ -252,8 +289,8 @@ Usage:
 checks and an up-to-date branch, blocking force pushes/deletion, applying to
 administrators, and requiring zero reviews. It leaves linear history optional
 so coordinated merges remain possible. `--branch nightly` selects integration
-protection, requiring checks that PRs into `nightly` no longer run, so do not
-apply it there; the default is `main`. MCBV3 is skipped for nightly because its
+protection, requiring checks that package PRs into `nightly` do not run, so do
+not apply it there; the default is `main`. MCBV3 is skipped for nightly because its
 policy targets only main.
 
 Without `--apply` it changes no GitHub settings. `--apply` replaces the
