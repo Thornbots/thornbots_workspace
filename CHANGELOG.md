@@ -15,6 +15,10 @@ a dated release section when promoting the workspace to main.
 - Frame the arena in E2E RViz and Foxglove views, avoid redundant map uploads,
   keep recent TF moving through the viewer, and release RViz display resources
   before shutdown ([sim #116](https://github.com/Thornbots/sim/pull/116)).
+- Run workspace CI on pushes and PRs into `nightly`. Portable ROS CI keys each
+  package by content and dependencies, skips passing keys and builds/tests the
+  rest in a content-tagged GHCR image
+  ([warm portable ROS CI](docs/CI.md#warm-portable-ros-ci)).
 - Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
 - Build the pinned `robot_localization` fork in portable ROS CI so its install
   contains the EKF required by simulation; its own test suite remains skipped.
