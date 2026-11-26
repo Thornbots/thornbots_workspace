@@ -23,6 +23,9 @@ a dated release section when promoting the workspace to main.
   driving. This reduces stops during the sentry's transit
   ([MCBV3 #148](https://github.com/Thornbots/MCBV3/pull/148),
   [nav #9](https://github.com/Thornbots/nav_pkg/pull/9)).
+- **Real-robot behavior:** Keep scan position corrections responsive when
+  the wheel encoders read zero, so localization can follow a shove while
+  parked ([localization #53](https://github.com/Thornbots/sentry_localization/pull/53)).
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
