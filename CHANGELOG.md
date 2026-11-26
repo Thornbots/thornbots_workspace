@@ -12,6 +12,19 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** Sharpen sentry auto-aim timing. Firmware adds
+  TARGET_STATE's 7.7 ms airtime to the model's age and sends POSE yaw advanced
+  over the IMU's 8 ms latency. The target tracker raises its spin-rate process
+  noise from 5 to 10 rad/s^2 to follow spin-ups. Sim now launches sentry shots
+  at the robot-fitted 0.042 rad pitch bias and keeps ghost hulls clear of their
+  armor (E27 R42). In five hosted `mcb_match` runs per build, valid contacts per
+  attempt rose from 54% to 69% while driving, 87% to 97% parked and 88% to 97%
+  in the spin phase, with more hits per second in each phase
+  ([investigation](docs/investigations/sentry-shot-accuracy-2026-11-26.md),
+  [MCBV3 #150](https://github.com/Thornbots/MCBV3/pull/150),
+  [sim #122](https://github.com/Thornbots/sim/pull/122),
+  [thornbots_pkg #83](https://github.com/Thornbots/thornbots_pkg/pull/83),
+  [bridge #52](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/52)).
 - **Real-robot behavior:** cap sentry firmware at one launcher request per
   100 ms to match the robot's 10 Hz launcher. The sim referee enforces barrel
   heat and the CV aim bench scores against the sentry limits
