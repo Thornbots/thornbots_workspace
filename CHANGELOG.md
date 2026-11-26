@@ -29,6 +29,9 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Show fading hit and miss traces in the aim bench's RViz view and fail parked
+  bench cells with unscored launcher exits ([sim #123](https://github.com/Thornbots/sim/pull/123)).
+
 - Make defeated robots disappear from simulated armor detections, prevent
   friendly damage, and report referee credits separately from geometric
   accuracy in `mcb_match`. Stage the fight to exercise drive, parked and spin,
