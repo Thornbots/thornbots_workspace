@@ -38,9 +38,8 @@ jobs:
     if: inputs.package-repo != 'isaac_ros_common' && inputs.package-repo != 'realsense-yolov8-nitros-bridge'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    permissions:
-      contents: read
-      packages: write
+    # No job permissions: a reusable job may not exceed its caller's grant, and
+    # package callers grant contents: read. The workspace caller adds packages: write.
     defaults:
       run:
         shell: bash
