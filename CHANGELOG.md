@@ -10,6 +10,12 @@ a dated release section when promoting the workspace to main.
 
 ## Unreleased
 
+### High — changes what a robot does or how you deploy/operate it
+
+- **Real-robot behavior:** Keep scan position corrections responsive when
+  the wheel encoders read zero, so localization can follow a shove while
+  parked ([localization #53](https://github.com/Thornbots/sentry_localization/pull/53)).
+
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
 - Update robot image CI to uv 0.13.8 and docker/login-action 4.8.0.
