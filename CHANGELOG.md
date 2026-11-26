@@ -29,6 +29,10 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Show localization drift and EKF recordings with the RViz map, lidar and
+  pose trails beside a closer overhead Gazebo view of the drive route
+  ([sim #121](https://github.com/Thornbots/sim/pull/121)).
+
 - Make defeated robots disappear from simulated armor detections, prevent
   friendly damage, and report referee credits separately from geometric
   accuracy in `mcb_match`. Stage the fight to exercise drive, parked and spin,
