@@ -29,6 +29,9 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Write an authoritative JSON verdict for each guarded sim suite run and use
+  it for the suite exit status and recording banner
+  ([sim #120](https://github.com/Thornbots/sim/pull/120)).
 - Make defeated robots disappear from simulated armor detections, prevent
   friendly damage, and report referee credits separately from geometric
   accuracy in `mcb_match`. Stage the fight to exercise drive, parked and spin,
