@@ -12,12 +12,35 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** cap sentry firmware at one launcher request per
+  100 ms to match the robot's 10 Hz launcher. The sim referee enforces barrel
+  heat and the CV aim bench scores against the sentry limits
+  ([MCBV3 #149](https://github.com/Thornbots/MCBV3/pull/149),
+  [sim #114](https://github.com/Thornbots/sim/pull/114)).
+- Sentry auto-drive follows the next leg's centreline as it turns and keeps
+  moving through small yaw corrections. The route follows the wider part of
+  the Starting Zone doorway, and the chassis squares up after a spin before
+  driving. This reduces stops during the sentry's transit
+  ([MCBV3 #148](https://github.com/Thornbots/MCBV3/pull/148),
+  [nav #9](https://github.com/Thornbots/nav_pkg/pull/9)).
 - **Real-robot behavior:** Keep scan position corrections responsive when
   the wheel encoders read zero, so localization can follow a shove while
   parked ([localization #53](https://github.com/Thornbots/sentry_localization/pull/53)).
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Make defeated robots disappear from simulated armor detections, prevent
+  friendly damage, and report referee credits separately from geometric
+  accuracy in `mcb_match`. Stage the fight to exercise drive, parked and spin,
+  and fail the scenario when any segment has zero attempts
+  ([sim #119](https://github.com/Thornbots/sim/pull/119)).
+- Record any sim suite as a 1× simulation-time MP4 with its checker verdict and
+  an optional PR-sized clip ([sim #118](https://github.com/Thornbots/sim/pull/118)).
+- Start the paced aim bench clock after the target manager and aim stand-in
+  match their DDS links ([sim #114](https://github.com/Thornbots/sim/pull/114)).
+- Scale the tracking bench truth watchdog for slower simulation runs ([sim #117](https://github.com/Thornbots/sim/pull/117)).
+- Mark E2E stack shutdown before signaling producers so recordings can finish
+  without a false lockstep timeout ([sim #115](https://github.com/Thornbots/sim/pull/115)).
 - Frame the arena in E2E RViz and Foxglove views, avoid redundant map uploads,
   keep recent TF moving through the viewer, and release RViz display resources
   before shutdown ([sim #116](https://github.com/Thornbots/sim/pull/116)).
