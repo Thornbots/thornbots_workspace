@@ -50,6 +50,8 @@ SLAM tuning and carried-map work are dropped. Map building for AMCL stays in sco
 - **B-timing — bridge / thornbots_pkg — software audit open:** Verify YOLO capture-stamp propagation
   through the tracker and latency parameters. Physical delay measurements remain in
   [robot acceptance](ROBOT_TESTS.md#moving-aim).
+  The [CV input safety review](investigations/cv-input-safety-2026-11-27.md) covers assignment
+  withdrawal and the limits of the host checks.
 
 <a id="a-the-match-test"></a>
 <a id="a-acceptance-details"></a>
