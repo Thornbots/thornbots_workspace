@@ -12,6 +12,20 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** lock RealSense colour exposure at 3 ms / gain 64
+  so spinning armor stays sharp; values are untuned starting points
+  ([bridge #14](https://github.com/Thornbots/realsense-yolov8-nitros-bridge/pull/14),
+  [T42](docs/ROBOT_TESTS.md#lidar-and-camera)). Add an opt-in YOLO26 corner-keypoint
+  pipeline for the new panels: `decoder:=yolo26` publishes light-bar keypoints,
+  `roi_depth_node` solves plate pose and normal, and `target_tracker` uses the
+  normal's yaw. The default stays YOLO11 boxes; panel geometry and the model are
+  placeholders until the new panels' CAD and data exist
+  ([messages #53](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/53),
+  [roi #17](https://github.com/Thornbots/Realsense_ROI_Depth_Rectifier/pull/17),
+  [thornbots_pkg #84](https://github.com/Thornbots/thornbots_pkg/pull/84),
+  [sim #124](https://github.com/Thornbots/sim/pull/124),
+  [model-training #1](https://github.com/Thornbots/model-training/pull/1),
+  [T43](docs/ROBOT_TESTS.md#lidar-and-camera)).
 - **Real-robot behavior:** cap sentry firmware at one launcher request per
   100 ms to match the robot's 10 Hz launcher. The sim referee enforces barrel
   heat and the CV aim bench scores against the sentry limits
