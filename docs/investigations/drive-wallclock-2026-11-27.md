@@ -81,8 +81,8 @@ configurations alternated in blocks while a video render ran on the host.
 - **Drive-phase tracker velocity.** In the opening misses, the tracker
   estimated 1.0–1.7 m/s for a target moving at 0–0.5 m/s. The error is about the
   sentry's own speed. The same error appears at both CPU caps and before the
-  fix (median drive velocity error 0.74 m/s). This looks like ego motion leaking
-  into the odom-frame target, and it is the next drive-accuracy lead.
+  fix (median drive velocity error 0.74 m/s). The cause was chassis tilt missing
+  from the camera pitch ([drive tracker](drive-tracker-2026-11-27.md)).
 - **Residual sim nondeterminism.** Paired runs still split by about 1e-5 m in
   chassis state from about 18.7 s in some seeds. It changed the drive score in
   3 of 23 fixed runs. Locate it with `MCB_UART_TRACE` diffs

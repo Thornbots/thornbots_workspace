@@ -108,6 +108,10 @@ UART/camera delay on the robot before selecting physical latency compensation.
 
 ## Consolidated hardware checks
 
+- **Base tilt — firmware / aim:** With gimbal motors off, tip the sentry chassis a few degrees toward the barrel and
+  back. POSE `head_pitch` must change by about the barrel's world tilt (down positive) and return to the encoder
+  value within a few seconds; tipping sideways must not change it. Otherwise `IMU_BARREL_FORWARD`/`PITCH_UP_SIGN`
+  do not match the board mount. Then compare drive-phase hits. [Base tilt](../firmware/MCBV3/README.md#base-tilt).
 - **LIDAR-mount — bringup / localization:** Revalidate the restored upright mount translation and yaw with a head-turn fit, nose-up/down self-filter
   sectors and floor-to-scan height; update the map slice only from the measurement. Inspect `/scan_raw` between
   0.05–0.15 m before lowering the retained 0.15 m filtering margin. Validate fixed-heading rf2o against real chassis

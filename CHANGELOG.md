@@ -12,6 +12,18 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** The sentry aims pitch against chassis tilt. Firmware
+  propagates world up through the yaw-link gyro, high-passes it over 2 s and
+  adds it to the aim pitch, the pitch controller and POSE `head_pitch`.
+  Previously the encoder-only pitch left the camera TF off by the
+  suspension's tilt (up to 4°), and the tracker read that as 1–3 m/s of target
+  velocity. In 9 paired hosted `mcb_match` runs, drive valid contacts rose
+  from 36.6% to 44.4%, parked stayed at 100% and spin went from 97.0% to 99.3%.
+  The board IMU axes are unverified on the robot; run the
+  [base tilt check](docs/ROBOT_TESTS.md#consolidated-hardware-checks) first
+  ([investigation](docs/investigations/drive-tracker-2026-11-27.md),
+  [MCBV3 #151](https://github.com/Thornbots/MCBV3/pull/151),
+  [bridge #55](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/55)).
 - **Real-robot behavior:** Sharpen sentry auto-aim timing. Firmware adds
   TARGET_STATE's 7.7 ms airtime to the model's age and sends POSE yaw advanced
   over the IMU's 8 ms latency. The target tracker raises its spin-rate process
