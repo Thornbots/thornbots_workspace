@@ -504,7 +504,7 @@ through `dexec.sh`.
 **Before** launching anything (a background launch, either test launch
 file, or an ad hoc probe script), check for a live session first:
 ```bash
-dexec.sh -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
+dexec.sh -- ps aux | grep -E 'gz sim|gz_server|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
 ```
 A dead `gz sim` server leaves orphaned bridges that appear in `ros2 topic
 list` but never publish; a *live* session (the user's own manual sim/CV
