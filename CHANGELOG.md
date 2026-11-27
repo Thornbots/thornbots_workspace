@@ -42,6 +42,14 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Hold AMCL to lockstep sim time in producer-chain E2E stages, so the
+  `mcb_match` route and drive-phase hit rate no longer depend on host CPU.
+  The same `amcl_seed` now gives the same drive at 5 and 10 container CPUs
+  (drive start 18.35 s in all 23 accepted runs; drive 41.6% and 38.9%). Robot
+  defaults are unchanged; its AMCL timing still follows Jetson load
+  ([investigation](docs/investigations/drive-wallclock-2026-11-27.md),
+  [sentry_localization #54](https://github.com/Thornbots/sentry_localization/pull/54),
+  [sim #127](https://github.com/Thornbots/sim/pull/127)).
 - Stop tracking sim's committed colcon `build/`, `install/` and `log/`
   output and ignore those directories
   ([sim #125](https://github.com/Thornbots/sim/pull/125)).
