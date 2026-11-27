@@ -30,7 +30,7 @@ other_stack() {
     colima status >/dev/null 2>&1 || return 1
     [ -S "$HOME/.colima/default/docker.sock" ] && export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
     for c in $(docker ps -q 2>/dev/null); do
-        if docker top "$c" -eo args 2>/dev/null | grep -Eq 'gz sim|ros2 launch|MCB-project|e2e_suite'; then
+        if docker top "$c" -eo args 2>/dev/null | grep -Eq 'gz sim|gz_server|ros2 launch|MCB-project|e2e_suite'; then
             docker inspect -f '{{.Name}}' "$c"; return 0
         fi
     done
