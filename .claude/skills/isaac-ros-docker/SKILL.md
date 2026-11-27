@@ -260,7 +260,7 @@ Check for a live session first, since a collision corrupts measurements
 silently rather than erroring:
 
 ```bash
-dexec.sh -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
+dexec.sh -- ps aux | grep -E 'gz sim|gz_server|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep
 ```
 
 If something is running, **ask before touching it**; it may be the user's own

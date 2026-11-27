@@ -86,7 +86,7 @@ echo "== 5. ROS graph reachable"
 "$DEXEC" -- ros2 topic list || fail "ros2 topic list failed"
 
 echo "== 6. nothing already running (do not kill what you did not start)"
-LIVE=$("$DEXEC" -- ps aux | grep -E 'gz sim|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep)
+LIVE=$("$DEXEC" -- ps aux | grep -E 'gz sim|gz_server|slam_toolbox|amcl|map_server|ekf_filter_node|pose_translator|pose_emulator|ros2 launch' | grep -v grep)
 if [ -n "$LIVE" ]; then
     echo "$LIVE"
     echo "  ^ a session is already live. Do not touch what you did not start; in the user's container, ask." >&2
