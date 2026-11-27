@@ -54,8 +54,9 @@ override its defaults here:
   in every changed repo, plus sim integration suites or benches when runtime
   behavior changes, since [CI excludes them](docs/CI.md#validation-boundaries).
   Put commands and test counts in commit messages.
-- The request authorizes physical-robot runs the proof needs, on robots
-  already running. Record results per [ROBOT_TESTS](docs/ROBOT_TESTS.md).
+- Never look for, reach or run on a physical robot; robots are reachable
+  only from archlinux. List robot-only proof as a remaining risk and point
+  to its [ROBOT_TESTS](docs/ROBOT_TESTS.md) entry.
 - Multi-repo changes follow
   [coordinated integration](docs/CI.md#coordinated-package-integration).
   Ready means every package PR and the workspace PR are ready, none draft.

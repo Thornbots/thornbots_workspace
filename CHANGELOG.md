@@ -30,7 +30,7 @@ a dated release section when promoting the workspace to main.
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
 - Define "full stop" for this workspace: PRs target `nightly`, proof includes
-  sim suites and authorized robot runs, and a multi-repo change is ready once
+  sim suites but never physical robots, and a multi-repo change is ready once
   its package PRs and gitlink-bump PR are ready with a stated merge order
   ([AGENTS](AGENTS.md#full-stop)).
 - Make defeated robots disappear from simulated armor detections, prevent
