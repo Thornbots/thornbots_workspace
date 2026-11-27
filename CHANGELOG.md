@@ -34,6 +34,14 @@ a dated release section when promoting the workspace to main.
   as sim's `gz_server`, which no longer deadlocks on SIGINT at teardown; the
   sim stack checks and nightly cleanup also match it
   ([sim #120](https://github.com/Thornbots/sim/pull/120)).
+- Add `scripts/agent_job.sh`: agents start long jobs detached with a log
+  and an exit-code file, then block once on `agent_job.sh wait`, instead of
+  `until grep …; sleep` poll loops
+  ([Docker skill](.claude/skills/isaac-ros-docker/SKILL.md#long-jobs-start-detached-wait-once)).
+- Define "full stop" for this workspace: PRs target `nightly`, proof includes
+  sim suites but never physical robots, and a multi-repo change is ready once
+  its package PRs and gitlink-bump PR are ready with a stated merge order
+  ([AGENTS](AGENTS.md#full-stop)).
 - Make defeated robots disappear from simulated armor detections, prevent
   friendly damage, and report referee credits separately from geometric
   accuracy in `mcb_match`. Stage the fight to exercise drive, parked and spin,

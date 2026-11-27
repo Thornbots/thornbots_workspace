@@ -41,7 +41,7 @@ jobs:
         env:
           PACKAGE: ${{ matrix.package }}
           SUITE: ${{ matrix.suite }}
-          TOOLING: ${{ hashFiles('.github/workflows/ci.yml', '.github/scripts/test_host_packages.sh', '.github/quality/requirements.txt', '.github/scripts/nightly_*.sh', 'scripts/tests/test_nightly_tests.py') }}
+          TOOLING: ${{ hashFiles('.github/workflows/ci.yml', '.github/scripts/test_host_packages.sh', '.github/quality/requirements.txt', '.github/scripts/nightly_*.sh', 'scripts/tests/test_nightly_tests.py', 'scripts/agent_job.sh', 'scripts/tests/test_agent_job.py') }}
         run: echo "key=host-helpers-v1-$SUITE-$(git rev-parse "HEAD:$PACKAGE")-$ImageOS-$ImageVersion-$TOOLING" >> "$GITHUB_OUTPUT"
       - name: Look up a passing result
         id: pass
@@ -59,6 +59,9 @@ jobs:
       - name: Test nightly runner verdicts without services
         if: matrix.suite == 'common' && steps.pass.outputs.cache-hit != 'true'
         run: python -m unittest discover -s scripts/tests -p test_nightly_tests.py -v
+      - name: Test the agent job helper
+        if: matrix.suite == 'common' && steps.pass.outputs.cache-hit != 'true'
+        run: python -m unittest discover -s scripts/tests -p test_agent_job.py -v
       - name: Test host helpers
         id: test
         if: steps.pass.outputs.cache-hit != 'true'

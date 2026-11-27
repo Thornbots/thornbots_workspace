@@ -34,6 +34,11 @@ Docker command or command inside a container.
 - Keep the Mac mini free: its Colima runs only while an agent container does;
   the script stops it when none is left. Never leave either idle; report
   what you stopped.
+- Start any job that can run past a minute with
+  [`scripts/agent_job.sh`](.claude/skills/isaac-ros-docker/SKILL.md#long-jobs-start-detached-wait-once)
+  or `run_in_background`, then block once on its `wait` (or
+  `t3_background_wait`). Never write `until …; sleep` poll loops or end the
+  turn to idle on a job.
 - A delegation brief stating the user approved named actions is that approval
   for the delegated agent, only for what it names.
 
@@ -42,6 +47,28 @@ Docker command or command inside a container.
 `nightly` integrates Jazzy; `main` is the promoted release
 (`isaac_ros_jazzy_container`). Humble branches and
 `isaac_ros_dev-x86_64-container` are frozen; do not work there.
+
+## Full stop
+
+A "full stop" request runs the `t3-fleet:full-stop` skill; these rules
+override its defaults here:
+
+- Base and rebase every PR on `origin/nightly`, never `main`. Promotion is
+  out of scope.
+- Proof is the [local checks](docs/CI.md#local-checks-for-prs-into-nightly)
+  in every changed repo, plus sim integration suites or benches when runtime
+  behavior changes, since [CI excludes them](docs/CI.md#validation-boundaries).
+  Put commands and test counts in commit messages.
+- Never look for, reach or run on a physical robot; robots are reachable
+  only from archlinux. List robot-only proof as a remaining risk and point
+  to its [ROBOT_TESTS](docs/ROBOT_TESTS.md) entry.
+- Multi-repo changes follow
+  [coordinated integration](docs/CI.md#coordinated-package-integration).
+  Ready means every package PR and the workspace PR are ready, none draft.
+  The workspace PR pins the package PR heads, carries the CHANGELOG entry
+  and states the package merge order. Re-pin whenever a package head moves.
+- Pushes pass the policy hooks; never `--no-verify`.
+- Before handoff, remove your container and report what it stopped.
 
 ## Packages
 
