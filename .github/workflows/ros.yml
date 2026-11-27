@@ -28,9 +28,8 @@ on:
         default: nightly
         required: true
 
-permissions:
-  contents: read
-
+# No workflow permissions: a called workflow's top-level block caps every job,
+# which blocked the workspace caller's packages: write from reaching portable.
 jobs:
   # A warm run whose package keys all have a passing result only plans and looks
   # up; see docs/CI.md#warm-portable-ros-ci.
@@ -38,8 +37,8 @@ jobs:
     if: inputs.package-repo != 'isaac_ros_common' && inputs.package-repo != 'realsense-yolov8-nitros-bridge'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    # No job permissions: a reusable job may not exceed its caller's grant, and
-    # package callers grant contents: read. The workspace caller adds packages: write.
+    # Inherits the caller's grant: package callers give contents: read and the
+    # workspace caller adds packages: write. Asking for more here would fail them.
     defaults:
       run:
         shell: bash
@@ -227,6 +226,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && (inputs.package-repo == 'isaac_ros_common' || inputs.package-repo == 'realsense-yolov8-nitros-bridge')
     runs-on: [self-hosted, Linux, isaac-ros-jazzy]
     environment: isaac-ros-ci
+    permissions:
+      contents: read
     timeout-minutes: 45
     defaults:
       run:
