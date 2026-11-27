@@ -72,6 +72,15 @@ UART/camera delay on the robot before selecting physical latency compensation.
   [Drift](investigations/sentry-sim-to-real-2026-10-18.md#stationary-localization-drift).
 - **T37 — camera/CV packages — unmeasured:** Measure camera copy latency and CPU/GPU cost on Orin before choosing
   zero-copy. [Copy boundary](../realsense-yolov8-nitros-bridge/README.md#copy-boundary).
+- **T42 — realsense-yolov8-nitros-bridge — unmeasured:** Confirm the colour sensor takes manual exposure
+  (`ros2 param get` `rgb_camera.enable_auto_exposure`, `exposure`, `gain` on the camera node), check that
+  exposure 30 is 3 ms and not 30 µs, then tune exposure/gain under field lighting for blur, brightness and
+  flicker. [Camera profile](../realsense-yolov8-nitros-bridge/README.md#camera-profile).
+- **T43 — CV keypoint pipeline — unmeasured:** Once a YOLO26 pose model exists, build its engine on the Orin
+  and run `decoder:=yolo26`: confirm TensorRT's output reaches `Yolo26DecoderNode` as `[1,300,18]` and
+  `/cv/armor_keypoints` tracks frames 1:1; measure keypoint pixel noise, published-normal fraction and
+  normal yaw error against a plate at known pose, and replace the placeholder `armor_geometry.yaml` from
+  the new panel CAD. [Keypoint plate pose](../Realsense_ROI_Depth_Rectifier/README.md#keypoint-plate-pose).
 
 ## Robot acceptance
 
