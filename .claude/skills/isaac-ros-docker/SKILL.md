@@ -109,6 +109,44 @@ down with `kill_launch.sh`.
 own `rviz:=` argument, on by default when a display is reachable, so a window
 still opens on the user's display.
 
+## Long jobs: start detached, wait once
+
+Anything that can run past a minute (sim suites, benches, `install-sim.sh`,
+`agent_container.sh run`, colcon over several packages) goes through
+[`scripts/agent_job.sh`](../../../scripts/agent_job.sh). It detaches the job
+on the host, streams its output to a log and writes an `rc` file when the
+job ends, so we wait on that file instead of grepping a log:
+
+```bash
+J=scripts/agent_job.sh
+$J start aim-r1 -- isaac_ros_common/scripts/dexec.sh -- src/sim/tools/run_suite.sh aim
+$J wait aim-r1                 # exit = the job's rc; 124 after 9 min: run the same wait again
+$J wait aim-r1 -m 'accepted [0-9]' -c 4   # or return once the log shows something
+$J wait -f ~/evidence/host.log -m '^rc='  # a log written by something else
+$J status; $J stop aim-r1      # stop: SIGTERM to the host side; then kill_launch.sh
+```
+
+- Run the dexec.sh call in the foreground inside the job, not `dexec.sh -d`:
+  its log lands in the container's `/tmp`, where the host cannot see it.
+- Each `wait` call blocks for up to 9 minutes (`-t`, default 540 s) and prints
+  progress every `-p` seconds. For a longer job, start the wait with
+  `run_in_background` and keep working: T3 `t3_background_wait` or the
+  completion notification wakes us when it returns. Monitor on the log with
+  `-m` patterns also works.
+- No `until grep …; sleep` or `for i in $(seq …)` poll loops, and do not end
+  the turn to idle on a job; poll loops cost us ~48 h in the month to
+  2026-11-26.
+- Job names are never reused; the job directory
+  (`~/.local/state/agent-jobs/<name>`) keeps `cmd`, `log` and `rc` as
+  evidence. `wait` returns 125 when the runner was SIGKILLed before it could
+  write `rc`.
+
+Builds: a fresh agent container has empty `build/` and `install/`, so start
+with `colcon build --packages-up-to <pkg>` (`--packages-select` fails on
+missing dependencies), then iterate with `--packages-select <pkg>`. Test with
+`colcon test --packages-select <pkg>`; a workspace-wide build is for changes
+that touch shared interfaces.
+
 ## Key facts
 
 - The user's entry point is `isaac-ros activate` on the host. Yours is
@@ -139,7 +177,8 @@ still opens on the user's display.
   cuts `docker` off; re-run the script instead.
 - **A fresh container has no gz-sim.** Before any `sim` launch, run once:
   `dexec.sh -r -- src/isaac_ros_common/docker/scripts/install-sim.sh`.
-  Background it and budget minutes: it pulls a few hundred apt packages. A
+  Run it as a [long job](#long-jobs-start-detached-wait-once) and budget
+  minutes: it pulls a few hundred apt packages. A
   foreground call that times out gets SIGKILLed and leaves gz installed but
   `sim` unbuilt, which then fails in a way that looks unrelated. Re-running
   is safe.
