@@ -34,6 +34,11 @@ Docker command or command inside a container.
 - Keep the Mac mini free: its Colima runs only while an agent container does;
   the script stops it when none is left. Never leave either idle; report
   what you stopped.
+- Start any job that can run past a minute with
+  [`scripts/agent_job.sh`](.claude/skills/isaac-ros-docker/SKILL.md#long-jobs-start-detached-wait-once)
+  or `run_in_background`, then block once on its `wait` (or
+  `t3_background_wait`). Never write `until …; sleep` poll loops or end the
+  turn to idle on a job.
 - A delegation brief stating the user approved named actions is that approval
   for the delegated agent, only for what it names.
 
