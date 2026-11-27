@@ -127,9 +127,10 @@ Run the job by hand with `launchctl kickstart gui/$(id -u)/com.thornbots.nightly
 ## Coordinated package integration
 
 Push package feature branches first, then a workspace feature branch that
-bumps their gitlinks. Open draft PRs into `nightly` for review. Merge package
-PRs first, then update the workspace gitlinks to the resulting package commits
-and merge the workspace PR. Workspace CI validates the pinned commits;
+bumps their gitlinks. Open PRs into `nightly`; the workspace PR states the
+package merge order. Merge package PRs first with merge commits, which keep
+their pinned heads reachable; re-pin only if a squash or rebase merge changes
+the SHA. Then merge the workspace PR. Workspace CI validates the pinned commits;
 workspace merges do not push or merge package branches.
 
 ## Warm portable ROS CI
