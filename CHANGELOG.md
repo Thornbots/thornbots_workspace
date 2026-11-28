@@ -65,6 +65,15 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- `run_suite.sh mcb_match` now forwards `amcl_seed`, `red_delay_s`,
+  `detector_seed` and `detector_noise` to the stack it starts. Before, every
+  seeded run used seed 1. Each Sentry shot records a tracker / prediction /
+  aim `miss_breakdown`. Over 15 distinct encounters with detector noise,
+  drive misses are 8.7 cm RMS sideways (aim 6.1, tracker 3.9, prediction
+  2.7). The head trails the plan and the full-outline gate fires near the
+  plate edge, while tracker and prediction bias the same way
+  ([investigation](docs/investigations/drive-aim-2026-11-27.md),
+  [sim #131](https://github.com/Thornbots/sim/pull/131)).
 - Hold AMCL to lockstep sim time in producer-chain E2E stages, so the
   `mcb_match` route and drive-phase hit rate no longer depend on host CPU.
   The same `amcl_seed` now gives the same drive at 5 and 10 container CPUs
