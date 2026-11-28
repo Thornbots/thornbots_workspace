@@ -37,6 +37,10 @@ and the linked package procedures before running hardware.
   chase/lead) is firmware `aim::AimPlanner`: [MCBV3 aiming planner](../firmware/MCBV3/README.md#mcbv3-aiming-planner),
   [TARGET_STATE](../ros2_dji_serial_bridge/UART_PROTOCOL.md#target_state-id7--tracked-enemy-armor-model).
 
+- **B-manager-ticks — thornbots_pkg — pending:** With the real camera, cover and uncover a tracked plate. The
+  TARGET_STATE clear should follow track loss within about one 5 ms decision tick of the confidence crossing,
+  and no clear should come while detections keep arriving. [target_manager](../thornbots_pkg/README.md#target_manager).
+
 B-timing depends on the [software stamp audit](ROADMAP.md#b-hit-while-we-move); measure residual
 UART/camera delay on the robot before selecting physical latency compensation.
 

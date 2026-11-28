@@ -12,12 +12,23 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** `target_manager` decides its 5 ms confidence-decay
+  ticks on a fixed clock grid, each at its grid time, and decides an estimate
+  no earlier than its stamp. A late timer callback, or a clock trailing the
+  tracker's, no longer changes whether or when it clears. On the robot a clear
+  is stamped up to 5 ms earlier; nothing else changes. Sim holds lockstep on
+  each tick and its MCB plugin waits 60 s, not 1.5 s, for a stuck peer, so
+  same-seed hosted `mcb_match` runs give identical UART frames and shots at 5
+  and at 2 CPUs. Before, pairs split in the drive leg
+  ([thornbots_pkg #87](https://github.com/Thornbots/thornbots_pkg/pull/87),
+  [sim #130](https://github.com/Thornbots/sim/pull/130)).
 - **Real-robot behavior:** The sentry aims pitch against chassis tilt. Firmware
   propagates world up through the yaw-link gyro, high-passes it over 2 s and
   adds it to the aim pitch, the pitch controller and POSE `head_pitch`.
   Previously the encoder-only pitch left the camera TF off by the
   suspension's tilt (up to 4°), and the tracker read that as 1–3 m/s of target
-  velocity. In 9 paired hosted `mcb_match` runs, drive valid contacts rose
+  velocity. In 9 paired hosted `mcb_match` runs (one encounter: `amcl_seed`
+  did not reach the stack until sim #131), drive valid contacts rose
   from 36.6% to 44.4%, parked stayed at 100% and spin went from 97.0% to 99.3%.
   The board IMU axes are unverified on the robot; run the
   [base tilt check](docs/ROBOT_TESTS.md#consolidated-hardware-checks) first
