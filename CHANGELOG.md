@@ -12,6 +12,17 @@ a dated release section when promoting the workspace to main.
 
 ### High — changes what a robot does or how you deploy/operate it
 
+- **Real-robot behavior:** `target_manager` resends TARGET_STATE when the
+  MCB's held model drifts 20 mm, not 100 mm, so the Jetson now sends on most
+  detector frames (~60 Hz, about half the UART link). At 100 mm the held model
+  could sit off the plate, and the gimbal chased ~7 cm aim-point steps every
+  ~50 ms while driving. In 15 paired hosted `mcb_match` encounters with
+  detector noise, drive hits rose from 55.6% to 64.9% (3.66 → 4.49 hits/s,
+  median miss 5.5 → 4.9 cm), parked from 92.7% to 93.5% and spin from 84.1% to
+  89.0% (2.59 → 3.91 hits/s). Robot check: B-target-state-rate
+  ([thornbots_pkg #88](https://github.com/Thornbots/thornbots_pkg/pull/88),
+  [bridge #56](https://github.com/Thornbots/ros2_dji_serial_bridge/pull/56),
+  [investigation](docs/investigations/drive-gimbal-tracking-2026-11-28.md)).
 - **Real-robot behavior:** `target_manager` decides its 5 ms confidence-decay
   ticks on a fixed clock grid, each at its grid time, and decides an estimate
   no earlier than its stamp. A late timer callback, or a clock trailing the
