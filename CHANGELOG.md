@@ -65,6 +65,10 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Coordinated sim E2E waits for UART discovery and EKF readiness at fixed
+  simulation times. Headless runs and GUI captures score by simulation ticks
+  and report a reaped shutdown escalation separately from the scored result
+  ([sim #132](https://github.com/Thornbots/sim/pull/132)).
 - `run_suite.sh mcb_match` now forwards `amcl_seed`, `red_delay_s`,
   `detector_seed` and `detector_noise` to the stack it starts. Before, every
   seeded run used seed 1. Each Sentry shot records a tracker / prediction /
