@@ -41,6 +41,12 @@ and the linked package procedures before running hardware.
   TARGET_STATE clear should follow track loss within about one 5 ms decision tick of the confidence crossing,
   and no clear should come while detections keep arriving. [target_manager](../thornbots_pkg/README.md#target_manager).
 
+- **B-target-state-rate — thornbots_pkg / bridge / MCBV3 — pending:** With `drift_tolerance_m` 0.02, track a
+  moving plate while the sentry drives. TARGET_STATE should reach the MCB at about the detector rate (~60 Hz,
+  about half the 115200 baud link) with no mailbox loss or POSE/RELOCALIZE delay, and the head should follow
+  the plate without stepping. [Resend tolerance](../ros2_dji_serial_bridge/UART_PROTOCOL.md#target-assignment-update-and-clear),
+  [sim measurements](investigations/drive-gimbal-tracking-2026-11-28.md).
+
 B-timing depends on the [software stamp audit](ROADMAP.md#b-hit-while-we-move); measure residual
 UART/camera delay on the robot before selecting physical latency compensation.
 
