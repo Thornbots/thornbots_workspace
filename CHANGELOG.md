@@ -67,7 +67,7 @@ a dated release section when promoting the workspace to main.
 
 - Coordinated sim E2E waits for UART discovery and EKF readiness at fixed
   simulation times. Headless runs and GUI captures score by simulation ticks
-  and close their Gazebo and DDS subscriptions on shutdown
+  and report a reaped shutdown escalation separately from the scored result
   ([sim #132](https://github.com/Thornbots/sim/pull/132)).
 - `run_suite.sh mcb_match` now forwards `amcl_seed`, `red_delay_s`,
   `detector_seed` and `detector_noise` to the stack it starts. Before, every
