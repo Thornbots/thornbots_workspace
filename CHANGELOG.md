@@ -42,6 +42,12 @@ a dated release section when promoting the workspace to main.
 
 ### Low — internal: sim harness, CI, tests, docs, tooling
 
+- Record sim suite videos with a Gazebo follow camera that frames our sentry
+  and the nearest opponent at native resolution, so MCB and localization
+  takes need no digital zoom (`record_e2e.py --camera preset` keeps the fixed
+  view). Localization RViz trails use colour-blind-safe colours: truth white
+  with a robot disc, raw odometry orange, EKF sky blue, map pose magenta
+  ([sim #129](https://github.com/Thornbots/sim/pull/129)).
 - Stop tracking sim's committed colcon `build/`, `install/` and `log/`
   output and ignore those directories
   ([sim #125](https://github.com/Thornbots/sim/pull/125)).
